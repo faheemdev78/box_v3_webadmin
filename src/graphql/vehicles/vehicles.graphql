@@ -1,0 +1,7 @@
+#import "../vehicles.graphql"
+
+query vehicles($filter: String, $others:String) {
+    vehicles(filter: $filter, others:$others) {
+        ... VehiclesInfo
+    }
+}

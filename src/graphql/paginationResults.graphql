@@ -1,0 +1,11 @@
+fragment PaginationResultsInfo on PaginationResults {
+  totalDocs
+  limit
+  page
+  totalPages
+  hasNextPage
+  nextPage
+  hasPrevPage
+  prevPage
+  pagingCounter
+}

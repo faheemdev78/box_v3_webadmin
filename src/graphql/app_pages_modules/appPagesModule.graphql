@@ -1,0 +1,7 @@
+#import "../app_pages_modules.graphql"
+
+query appPagesModule($filter:String!) {
+    appPagesModule(filter: $filter) {
+      ...AppPagesModulesInfo
+    }
+}

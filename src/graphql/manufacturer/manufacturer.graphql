@@ -1,0 +1,7 @@
+#import "../manufacturer.graphql"
+
+query manufacturer($id: ID!) {
+    manufacturer(id: $id) {
+        ... ManufacturerInfo
+    }
+}

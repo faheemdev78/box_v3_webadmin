@@ -1,0 +1,7 @@
+#import "../response.graphql"
+
+mutation deleteForms($id: ID!) {
+    deleteForms(id: $id) {
+        ...ResponseInfo
+    }
+}

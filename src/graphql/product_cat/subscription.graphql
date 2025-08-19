@@ -1,0 +1,11 @@
+#import "../product_cat.graphql"
+
+subscription {
+  productCatsUpdated{
+      mutation
+      node {
+          ... ProductCatInfo
+      }
+  }
+
+}

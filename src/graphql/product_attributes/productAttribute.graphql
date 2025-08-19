@@ -1,0 +1,7 @@
+#import "../ProductAttributes.graphql"
+
+query productAttribute($id: ID!) {
+    productAttribute(id: $id) {
+        ... ProductAttributesInfo
+    }
+}

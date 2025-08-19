@@ -1,0 +1,7 @@
+#import "../geoZone.graphql"
+
+query geoZoneByCity($city: String!, $filter:String) {
+    geoZoneByCity(city: $city, filter: $filter) {
+        ... GeoZoneInfo
+    }
+}

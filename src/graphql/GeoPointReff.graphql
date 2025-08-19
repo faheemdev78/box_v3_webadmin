@@ -1,0 +1,4 @@
+fragment GeoPointReffInfo on GeoPointReff {
+  type
+  coordinates
+}

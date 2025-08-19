@@ -1,0 +1,9 @@
+#import "../error.graphql"
+
+mutation deleteFormsData($id: ID!) {
+    deleteFormsData(id: $id) {
+        _id    
+        error {...ErrorInfo}
+    }
+   
+}

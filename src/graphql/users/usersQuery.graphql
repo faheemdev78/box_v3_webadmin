@@ -1,0 +1,20 @@
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+
+query usersQuery($limit: Int, $page: Int, $filter: String, $others:String) {
+    usersQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges {
+            _id
+            name
+            email
+            avatarUrl
+            acc_type
+            acc_group
+            status
+            note
+            store { _id title code }
+        }
+        error { ...ErrorInfo }
+    }
+}

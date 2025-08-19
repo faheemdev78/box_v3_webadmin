@@ -1,0 +1,11 @@
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+#import "../brand.graphql"
+
+query brandsQuery($limit: Int, $page: Int, $filter: String, $others: String) {
+    brandsQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges { ...BrandInfo }
+        error { ...ErrorInfo }
+    }
+}

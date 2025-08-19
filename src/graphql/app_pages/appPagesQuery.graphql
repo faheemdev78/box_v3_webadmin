@@ -1,0 +1,20 @@
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+
+query appPagesQuery($limit: Int, $page: Int, $filter: String, $others:String) {
+    appPagesQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges {
+            _id
+            title
+            slug
+            published
+            description
+            page_type { title type }
+
+            # createdAt
+            # updatedAt
+        }
+        error { ...ErrorInfo }
+    }
+}

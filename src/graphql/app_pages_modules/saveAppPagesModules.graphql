@@ -1,0 +1,7 @@
+#import "../app_pages_modules.graphql"
+
+mutation saveAppPagesModules($input: [Save_AppPagesModules!]!) {
+    saveAppPagesModules(input: $input) {
+        ... AppPagesModulesInfo
+    }
+}

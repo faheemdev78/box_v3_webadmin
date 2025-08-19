@@ -1,0 +1,7 @@
+#import "../store.graphql"
+
+query stores($filter: String, $others:String) {
+    stores(filter: $filter, others:$others) {
+        ... StoreInfo
+    }
+}

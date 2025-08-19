@@ -1,0 +1,9 @@
+#import "../imageSchema.graphql"
+query get_product_images($_id: ID!, $_id_store:ID) {
+    product(_id: $_id, _id_store: $_id_store) {
+        _id title
+        picture {...ImageSchemaInfo}
+        video {...ImageSchemaInfo}
+        gallery {...ImageSchemaInfo}
+    }
+}

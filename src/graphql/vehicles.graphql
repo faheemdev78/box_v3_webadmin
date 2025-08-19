@@ -1,0 +1,37 @@
+#import "./error.graphql"
+#import "./geoPoint.graphql"
+
+fragment LocationsReffInfo on LocationsReff {
+    _id
+    title
+    code
+    child_of
+    center {...GeoPointInfo}
+    type
+    status
+}
+
+fragment VehiclesInfo on Vehicles {
+  _id
+  title
+  registration_no
+  zones {
+    _id_zone
+    title
+    category
+    city {...LocationsReffInfo}
+    # city { _id title code type }
+    status
+  }
+  status
+  drivers { _id name }
+  store {
+    _id title code
+    center {...GeoPointInfo}
+  }
+  box_cpacity
+
+  # createdAt
+  # updatedAt
+  error {...ErrorInfo}
+}

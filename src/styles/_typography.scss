@@ -1,0 +1,85 @@
+@use "variables" as *;
+
+h1 {
+    font-weight: 600;
+}
+
+h2 {
+    font-weight: 600;
+}
+
+h3 {
+    font-weight: 700;
+}
+
+h4 {
+    font-weight: 800;
+}
+
+h5 {
+    font-weight: 800;
+}
+
+.label {
+    color: #848484;
+}
+
+.gray1 {
+    color: #303030;
+}
+
+.gray2 {
+    color: #5b5b5b;
+}
+
+.gray3 {
+    color: #a0a0a0;
+}
+
+.heading1 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1E5F91;
+    // text-shadow: h-shadow v-shadow blur-radius color|none|initial|inherit;
+    text-shadow: 1px 3px 5px rgba($color: #000000, $alpha: 0.2);
+}
+
+.heading2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #000000;
+    // text-shadow: h-shadow v-shadow blur-radius color|none|initial|inherit;
+    text-shadow: 1px 3px 5px rgba($color: #000000, $alpha: 0.2);
+}
+
+.heading3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000000;
+    // text-shadow: h-shadow v-shadow blur-radius color|none|initial|inherit;
+    text-shadow: 1px 3px 5px rgba($color: #000000, $alpha: 0.2);
+}
+
+.text-shadow {
+    // text-shadow: h-shadow v-shadow blur-radius color|none|initial|inherit;
+    text-shadow: 1px 3px 5px rgba($color: #000000, $alpha: 0.2);
+}
+
+.ellipsis {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    overflow: elpises;
+}
+
+.select_heading {
+    text-align: center;
+    background-color: #FFF;
+
+    * {
+        font-size: 14px;
+        // font-weight: bold;
+        color: #bbbbbb;
+    }
+}

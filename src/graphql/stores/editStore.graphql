@@ -1,0 +1,7 @@
+#import "../store.graphql"
+
+mutation editStore($input: Edit_StoreInput!) {
+    editStore(input: $input) {
+        ... StoreInfo
+    }
+}

@@ -1,0 +1,7 @@
+#import "../fieldsDefination.graphql"
+
+query fieldsDefinations($filter: String, $others:String) {
+    fieldsDefinations(filter: $filter, others:$others) {
+        ... FieldsDefinationsInfo
+    }
+}

@@ -1,0 +1,13 @@
+fragment ImageSchemaInfo on ImageSchema {
+  _id
+  # name
+  url
+  # thumb
+  # type
+  # width
+  # height
+  # size
+
+  thumbnails
+}
+

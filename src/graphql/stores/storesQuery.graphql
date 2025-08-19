@@ -1,0 +1,11 @@
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+#import "../store.graphql"
+
+query storesQuery($limit: Int, $page: Int, $filter: String, $others: String) {
+    storesQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges { ...StoreInfo }
+        error { ...ErrorInfo }
+    }
+}

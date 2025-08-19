@@ -1,0 +1,14 @@
+#import "../product.graphql"
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+
+query productsQuery($limit: Int, $page: Int, $filter: String, $others: String) {
+    productsQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges { 
+            ...ProductInfo
+            variations { ...ProductInfo }
+        }
+        error { ...ErrorInfo }
+    }
+}

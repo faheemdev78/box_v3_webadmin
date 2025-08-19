@@ -1,0 +1,7 @@
+#import "../settings.graphql"
+
+mutation updateSetting($code: String!, $cat: String!, $value: String!) {
+    updateSetting(code: $code, cat: $cat, value: $value) {
+        ... SettingsInfo
+    }
+}

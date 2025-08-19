@@ -1,0 +1,7 @@
+#import "../value_pairs.graphql"
+
+query valuePair($id: ID!){
+    valuePair(id: $id){
+        ... ValuePairsInfo
+    }
+}

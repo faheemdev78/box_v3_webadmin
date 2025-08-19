@@ -1,0 +1,7 @@
+#import "../user_role.graphql"
+
+query userRole($_id: ID!) {
+    userRole(_id:$_id) {
+      ... UserRoleInfo
+    }
+}

@@ -1,0 +1,11 @@
+#import "../product.graphql"
+
+subscription {
+  productsUpdated{
+      mutation
+      node {
+          ... ProductInfo
+      }
+  }
+
+}

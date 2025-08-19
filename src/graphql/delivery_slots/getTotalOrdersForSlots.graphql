@@ -1,0 +1,12 @@
+#import "../error.graphql"
+
+query getTotalOrdersForSlots($times: [String]!) {
+    getTotalOrdersForSlots(times: $times) {
+        results {
+            cnt
+            start_time
+            error {...ErrorInfo}
+        }
+        error {...ErrorInfo}
+    }
+}

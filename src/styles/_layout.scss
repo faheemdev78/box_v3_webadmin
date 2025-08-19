@@ -1,0 +1,129 @@
+@use "variables" as *;
+
+/**************
+Admin Template
+**********/
+.top-bar {
+    background-color: #2D3E51;
+    height: 50px;
+    overflow: hidden;
+    display: block;
+    padding: 0 0 10px 10px;
+    border: 0px solid black;
+    color: white;
+
+    .menu-bar {
+        a, .menu-bar-item {
+            border-right: 1px solid #2D3E51;
+            height: 50px;
+            padding: 15px;
+            display: inline-block;
+            color: white;
+            cursor: pointer;
+
+            &:hover, &.active {
+                background-color: rgba($color: #FFFFFF, $alpha: 0.1);
+
+                .more-icon {
+                    color: #FFF;
+                }
+            }
+
+            .more-icon {
+                position: relative;
+                color: #9679c3;
+            }
+        }
+    }
+}
+
+.page-bar {
+    background-color: #EEE;
+    // height: 40px;
+    overflow: hidden;
+    display: block;
+    border-bottom: 1px solid #DDD;
+    color: #2D3E51;
+    font-size: 0.9em;
+
+    .menu-bar {
+        background-color: #DDD;
+
+        a, .menu-bar-item {
+            height: 100%;
+            padding: 10px 15px;
+            display: inline-block;
+            color: #2D3E51;
+            cursor: pointer;
+
+            &:hover, &.active {
+                background-color: rgba($color: #2D3E51, $alpha: 0.1);
+
+                .more-icon {
+                    color: #2D3E51;
+                }
+            }
+
+            .more-icon {
+                position: relative;
+                color: #9679c3;
+            }
+
+        }
+
+    }
+}
+.block-menu-item {
+    display: block;
+    padding: 10px 15px;
+    color: #FFFFFF;
+
+    &:hover, &.active {
+        background-color: rgba($color: $hover-bg, $alpha: 0.1);
+    }
+}
+
+.page-header {
+    margin: 0 30px 20px 30px;
+    border-bottom: 1px solid #DDD;
+
+    .page-header-inner {
+        min-height: 60px;
+        padding: 12px 0;
+    }
+}
+
+.template-page {
+    padding: 12px 12px;
+    min-height: calc(100vh - 50px);
+}
+
+.page-title {
+    color: #0291AE;
+    font-size: 24px;
+}
+
+.global-search-results {
+    text-align: #000000;
+    padding: 10px 10px;
+    flex-direction: column;
+    width: 100vw;
+    height: calc(100% - 50px);
+    z-index: 100;
+    background-color: rgba($color: #000000, $alpha: 0.1);
+    position: absolute;
+    left: 0;
+    text-align: left;
+
+    top: 50;
+    display: none;
+    opacity: 0; // 0.95;
+
+    backdrop-filter: blur(10px);
+
+    &.visible {
+        // transition: 500ms;
+        display: flex;
+        opacity: 0.95;
+    }
+}

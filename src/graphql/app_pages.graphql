@@ -1,0 +1,31 @@
+#import "./error.graphql"
+#import "./imageSchema.graphql"
+
+fragment AppPageStylesInfo on AppPageStyles {
+  background {
+    type
+    direction
+    color1 color2
+    image { ...ImageSchemaInfo }
+  }
+  margins { top right bottom left }
+  padding { top right bottom left }
+}
+
+fragment AppPagesInfo on AppPages {
+  _id
+  title
+  slug
+  deleteable
+  published
+  draft
+  description
+  page_type { title type }
+  styles { ...AppPageStylesInfo }
+  p_limit
+
+  # createdAt
+  # updatedAt
+
+  error {...ErrorInfo}
+}

@@ -1,0 +1,19 @@
+#import "./error.graphql"
+fragment ValuePairsInfo on ValuePairs {
+    _id
+    title
+
+    value_type
+    options { label value }
+    value
+    validator_function
+
+    field_name
+    tooltip
+    department
+    category
+    status
+    sort_order
+
+    error {...ErrorInfo}
+}

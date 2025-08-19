@@ -1,0 +1,7 @@
+#import "../value_pairs.graphql"
+
+query valuePairs($filter:String, $others:String){
+    valuePairs(filter: $filter, others:$others){
+        ...ValuePairsInfo
+    }
+}

@@ -1,0 +1,7 @@
+#import "../delivery_slots.graphql"
+
+mutation removeZoneFromSlot($_id_slot: ID!, $_id_zone: ID!) {
+    removeZoneFromSlot(_id_slot: $_id_slot, _id_zone: $_id_zone) {
+        ... DeliverySlotsInfo
+    }
+}

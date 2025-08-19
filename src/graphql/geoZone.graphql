@@ -1,0 +1,32 @@
+#import "./GeoPolygonReff.graphql"
+#import "./GeoPointReff.graphql"
+
+fragment GeoZoneInfo on GeoZone {
+  _id
+  title
+  type
+  # coordinates: [GeoCoords]
+  polygon { ...GeoPolygonReffInfo }
+  status
+  city {
+    _id
+    title
+    code
+    child_of
+    center {...GeoPointReffInfo}
+    type
+    status
+  }
+
+  store {
+    _id
+    title
+    code
+    center {...GeoPointReffInfo}
+  }
+
+  # createdAt
+  # updatedAt
+    
+  error{ message }
+}

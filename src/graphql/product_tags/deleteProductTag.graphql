@@ -1,0 +1,6 @@
+mutation deleteProductTag($id: ID!) {
+    deleteProductTag(id: $id) {
+        _id
+        error{ message }
+    }
+}

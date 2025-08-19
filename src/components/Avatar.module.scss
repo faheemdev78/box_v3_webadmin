@@ -1,0 +1,13 @@
+.editable_avatar{
+  display: inline-block;
+  background-color: #EFF8FF;
+  border: 1px solid #62C3F7;
+  border-radius: 50%;
+  position: relative;
+
+  &:hover {
+    // box-shadow: none|h-offset v-offset blur spread color |inset|initial|inherit;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2), 0 2px 5px 0 rgba(0, 0, 0, 0.19) !important;
+  }
+}
+

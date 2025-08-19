@@ -1,0 +1,7 @@
+#import "../value_pairs.graphql"
+
+mutation editValuePairs($input: Edit_ValuePairs!) {
+    editValuePairs(input: $input) {
+        ...ValuePairsInfo
+    }
+}

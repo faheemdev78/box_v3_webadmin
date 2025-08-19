@@ -1,0 +1,6 @@
+mutation deleteBrand($id: ID!) {
+    deleteBrand(id: $id) {
+        _id
+        error{ message }
+    }
+}

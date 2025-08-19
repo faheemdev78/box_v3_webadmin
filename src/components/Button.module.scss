@@ -1,0 +1,49 @@
+.custom_bt{
+  &:hover {
+      // box-shadow: none|h-offset v-offset blur spread color |inset|initial|inherit;
+      box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2), 0 2px 5px 0 rgba(0, 0, 0, 0.19) !important;
+    }
+}
+
+.bt_orange {
+  background: hwb(14 38% 8%);
+  border-color: #C16A50;
+  border-bottom-width: 3px;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: #ef8e70 !important;
+    border-color: #C16A50 !important;
+    color: white !important;
+  }
+
+}
+
+.bt_blue {
+  background: #1E5F91;
+  border-color: #1E5F91;
+  border-bottom-width: 3px;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: rgba($color: #1E5F91, $alpha: 0.8) !important;
+    border-color: #1E5F91 !important;
+    color: white !important;
+  }
+
+}
+
+.bt_red {
+  background: #a50000;
+  border-color: #6a0606;
+  border-bottom-width: 3px;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: rgba($color: #8a0000, $alpha: 1.0) !important;
+    border-color: #ff0303 !important;
+    color: white !important;
+  }
+
+}
+

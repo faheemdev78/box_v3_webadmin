@@ -1,0 +1,13 @@
+#import "../paginationResults.graphql"
+#import "../app_pages_modules.graphql"
+#import "../error.graphql"
+
+query appPagesModulesQuery($limit: Int, $page: Int, $filter: String, $others:String) {
+    appPagesModulesQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges {
+            ...AppPagesModulesInfo
+        }
+        error { ...ErrorInfo }
+    }
+}

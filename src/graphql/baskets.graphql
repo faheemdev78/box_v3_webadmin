@@ -1,0 +1,13 @@
+fragment BasketInfo on Basket {
+  _id
+  _id_store
+  _id_order
+  
+  title
+  barcode
+  color
+  category
+  taken_by { _id name }
+  
+  error{ message }
+}

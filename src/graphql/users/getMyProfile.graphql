@@ -1,0 +1,9 @@
+#import "../error.graphql"
+#import "../user.graphql"
+
+query getMyProfile {
+    getMyProfile {
+        user {...UserInfo}
+        error{ ...ErrorInfo }
+    }
+}

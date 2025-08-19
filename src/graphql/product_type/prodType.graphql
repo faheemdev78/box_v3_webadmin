@@ -1,0 +1,7 @@
+#import "../product_type.graphql"
+
+query prodType($id: ID!) {
+    prodType(id: $id) {
+        ... ProductTypeInfo
+    }
+}

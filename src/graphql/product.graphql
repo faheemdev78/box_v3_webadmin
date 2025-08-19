@@ -1,0 +1,92 @@
+#import "./prod_AttributesSchemaReff.graphql"
+#import "./error.graphql"
+#import "./success.graphql"
+#import "./warning.graphql"
+#import "./imageSchema.graphql"
+
+fragment StoreProductSchemaInfo on StoreProductSchema {
+  # Store linked values
+  _id
+  store_title
+  store_status
+  store_code
+  # Product linked values
+  price_was
+  price
+  status
+  available_qty
+  reserved_qty
+}
+
+
+fragment ProductInfo on Product {
+  _id
+  _id_parent
+  title
+  slug
+  short_description
+  categories { _id title }
+  have_variations
+  variations_count
+  
+  no_brand
+  brand { _id title }
+  
+  no_barcode
+  barcode
+
+  is_expirable
+  origon
+    
+  attributes {...Prod_AttributesSchemaReff_Info}
+  is_temp_sensitive
+  type { _id title slug }
+  status
+    
+  cart_limit
+  stock_level { min max }
+  cost
+  tax { texable formula amount hs_code applied_at }
+  description
+  bullits
+  picture {...ImageSchemaInfo}
+  video {...ImageSchemaInfo}
+  gallery {...ImageSchemaInfo}
+  fit_for_dispatch
+  tags
+  meta { name val }
+  extra_fields {
+    _id
+    label
+    name
+    type
+    required
+    attributes { _id label name value }
+    category
+    sort_order
+    options { label value }
+    defaultValue
+    value
+  }
+
+  # variations {
+  #   _id
+  #   title
+  #   barcode
+  #   status
+  # }
+    
+  published_at
+  # createdAt
+  # updatedAt
+
+  store {...StoreProductSchemaInfo}
+  # stores {...StoreProductSchemaInfo}
+
+  # already_in_alert
+
+  error { ...ErrorInfo } 
+  success { ...SuccessInfo }
+  warning { ...WarningInfo } 
+  action  
+}

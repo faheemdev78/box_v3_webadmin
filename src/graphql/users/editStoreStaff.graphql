@@ -1,0 +1,7 @@
+#import "../user.graphql"
+
+mutation editStoreStaff($input: EditStoreStaff_Input!) {
+    editStoreStaff(input: $input) {
+        ... UserInfo
+    }
+}

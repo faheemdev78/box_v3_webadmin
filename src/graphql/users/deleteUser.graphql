@@ -1,0 +1,7 @@
+#import "../response.graphql"
+
+mutation deleteUser($id: ID!) {
+    deleteUser(id: $id) {
+        ...ResponseInfo
+    }
+}

@@ -1,0 +1,7 @@
+#import "../imageSchema.graphql"
+
+mutation uploadProductVideo($_id_product: ID!, $file: ImageSchema_Input!) {
+    uploadProductVideo(_id_product: $_id_product, file: $file) {
+        ... ImageSchemaInfo
+    }
+}

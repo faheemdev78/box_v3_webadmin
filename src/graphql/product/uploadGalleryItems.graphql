@@ -1,0 +1,9 @@
+#import "../imageSchema.graphql"
+#import "../error.graphql"
+
+mutation uploadGalleryItems($_id_product: ID!, $files: [ImageSchema_Input!]!) {
+    uploadGalleryItems(_id_product: $_id_product, files: $files) {
+        images {...ImageSchemaInfo}
+        error {...ErrorInfo}
+    }
+}

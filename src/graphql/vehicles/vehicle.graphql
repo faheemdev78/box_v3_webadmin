@@ -1,0 +1,7 @@
+#import "../vehicles.graphql"
+
+query vehicle($_id: ID!) {
+    vehicle(_id: $_id) {
+        ... VehiclesInfo
+    }
+}

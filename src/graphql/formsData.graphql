@@ -1,0 +1,27 @@
+#import "./error.graphql"
+#import "./formDataFieldReff.graphql"
+
+fragment FormsDataInfo on FormsData {
+  _id
+
+  ref_key
+  title
+  location
+  fields{...FormDataFieldReffInfo}
+  status
+  status_notes
+  # unique_key
+  # attachments{
+  #   name
+  #   type
+  #   fieldName
+  #   value
+  # }
+
+  # createdAt
+  # updatedAt
+
+
+  error {...ErrorInfo}
+       
+}

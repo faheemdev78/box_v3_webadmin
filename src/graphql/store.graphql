@@ -1,0 +1,39 @@
+#import "./error.graphql"
+#import "./GeoPointReff.graphql"
+
+fragment StoreInfo on Store {
+  _id
+  title
+  code
+  address
+  location {
+    _id
+    title
+    code
+    child_of
+    # center {...GeoPointInfo}
+    type
+    status
+  }
+  slug
+  # zones {
+  #   _id_zone
+  #   title
+  #   category
+  #   polygon { ...GeoPolygonReffInfo }
+  #   city{
+  #     _id title code
+  #   }
+  #   status
+  # }
+  center {...GeoPointReffInfo}
+  description
+  status
+  
+  seo_title
+  seo_desc
+  img
+  img_thumb
+  
+  error { ...ErrorInfo }
+}

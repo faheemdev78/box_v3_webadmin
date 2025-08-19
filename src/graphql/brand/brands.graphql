@@ -1,0 +1,7 @@
+#import "../brand.graphql"
+
+query brands($filter: String, $others:String) {
+    brands(filter: $filter, others:$others) {
+        ... BrandInfo
+    }
+}

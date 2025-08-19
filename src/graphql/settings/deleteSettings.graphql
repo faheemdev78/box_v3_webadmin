@@ -1,0 +1,5 @@
+mutation deleteSettings($id: ID!) {
+    deleteSettings(id: $id) {
+        _id
+    }
+}

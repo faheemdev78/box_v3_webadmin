@@ -1,0 +1,4 @@
+fragment GeoPolygonInfo on GeoPolygon {
+  type
+  coordinates
+}

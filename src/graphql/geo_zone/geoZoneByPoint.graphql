@@ -1,0 +1,7 @@
+#import "../geoZone.graphql"
+
+query geoZoneByPoint($coordinates: [Float]!) {
+    geoZoneByPoint(coordinates: $coordinates) {
+        ... GeoZoneInfo
+    }
+}

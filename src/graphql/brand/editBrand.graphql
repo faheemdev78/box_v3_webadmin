@@ -1,0 +1,7 @@
+#import "../brand.graphql"
+
+mutation editBrand($input: Edit_BrandInput!) {
+    editBrand(input: $input) {
+        ... BrandInfo
+    }
+}

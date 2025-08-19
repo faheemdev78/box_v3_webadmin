@@ -1,0 +1,22 @@
+fragment ProductCatInfo on ProductCat {
+  _id
+  title
+  slug
+  status
+  _id_parent_cat
+  parent_cat_title
+
+  icon_img
+  icon_img_thumb
+  
+  menu_bg_img
+  menu_bg_img_thumb
+
+  title_img
+  title_img_thumb
+    
+  seo_title,
+  seo_desc
+
+  error{ message }
+}

@@ -1,0 +1,7 @@
+#import "../settings.graphql"
+
+mutation updateSettingsSort($input: [Edit_SettingsSort!]!) {
+    updateSettingsSort(input: $input) {
+        ... SettingsInfo
+    }
+}

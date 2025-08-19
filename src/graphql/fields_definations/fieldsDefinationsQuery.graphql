@@ -1,0 +1,11 @@
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+#import "../fieldsDefination.graphql"
+
+query fieldsDefinationsQuery($limit: Int, $page: Int, $filter: String, $others: String) {
+    fieldsDefinationsQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges { ...FieldsDefinationsInfo }
+        error { ...ErrorInfo }
+    }
+}

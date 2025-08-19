@@ -1,0 +1,7 @@
+#import "../forms.graphql"
+
+mutation editForms($input: Edit_Forms!) {
+    editForms(input: $input) {
+        ...FormsInfo
+    }
+}

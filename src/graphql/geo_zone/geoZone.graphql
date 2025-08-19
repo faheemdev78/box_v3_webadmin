@@ -1,0 +1,7 @@
+#import "../geoZone.graphql"
+
+query geoZone($_id: ID!) {
+    geoZone(_id: $_id) {
+        ... GeoZoneInfo
+    }
+}

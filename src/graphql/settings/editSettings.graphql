@@ -1,0 +1,7 @@
+#import "../settings.graphql"
+
+mutation editSettings($input: Edit_SettingsInput!) {
+    editSettings(input: $input) {
+        ... SettingsInfo
+    }
+}

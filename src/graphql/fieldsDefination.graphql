@@ -1,0 +1,19 @@
+fragment FieldsDefinationsInfo on FieldsDefinations {
+  _id
+  label
+  name
+  type
+  required
+  attributes { 
+    _id
+    label
+    name
+    value
+  }
+  category
+  sort_order
+  defaultValue
+  options { label value }
+    
+  error{ message }
+}

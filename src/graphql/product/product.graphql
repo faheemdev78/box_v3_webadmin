@@ -1,0 +1,19 @@
+#import "../product.graphql"
+
+query product($_id: ID!, $_id_store:ID) {
+    product(_id: $_id, _id_store: $_id_store) {
+        ... ProductInfo
+        # store(_id_store: $_id_store) {
+        #     _id
+        #     store_title
+        #     store_status
+            
+        #     price
+        #     price_was
+        #     status
+        #     available_qty
+        #     reserved_qty
+        # }
+
+    }
+}

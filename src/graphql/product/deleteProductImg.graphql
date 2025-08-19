@@ -1,0 +1,7 @@
+#import "../response.graphql"
+
+mutation deleteProductImg($_id_product: ID!) {
+    deleteProductImg(_id_product: $_id_product) {
+        ...ResponseInfo
+    }
+}

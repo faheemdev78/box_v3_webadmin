@@ -1,0 +1,59 @@
+.preview_field{
+  border: 1px solid #EEE;
+  &.text_preview{}
+}
+
+
+.field{
+  width: 100%;
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+
+  &.select{
+    .is_required_field {
+      border-left: 2px solid red;
+      border-radius: 5px;
+    }
+  }
+
+  &.textarea, &.text, &.number, &.email{ width: 100%; }
+
+  &.textarea, &.text, &.date, &.number{
+    .is_required_field {
+        border-left: 2px solid red;
+      }
+  }
+  &.ratio{}
+  &.checkbox{}
+  // &.date{}
+}
+
+.field_wrapper{
+  width: 100%;
+  position: relative;
+}
+
+.label{
+  color: #848484;
+}
+
+.error{
+  color: red;
+}
+
+.error_icon{
+  color: orange;
+  position: absolute;
+  top: 0; right: 0;
+  margin: 8px;
+  font-size: 16px;
+  
+  &:hover{
+    color: red;
+  }
+}
+
+// .is_required_field{
+//   border-left: 2px solid red;
+// }

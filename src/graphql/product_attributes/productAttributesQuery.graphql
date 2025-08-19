@@ -1,0 +1,14 @@
+#import "../ProductAttributes.graphql"
+
+query productAttributesQuery($limit: Int, $page: Int, $filter: String, $others:String) {
+    productAttributesQuery(first: $first, after: $after, filter: $filter, others: $others) {
+        totalCount
+        edges {
+            ... ProductAttributesInfo
+        }
+        pageInfo {
+            endCursor
+            hasNextPage
+        }
+    }
+}

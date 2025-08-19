@@ -1,0 +1,37 @@
+#import "./error.graphql"
+#import "./GeoPointReff.graphql"
+
+fragment UserInfo on User {
+  _id
+  email
+
+  name
+  phone
+  avatarUrl
+  note
+  store { 
+    _id title code
+    center {...GeoPointReffInfo}
+  }
+  fields { _id name label value }
+
+  # Authentication
+  acc_type
+  acc_group
+  permissions
+  custom_permissions
+  status
+
+  # socialLogins: [SocialLogins]
+  # deviceTokens: [DeviceTokens]
+
+  # kafkaEventVersion: Int
+
+  assignedCity
+  isActive
+  lastLogin
+  settings
+
+  createdAt updatedAt
+  error {...ErrorInfo}
+}

@@ -1,0 +1,8 @@
+mutation removeProductFields($fields: String!) {
+    removeProductFields(fields: $fields) {
+        _id
+        error {message}
+        success {message}
+        warning {message}
+    }
+}

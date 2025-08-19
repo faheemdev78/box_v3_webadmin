@@ -1,0 +1,7 @@
+#import "../location.graphql"
+
+query locations($filter: String, $others:String) {
+    locations(filter: $filter, others:$others) {
+        ... LocationInfo
+    }
+}

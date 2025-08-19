@@ -1,0 +1,7 @@
+#import "../forms.graphql"
+
+mutation addFormStep($form_id: ID!, $step: FormStepsReff_Input!) {
+    addFormStep(form_id: $form_id, step: $step) {
+        ...FormsInfo
+    }
+}

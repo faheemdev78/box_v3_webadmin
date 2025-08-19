@@ -1,0 +1,8 @@
+#import "../error.graphql"
+
+mutation deleteLocation($_id: ID!) {
+    deleteLocation(_id: $_id) {
+        _id
+        error{ ...ErrorInfo }
+    }
+}

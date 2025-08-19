@@ -1,0 +1,7 @@
+#import "../delivery_slots.graphql"
+
+query deliverySlot($_id: ID!) {
+    deliverySlot(_id: $_id) {
+        ... DeliverySlotsInfo
+    }
+}

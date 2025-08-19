@@ -1,0 +1,7 @@
+#import "../geoZone.graphql"
+
+mutation addGeoZone($input: Add_GeoZoneInput!) {
+    addGeoZone(input: $input) {
+        ... GeoZoneInfo
+    }
+}

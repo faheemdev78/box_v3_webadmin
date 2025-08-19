@@ -1,0 +1,6 @@
+mutation updateProfile($input: UpdateProfile_Input!) {
+    updateProfile(input: $input) {
+        _id name
+        error{ message }
+    }
+}

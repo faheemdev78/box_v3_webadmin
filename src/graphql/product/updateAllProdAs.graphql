@@ -1,0 +1,7 @@
+mutation updateAllProdAs($input: String!) {
+    updateAllProdAs(input : $input) {
+        error { message }
+        success { message }
+        warning { message }
+    }
+}

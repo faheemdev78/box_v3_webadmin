@@ -1,0 +1,6 @@
+#import "../baskets.graphql"
+mutation releaseBasket($barcode: String!) {
+    releaseBasket(barcode: $barcode) {
+        ...BasketInfo
+    }
+}

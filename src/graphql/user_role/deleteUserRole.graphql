@@ -1,0 +1,6 @@
+mutation deleteUserRole($_id: ID!) {
+    deleteUserRole(_id: $_id) {
+        _id
+        error{ message }
+    }
+}

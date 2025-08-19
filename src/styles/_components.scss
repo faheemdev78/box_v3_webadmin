@@ -1,0 +1,112 @@
+/********** Form styles ********/
+.ant-form-item-label>label,
+.custom_label {
+    color: #848484 !important;
+}
+
+/********** Table styles ********/
+.ant-table-row,
+.table_row {
+    &.even_row {
+        background-color: #f2f2f2;
+    }
+
+    // &.odd_row{}
+    position: relative;
+
+    .hover_menu {
+        transition: 0.5s;
+        background-color: rgba($color: #FFFFFF, $alpha: 0.7);
+        padding: 0 20px;
+        // margin-left: 20px;
+        position: absolute;
+        // visibility: hidden;
+        opacity: 0;
+        // right: 0;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        overflow: hidden;
+    }
+
+    &:hover .hover_menu {
+        // visibility: visible;
+        opacity: 1;
+        width: auto;
+    }
+}
+
+.display_on_hover {
+    .hover_item {
+        border: 1px solid transparent;
+        transition: 0.5s;
+        opacity: 0;
+        min-width: 10px;
+        min-height: 10px;
+        // display: flex;
+
+        .middle {
+            position: absolute;
+            // left: 0;
+            bottom: 0;
+            top: 0;
+            margin: auto 0;
+        }
+    }
+
+    .hover_item.middle {
+        position: absolute;
+        // left: 0;
+        bottom: 0;
+        top: 0;
+        margin: auto 0;
+    }
+
+    &:hover .hover_item {
+        opacity: 1;
+        // visibility: visible;
+    }
+}
+
+.hover_border {
+    transition: 0.3s;
+
+    &:hover {
+        // border: 1px solid #EEE; border-collapse: collapse;
+        // background-color: #EEE;
+        border-radius: 5px;
+    }
+}
+
+
+.canceled_list_item {
+    background-color: #EEE;
+    text-decoration: line-through;
+}
+
+.open_list_item {
+    background-color: #FFF;
+    // text-decoration: line-through;
+}
+
+.completed_list_item {
+    background-color: #55f4ba;
+    // text-decoration: line-through;
+}
+
+
+
+
+/**************
+Map Editor
+**********/
+.map-editor-delete-menu {
+    background-color: red;
+    color: yellow;
+    position: absolute;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #CCC;
+    z-index: 999;
+}
+

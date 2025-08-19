@@ -1,0 +1,11 @@
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+#import "../delivery_slots.graphql"
+
+query deliverySlotsQuery($limit: Int, $page: Int, $filter: String, $others: String) {
+    deliverySlotsQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges { ...DeliverySlotsInfo }
+        error { ...ErrorInfo }
+    }
+}

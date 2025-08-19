@@ -1,0 +1,7 @@
+#import "../location.graphql"
+
+mutation addLocation($input: Add_LocationsInput!) {
+    addLocation(input: $input) {
+        ... LocationInfo
+    }
+}

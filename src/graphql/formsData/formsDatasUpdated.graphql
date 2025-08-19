@@ -1,0 +1,10 @@
+#import "../FormsData.graphql"
+
+subscription formsDatasUpdated($filter:String){
+    formsDatasUpdated(filter: $filter){
+      mutation
+      node {
+          ... FormsDataInfo
+      }
+    }
+}

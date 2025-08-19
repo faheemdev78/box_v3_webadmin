@@ -1,0 +1,7 @@
+#import "../brand.graphql"
+
+query brand($id: ID!) {
+    brand(id: $id) {
+        ... BrandInfo
+    }
+}

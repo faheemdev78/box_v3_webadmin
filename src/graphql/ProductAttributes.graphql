@@ -1,0 +1,14 @@
+fragment ProductAttributesInfo on ProductAttributes {
+  _id
+  title
+  slug
+  code
+  required
+  show_in_store
+  displayAs
+  options
+    
+  seo { title desc keywords }
+
+  error{ message }
+}

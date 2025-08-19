@@ -1,0 +1,34 @@
+#import "./error.graphql"
+#import "./GeoPointReff.graphql"
+
+fragment DeliverySlotsInfo on DeliverySlots {
+  _id
+  start_time
+  end_time
+  day
+  blocked_dates
+  orders_in_queue
+  store {
+    _id title code
+    center {...GeoPointReffInfo}
+  }
+  status
+  zones {
+    _id_zone
+    title
+    category
+    city { _id title code type }
+    status
+    order_limit
+  }
+  zone {
+    _id_zone
+    title
+    category
+    city { _id title code type }
+    status
+    order_limit
+  }
+
+  error {...ErrorInfo}
+}

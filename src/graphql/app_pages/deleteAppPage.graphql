@@ -1,0 +1,7 @@
+#import "../response.graphql"
+
+mutation deleteAppPage($_id: ID!) {
+    deleteAppPage(_id: $_id) {
+        ... ResponseInfo
+    }
+}

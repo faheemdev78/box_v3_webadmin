@@ -1,0 +1,18 @@
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+
+query formsDataQuery($limit: Int, $page: Int, $filter: String, $others:String) {
+    formsDataQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges {
+            _id
+            ref_key
+            title
+            status
+
+            # createdAt
+            # updatedAt
+        }
+        error { ...ErrorInfo }
+    }
+}

@@ -1,0 +1,7 @@
+#import "../fieldsDefination.graphql"
+
+query fieldsDefination($_id: ID!) {
+    fieldsDefination(_id: $_id) {
+        ... FieldsDefinationsInfo
+    }
+}

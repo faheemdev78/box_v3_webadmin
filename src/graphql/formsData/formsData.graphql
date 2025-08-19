@@ -1,0 +1,7 @@
+#import "../formsData.graphql"
+
+query formsData($filter:String!){
+    formsData(filter: $filter){
+        ...FormsDataInfo
+    }
+}

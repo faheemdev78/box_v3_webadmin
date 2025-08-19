@@ -1,0 +1,29 @@
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+#import "../geoZone.graphql"
+
+query geoZoneQuery($limit: Int, $page: Int, $filter: String, $others: String) {
+    geoZoneQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges { ...GeoZoneInfo }
+        # edges {
+        #     _id
+        #     title
+        #     type
+        #     status
+        #     city {
+        #         _id
+        #         title
+        #         code
+        #         child_of
+        #         type
+        #         status
+        #     },
+        #     store {
+        #         _id
+        #         title
+        #     }
+        # }
+        error { ...ErrorInfo }
+    }
+}

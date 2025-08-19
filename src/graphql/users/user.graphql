@@ -1,0 +1,8 @@
+#import "../error.graphql"
+#import "../user.graphql"
+
+query user($_id: ID!) {
+    user(_id: $_id) {
+        ...UserInfo
+    }
+}

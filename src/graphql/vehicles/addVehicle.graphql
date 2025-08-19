@@ -1,0 +1,7 @@
+#import "../vehicles.graphql"
+
+mutation addVehicle($input: Add_VehiclesInput!) {
+    addVehicle(input: $input) {
+        ... VehiclesInfo
+    }
+}

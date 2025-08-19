@@ -1,0 +1,7 @@
+#import "../baskets.graphql"
+
+mutation addBasket($input: Add_BasketInput!) {
+    addBasket(input: $input) {
+        ... BasketInfo
+    }
+}

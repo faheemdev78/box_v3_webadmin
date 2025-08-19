@@ -1,0 +1,7 @@
+#import "../product_tags.graphql"
+
+query productTags($filter: String, $others:String) {
+    productTags(filter: $filter, others:$others) {
+        ... ProductTagInfo
+    }
+}

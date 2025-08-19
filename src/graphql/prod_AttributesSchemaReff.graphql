@@ -1,0 +1,14 @@
+fragment Prod_AttributesSchemaReff_Info on Prod_AttributesSchemaReff {
+  _id
+  title
+  slug
+  code
+  required
+  show_in_store
+  val
+  displayAs
+  seo_title
+  seo_desc
+
+  error{ message }
+}

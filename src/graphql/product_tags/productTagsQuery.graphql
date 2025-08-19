@@ -1,0 +1,11 @@
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+#import "../product_tags.graphql"
+
+query productTagsQuery($limit: Int, $page: Int, $filter: String, $others: String) {
+    productTagsQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges { ...ProductTagInfo }
+        error { ...ErrorInfo }
+    }
+}

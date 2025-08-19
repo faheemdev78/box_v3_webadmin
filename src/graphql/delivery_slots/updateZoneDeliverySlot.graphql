@@ -1,0 +1,7 @@
+#import "../delivery_slots.graphql"
+
+mutation updateZoneDeliverySlot($input: Edit_ZoneDeliverySlotInput!) {
+    updateZoneDeliverySlot(input: $input) {
+        ... DeliverySlotsInfo
+    }
+}

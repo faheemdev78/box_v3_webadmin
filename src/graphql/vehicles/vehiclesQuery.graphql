@@ -1,0 +1,13 @@
+#import "../vehicles.graphql"
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+
+query vehiclesQuery($limit: Int, $page: Int, $filter: String, $others: String) {
+    vehiclesQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges { 
+            ...VehiclesInfo
+        }
+        error { ...ErrorInfo }
+    }
+}

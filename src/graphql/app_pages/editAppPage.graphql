@@ -1,0 +1,7 @@
+#import "../app_pages.graphql"
+
+mutation editAppPage($input: Update_AppPage!) {
+    editAppPage(input: $input) {
+        ... AppPagesInfo
+    }
+}

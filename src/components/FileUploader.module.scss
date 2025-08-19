@@ -1,0 +1,69 @@
+.gal_thumb_holder {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #EEE;
+    border-radius: 10px;
+    width: 120px;
+    height: 120px;
+
+    .thumb_img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .hover_layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        opacity: 0;
+        background-color: rgba(000, 000, 000, 0.5);
+        align-items: center;
+        justify-content: center;
+        transition: 500ms;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+
+    // .hoverLayer {
+    //     display: flex;
+    //     align-items: center;
+    //     justify-content: center;
+    //     position: absolute;
+    //     top: 0;
+    //     left: 0;
+    //     border-radius: 3px;
+    //     width: 100%;
+    //     height: 100%;
+    //     background-color: rgba(000, 000, 000, 0.5);
+    //     visibility: hidden;
+    //     cursor: pointer;
+
+    //     .preview-icon {
+    //         position: absolute;
+    //     }
+
+    //     // .anticon{ display: none; size: 3em;}
+    //     .anticon {
+    //         display: inline;
+    //         size: 5em;
+    //         color: #FFF;
+    //     }
+    // }
+
+    // &:hover {
+    //     .hoverLayer {
+    //         visibility: visible;
+    //         // .anticon{ display: inline; }
+    //     }
+    // }
+}
+

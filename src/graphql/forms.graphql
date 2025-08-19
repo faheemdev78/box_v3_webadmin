@@ -1,0 +1,22 @@
+#import "./error.graphql"
+#import "./form_common.graphql"
+
+fragment FormsInfo on Forms {
+  _id
+  ref_key
+  title
+  category
+  status
+  note
+  steps { ...FormStepsReff_Info }
+  score{ ...TestFormScore_Info }
+  reattempt_configs { 
+    allow
+    num_reattempts
+    show_mistakes
+  }
+
+  # createdAt
+  # updatedAt
+  error { ...ErrorInfo }
+}

@@ -1,0 +1,15 @@
+#import "../error.graphql"
+
+query formsDatas($filter:String, $others:String){
+    formsDatas(filter: $filter, others:$others){
+        _id
+        ref_key
+        title
+        note
+
+        # createdAt
+        # updatedAt
+
+        error {...ErrorInfo}
+    }
+}

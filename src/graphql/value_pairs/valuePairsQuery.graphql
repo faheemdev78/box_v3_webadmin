@@ -1,0 +1,13 @@
+#import "../value_pairs.graphql"
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+
+query valuePairsQuery($limit: Int, $page: Int, $filter: String, $others:String) {
+    valuePairsQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges {
+            ...ValuePairsInfo
+        }
+        error { ...ErrorInfo }
+    }
+}

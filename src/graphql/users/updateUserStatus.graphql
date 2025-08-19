@@ -1,0 +1,7 @@
+#import "../response.graphql"
+
+mutation updateUserStatus($_id_user: ID!, $status: String!) {
+    updateUserStatus(_id_user: $_id_user, status: $status) {
+        ... ResponseInfo
+    }
+}

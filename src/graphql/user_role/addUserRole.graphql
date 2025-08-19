@@ -1,0 +1,7 @@
+#import "../user_role.graphql"
+
+mutation addUserRole($input: Add_UserRoleInput!) {
+    addUserRole(input: $input) {
+        ... UserRoleInfo
+    }
+}

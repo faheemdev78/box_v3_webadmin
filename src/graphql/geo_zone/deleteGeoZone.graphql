@@ -1,0 +1,6 @@
+mutation deleteGeoZone($id: ID!) {
+    deleteGeoZone(id: $id) {
+        _id
+        error{ message }
+    }
+}

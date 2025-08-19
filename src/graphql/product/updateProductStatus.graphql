@@ -1,0 +1,7 @@
+#import "../product.graphql"
+
+mutation updateProductStatus($_id: ID!, $status:String!) {
+    updateProductStatus(_id: $_id, status: $status) {
+        ... ProductInfo
+    }
+}

@@ -1,0 +1,7 @@
+#import "../product_type.graphql"
+
+query prodTypes($filter: String, $others:String) {
+    prodTypes(filter: $filter, others:$others) {
+        ... ProductTypeInfo
+    }
+}

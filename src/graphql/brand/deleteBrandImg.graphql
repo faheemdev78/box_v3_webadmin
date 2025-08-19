@@ -1,0 +1,6 @@
+mutation deleteBrandImg($id: ID!) {
+    deleteBrandImg(id: $id) {
+        _id
+        error{ message }
+    }
+}
