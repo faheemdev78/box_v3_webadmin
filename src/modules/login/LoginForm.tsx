@@ -12,11 +12,11 @@ import { FormField, SubmitButton, rules, composeValidators, submitHandler } from
 import { adminRoot } from '@_/configs';
 import { saveSessionToken, clearSessionToken, getSessionToken } from "@_/lib/auth";
 import { sleep } from '@_/lib';
-import { setSettings, getSettings, getSystemState, getFmcToken } from '@_/rStore/slices/systemSlice';
+import { getFmcToken } from '@_/rStore/slices/systemSlice';
 import { setSession } from '@_/rStore/slices/sessionSlice';
 import { useAppDispatch, useAppSelector, useAppStore } from '@_/rStore/hooks';
 import { redirect, RedirectType } from 'next/navigation'
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import LOGIN_MUTATION from '@_/graphql/users/login.graphql'
 
@@ -50,23 +50,10 @@ const LoginForm = () => {
 
         const response = await loginMutation({ variables: input })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.login }))
-            .catch(error =>{
-                console.error(error)
-                // console.log(Object.keys(error))
-                // console.log("error.name: ", error.name)
-                // console.log("error.graphQLErrors: ", error.graphQLErrors)
-                // console.log("error.protocolErrors: ", error.protocolErrors)
-                // console.log("error.clientErrors: ", error.clientErrors)
-                // console.log("error.networkError: ", error.networkError)
-                // console.log("error.message: ", error.message)
-                // console.log("error.extraInfo: ", error.extraInfo)
-                // console.log("error.cause: ", error.cause)
-                return { error:{message:"Request Error!"}}
-            });
+            .catch(catchApolloError)
 
-        if (!response || response.error){
-            // console.error(response)
-            messageApi.open({ key: "updatable", type: 'error', duration: 2, content: (response && response?.error?.message) || "Invalid Response!" });
+        if (response.error){
+            messageApi.open({ key: "updatable", type: 'error', duration: 2, content: response?.error?.message || "Invalid Response!" });
             return false;
         }
 

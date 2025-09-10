@@ -13,7 +13,6 @@ import { FormField, SubmitButton, rules, composeValidators, submitHandler, Exter
 import { FieldArray } from 'react-final-form-arrays';
 import { getSettings } from '@_/rStore/slices/systemSlice';
 import { useSelector } from "react-redux";
-import moment from 'moment';
 import dayjs from 'dayjs';
 
 import RECORD_EDIT from '@_/graphql/delivery_slots/editDeliverySlot.graphql';
@@ -34,7 +33,7 @@ function validateTime(values) {
 
 const DeliverySlotFormComp = ({ initialValues, onClose, onSuccess, open, store }) => {
     const [error, setError] = useState(false);
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false);
     const settings = useSelector(getSettings);
 
     const [editDeliverySlot, edit_details] = useMutation(RECORD_EDIT); // { data, loading, error }
@@ -64,20 +63,16 @@ const DeliverySlotFormComp = ({ initialValues, onClose, onSuccess, open, store }
             }
         };
 
-        if (_id) {
-            Object.assign(input, { _id })
-            return _editDeliverySlot(input)
-        }
+        if (_id) return _editDeliverySlot({ ...input, _id })
         else return _addDeliverySlot(input)
     }
 
     const _editDeliverySlot = async (input) => {
-        setLoading(true)
+        // setLoading(true)
         let results = await editDeliverySlot({ variables: { input } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.editDeliverySlot }))
             .catch(catchApolloError)
-
-        setLoading(false)
+        // setLoading(false)
 
         if (!results || results.error) {
             message.error((results && results?.error?.message) || "Invalid response")
@@ -90,9 +85,11 @@ const DeliverySlotFormComp = ({ initialValues, onClose, onSuccess, open, store }
     }
 
     const _addDeliverySlot = async (input) => {
+        // setLoading(true);
         let results = await addDeliverySlot({ variables: { input } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.addDeliverySlot }))
             .catch(catchApolloError)
+        // setLoading(false);
 
         if (!results || results.error) {
             message.error((results && results?.error?.message) || "Invalid response")

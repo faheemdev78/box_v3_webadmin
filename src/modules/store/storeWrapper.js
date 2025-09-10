@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { Alert, Col, message, Row, Space } from 'antd';
-import { Loader, StatusTag } from '@_/components';
+import { Loader, StatusTag, usePageProps } from '@_/components';
 import { adminRoot, publishStatus } from '@_/configs';
 import Link from 'next/link';
 import { __error } from '@_/lib/consoleHelper';
@@ -15,6 +15,7 @@ import UPDATE_STATUS from '@_/graphql/stores/editStore.graphql'
 
 export default function StoreWrapper({ render, ...props }) {
     const { store_id } = useParams()
+    // const { store } = usePageProps()
     // const baseUrl = `${adminRoot}/store/${store_id}`
 
     const [fatelError, set_fatelError] = useState(null)
@@ -59,7 +60,6 @@ export default function StoreWrapper({ render, ...props }) {
         fetchData()
         return resutls.status;
     }
-
 
     if (!store_id || fatelError) return <Alert message={fatelError || "No Store ID found!"} type='error' showIcon />
     if (loading) return <Loader loading={true}>Fetching store...</Loader>

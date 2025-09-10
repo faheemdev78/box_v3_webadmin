@@ -14,10 +14,9 @@ import { useRouter } from 'next/navigation';
 import security from '@_/lib/security';
 // import Image from 'next/image';
 
-
-
-
 import GET_VARIENTS from '@_/graphql/product/products.graphql';
+import UPDATE_PROD_STATUS from '@_/graphql/product/editStoreProductStatus.graphql';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 const Label = ({ children, style }) => (<FormLabel style={{ marginTop: "7px", ...style }}>{children}</FormLabel>)
 
@@ -28,11 +27,13 @@ export function ProductView({ session, store, refresh, ...props }) {
     const reouter = useRouter();
 
     const isStoreUser = !!(session?.user?.store?._id);
+
     const canEdit = security.verifyRole('104.4', session.user.permissions);
-    const canEditStore = isStoreUser && security.verifyRole('104.4', session.user.permissions);
+    const canEditStore = security.verifyRole('104.4', session.user.permissions); // isStoreUser && security.verifyRole('104.4', session.user.permissions);
     const canReinitilize = security.verifyRole('104.7', session.user.permissions);
 
     const [get_varients, { loading, data, called }] = useLazyQuery(GET_VARIENTS);
+    const [editStoreProductStatus, edit_status_details] = useMutation(UPDATE_PROD_STATUS); // { data, loading, error }
 
     useEffect(() => {
         if (!initialValues) return; // skip this for the frist time
@@ -64,10 +65,6 @@ export function ProductView({ session, store, refresh, ...props }) {
         set_variations(resutls)
     }
 
-    async function canReinitilizeStoreProduct(){
-        alert("Product not initilized for store")
-    }
-
     const drawerProps = {
         onClose: () => set_editMode(false),
         placement: 'right',
@@ -76,6 +73,24 @@ export function ProductView({ session, store, refresh, ...props }) {
         footer: <p>Hello world</p>
     }
 
+    async function onProdStatusChange({ status }){
+        console.log(__yellow("onProdStatusChange()"), status)
+
+        let resutls = await editStoreProductStatus({ variables: {
+            _id_product: initialValues._id, 
+            _id_store: store._id, 
+            status
+        } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.editStoreProductStatus }))
+            .catch(catchApolloError)
+
+        if (resutls.error){
+            message.error(resutls.error.message);
+            return false;
+        }
+
+        return status;
+    }
 
 
     return (<>
@@ -104,7 +119,7 @@ export function ProductView({ session, store, refresh, ...props }) {
                             <span>Store Props {` `}</span>
                             {(canEditStore && initialValues?.store?._id) && <>
                                 <IconButton onClick={() => set_editMode('editStoreProps')} icon="pen" size="small" />
-                                {canReinitilize && <Button color="blue" onClick={canReinitilizeStoreProduct}>Configure store now</Button>}
+                                {/* {canReinitilize && <Button color="blue" onClick={canReinitilizeStoreProduct}>Configure store now</Button>} */}
                             </>}
                         </Space></Divider>
                         <div style={{ padding:"0 20px 20px 20px" }}>
@@ -113,18 +128,23 @@ export function ProductView({ session, store, refresh, ...props }) {
                                 type='warning'
                                 showIcon
                             />}
-                            <Row gutter={[10, 20]} align="middle">
-                                <Col span={8} align="right"><Label>Price was</Label></Col>
-                                <Col span={16}>{initialValues?.store?.price_was}</Col>
-                                <Col span={8} align="right"><Label>Price</Label></Col>
-                                <Col span={16}>{initialValues?.store?.price}</Col>
-                                <Col span={8} align="right"><Label>Status</Label></Col>
-                                <Col span={16}><StatusTag value={initialValues?.store?.store_status} /></Col>
-                                <Col span={8} align="right"><Label>Available Qty.</Label></Col>
-                                <Col span={16}>{initialValues?.store?.available_qty}</Col>
-                                <Col span={8} align="right"><Label>Reserved Qty.</Label></Col>
-                                <Col span={16}>{initialValues?.store?.reserved_qty}</Col>
-                            </Row>
+                            <div align="center">
+                                <Row gutter={[10, 20]} align="middle" style={{ width:"600px" }}>
+                                    <Col span={6} align="right"><Label>Price was</Label></Col>
+                                    <Col span={6}>{initialValues?.store?.price_was}</Col>
+                                    <Col span={6} align="right"><Label>Price</Label></Col>
+                                    <Col span={6}>{initialValues?.store?.price}</Col>
+
+                                    <Col span={6} align="right"><Label>Available Qty.</Label></Col>
+                                    <Col span={6}>{initialValues?.store?.available_qty}</Col>
+                                    <Col span={6} align="right"><Label>Reserved Qty.</Label></Col>
+                                    <Col span={6}>{initialValues?.store?.reserved_qty}</Col>
+
+                                    <Col span={6} align="right"><Label>Status</Label></Col>
+                                    <Col span={6}><StatusTag editable={canEditStore} onSubmit={onProdStatusChange} value={initialValues?.store?.status} /></Col>
+                                </Row>
+                            </div>
+                            {/* <DevBlock obj={initialValues?.store} title="initialValues?.store" /> */}
                         </div>
                     </Card>
                 </>}
@@ -183,8 +203,8 @@ export function ProductView({ session, store, refresh, ...props }) {
                             <Col span={8}><Label>Cost:</Label> {initialValues.cost}</Col>
 
                             <Col span={24}><Divider>Tax Settings</Divider></Col>
-                            <Col span={6}><Label>This product is texable: </Label> {initialValues?.tax?.texable ? "YES" : "NO"}</Col>
-                            {initialValues?.tax?.texable && <>
+                            <Col span={6}><Label>This product is taxable: </Label> {initialValues?.tax?.taxable ? "YES" : "NO"}</Col>
+                            {initialValues?.tax?.taxable && <>
                                 <Col span={6}><Label>HS Code:</Label> {initialValues?.tax?.hs_code}</Col>
                                 <Col span={6}><Label>Tax amount to be applied at:</Label> {initialValues?.tax?.applied_at}</Col>
                                 <Col span={6}><Label>Tax Formula:</Label> {initialValues?.tax?.formula}</Col>
@@ -295,7 +315,7 @@ export function ProductView({ session, store, refresh, ...props }) {
         </Row>
 
 
-        <DevBlock obj={initialValues} />
+        {/* <DevBlock obj={initialValues} title="initialValues" /> */}
 
 
         <Drawer {...drawerProps} open={editMode === 'editIdentity'} title="Edit Identity" width={"500px"}>

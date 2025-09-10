@@ -1,0 +1,13 @@
+#import "../vouchers.graphql"
+#import "../paginationResults.graphql"
+#import "../error.graphql"
+
+query vouchersQuery($limit: Int, $page: Int, $filter: String, $others: String) {
+    vouchersQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
+        pagination { ...PaginationResultsInfo }
+        edges { 
+            ...VouchersInfo
+        }
+        error { ...ErrorInfo }
+    }
+}

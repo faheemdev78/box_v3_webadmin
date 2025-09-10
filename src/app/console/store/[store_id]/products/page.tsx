@@ -6,11 +6,13 @@ import { __error, __yellow } from '@_/lib/consoleHelper';
 import { ProductsList } from "@_/modules/products";
 import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
 import { Alert, Card, message, Row } from "antd";
-import StoreWrapper from "@_/modules/store/storeWrapper";
+// import StoreWrapper from "@_/modules/store/storeWrapper";
 // import { useSession } from "next-auth/react";
-import { Loader } from "@_/components";
-import { useDispatch, useSelector } from 'react-redux';
+import { Loader, usePageProps } from "@_/components";
+// import { useDispatch, useSelector } from 'react-redux';
 import { checkApolloRequestErrors, catchApolloError } from "@_/lib/utill_apollo";
+import { useAppSelector } from "@_/rStore/hooks";
+import { getSession } from "@_/rStore/slices/sessionSlice";
 
 import LIST_DATA from '@_/graphql/product/productsQuery.graphql'
 
@@ -18,7 +20,11 @@ const defaultFilter = {}; // { status: 'online' }
 
 
 
-function StoreProductsHome({ store, session, ...props }) {
+export default function StoreProductsHome({ ...props }) {
+    // const session = useSelector((state) => state.session);
+    const session = useAppSelector(getSession)
+    const { store } = usePageProps()
+
     const [state, setState] = useState({
         pagination: defaultPagination,
         pageView: "list",
@@ -39,7 +45,7 @@ function StoreProductsHome({ store, session, ...props }) {
 
     
     const fetchData = async ({ filter, pagination = {} }) => {
-        console.log(__yellow("fetchData()"), { filter, pagination })
+        // console.log(__yellow("fetchData()"), { filter, pagination })
         
         const variables = {
             limit: pagination?.pageSize || state.pagination.pageSize,
@@ -53,7 +59,8 @@ function StoreProductsHome({ store, session, ...props }) {
             variables: {
                 ...variables,
                 filter: JSON.stringify(variables.filter || {}),
-                others: JSON.stringify(variables.others || {})
+                others: JSON.stringify(variables.others || {}),
+                _id_store: store._id
             }
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productsQuery }))
@@ -67,8 +74,8 @@ function StoreProductsHome({ store, session, ...props }) {
             return;
         }
 
-        setState({
-            ...state,
+        setState((prev:any) => ({
+            ...prev,
             pagination: {
                 ...state.pagination,
                 current: resutls.pagination.page,
@@ -77,19 +84,22 @@ function StoreProductsHome({ store, session, ...props }) {
                 pageSize: resutls.pagination.limit,
             },
             filter: variables.filter,
-            dataSource: resutls?.edges?.map(o => ({
-                ...o,
-                children: o.variations.length > 0 && o.variations,
-                variations: undefined
-            })),
-        })
+            dataSource: resutls?.edges?.map(o => {
+                return {
+                    ...o,
+                    children: o.variations, //o?.variations?.length > 0 && o.variations,
+                    variations: undefined
+                }
+            }),
+        }))
 
     }
 
     if (!session) return <Loader loading={true}>Fetching session...</Loader>
 
-    let columns = ['title', 'barcode', 'variations_count', 'store_price', 'store_qty', 'store_reserved_qty', 'store_status'];
-    if (!session?.store_id) columns = undefined; // ['title', 'barcode', 'variations_count', 'status']; // for non-store users
+    // let columns = ['title', 'barcode', 'variations_count', 'store_price', 'store_qty', 'store_reserved_qty', 'store_status'];
+    let columns = ['title', 'categories', 'variations_count', 'barcode', 'status', 'store']
+    // if (!session?.store_id) columns = undefined; // ['title', 'barcode', 'variations_count', 'status']; // for non-store users
 
     return (<>
         {error && <Alert message={error} type="error" showIcon />}
@@ -104,9 +114,9 @@ function StoreProductsHome({ store, session, ...props }) {
     </>)
 }
 
-export default function Wrapper(props){
-    // const { data: session, status, update } = useSession()
-    const session = useSelector((state) => state.session);
+// export default function Wrapper(props){
+//     // const { data: session, status, update } = useSession()
+//     const session = useSelector((state) => state.session);
 
-    return (<StoreWrapper {...props} render={({ store }) => (<StoreProductsHome session={session} store={store} />)} />)
-}
+//     return (<StoreWrapper {...props} render={({ store }) => (<StoreProductsHome session={session} store={store} />)} />)
+// }

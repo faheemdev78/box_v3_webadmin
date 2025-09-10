@@ -1,28 +1,28 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
-import { Button, DeleteButton, IconButton, PageHeading, Table } from '@_/components'
+import { Button, DeleteButton, DevBlock, Icon, IconButton, PageHeading, Table } from '@_/components'
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { Col, Row, Space, Alert, Modal, Popconfirm, Card } from 'antd'
+import { Col, Row, Space, Alert, Modal, Popconfirm, Card, Divider, Tag } from 'antd'
 import { useSession } from 'next-auth/react'
 import { security } from '@_/lib/security';
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@_/components/form';
-import { checkApolloRequestErrors, string_to_slug } from '@_/lib/utill';
+import { catchApolloError, checkApolloRequestErrors, string_to_slug } from '@_/lib/utill';
 import { PageHeader } from '@_/template';
 import { Page } from '@_/template/page';
+import { __error } from '@_/lib/consoleHelper';
 
 import GET_LIST from '@_/graphql/user_role/userRoles.graphql'
 import DEL_REC from '@_/graphql/user_role/deleteUserRole.graphql'
 import EDIT_ROLE from '@_/graphql/user_role/editUserRole.graphql'
 import ADD_ROLE from '@_/graphql/user_role/addUserRole.graphql'
-import { __error } from '@_/lib/consoleHelper';
 
 const filterSlug = (e, onChange) => onChange(string_to_slug(e.target.value));
 
-function TypeForm({ onSuccess, onCancel, show, initialValues }) {
+function TypeForm({ onSuccess, onCancel, show, initialValues }: { onSuccess: () => void, onCancel: () => void, show: boolean, initialValues: object }) {
   const [error, setError] = useState(false);
 
   const [addUserRole, add_details] = useMutation(ADD_ROLE); // { data, loading, error }
@@ -32,6 +32,7 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }) {
     let input = {
       title: values.title,
       acc_type: values.acc_type,
+      allowed_apps: values.allowed_apps,
     };
 
     var results;
@@ -39,22 +40,16 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }) {
     if (initialValues && initialValues._id) {
       Object.assign(input, { _id: initialValues._id })
       results = await editUserRole({ variables: { input } })
-      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.editUserRole }))
-        .catch(error => {
-          console.log(__error("Error: "), error)
-          return { error: { message: "Query Error" } }
-        });
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.editUserRole }))
+        .catch(catchApolloError)
     } else {
       results = await addUserRole({ variables: { input } })
-        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.addUserRole }))
-        .catch(error => {
-          console.log(__error("Error: "), error)
-          return { error: { message: "Query Error" } }
-        });
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.addUserRole }))
+        .catch(catchApolloError)
     }
 
-    if (!results || results.error) {
-      setError((results && results.error.message) || "Invalid response");
+    if (results.error) {
+      setError(results.error.message);
       return false;
     }
 
@@ -80,16 +75,43 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }) {
           {error && <Alert message={error} showIcon type='error' />}
           <form id="UserTypeForm" {...submitHandler(formargs)}>
 
-            <Space style={{ width: "100%" }} direction='vertical'>
-              <FormField type="text" name="title" label="Title" validate={rules.required} />
-              <FormField onChange={filterSlug} type="text" name="acc_type" label="Type Key (no space)" validate={[rules.required, rules.nospace, rules.minChar(4)]} />
-              <Row>
-                <Col flex="auto"><Button onClick={onCancel} type="default">Cancel</Button></Col>
-                <Col><SubmitButton disabled={invalid || !dirty} color="orange" loading={submitting}>Save</SubmitButton></Col>
-              </Row>
-            </Space>
+            <Row gutter={[10, 10]}>
+              <Col span={12}><FormField type="text" name="title" label="Title" validate={rules.required} /></Col>
+              <Col span={12}><FormField onChange={filterSlug} type="text" name="acc_type" label="Type Key (no space)" validate={[rules.required, rules.nospace, rules.minChar(4)]} /></Col>
+              {/* <Col span={24}><FormField type="select" mode="tags" name="allowed_apps" label="Allowed Apps" validate={rules.required} /></Col> */}
+
+              <Col span={24}>
+                <Divider>Allowed Apps</Divider>
+                <FieldArray name="allowed_apps">
+                  {({ fields }) => {
+                    return (<div>
+                      {fields.map((name, index) => {
+                        let thisField = fields.value[index];
+
+                        return (<div key={index} style={{ border: "1px solid #EEE", padding: "10px", marginBottom: "5px", borderRadius: "5px" }}>
+                          <Row align="middle" gutter={[5, 5]}>
+                            <Col flex="auto"><FormField type="text" compact size="small" name={`${name}`} validate={rules.required} /></Col>
+                            <Col><IconButton onClick={() => fields.remove(index)} size="small" icon="minus" color="red" /></Col>
+                          </Row>
+                        </div>)
+                        })}
+
+                        <Button icon={<Icon icon="plus" />} onClick={() => fields.push("")} size="small" block type="dashed">Add</Button>
+                        <div style={{ marginBottom: "50px" }} />
+
+                    </div>)
+                  }}
+                </FieldArray>
+              </Col>
+
+              <Col span={24} />
+              <Col flex="auto"><Button onClick={onCancel} type="default">Cancel</Button></Col>
+              <Col><SubmitButton disabled={invalid || !dirty} color="orange" loading={submitting}>Save</SubmitButton></Col>
+            </Row>
             
           </form>
+
+          <DevBlock obj={values} title="values" />
         </>)
 
       }}
@@ -98,12 +120,7 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }) {
   </Modal>)
 
 }
-TypeForm.propTypes = {
-  onSuccess: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  show: PropTypes.bool.isRequired,
-  initialValues: PropTypes.object,
-}
+
 
 
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -156,23 +173,19 @@ export default function UserTypes() {
   const onEditClick = () => {}
 
   const columns = [
-      { title: 'Store Name', dataIndex: 'title', key: 'title' },
-      { title: 'Key', dataIndex: 'acc_type', key: 'acc_type' },
-      {
-          title: 'Actions',
-          dataIndex: 'actions',
-          width: 120,
-          key: 'actions',
-          align: 'right',
-          render: (text, rec) => {
-              return (<Space>
-                <IconButton onClick={() => set_showForm(rec)} icon="pen" />
-                <Popconfirm title="Sure to delete?" onConfirm={() => onDelete(rec)}>
-                  <IconButton icon="trash-alt" />
-                </Popconfirm>
-              </Space>)
-          }
-      },
+    { title: 'Store Name', dataIndex: 'title', key: 'title' },
+    { title: 'Key', dataIndex: 'acc_type', key: 'acc_type' },
+    { title: 'Allowed Apps', dataIndex: 'allowed_apps', key: 'allowed_apps', render:(txt, rec) => txt.map((item, i) => (<Tag key={i}>{item}</Tag>)) },
+    { title: 'Actions', dataIndex: 'actions', key: 'actions', align: 'right', width: 120,
+        render: (text, rec) => {
+            return (<Space>
+              <IconButton onClick={() => set_showForm(rec)} icon="pen" />
+              <Popconfirm title="Sure to delete?" onConfirm={() => onDelete(rec)}>
+                <IconButton icon="trash-alt" />
+              </Popconfirm>
+            </Space>)
+        }
+    },
   ];
 
   // if (!security.verifyRole("200.1", session_user)) return <Alert message="Access Denied!" showIcon type='error' />

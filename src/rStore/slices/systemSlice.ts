@@ -23,22 +23,26 @@ export const systemSlice = createSlice({
     name: 'system',
     initialState,
     reducers: {
-        updateSystemState: (state, action: PayloadAction<SystemState>) => {
-            state = {
-                settings: {
-                    ...state.settings,
-                    firstRun: action.payload?.settings?.firstRun || state.settings.firstRun,
-                    timezone: action.payload?.settings?.timezone || state.settings.timezone,
-                },
-                fmc_token: action.payload?.fmc_token || state.fmc_token,
-            }
-        },
-        setSettings: (state, action: PayloadAction<SettingsState>) => {
-            state.settings = {
-                ...state.settings,
-                firstRun: action.payload.firstRun,
-                timezone: action.payload.timezone,
-            };
+        // updateSystemState: (state, action: PayloadAction<SystemState>) => {
+        //     state = {
+        //         settings: {
+        //             ...state.settings,
+        //             firstRun: action.payload?.settings?.firstRun || state.settings.firstRun,
+        //             timezone: action.payload?.settings?.timezone || state.settings.timezone,
+        //         },
+        //         fmc_token: action.payload?.fmc_token || state.fmc_token,
+        //     }
+        // },
+        // setSettings: (state, action: PayloadAction<SettingsState>) => {
+        //     state.settings = {
+        //         ...state.settings,
+        //         firstRun: action.payload.firstRun,
+        //         timezone: action.payload.timezone,
+        //     };
+        // },
+        initSettings: (state, action: PayloadAction<SettingsState>) => {
+            // console.log("INIT SETTINGS", action.payload);
+            state.settings = action.payload;
         },
         // clearSettings: (state) => {
         //     // Object.assign(state, initialState);
@@ -47,9 +51,9 @@ export const systemSlice = createSlice({
     },
 });
 
-export const { setSettings } = systemSlice.actions;
+export const { initSettings } = systemSlice.actions;
 export default systemSlice.reducer;
 
-export const getSystemState = (state: any): SystemState => state.system;
-export const getSettings = (state: SystemState): SettingsState => state.settings;
-export const getFmcToken = (state: SystemState): String | null => state.fmc_token;
+export const getSystemState = ({ system }: { system: SystemState }): SystemState => system;
+export const getSettings = ({ system }: {system: SystemState}): SettingsState => system.settings;
+export const getFmcToken = ({ system }: {system: SystemState}): String | null => system.fmc_token;

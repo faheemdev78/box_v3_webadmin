@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { Alert, Breadcrumb, Col, message, Modal, Popconfirm, Row, Space, Switch } from 'antd';
 import { Button, DeleteButton, DevBlock, IconButton, Loader, StatusTag, Table, AsyncSwitch } from '@_/components';
-import { DeliverySlotForm, DeliverySlotFormZone, SlotFilter } from '@_/modules/delivery_slot';
-import { checkApolloRequestErrors, timeStr2Date } from '@_/lib/utill';
+import { DeliverySlotForm, DeliverySlotFormZone, SlotCopyForm, SlotFilter } from '@_/modules/delivery_slot';
+import { catchApolloError, checkApolloRequestErrors, timeStr2Date } from '@_/lib/utill';
 import { adminRoot, publishStatus } from '@_/configs';
-import { __error } from '@_/lib/consoleHelper';
+import { __error, __yellow } from '@_/lib/consoleHelper';
 import Link from 'next/link';
 import { Page } from '@_/template/page';
 import { PageHeader } from '@_/template';
@@ -26,6 +26,7 @@ export function DeliverySlotManager({ store, zone }) {
     const [filter, setFilter] = useState(defaultFilter)
     const [localFilter, setLocalFilter] = useState({})
     const [showSlotForm, set_showSlotForm] = useState(false)
+    const [showSlotCopy, set_showSlotCopy] = useState(false)
     const [error, setError] = useState(null)
 
     const [addZoneToSlot, add_results] = useMutation(ADD_ZONE); // { data, loading, error }
@@ -33,8 +34,7 @@ export function DeliverySlotManager({ store, zone }) {
     const [removeZoneFromSlot, remove_results] = useMutation(REMOVE_ZONE); // { data, loading, error }
     const [deleteDeliverySlot, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
 
-    const [deliverySlots, { called, loading }] = useLazyQuery(
-        LIST_DATA,
+    const [deliverySlots, { called, loading, ...slots_details }] = useLazyQuery(LIST_DATA,
         // { variables: { filter: JSON.stringify({}) } }
     );
 
@@ -44,18 +44,18 @@ export function DeliverySlotManager({ store, zone }) {
     }, [store])
 
     const fetchData = async (args = {}) => {
+        // console.log(__yellow("Fetching Delivery Slots..."));
+
         let _filter = { ...filter, "store._id": store._id };
         if (args.filter) _filter = { ...args.filter };
         // if (zone) Object.assign(_filter, { "zones._id": zone._id })
 
         var results = await deliverySlots({
-            variables: { filter: JSON.stringify(_filter) }
+            variables: { filter: JSON.stringify(_filter) },
+            fetchPolicy: 'no-cache',
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deliverySlots }))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
+            .catch(catchApolloError)
 
         if (results && results.error) {
             setError(results.error.message)
@@ -71,25 +71,27 @@ export function DeliverySlotManager({ store, zone }) {
             }))
         }
 
-
         set_dataArray(results)
     }
     const onUpdateCallback = () => fetchData()
 
     const handleDelete = async ({ _id }) => {
-        let results = await deleteDeliverySlot(id)
-            .then(r => (r?.data?.deleteDeliverySlot))
-            .catch(error => {
-                console.log(__error("ERROR"), error);
-                message.error("Invalid Response!")
-            })
+        let results = await deleteDeliverySlot({ variables: { _id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.deleteDeliverySlot }))
+            .catch(catchApolloError)
 
-        if (!results || results.error) {
-            message.error((results && results?.error?.message) || "Unable to delete record")
+        if (results.error) {
+            message.error(results?.error?.message || "Unable to delete record")
             return false;
         }
 
+        fetchData()
         message.success("Record deleted")
+    }
+
+    const copyDay = async (day) => {
+        console.log(__yellow("copyDay()"), day)
+        set_showSlotCopy(day)
     }
 
     async function updateSlotAttachment({ _id, add }) {
@@ -151,7 +153,12 @@ export function DeliverySlotManager({ store, zone }) {
                 key: 'label', 
                 fixed: 'left', 
                 width: 200,
-                render: (txt, rec) => (<div style={{ color: "#999", fontSize: "18px", fontWeight: "bold" }}>{txt}</div>) },
+                render: (txt, rec) => (<div style={{ color: "#999", fontSize: "18px", fontWeight: "bold" }}>
+                    <Space>
+                        <span>{txt}</span>
+                        <IconButton onClick={() => copyDay(txt)} icon="copy" size="small" alt="Copy Day" />
+                    </Space>
+                </div>) },
         ];
 
         function groupByStartTimeAndEndTime(data) {
@@ -237,8 +244,8 @@ export function DeliverySlotManager({ store, zone }) {
                                     </>}
                                     {!zone && <> {/* Store options */} 
                                         <StatusTag size={12} value={item.status} editable onSubmit={(val) => updateStatus({ ...item, ...val })} options={publishStatus} />
-                                        <IconButton onClick={() => set_showForm(item)} icon="pen" size="small" />
-                                        <DeleteButton onConfirm={() => handleDelete(item)} size="small" />
+                                        <IconButton onClick={() => set_showForm(item)} icon="pen" size="small" alt="Edit" />
+                                        <DeleteButton onConfirm={() => handleDelete(item)} size="small" alt="Delete" />
                                     </>}
                                 </Space></div>
                             </div>)
@@ -291,8 +298,15 @@ export function DeliverySlotManager({ store, zone }) {
             />
         </Page>
 
+        <DevBlock obj={showSlotCopy} title="showSlotCopy" />
+        <Row>
+            <Col span={12}><DevBlock obj={zone} title="zone" /></Col>
+            <Col span={12}><DevBlock obj={slots_details} title="slots_details" /></Col>
+        </Row>
+        
+        
 
-        {/* {set_showSlotForm} */}
+
         <Modal footer={false} open={showSlotForm !== false} onCancel={() => set_showSlotForm(false)} title="Update Zone Slot" destroyOnHidden>
             {(showSlotForm !== false) && <div>
                 <DeliverySlotFormZone initialValues={showSlotForm} zone={zone} onSuccess={(v) => {
@@ -300,6 +314,18 @@ export function DeliverySlotManager({ store, zone }) {
                     onUpdateCallback()
                 }} />
             </div>}
+        </Modal>
+
+        <Modal footer={false} open={showSlotCopy !== false} onCancel={() => set_showSlotCopy(false)} title="Copy All slots from the day" destroyOnHidden>
+            {(showSlotCopy !== false) && <SlotCopyForm
+                store={store}
+                day={showSlotCopy} 
+                deliverySlots={slots_details.data.deliverySlots}
+                onSuccess={(v) => {
+                    set_showSlotCopy(false)
+                    onUpdateCallback()
+                }}
+            />}
         </Modal>
 
         <DeliverySlotForm

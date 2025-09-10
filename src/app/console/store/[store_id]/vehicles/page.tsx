@@ -4,10 +4,10 @@ import { useMutation, useLazyQuery } from '@apollo/client';
 import { Alert, Card, Col, message, Popconfirm, Row, Space } from 'antd';
 import { adminRoot, defaultPageSize } from '@_/configs';
 import Link from 'next/link';
-import StoreWrapper from '@_/modules/store/storeWrapper';
+// import StoreWrapper from '@_/modules/store/storeWrapper';
 import { VehiclesList } from '@_/modules/vehicles';
 import { PageHeader } from '@_/template';
-import { Button } from '@_/components';
+import { Button, usePageProps } from '@_/components';
 import { Page } from '@_/template/page';
 import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { __error } from '@_/lib/consoleHelper';
@@ -17,7 +17,9 @@ import RECORD_DELETE from '@_/graphql/vehicles/deleteVehicle.graphql';
 
 const defaultFilter = {}; // { status: 'online' }
 
-function Vehicles({ store }) {
+export default function Vehicles() {
+    const { store } = usePageProps()
+
     const [state, setState] = useState({
         pagination: { current: 1 },
         pageView: "list",
@@ -108,6 +110,6 @@ function Vehicles({ store }) {
 
 }
 
-export default function Wrapper(props){
-    return (<StoreWrapper {...props} render={({ store }) => (<Vehicles store={store} />)} />)
-}
+// export default function Wrapper(props){
+//     return (<StoreWrapper {...props} render={({ store }) => (<Vehicles store={store} />)} />)
+// }

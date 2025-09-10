@@ -1,21 +1,24 @@
 'use client'
-import React, { useEffect } from 'react'
-import StoreWrapper from '@_/modules/store/storeWrapper'
+import React, { useEffect, useState } from 'react'
+// import StoreWrapper from '@_/modules/store/storeWrapper'
 import { DeliverySlotManager } from '@_/modules/delivery_slot'
 import { useLazyQuery, useMutation } from '@apollo/client';
-import { Icon, Loader } from '@_/components';
-import { Breadcrumb } from 'antd';
-import Link from 'next/link';
-import { adminRoot } from '@_/configs';
-import { PageHeader } from '@_/template';
+import { DevBlock, Icon, Loader, usePageProps } from '@_/components';
+import { Breadcrumb, Alert } from 'antd';
+// import Link from 'next/link';
+// import { adminRoot } from '@_/configs';
+// import { PageHeader } from '@_/template';
 import { useParams } from 'next/navigation';
-
-import GET_ZONE from '@_/graphql/geo_zone/geoZone.graphql';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { __error } from '@_/lib/consoleHelper';
 
+import GET_ZONE from '@_/graphql/geo_zone/geoZone.graphql';
+
 // function ZoneDeliverySlots({ params: { zone_id }, store }) {
-function ZoneDeliverySlots({ store }) {
+export default function ZoneDeliverySlots(props) {
+    const { store } = usePageProps()
+
+    const [fatelError, set_fatelError] = useState(null)
     const { zone_id } = useParams<{ zone_id: string }>()
 
     const [get_geoZone, { loading, data, called }] = useLazyQuery(GET_ZONE);
@@ -28,21 +31,21 @@ function ZoneDeliverySlots({ store }) {
     const fetchData = async () => {
         let resutls = await get_geoZone({ variables: { _id: zone_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZone }))
-            .catch(err => {
-                console.log(__error("Query Error: "), err)
-                return { error: { message: "Query Error" } }
-            })
+            .catch(catchApolloError)
 
-        if (!resutls || resutls.error) {
-            set_fatelError((resutls && resutls?.error?.message) || "Zone not found!")
+        if (resutls && resutls.error) {
+            set_fatelError(resutls.error.message || "Unable to fetch zone details!")
             return;
         }
 
         return resutls;
     }
 
+
     return (<>
         {loading && <Loader loading={true} />}
+        {fatelError && <Alert type="error" message={fatelError} showIcon />}
+
         {data && data?.geoZone?._id && <>
             {/* <Breadcrumb
                 items={[
@@ -56,8 +59,8 @@ function ZoneDeliverySlots({ store }) {
     </>)
 }
 
-export default function Wrapper(props){
-    return (<StoreWrapper {...props} render={({ store }) => (<ZoneDeliverySlots {...props} store={store} />)} />)
-}
+// export default function Wrapper(props){
+//     return (<StoreWrapper {...props} render={({ store }) => (<ZoneDeliverySlots {...props} store={store} />)} />)
+// }
 
 

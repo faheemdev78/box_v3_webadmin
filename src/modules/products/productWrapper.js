@@ -40,7 +40,7 @@ export function ProductWrapper({ render, store, ...props }) {
     }, [prod_id])
 
     const fetchData = async () => {
-        console.log(__yellow("fetchData()"))
+        // console.log(__yellow("fetchData()"))
 
         let resutls = await get_product({ 
                 variables,
@@ -48,7 +48,7 @@ export function ProductWrapper({ render, store, ...props }) {
             })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.product }))
             .catch(catchApolloError)
-        console.log("resutls: ", resutls)
+        // console.log("resutls: ", resutls)
 
         if (!resutls || resutls.error) {
             set_fatelError((resutls && resutls?.error?.message) || "Product not found!")

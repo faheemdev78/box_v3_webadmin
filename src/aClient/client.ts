@@ -1,10 +1,33 @@
 import { isServer } from "@_/lib";
-import { ApolloClient, InMemoryCache, HttpLink, ApolloLink } from "@apollo/client";
+import { ApolloClient, InMemoryCache, HttpLink, ApolloLink, from } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
-import { getSessionToken } from "@_/lib/auth";
+import { onError } from "@apollo/client/link/error";
+import { clearSessionToken, getSessionToken } from "@_/lib/auth";
+import { handleRedirectLogin } from "@_/lib/redirect";
+import { app_ver } from "@_/configs";
 
 
+// Error link
+const errorLink = onError(({ graphQLErrors, networkError }) => {
+    if (graphQLErrors) {
+        for (let err of graphQLErrors) {
+            if (err.extensions?.code === "UNAUTHENTICATED") {
+                console.warn("Session expired or invalid token");
 
+                // Clear token (cookie/localStorage)
+                // document.cookie = "your_token_cookie=; Max-Age=0; path=/";
+                clearSessionToken().then(r=>{
+                    // Redirect to login
+                    handleRedirectLogin
+                });
+            }
+        }
+    }
+
+    if (networkError) {
+        console.error("Network error:", networkError);
+    }
+});
 
 const httpLink = new HttpLink({
     uri: process.env.NEXT_PUBLIC_GRAPHQL_URI,
@@ -30,6 +53,7 @@ const authLink = setContext(async (_, { headers }) => {
         headers: {
             ...headers,
             Authorization: token ? `Bearer ${token}` : "",
+            'x-app-ver': app_ver,
         },
     };
 });
@@ -55,7 +79,7 @@ const authLink = setContext(async (_, { headers }) => {
 export const createApolloClient = () => {
     return new ApolloClient({
         ssrMode: isServer,
-        link: ApolloLink.from([authLink, httpLink]),
+        link: ApolloLink.from([errorLink, authLink, httpLink]),
         cache: new InMemoryCache(),
     });
 };

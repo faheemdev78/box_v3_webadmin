@@ -46,7 +46,15 @@ fragment ProductInfo on Product {
   cart_limit
   stock_level { min max }
   cost
-  tax { texable formula amount hs_code applied_at }
+  tax { 
+    taxable
+    type
+    rate
+    amount
+    formula
+    hs_code
+    applied_at
+  }
   description
   bullits
   picture {...ImageSchemaInfo}

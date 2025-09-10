@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Page } from '@_/template/page';
 import { PageHeader } from '@_/template';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { __error } from '@_/lib/consoleHelper';
 
 import LIST_DATA from '@_/graphql/stores/storesQuery.graphql'
@@ -31,10 +31,8 @@ export default function Stores(props) {
     const router = useRouter()
 
     const [deleteStore, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
-
-    const [storesQuery, { called, loading }] = useLazyQuery(
-        LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
+    const [storesQuery, { called, loading }] = useLazyQuery(LIST_DATA,
+        { variables: { filter: JSON.stringify({}) } }
     );
 
     useEffect(() => {
@@ -77,13 +75,10 @@ export default function Stores(props) {
     }
     // const onUpdateCallback = () => fetchData()
 
-    const handleDelete = async ({ _id }) => {
+    const handleDelete = async ({ _id }:{_id:string}) => {
         let results = await deleteStore(_id)
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deleteStore }))
-            .catch(error => {
-                console.log(__error("ERROR"), error);
-                message.error("Invalid Response!")
-            })
+            .catch(catchApolloError)
 
         if (!results || results.error) {
             message.error((results && results?.error?.message) || "Unable to delete record")

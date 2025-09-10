@@ -1,0 +1,7 @@
+#import "../vouchers.graphql"
+
+query vouchers($filter: String, $others:String) {
+    vouchers(filter: $filter, others:$others) {
+        ... VouchersInfo
+    }
+}

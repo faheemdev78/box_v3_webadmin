@@ -17,7 +17,14 @@ export const AsyncSwitch = ({ onSubmit, disabled=false, ...props }) => {
         if (!resutls) setValue(!value);
     }
 
-    return <Switch checkedChildren={<CheckOutlined />} disabled={disabled} nCheckedChildren={<CloseOutlined />} loading={busy} value={value} onChange={(val) => onChnaged(val)} />
+    return <Switch 
+        checkedChildren={<CheckOutlined />} 
+        // nCheckedChildren={<CloseOutlined />} 
+        disabled={disabled} 
+        loading={busy} 
+        value={value} 
+        onChange={(val) => onChnaged(val)}
+    />
 }
 
 

@@ -1,0 +1,7 @@
+#import "../response.graphql"
+
+mutation editStoreProductStatus($_id_product: ID!, $_id_store: ID!, $status: String!) {
+    editStoreProductStatus(_id_product: $_id_product, _id_store: $_id_store, status: $status) {
+        ... ResponseInfo
+    }
+}

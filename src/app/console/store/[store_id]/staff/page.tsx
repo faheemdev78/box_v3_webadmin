@@ -5,10 +5,10 @@ import { useMutation, useLazyQuery } from '@apollo/client';
 import { Alert, Card, Col, message, Popconfirm, Row, Space } from 'antd';
 import { adminRoot, defaultPageSize } from '@_/configs';
 import Link from 'next/link';
-import StoreWrapper from '@_/modules/store/storeWrapper';
+// import StoreWrapper from '@_/modules/store/storeWrapper';
 import { UsersList } from '@_/modules/users';
 import { Page, PageHeader } from '@_/template';
-import { Button } from '@_/components';
+import { Button, usePageProps } from '@_/components';
 import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { __error } from '@_/lib/consoleHelper';
 
@@ -19,7 +19,9 @@ const defaultFilter = {}; // { status: 'online' }
 
 
 
-function Staff({ store }) {
+export default function Staff() {
+    const { store } = usePageProps()
+
     const [state, setState] = useState({
         pagination: { current: 1 },
         pageView: "list",
@@ -110,6 +112,6 @@ function Staff({ store }) {
 
 }
 
-export default function Wrapper(props){
-    return (<StoreWrapper {...props} render={({ store }) => (<Staff store={store} />)} />)
-}
+// export default function Wrapper(props){
+//     return (<StoreWrapper {...props} render={({ store }) => (<Staff store={store} />)} />)
+// }

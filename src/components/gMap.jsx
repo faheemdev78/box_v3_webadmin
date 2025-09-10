@@ -9,15 +9,15 @@ import { Loader } from './loader';
 import { GoogleMap, useJsApiLoader, Libraries, DrawingManager, PolygonF, Polygon, InfoWindow } from '@react-google-maps/api'
 import _ from 'lodash'
 import { Button } from './button';
+import { GOOGLE_API_KEY } from '@_/configs';
 
 // import GEO_ZONES from '@_/graphql/geo_zone/geoZones.graphql';
-
 
 const libraries = ['drawing']; // ['places', 'drawing', 'geometry'];
 const defaultMapContainerStyle = { width: '100%', height: '80vh', borderRadius: '15px 0px 0px 15px' };
 const defaultMapCenter = { lat: 31.52443022759592, lng: 74.35772741448616 }; // Lahore
 const defaultMapZoom = 18;
-const defaultMapOptions = { zoomControl: true, tilt: 0, gestureHandling: 'auto', mapTypeId: 'roadmap' };
+// const defaultMapOptions = { zoomControl: true, tilt: 0, gestureHandling: 'auto', mapTypeId: 'roadmap' };
 /*
 mapTypeId: roadmap, satellite, hybrid, terrain
 */
@@ -46,7 +46,7 @@ function MapProvider({ children }) {
 
     // Load the Google Maps JavaScript API asynchronously
     const { isLoaded: scriptLoaded, loadError } = useJsApiLoader({
-        googleMapsApiKey: NEXT_PUBLIC_GOOGLEMAP_API_KEY,
+        googleMapsApiKey: GOOGLE_API_KEY, //NEXT_PUBLIC_GOOGLEMAP_API_KEY,
         libraries: libraries,
     });
 
@@ -57,7 +57,78 @@ function MapProvider({ children }) {
     return children;
 }
 
-const MapComponent = ({ style, center, onCenterChange, onPolygonUpdate, enableDrawing = false, editableShape, staticShapes, staticZones, children, ...props }) => {
+export function MapComponent({ children, style, defaultCenter, onCenterChange, onLoad, onUnmount, ...props }){
+    const [center, setCenter] = useState(defaultCenter || defaultMapCenter);
+
+    const map = useRef(null);
+    const maps = useRef(null);
+    
+    const _onLoad = (_map) => {
+        if (!maps.current) {
+            maps.current = window.google.maps;
+            map.current = _map;
+        }
+        // _map.setCenter(mapCenter);
+        if (onLoad) onLoad(_map)
+    }
+
+    const _onUnmount = (_map) => {
+        map.current = null;
+        // maps.current = null;
+    }
+
+    function _onCenterChange() {
+        console.log(__yellow("_onCenterChange()"))
+
+        if (!map.current?.center?.lat) return;
+        // const newCenter = map.current.getCenter();
+        // newCenter.lat()
+
+        let _center = {
+            lat: map.current.center.lat(),
+            lng: map.current.center.lng(),
+        }
+
+        setCenter(_center)
+        if (onCenterChange) onCenterChange(_center)
+    }
+
+
+    return (<>
+        <GoogleMap
+            mapContainerStyle={{ ...defaultMapContainerStyle, ...style }}
+            center={center}
+            zoom={props.zoom || 18}
+            onLoad={_onLoad}
+            onUnmount={_onUnmount}
+            // onCenterChanged={_onCenterChange}
+            onDragEnd={() => {
+                _onCenterChange()
+                // if (mapRef.current) {
+                //     const newCenter = mapRef.current.getCenter();
+                //     if (newCenter) {
+                //         setCenter({
+                //             lat: newCenter.lat(),
+                //             lng: newCenter.lng(),
+                //         });
+                //     }
+                // }
+            }}
+            options={{ zoomControl: true, tilt: 0, gestureHandling: 'auto', mapTypeId: 'roadmap' }}
+            // onDragEnd={console.log} onDrag={console.log} onBoundsChanged={console.log} onMouseUp={(v) => console.log("ON mouse Up: ", v)} onMouseMove={(v) => console.log("ON mouse Move: ", v)} onClick={console.log}
+        >
+            {children}
+
+            <style>{`
+                .gm-ui-hover-effect {
+                    display: none !important; /* Hide the close button */
+                }
+            `}</style>
+        </GoogleMap>
+    </>)
+}
+
+const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, enableDrawing = false, editableShape, staticShapes, staticZones, children, ...props }) => {
     const [tooltipContent, setTooltipContent] = useState(""); // Content of the tooltip
     const [tooltipPosition, setTooltipPosition] = useState(null); // Position of the tooltip
 
@@ -80,6 +151,7 @@ const MapComponent = ({ style, center, onCenterChange, onPolygonUpdate, enableDr
         if (!maps.current){
             maps.current = window.google.maps;
             map.current = _map;
+            // _map.setCenter(mapCenter);
 
             if (enableDrawing) initilizeDrawing()
             draw_editableShape()
@@ -236,15 +308,19 @@ const MapComponent = ({ style, center, onCenterChange, onPolygonUpdate, enableDr
         onPolygonupdated(false)
     }
 
-    function centerChanged(){
-        if (!map.current?.center?.lat || !onCenterChange) return;
+    function centerChanged(_map){
+        if (!map.current?.center?.lat) return;
+
+        // const newCenter = _map.getCenter();
+        // newCenter.lat();
 
         let _center = {
             lat: map.current.center.lat(),
-            lng: map.current.center.lng()
+            lng: map.current.center.lng(),
         } 
-
-        onCenterChange(_center)
+        
+        setMapCenter(_center)
+        if (onCenterChange) onCenterChange(_center)
     }
 
     function draw_editableShape(){
@@ -379,97 +455,66 @@ const MapComponent = ({ style, center, onCenterChange, onPolygonUpdate, enableDr
         }
     };
 
-    let onCenterChanged = _.debounce(function () {
-        centerChanged()
-    }, 500, { leading: false, trailing: true });
+    // let onCenterChanged = _.debounce(function (_map) {
+    //     centerChanged(_map)
+    // }, 500, { leading: false, trailing: true });
     
+
+    function renderStaticZones(){
+        if (!staticZones || staticZones.length<1) return null;
+
+        return staticZones.map((zone, i) => {
+            return (<Polygon key={i}
+                onMouseOver={(e) => handleMouseOver(e, zone)}
+                onMouseOut={handleMouseOut}
+                path={zone.polygon.coordinates[0].map(([lng, lat]) => ({ lat, lng }))}
+                options={{
+                    fillColor: 'blue', fillOpacity: 0.2,
+                    strokeColor: 'blue', strokeOpacity: 0.5, strokeWeight: 2,
+                    // clickable: false,
+                    draggable: false,
+                    editable: false,
+                    geodesic: false,
+                    zIndex: 0,
+                }}
+            />)
+        })
+    }
+
     /*
     panTo
     setMapCallback
     */
 
     return (<>
-        <GoogleMap
-            mapContainerStyle={{ ...defaultMapContainerStyle, ...style }}
-            center={mapCenter}
-            // center={{ lat: 37.772, lng: -122.214 }} // Initial center
-            zoom={defaultMapZoom}
-            onLoad={onLoad}
-            onUnmount={onUnmount}
-            // onDragEnd={console.log}
-            // onDrag={console.log}
-            // onBoundsChanged={console.log}
-            // onMouseUp={(v) => console.log("ON mouse Up: ", v)}
-            // onMouseMove={(v) => console.log("ON mouse Move: ", v)}
-            onCenterChanged={onCenterChanged}
-            // onClick={console.log}
-            options={{ ...defaultMapOptions }}
+        <MapComponent 
+            style={style} 
+            defaultCenter={center || defaultMapCenter} 
+            // onCenterChange={centerChanged}
+            onLoad={onLoad} 
+            {...props}
+            // onUnmount={onUnmount}
         >
             {children}
 
-            {staticZones && staticZones.map((zone, i) => {
-                return (<Polygon key={i}
-                    onMouseOver={(e)=>handleMouseOver(e, zone)}
-                    onMouseOut={handleMouseOut}
-                    path={zone.polygon.coordinates[0].map(([lng, lat]) => ({ lat, lng }))}
-                    options={{
-                        fillColor: 'blue', fillOpacity: 0.2,
-                        strokeColor: 'blue', strokeOpacity: 0.5, strokeWeight: 2,
-                        // clickable: false,
-                        draggable: false,
-                        editable: false,
-                        geodesic: false,
-                        zIndex: 0,
-                    }}
-                />)
-            })}
-            
+            {renderStaticZones()}
 
-            {enableDrawing && 
-                <div style={{ position:"absolute", top:15, left: 200 }}><Space>
-                    {newShape && <Button onClick={resetShape} color="blue">Reset Shape</Button>}
-                </Space></div>
-            }
+            {enableDrawing && <div style={{ position: "absolute", top: 15, left: 200 }}><Space>
+                {newShape && <Button onClick={resetShape} color="blue">Reset Shape</Button>}
+            </Space></div>}
 
-            {/* {(map && showDrawing) && <>
-                <DrawingManager
-                    // drawingMode
-                    options={{ 
-                        drawingControl:true,
-                        drawingControlOptions: {
-                            position: maps.ControlPosition.TOP_CENTER,
-                            drawingModes: [
-                                maps.drawing.OverlayType.POLYGON
-                            ]
-                        }
-                    }}
-                    // onPolygonUpdate
-                />
-            </>} */}
-
-            {tooltipPosition && (
-                <InfoWindow position={tooltipPosition}
-                    options={{
-                        pixelOffset: new window.google.maps.Size(0, -30), // Offset tooltip position
-                    }}
-                >
-                    <div style={{ padding: "5px" }}>
-                        <strong>{tooltipContent}</strong>
-                    </div>
-                </InfoWindow>
-            )}
+            {tooltipPosition && (<InfoWindow position={tooltipPosition}
+                options={{
+                    pixelOffset: new window.google.maps.Size(0, -30), // Offset tooltip position
+                }}
+            >
+                <div style={{ padding: "5px" }}><strong>{tooltipContent}</strong></div>
+            </InfoWindow>)}
 
 
-            <style>{`
-                .gm-ui-hover-effect {
-                display: none !important; /* Hide the close button */
-                }
-            `}</style>
-
-        </GoogleMap>
+        </MapComponent>
     </>)
-};
-const TheMap = React.memo(MapComponent)
+});
 
 export const GMap = (props) => {
     return (<>
@@ -491,10 +536,4 @@ GMap.propTypes = {
     enableDrawing: PropTypes.bool,
     staticZones: PropTypes.array,
     onMapLoad: PropTypes.func,
-
-    // markers: PropTypes.array,
-    // shapes: PropTypes.array,
-    // showDeliveryZones: PropTypes.bool,
-    // onZoneLoad: PropTypes.func,
-    // onZoneMatch: PropTypes.func,
 }

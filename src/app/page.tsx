@@ -3,14 +3,14 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { __error } from "@_/lib/consoleHelper";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { adminRoot } from "@_/configs";
 import { redirect, RedirectType } from 'next/navigation';
 
 
 function ConsoleHome(props) {
     const session = useSelector((state) => state.session);
-    const router = useRouter()
+    // const router = useRouter()
 
     useEffect(() => {
         if (!session || !session.token) {

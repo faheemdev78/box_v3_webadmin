@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { __error } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery, gql } from '@apollo/client';
 import { Alert, Breadcrumb, Card, Col, Divider, message, Popconfirm, Row, Space, Switch } from 'antd';
-import { Button, DevBlock, GMap, IconButton, Loader, Drawer, StatusTag, Table } from '@_/components';
+import { Button, DevBlock, GMap, IconButton, Loader, Drawer, StatusTag, Table, usePageProps } from '@_/components';
 import StoreWrapper from '@_/modules/store/storeWrapper';
 import GeoZoneForm from '@_/modules/geo_zones/zoneForm';
 import { Polygon } from '@react-google-maps/api';
@@ -13,11 +13,11 @@ import { adminRoot } from '@_/configs';
 import { PageHeader } from '@_/template';
 import { Page } from '@_/template/page';
 import { useParams } from 'next/navigation';
+import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 import GET_RECORD from '@_/graphql/geo_zone/geoZone.graphql';
 import GEO_ZONES from '@_/graphql/geo_zone/geoZones.graphql';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 // function EditStoreZone({ params: { zone_id }, store }) {
@@ -167,7 +167,9 @@ function EditStoreZone({ store }) {
     </>)
 }
 
-function ServiceZone({ initialValues, relatedZones, store, ...props }) {
+function ServiceZone({ initialValues, relatedZones, ...props }) {
+    const { store } = usePageProps()
+
     const [showDeliveryZones, set_showDeliveryZones] = useState(true)
     const [showServiceZones, set_showServiceZones] = useState(true)
 
@@ -211,7 +213,9 @@ function ServiceZone({ initialValues, relatedZones, store, ...props }) {
     </>)
 }
 
-function DeliveryZone({ initialValues, relatedZones, store, ...props }) {
+function DeliveryZone({ initialValues, relatedZones, ...props }) {
+    const { store } = usePageProps()
+
     const [showDeliveryZones, set_showDeliveryZones] = useState(true)
     const [showServiceZones, set_showServiceZones] = useState(true)
 
@@ -270,7 +274,8 @@ function DeliveryZone({ initialValues, relatedZones, store, ...props }) {
 }
 
 export default function Wrapper(props){
-    const { zone_id } = props.params;
+    const { store } = usePageProps()
+    const { store_id, zone_id } = useParams()
     const [initialValues, set_initialValues] = useState(null)
     const [fatelError, set_fatelError] = useState(null)
     const [showZoneForm, set_showZoneForm] = useState(false)
@@ -324,12 +329,11 @@ export default function Wrapper(props){
         return results;
     }
 
-
     if (!zone_id) return <Alert message="Missing Zone ID" showIcon type='error' />
     if (fatelError) return <Alert message={fatelError} showIcon type='error' />
     if (loading || !initialValues || zones_resutls.loading) return <Loader loading={true} />
 
-    return (<StoreWrapper {...props} render={({ store }) => (<>
+    return (<>
         <PageHeader title={`${initialValues.title}`}
             sub={<>
                 <Space split="|">
@@ -363,10 +367,10 @@ export default function Wrapper(props){
         {/* <p>Location: {initialValues.city.title}</p> */}
 
 
-        {initialValues.type == 'delivery' && 
+        {initialValues.type == 'delivery' &&
             <DeliveryZone {...props} relatedZones={zones_resutls?.data?.geoZones} initialValues={initialValues} store={store} />
         }
-        {initialValues.type == 'service' && 
+        {initialValues.type == 'service' &&
             <ServiceZone {...props} relatedZones={zones_resutls?.data?.geoZones} initialValues={initialValues} store={store} />
         }
 
@@ -374,12 +378,8 @@ export default function Wrapper(props){
             {showZoneForm && <GeoZoneForm zone_id={zone_id} store_id={store._id} store={store} staticZones={zones_resutls?.data?.geoZones} />}
         </Drawer>
 
-    </>)} />)
+    </>)
+    
+    // return (<StoreWrapper {...props} render={({ store }) => ()} />)
 
-    // if (initialValues.type == 'delivery') return (<StoreWrapper {...props} render={({ store }) => (<DeliveryZone {...props} relatedZones={zones_resutls?.data?.geoZones} initialValues={initialValues} store={store} />)} />)
-    // if (initialValues.type == 'service') return (<StoreWrapper {...props} render={({ store }) => (<ServiceZone {...props} relatedZones={zones_resutls?.data?.geoZones} initialValues={initialValues} store={store} />)} />)
-
-    // return <Alert message="Zone Not found!" showIcon type='error' />
-
-    // return (<StoreWrapper {...props} render={({ store }) => (<EditStoreZone {...props} initialValues={initialValues} store={store} />)} />)
 }

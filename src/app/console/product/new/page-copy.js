@@ -128,7 +128,7 @@ function CreateProductForm ({ initialValues }) {
             // price: Number(values.price || 0),
             // price_was: Number(values.price_was || 0),
             tax: {
-                texable: (values?.tax?.texable === true),
+                taxable: (values?.tax?.taxable === true),
                 formula: values?.tax?.formula,
                 amount: Number(values?.tax?.amount || 0),
                 hs_code: values?.tax?.hs_code,
@@ -628,16 +628,16 @@ function CreateProductForm ({ initialValues }) {
                                                 <Col span={8}><FormField label="Cost" type="number" name="cost" validate={rules.required} /></Col>
                                                 
                                                 <Col span={24}><Divider>Tax Settings</Divider></Col>
-                                                <Col span={8} align="right"><Label style={{ marginTop: "0px" }}>This product is texable</Label></Col>
-                                                <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="tax.texable" /></Col>
+                                                <Col span={8} align="right"><Label style={{ marginTop: "0px" }}>This product is taxable</Label></Col>
+                                                <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="tax.taxable" /></Col>
 
-                                                {values?.tax?.texable && <>
+                                                {values?.tax?.taxable && <>
                                                     <Col span={8} align="right" />
                                                     <Col span={10}><FormField type="text" label="HS Code" name="tax.hs_code" validate={rules.required} /></Col>
                                                     <Col span={6}><FormField options={tax_applition_on} type="select" label="Tax amount to be applied at" name="tax.applied_at" validate={rules.required} /></Col>
                                                 </>}
 
-                                                {values?.tax?.texable && <>
+                                                {values?.tax?.taxable && <>
                                                     <Col span={8} align="right" />
                                                     <Col span={16}><Space size={5}>
                                                         <FormField wrapperStyle={{ width: '80px' }} options={tax_formula_types} type="select" label="Tax Formula" compact name="tax.formula" onChange={(e) => form.mutators.calculateTotalTax({ formula: e, amount: values?.tax?.amount, price: values?.price })} />

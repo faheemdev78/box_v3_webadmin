@@ -1,12 +1,15 @@
 'use client'
 
 // import { useState } from 'react';
-import StoreWrapper from '@/modules/store/storeWrapper';
+// import StoreWrapper from '@/modules/store/storeWrapper';
 import BasketsList from './components/baskets_list';
+import { usePageProps } from '@_/components';
 // import BasketForm from './components/basket_form';
 
-function Baskets ({ store }) {
-    // const [showForm, set_showForm] = useState(false);
+export default function Baskets () {
+    const { store } = usePageProps()
+    // console.log("pageProps: ", pageProps)
+    
 
     return (<>
         <BasketsList 
@@ -19,8 +22,8 @@ function Baskets ({ store }) {
     </>)
 }
 
-export default function Wrapper(props){
-    return (<StoreWrapper {...props} render={({ store }) => (<Baskets store={store} {...props} />)} />)
-}
+// export default function Wrapper(props){
+//     return (<StoreWrapper {...props} render={({ store }) => (<Baskets store={store} {...props} />)} />)
+// }
 
 // export default Baskets;

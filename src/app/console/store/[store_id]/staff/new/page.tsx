@@ -12,16 +12,18 @@ import { userStatus, adminRoot } from '@_/configs';
 import Alert from 'antd/es/alert/Alert';
 import { Card, Col, message, Row, Space } from 'antd';
 import { AccTypesDD } from '@_/components/dropdowns';
-import { DevBlock } from '@_/components';
+import { DevBlock, usePageProps } from '@_/components';
 import { PageHeader } from '@_/template';
-import StoreWrapper from '@_/modules/store/storeWrapper';
+// import StoreWrapper from '@_/modules/store/storeWrapper';
 import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import RECORD_ADD from '@_/graphql/users/addStoreStaff.graphql'
 import EDIT_ADD from '@_/graphql/users/editStoreStaff.graphql'
 
 
-function StaffForm ({ store }) {
+export default function StaffForm () {
+    const { store } = usePageProps()
+
     const [error, setError] = useState(false);
     const router = useRouter()
 
@@ -127,7 +129,7 @@ function StaffForm ({ store }) {
     </>)
 }
 
-export default function Wrapper(props){
-    return (<StoreWrapper {...props} render={({ store }) => (<StaffForm store={store} {...props} />)} />)
-}
+// export default function Wrapper(props){
+//     return (<StoreWrapper {...props} render={({ store }) => (<StaffForm store={store} {...props} />)} />)
+// }
 

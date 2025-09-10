@@ -18,9 +18,7 @@ interface StoreHome_Props {
 }
 
 function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
-
   const pageProps = usePageProps()
-  console.log("pageProps: ", pageProps)
 
 
   return (<>

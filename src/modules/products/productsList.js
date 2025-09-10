@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Popconfirm, Alert, message, Row, Col, Divider, Radio, Modal, Space, Tag } from 'antd';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { __error } from '@_/lib/consoleHelper';
-import { Table, Loader, Button, Avatar, DataGrid, Icon, IconButton, DeleteButton } from '@_/components';
+import { Table, Loader, Button, Avatar, DataGrid, Icon, IconButton, DeleteButton, DevBlock } from '@_/components';
 import { ProductBarcodeFilter, ProductGridItem, ProductFilter } from './components'
 import Link from 'next/link';
 import { adminRoot } from '@_/configs';
@@ -13,19 +13,23 @@ import { useRouter } from 'next/navigation';
 import security from '@_/lib/security';
 import { PageHeader } from '@_/template';
 import { Page } from '@_/template/page';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppSelector } from '@_/rStore/hooks';
 
 import RECORD_DELETE from '@_/graphql/product/deleteProduct.graphql'
+import { getSettings } from '@_/rStore/slices/systemSlice';
 
 const defaultProps = {
   pageView: "list",
-  columns: ['title', 'variations_count', 'barcode', 'status', 'actions']
+  columns: ['title', 'variations_count', 'barcode', 'status'],
+  // columns: ['title', 'categories', 'variations_count', 'barcode', 'status', 'store'],
 };
 
 
 export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProps.pageView, columns = defaultProps.columns, loading, filter, dataSource, fetchData, busy, setBusy, searchFilterConfig, ...props }) => {
   const router = useRouter()
-  const session = useSelector((state) => state.session);
+  const session = useAppSelector((state) => state.session);
+  const settings = useAppSelector(getSettings)
+  const isStoreUser = !!(session?.user?.store?._id);
 
   const [deleteProduct, deleteProduct_results] = useMutation(RECORD_DELETE); // { data, loading, error }
 
@@ -70,7 +74,6 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
   // if (status=='loading') return <Loader loading={true} />
 
   const canDelete = security.verifyRole('104.5', session.user.permissions);
-  const isStoreUser = !!(session?.user?.store?._id);
 
   const _columns = [
     // { title: 'ID', dataIndex: '_id', key:'_id', width: 80, align: 'left' },
@@ -86,22 +89,75 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
     },
     { title: 'Barcode', dataIndex: 'barcode', key:'barcode', align: 'left', width: 250 },
     { title: 'Variations', dataIndex: 'variations_count', key:'variations_count', width: 80, align: 'center' },
-    { title: 'Price', dataIndex: ['store', 'price'], key:'store_price', width: 80, align: 'center' },
-    { title: 'Qty', dataIndex: ['store', 'available_qty'], key:'store_qty', width: 80, align: 'center' },
-    { title: 'Reserved', dataIndex: ['store', 'reserved_qty'], key:'store_reserved_qty', width: 80, align: 'center' },
+    // { title: 'Price', dataIndex: ['store', 'price'], key:'store_price', width: 80, align: 'center' },
+    // { title: 'Qty', dataIndex: ['store', 'available_qty'], key:'store_qty', width: 80, align: 'center' },
+    // { title: 'Reserved', dataIndex: ['store', 'reserved_qty'], key:'store_reserved_qty', width: 80, align: 'center' },
     { title: 'Global Status', dataIndex: 'status', key:'status', width: 100, align: 'center', render: (txt, rec) => (<Tag color={txt == 'online' ? 'green' : 'red'}>{txt}</Tag>) },
-    { title: 'Store Status', dataIndex: ['store', 'status'], key:'store_status', width: 100, align: 'center', render: (txt, rec) => (<Tag color={txt == 'online' ? 'green' : 'red'}>{txt}</Tag>) },
+    { title: 'Categories', dataIndex: 'categories', key: 'categories', width: 100, align: 'center', 
+      render: (catArray, rec) => catArray.map((cat, i) => (<Tag key={i}>{cat.title}</Tag>))
+    },
+    { title: 'STORE', dataIndex: 'store', key: 'store', 
+      children: [
+        { title: `Price (${settings.currency})`, dataIndex: 'store.price', key: 'store.price', 
+          render: (___, rec) => {
+            if (!rec.store) return null;
+
+            return (<>
+              {rec.store.price_was > 0 && <div className="price_was">{rec.store.price_was}</div>}
+              <div>{rec.store.price}</div>
+            </>)
+          }
+        },
+        {
+          title: 'Status', dataIndex: 'status', key: 'store.status', width: 80, align: "center",
+          render: (___, rec) => {
+            if (!rec.store) return null;
+
+            return (<Tag color={rec.status == 'online' ? 'green' : 'red'}>{rec.status}</Tag>)
+          }
+        },
+        { title: 'Qty', dataIndex: 'store.available_qty', key: 'store.available_qty', width: 80, align: "center", 
+          render:(___, rec) => {
+            if (!rec.store) return null;
+
+            return (<>{rec?.store?.available_qty}</>)
+          }
+        },
+      ],
+      
+      // render: (_store, rec) => {
+      //   if (!_store) return null; // <p>Store not configured</p>;
+
+      //   return (<>
+      //     <div><Space>
+      //       <div>Price: </div>
+      //       {_store.price_was > 0 && <div className="price_was">{settings.currency} {_store.price_was}</div>}
+      //       <div>{settings.currency} {_store.price}</div>
+      //     </Space></div>
+      //     <div><Space>
+      //       <Tag color={_store.status == 'online' ? 'green' : 'red'}>{_store.status}</Tag>
+      //       <div>Qty: {_store.available_qty}</div>
+      //     </Space></div>
+      //     {/* <div>{_store.store_status}</div> */}
+      //   </>)
+      // }
+    },
+    // { title: 'Store Status', dataIndex: ['store', 'status'], key:'store_status', width: 100, align: 'center', render: (txt, rec) => (<Tag color={txt == 'online' ? 'green' : 'red'}>{txt}</Tag>) },
     {
-      title: 'Actions', dataIndex: 'actions', key:'actions', align: 'right', width: 100,
+      title: '', dataIndex: 'actions', key:'actions', align: 'right', width: 50,
       render: (text, record) => {
-        return (<Space>
-          {/* <IconButton onClick={() => props.onEditRecord(record)} icon="pen" /> */}
-          {/* <IconButton onClick={() => router.push(`${adminRoot}/product/${record._id}/view`)} icon="pen" /> */}
+        return (<>
           {canDelete && <DeleteButton disabled={(record.variations_count > 0)} onClick={() => handleDelete(record._id)} />}
-        </Space>)
+        </>)
+
+        // return (<Space>
+        //   <IconButton onClick={() => props.onEditRecord(record)} icon="pen" />
+        //   <IconButton onClick={() => router.push(`${adminRoot}/product/${record._id}/view`)} icon="pen" />
+        //   {canDelete && <DeleteButton disabled={(record.variations_count > 0)} onClick={() => handleDelete(record._id)} />}
+        // </Space>)
       },
     },
-  ].filter(o => (columns.includes(o.key)));
+  ].filter(o => (columns.includes(o.key) || o.key == 'actions'));
 
 
   return (<>
@@ -156,7 +212,8 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
         />
       </>}
 
-      {pageView == "list" && <Table bordered
+      {pageView == "list" && <Table 
+        bordered
         loading={loading || busy}
         columns={_columns}
         dataSource={dataSource || null}
@@ -170,6 +227,8 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
         onChange={({ current, pageSize }) => handleTableChange({page: current, pageSize })}
       />}
     </Page>
+
+    <DevBlock obj={dataSource} />
 
   </>)
 

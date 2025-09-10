@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
-import { message, Row, Col, Card, Alert, Popover, Space } from 'antd';
+import { message, Row, Col, Card, Alert, Popover, Space, Tooltip } from 'antd';
 import moment from 'moment';
 import _ from 'lodash'
 import { Page, PageBar, PageHeader } from '@_/template';
@@ -9,28 +9,26 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import update from 'immutability-helper';
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client';
-import FieldFormEditor from '@/modules/settings/FieldFormEditor';
 import { catchApolloError, checkApolloRequestErrors, dateToUtc } from '@/lib/utill';
-import { Button, Heading, Icon, Loader, DeleteButton, IconButton, ListHeader, DevBlock, Table, PopMenu } from '@/components'
+import { Button, Loader, DevBlock, Table, PopMenu } from '@/components'
+import FieldFormEditor from '@/modules/settings/FieldFormEditor';
+import { sleep } from '@_/lib';
 
+import { FieldArray } from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays'
 import { Form as FinalForm, Field as FinalField } from 'react-final-form';
 import { FormField, FormFieldGroup, SubmitButton, rules, submitHandler } from '@/components/form';
 
-import { useDispatch, useSelector } from 'react-redux';
 import { useAppDispatch, useAppSelector, useAppStore } from '@/rStore/hooks';
-// import { setSettings, getSettings } from '@/rStore/slices/systemSlice';
+import { initSettings } from '@_/rStore/slices/systemSlice';
 
-import GET_CONFIGS from '@_/graphql/value_pairs/valuePairs.graphql';
+import { fetchSettings } from '@_/lib/fetchSettings';
+
+import GET_VALUES from '@_/graphql/value_pairs/valuePairs.graphql';
 import UPDATE_SORT from '@_/graphql/value_pairs/updateValuePairsSort.graphql';
 import EDIT_MULTIPLE from '@_/graphql/value_pairs/updateValuePairArray.graphql';
 import DEL_SETTINGS from '@_/graphql/value_pairs/deleteValuePairs.graphql';
 
-// import EDIT_MULTIPLE from '@_/graphql/settings/editMultipleSettings.graphql';
-
-const languageArray = [
-    { _id: "en", title: "English" }
-]
 
 const SortableTable = ({ fields, onUpdate }) => {
     const [updateValuePairsSort, sort_details] = useMutation(UPDATE_SORT);
@@ -152,17 +150,180 @@ const SortableTable = ({ fields, onUpdate }) => {
 
 }
 
+const renderField = ({ field, session }) => {
+    if (!field) return { error: { message: `Invalid field (${field.title})` } }
+
+    let tooltip = field.tooltip && <>{field.tooltip} <br />field_name: {field.field_name} <br />type: {field.type}</>;
+    let label = field.title; // [<span key={0}>{field.title}</span>];
+    if (session.user.acc_type == 'super-admin') {
+        label = <Tooltip title={field.field_name}><span>{label}</span></Tooltip>
+        // label.push(<small key={label.length}> ({field.field_name})</small>)
+    }
+
+    if (field.value_type == "timezone") {
+        let arr = moment.tz.names();
+        return {
+            showSearch: true,
+            optionFilterProp: "children",
+            filterOption: (input, option) => (option?.value ?? '').toLowerCase().includes(input.toLowerCase()),
+            options: arr.map(o => ({ value: o, label: o })),
+            type: "select",
+            label,
+            tooltip,
+            allowClear: true
+        }
+    }
+    if (field.value_type == "text") return { type: "text", label, tooltip, allowClear: true }
+    if (field.value_type == "textarea") return { type: "textarea", label, tooltip, allowClear: true }
+    if (field.value_type == "number") return { type: "number", label, tooltip, allowClear: true }
+    if (field.value_type == "email") return { type: "email", label, tooltip, allowClear: true }
+    if (field.value_type == "switch") return { type: "switch", label, tooltip, allowClear: true }
+    if (field.value_type == "datetime") return { type: "date", label, tooltip, allowClear: true }
+    if (field.value_type == "date") return { type: "date", label, tooltip, allowClear: true }
+    if (field.value_type == "select") return { type: "select", options: [], label, tooltip, allowClear: true }
+
+    return { error: { message: `Invalid field (${field.title}) ~ (type: ${field && field.value_type})` } }
+}
 
 
+function RenderGroup({ initialValues, title, refetchData, session, onEditField }){
+    const [enableSort, set_enableSort] = useState(false)
+    const [error, setError] = useState(null)
+    const [data, setData] = useState(initialValues)
 
-export default function SettingsPage (props) {
-    const [getValuePairs, { called, loading, data }] = useLazyQuery(GET_CONFIGS);
+    const dispatch = useAppDispatch()
+
     const [updateValuePairArray, edit_details] = useMutation(EDIT_MULTIPLE);
     const [deleteValuePairs, del_details] = useMutation(DEL_SETTINGS);
 
-    const dispatch = useAppDispatch();
-    // const settings = useAppSelector(getSettings);
-    const session = useSelector((state) => state.session);
+    useEffect(() => {
+        setData(initialValues)
+    }, [initialValues])
+    
+
+    const onDeletePress = async (_id) => {
+        let resutls = await deleteValuePairs({ variables: { _id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.deleteValuePairs }))
+            .catch(catchApolloError)
+        
+        if (resutls.error) {
+            alert(resutls.error.message);
+            return false;
+        }
+        refetchData();
+    }
+
+    const onSubmit = async (values) => {
+        // console.log(__yellow("onSubmit()"), values);
+
+        setError(null);
+        sleep(2000);
+
+        const input = values.settings.map((item: any) => {
+            let _return = {
+                _id: item._id,
+                value: item.value.length > 0 ? String(item.value).trim() : "", // (item.value !== null || item.value !== undefined || item.value !== "") ? String(item.value) : "",
+            }
+            if (item.value_type == 'number') Object.assign(_return, { value: isNaN(item.value) ? "0" : String(item.value || 0) })
+            if (item.value_type == "switch") Object.assign(_return, { value: (_return.value === true) ? "yes" : "no" })
+            if (item.value_type == "select") Object.assign(_return, { value: JSON.stringify(_return.options) })
+            if (['date', 'datetime'].includes(item.value_type)) Object.assign(_return, { value: dateToUtc(_return.value) })
+
+            return _return;
+        })
+
+        let resutls = await updateValuePairArray({ variables: { input } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.updateValuePairArray }))
+            .catch(catchApolloError)
+
+        if (resutls.error) {
+            setError(resutls.error.message);
+            return false;
+        }
+
+        message.success("Settings Updated!")
+        setData(values.settings)
+
+        if(title=='general'){
+            fetchSettings().then(r => {
+                if (!r.error) dispatch(initSettings(r));
+            });
+        }
+
+        // fetchData();
+        return false;
+    }
+
+
+
+    return (<><Card>
+        <Row align='middle'>
+            <Col flex="auto"><div style={{ fontWeight: "bold", textTransform: "capitalize" }}>{title == "null" ? "Others" : title}</div></Col>
+            <Col>
+                <Button size="small" shape="round" type={enableSort ? "primary" : "dashed"} onClick={() => set_enableSort(prev => (!prev))}>{enableSort ? "Disable" : "Enable"} Sort</Button>
+            </Col>
+        </Row>
+
+        <FinalForm onSubmit={onSubmit} id="ConfigForm" initialValues={{ settings:data }}
+            mutators={{ ...arrayMutators }}
+            render={(formargs) => {
+                const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
+
+                return (<>
+                    {(error) && <Alert message={error} showIcon type='error' />}
+
+                    <form id={`form_${title.replaceAll(" ", "_")}`} {...submitHandler(formargs)}>
+
+                        <FieldArray name="settings">
+                            {({ fields }) => {
+                                
+                                return (<>
+                                    <Row gutter={[10, 10]}>
+                                        {fields.map((name, index) => {
+                                            const field = fields.value[index];
+                                            const _field = renderField({ field, session })
+
+                                            return (<Col span={["something"].includes(field.category) ? 24 : 12} key={index}>
+                                                <Row align="bottom" className='nowrap'>
+                                                    <Col flex="auto">
+                                                        {/* {field.error && <Alert message={field.error.message} type='error' showIcon />} */}
+                                                        {!field.error && <FormField name={`${name}.value`} {..._field} />}
+                                                    </Col>
+                                                    <Col>
+                                                        <PopMenu direction="horizontal" size="small" placement="left" items={[
+                                                            { onClick: () => onEditField(field), label: "Edit" },
+                                                            { onClick: () => onDeletePress(field._id), label: "Delete", type: 'delete' }
+                                                        ]}></PopMenu>
+                                                    </Col>
+                                                </Row>
+                                            </Col>)
+
+                                        })}
+                                    </Row>
+                                </>)
+
+                            }}
+                        </FieldArray>
+                                          
+                        <div style={{ padding:"10px 20px 0", textAlign:"center" }}><SubmitButton loading={submitting} disabled={invalid} color="orange" label="Save" /></div>
+
+                    </form>
+
+                    {/* <DevBlock obj={values} /> */}
+                </>)
+
+            }}
+        />
+    </Card></>)
+}
+
+
+export default function SettingsPage (props) {
+    const [getValuePairs, { called, loading, data }] = useLazyQuery(GET_VALUES);
+    const [updateValuePairArray, edit_details] = useMutation(EDIT_MULTIPLE);
+    const [deleteValuePairs, del_details] = useMutation(DEL_SETTINGS);
+
+    const session = useAppSelector((state) => state.session);
     
     const [settingsArray, set_settings] = useState(null)
     const [showFieldForm, set_showFieldForm] = useState(false)
@@ -170,8 +331,9 @@ export default function SettingsPage (props) {
     const [enableSort, set_enableSort] = useState(false)
     const [error, setError] = useState(null)
 
+
     useEffect(() => {
-        if (settingsArray) return;
+        if (settingsArray || called) return;
         fetchData();
 
         return () => {
@@ -180,7 +342,7 @@ export default function SettingsPage (props) {
     }, [])
 
     const fetchData = async () => {
-        set_enableSort(false)
+        // set_enableSort(false)
         setBusy(true)
         let resutls = await getValuePairs({
             variables: {
@@ -218,7 +380,7 @@ export default function SettingsPage (props) {
             }
             if (_return.type == "switch") Object.assign(_return, { value: (_return.value === true) ? "yes" : "no" })
             if (_return.type == "select") Object.assign(_return, { value: JSON.stringify(_return.options) })
-            if (_return.type == "date" || _return.type == "date_time") Object.assign(_return, { value: dateToUtc(_return.value) })
+            if (_return.type == "date" || _return.type == "datetime") Object.assign(_return, { value: dateToUtc(_return.value) })
 
             return _return;
         })
@@ -265,7 +427,7 @@ export default function SettingsPage (props) {
         if (theField.value_type == "number") return { type: "number", label: label, tooltip: tooltip, allowClear: true }
         if (theField.value_type == "email") return { type: "email", label: label, tooltip: tooltip, allowClear: true }
         if (theField.value_type == "switch") return { type: "switch", label: label, tooltip: tooltip, allowClear: true }
-        if (theField.value_type == "date_time") return { type: "date", label: label, tooltip: tooltip, allowClear: true }
+        if (theField.value_type == "datetime") return { type: "date", label: label, tooltip: tooltip, allowClear: true }
         if (theField.value_type == "date") return { type: "date", label: label, tooltip: tooltip, allowClear: true }
         if (theField.value_type == "select") return { type: "select", options:[], label: label, tooltip: tooltip, allowClear: true }
 
@@ -288,8 +450,40 @@ export default function SettingsPage (props) {
     }
 
     
-    if (busy) return <Loader loading={true} center />
+    if (busy || loading) return <Loader loading={true} center />
     if (!settingsArray) return <Alert message="Empty settingsArray" type='error' showIcon />
+
+    let groupped = _.groupBy(settingsArray, "category");
+    let keys = Object.keys(groupped);
+
+
+    return (<>
+        <PageHeader title={"Settings"} sub={null}>
+            <Button color="orange" onClick={() => set_showFieldForm(true)}>Add New Field</Button>
+        </PageHeader>
+
+        <Page style={{ padding: "0 20px" }}>
+            <Row gutter={[5, 5]}>
+                {keys && keys.sort().map((group_key, i) => {
+                    const group = groupped[group_key];
+
+                    return (<Col span={12} key={i}>
+                        <RenderGroup initialValues={group} title={group_key} session={session} refetchData={fetchData} onEditField={set_showFieldForm} />
+                    </Col>)
+
+                })}
+            </Row>
+        </Page>
+
+
+        <FieldFormEditor show={showFieldForm !== false} initialValues={showFieldForm === true ? null : showFieldForm}
+            department="sys_configs"
+            onSuccess={onFieldsUpdate}
+            onCancel={() => set_showFieldForm(false)}
+        />
+
+    </>)
+
 
     return (<>
         <PageHeader title={"Settings"} sub={null}>
@@ -297,6 +491,8 @@ export default function SettingsPage (props) {
         </PageHeader>
 
         <Page>
+
+
 
             <FinalForm onSubmit={onSubmit} id="ConfigForm" initialValues={{ settings: settingsArray }}
                 mutators={{ ...arrayMutators }}
@@ -315,7 +511,7 @@ export default function SettingsPage (props) {
                                 {keys.map((group, i) => {
                                     // if (!checkRights(rights, `settings-${String(group).toLowerCase()}`)) return <span key={i} />;
 
-                                    console.log("enableSort: ", { enableSort, group })
+                                    // console.log("enableSort: ", { enableSort, group })
 
                                     const group_fields = groupped[group];
                                     // group_fields.sort(function (a, b) { return a.sort_order - b.sort_order });
@@ -325,20 +521,11 @@ export default function SettingsPage (props) {
                                             <Row align='middle'>
                                                 <Col flex="auto"><b>{group == "null" ? "Others" : group}</b></Col>
                                                 <Col>
-                                                    <Button 
-                                                        size="small" shape="round"
-                                                        disabled={enableSort && enableSort !== group} 
-                                                        type={enableSort ? "primary" : "dashed"} 
-                                                        onClick={() => {
-                                                            // console.log("enableSort: ", { enableSort, group })
-
-                                                            set_enableSort(enableSort === false ? group : false)
-                                                        }}
+                                                    <Button size="small" shape="round" disabled={enableSort && enableSort !== group} type={enableSort ? "primary" : "dashed"} 
+                                                        onClick={() => set_enableSort(prev => (!prev ? group : false))}
                                                     >{enableSort ? "Disable" : "Enable"} Sort</Button>
                                                 </Col>
                                             </Row>
-
-                                            <p>{`${enableSort} === ${group}`} : {enableSort === group ? "TRUE" : "FALSE"}</p>
 
                                             {enableSort === group && <SortableTable fields={group_fields} onUpdate={() => fetchData()} />}
 

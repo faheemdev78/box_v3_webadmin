@@ -1,5 +1,5 @@
-mutation deleteGeoZone($id: ID!) {
-    deleteGeoZone(id: $id) {
+mutation deleteGeoZone($_id: ID!) {
+    deleteGeoZone(_id: $_id) {
         _id
         error{ message }
     }

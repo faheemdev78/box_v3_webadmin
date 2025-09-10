@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { Alert, Button as AntButton, Dropdown, Popconfirm, Tooltip, ConfigProvider } from "antd";
 // import { useResponsive } from 'antd-style';
 import styles from './Button.module.scss'
@@ -12,7 +12,13 @@ import { Icon } from './icon';
 import { __error } from '@_/lib/consoleHelper';
 
 
-export const Button = ({ onClick, tooltip, ...props }: { onClick: Function, tooltip: string }) => {
+const CLICK_TIMEOUT = 500; // 2000 = 2 seconds
+
+export const Button = ({ onClick, tooltip, ...props }: { 
+    onClick: Function, 
+    tooltip?: string, 
+    color?: string
+}) => {
     // const { xxl } = useResponsive();
 
     let class_name = [styles.custom_bt]
@@ -22,7 +28,7 @@ export const Button = ({ onClick, tooltip, ...props }: { onClick: Function, tool
     var throttledHandlePress;
     if (onClick){
         throttledHandlePress = useCallback(
-            throttle(onClick, 2000, {
+            throttle(onClick, CLICK_TIMEOUT, {
                 leading: true,  // Fire on the first click.
                 trailing: false, // Do not fire again after the cooldown.
             }),
@@ -41,7 +47,7 @@ export const BackButton = ({ onClick, tooltip,  ...props }) => {
     const _onClick = () => onClick ? onClick() : router.back();
 
     const throttledHandlePress = useCallback(
-        throttle(_onClick, 2000, {
+        throttle(_onClick, CLICK_TIMEOUT, {
             leading: true,  // Fire on the first click.
             trailing: false, // Do not fire again after the cooldown.
         }),
@@ -52,10 +58,10 @@ export const BackButton = ({ onClick, tooltip,  ...props }) => {
 
     return <Wrapper><Button {...props} onClick={throttledHandlePress} icon={<LeftOutlined />}>{props.children}</Button></Wrapper>
 }
-BackButton.propTypes = {
-    onClick: PropTypes.func,
-    tooltip: PropTypes.string,
-}
+// BackButton.propTypes = {
+//     onClick: PropTypes.func,
+//     tooltip: PropTypes.string,
+// }
 
 export const DeleteButton = (props) => {
     const [busy, setBusy] = useState(false);
@@ -67,7 +73,7 @@ export const DeleteButton = (props) => {
     }
 
     const throttledHandlePress = useCallback(
-        throttle(onClick, 2000, {
+        throttle(onClick, CLICK_TIMEOUT, {
             leading: true,  // Fire on the first click.
             trailing: false, // Do not fire again after the cooldown.
         }),
@@ -107,7 +113,7 @@ export const ArchiveButton = (props) => {
     }
 
     const throttledHandlePress = useCallback(
-        throttle(onClick, 2000, {
+        throttle(onClick, CLICK_TIMEOUT, {
             leading: true,  // Fire on the first click.
             trailing: false, // Do not fire again after the cooldown.
         }),
@@ -140,7 +146,7 @@ export const UnArchiveButton = (props) => {
     }
 
     const throttledHandlePress = useCallback(
-        throttle(onClick, 2000, {
+        throttle(onClick, CLICK_TIMEOUT, {
             leading: true,  // Fire on the first click.
             trailing: false, // Do not fire again after the cooldown.
         }),
@@ -167,7 +173,7 @@ export const IconButton = ({ onClick, ...props }) => {
     let _icon = <Icon icon={props.icon} />
 
     const throttledHandlePress = useCallback(
-        throttle(onClick, 2000, {
+        throttle(onClick, CLICK_TIMEOUT, {
             leading: true,  // Fire on the first click.
             trailing: false, // Do not fire again after the cooldown.
         }),
@@ -184,7 +190,7 @@ export const IconButton = ({ onClick, ...props }) => {
 export const MenuButton = ({ onClick, ...props }) => {
 
     const throttledHandlePress = useCallback(
-        throttle(onClick, 2000, {
+        throttle(onClick, CLICK_TIMEOUT, {
             leading: true,  // Fire on the first click.
             trailing: false, // Do not fire again after the cooldown.
         }),
@@ -200,7 +206,7 @@ export const ActionButton = ({ style, size, items, disabled, placement, color })
 
     let _items = items ? items.map(({ onClick, ...item }, i) => {
         let throttledHandlePress = useCallback(
-            throttle(onClick, 2000, {
+            throttle(onClick, CLICK_TIMEOUT, {
                 leading: true,  // Fire on the first click.
                 trailing: false, // Do not fire again after the cooldown.
             }),

@@ -56,6 +56,7 @@ export const settingCats = [
     { value: "general", label: "General" },
     { value: "applications", label: "Applications" },
     { value: "alerts", label: "Alerts" },
+    { value: "login_management", label: "Login Management" },
 ]
 
 export const timeZonesArray = [ "Asia/Karachi", ]

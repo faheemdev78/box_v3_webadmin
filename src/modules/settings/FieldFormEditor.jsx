@@ -9,11 +9,11 @@ import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-for
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@_/components/form';
 import arrayMutators from 'final-form-arrays'
 import { FieldArray } from 'react-final-form-arrays'
+import { settingCats } from '@_/configs';
 
 // import GET_VALUE from '@_/graphql/value_pairs/valuePair.graphql';
 import ADD_VALUE from '@_/graphql/value_pairs/addValuePairs.graphql';
 import EDIT_VALUE from '@_/graphql/value_pairs/editValuePairs.graphql';
-import { settingCats } from '@_/configs';
 
 
 const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, client }) => {
@@ -21,7 +21,6 @@ const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, c
     const [addValuePairs, add_details] = useMutation(ADD_VALUE);
     const [editValuePairs, edit_details] = useMutation(EDIT_VALUE);
     // const { data, loading } = useSubscription(QUERY_SUBSCRIPTION, { variables: { postID } });
-
     // const [busy, setBusy] = useState(false)
 
     const onSubmit = async(values) => {
@@ -38,7 +37,7 @@ const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, c
             validator_function: values.validator_function,
         }
         if (values.value_type == "date" && values.values) Object.assign(input, { values: dateToUtc(values.values) })
-        if (values.value_type == "date_time" && values.values) Object.assign(input, { values: dateToUtc(values.values) })
+        if (values.value_type == "datetime" && values.values) Object.assign(input, { values: dateToUtc(values.values) })
         if (values.value_type == "select" && values.options) Object.assign(input, { values: JSON.stringify(values.options) })
                     
         if (values._id) {
@@ -114,7 +113,7 @@ const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, c
                                         { value: "textarea", label: "Textarea" },
                                         { value: "select", label: "Select" },
                                         { value: "date", label: "Date" },
-                                        { value: "date_time", label: "Date & Time" },
+                                        { value: "datetime", label: "Date & Time" },
                                         { value: "email", label: "Email" },
                                     ]}
                                     type="select" name="value_type" label="Type" validate={rules.required}
@@ -162,7 +161,7 @@ const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, c
                                 </FieldArray>
                             </>}
                             {values.type == "date" && <FormField type="date" name="values" label="Value" />}
-                            {values.type == "date_time" && <FormField type="date" showTime name="values" label="Value" />}
+                            {values.type == "datetime" && <FormField type="date" showTime name="values" label="Value" />}
                             {values.type == "email" && <FormField type="email" name="values" label="Value" />}
 
                             <FormField type="text" name="tooltip" label="Tooltip" />

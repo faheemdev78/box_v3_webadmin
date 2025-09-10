@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { __error } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery, gql } from '@apollo/client';
 import { Alert, Card, Col, Divider, Popconfirm, Row, Space, Switch } from 'antd';
-import { Button, DevBlock, GMap, IconButton, Drawer, Loader, StatusTag, Table } from '@_/components';
+import { Button, DevBlock, GMap, IconButton, Drawer, Loader, StatusTag, Table, usePageProps } from '@_/components';
 import StoreWrapper from '@_/modules/store/storeWrapper';
 import { VehicleForm } from '@_/modules/vehicles';
 import { Polygon } from '@react-google-maps/api';
@@ -18,7 +18,9 @@ import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 // function VehicleDetails({ params: { vehicle_id }, store }) {
-function VehicleDetails({ store }) {
+export default function VehicleDetails() {
+    const { store } = usePageProps()
+
     const { vehicle_id } = useParams<{ vehicle_id: string }>()
 
     const [thisNode, set_thisNode] = useState(null)
@@ -96,6 +98,6 @@ function VehicleDetails({ store }) {
     </>)
 }
 
-export default function Wrapper(props) {
-    return (<StoreWrapper {...props} render={({ store }) => (<VehicleDetails {...props} store={store} />)} />)
-}
+// export default function Wrapper(props) {
+//     return (<StoreWrapper {...props} render={({ store }) => (<VehicleDetails {...props} store={store} />)} />)
+// }

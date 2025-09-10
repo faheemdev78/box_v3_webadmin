@@ -1,0 +1,9 @@
+#import "../delivery_slots.graphql"
+#import "../error.graphql"
+
+mutation copyDelierySlotsTo($input: CopySlots_Input!) {
+    copyDelierySlotsTo(input: $input) {
+        edges { ...DeliverySlotsInfo }
+        error { ...ErrorInfo }
+    }
+}

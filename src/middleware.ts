@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { getSessionToken } from '@_/lib/auth';
 import type { NextRequest } from 'next/server';
-import jwt_decode from 'jwt-decode';
-import { __error } from './lib/consoleHelper';
+import { jwtDecode } from "jwt-decode";
+import { getSessionToken } from '@/lib/auth';
+import { __error } from '@/lib/consoleHelper';
 
 const protectedRoutes = ['/console'];
 const authRoutes = ['/login'];
@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
     var decoded;
     if (token){
         try {
-            decoded = jwt_decode(token)
+            decoded = jwtDecode(token)
             // console.log('User from JWT:', decoded);
 
             // You can set a header to forward to SSR server components:
@@ -27,7 +27,9 @@ export async function middleware(request: NextRequest) {
             // response.headers.set('x-user-email', decoded.email);
             // return response;
         } catch (e) {
-            console.error('Invalid token');
+            console.error('Invalid token', { token });
+            // console.log(__error("Invalid token"), e);
+            // console.log({ token })
         }
     }
 

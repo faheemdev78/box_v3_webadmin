@@ -1,4 +1,0 @@
-fragment LanguageSchemaInfo on LanguageSchema {
-  code
-  title
-}

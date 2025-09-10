@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { __error, __yellow } from '@_/lib/consoleHelper';
 import { ProductView, ProductWrapper } from "@/modules/products";
 import { Alert, Card } from 'antd';
-import { DevBlock } from '@_/components';
+// import { DevBlock } from '@_/components';
 // import { useAppSelector } from '@_/rStore/hooks';
 
 // interface ViewProductFormWrapper_Props {

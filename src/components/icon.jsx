@@ -6,14 +6,15 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 // import { faThumbsUp } from '@fortawesome/free-solid-svg-icons'
 import {
   faAngleDown, faArrowRight, faBarcode, faBell, faClock, faCog, faEllipsisV, faEye, faImage, faMessage, faMultiply,
-  faPen, faPlus, faSearch, faSquare, faSquareCheck, faStopwatch, faThLarge, faThList, faTrashAlt
+  faPen, faPlus, faMinus, faSearch, faSquare, faSquareCheck, faStopwatch, faThLarge, faThList, faTrashAlt, faCopy
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { __error } from '@_/lib/consoleHelper';
 
 library.add(
-  faEllipsisV, faThList, faThLarge, faSearch, faBarcode, faPen, faTrashAlt, faPlus, faImage, faArrowRight, 
-  faStopwatch, faClock, faCog, faEye, faSquareCheck, faSquare, faBell, faMultiply, faMessage, faAngleDown
+  faEllipsisV, faThList, faThLarge, faSearch, faBarcode, faPlus, faMinus,  faImage, faArrowRight, 
+  faStopwatch, faClock, faCog, faEye, faSquareCheck, faSquare, faBell, faMultiply, faMessage, faAngleDown,
+  faPen, faTrashAlt, faCopy
 )
  
 

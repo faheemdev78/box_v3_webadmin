@@ -3,7 +3,7 @@ import React, { Component, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types';
 import { Drawer, message, Row, Col, Divider, Alert, Space, Card } from 'antd';
 import { Button, DevBlock, FileUploader, GMap, Loader } from '@_/components';
-import { string_to_slug } from '@_/lib/utill';
+import { catchApolloError, checkApolloRequestErrors, string_to_slug } from '@_/lib/utill';
 import { adminRoot, publishStatus, geoZoneTypes } from '@_/configs';
 import { __error, __yellow } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery, useQuery } from '@apollo/client';
@@ -19,7 +19,7 @@ import GEO_ZONE from '@_/graphql/geo_zone/geoZone.graphql';
 import GEO_ZONES from '@_/graphql/geo_zone/geoZones.graphql';
 
 
-function FormComp({ onSuccess, initialValues, store_id, ...props }) {
+function FormComp({ onSuccess, initialValues, store, ...props }) {
     const [error, setError] = useState(null)
     const [staticZones, setStaticZones] = useState(props.staticZones || [])
 
@@ -28,7 +28,6 @@ function FormComp({ onSuccess, initialValues, store_id, ...props }) {
     const [geoZones, zones_resutls] = useLazyQuery(GEO_ZONES);
 
     const onSubmit = async (values) => {
-        console.log("onSubmit: ", values)
         setError(null);
 
         const input = {
@@ -58,7 +57,9 @@ function FormComp({ onSuccess, initialValues, store_id, ...props }) {
                 status: values.city.status,
             },
             store: {
-                _id: store_id
+                _id: store._id,
+                title: store.title,
+                code: store.code
             },
         }
 
@@ -81,41 +82,35 @@ function FormComp({ onSuccess, initialValues, store_id, ...props }) {
     }
 
     async function addRecord(input){
-        let resutls = await addGeoZone({ variables: { input } }).then(r => (r?.data?.addGeoZone))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Request Error!" } }
-            })
+        let resutls = await addGeoZone({ variables: { input } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.addGeoZone }))
+            .catch(catchApolloError)
 
         return resutls;
     }
 
     async function editRecord(input){
-        let resutls = await editGeoZone({ variables: { input } }).then(r => (r?.data?.editGeoZone))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Request Error!" } }
-            })
+        let resutls = await editGeoZone({ variables: { input } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.editGeoZone }))
+            .catch(catchApolloError)
 
         return resutls;
     }
 
     async function loadRelatedZones({ city, type, _id }){
-        if (!city || !store_id || !type) return;
+        if (!city || !store._id || !type) return;
         console.log(__yellow("loadRelatedZones()"))
 
         const filter = {
             "city._id": city._id,
-            "store._id": store_id,
+            "store._id": store._id,
             "type": type.value,
         }
         if (_id) Object.assign(filter, { _id: { $ne: _id } })
 
-        let results = await geoZones({ variables: { filter: JSON.stringify(filter) } }).then(r => (r?.data?.geoZones))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Unable to load related zones" } }
-            })
+        let results = await geoZones({ variables: { filter: JSON.stringify(filter) } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.geoZones }))
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error(results.error.message)
@@ -219,7 +214,7 @@ function FormComp({ onSuccess, initialValues, store_id, ...props }) {
     </>)
 }
 
-export default function GeoZoneForm({ zone_id, store_id, ...props }) {
+export default function GeoZoneForm({ zone_id, store, ...props }) {
     const [initialValues, set_initialValues] = useState(null)
     const [error, setError] = useState(null)
     const router = useRouter()
@@ -262,19 +257,19 @@ export default function GeoZoneForm({ zone_id, store_id, ...props }) {
         })
     }
 
-    const onSuccess = (val) => router.push(`${adminRoot}/store/${store_id}/zones`);
+    const onSuccess = (val) => router.push(`${adminRoot}/store/${store._id}/zones`);
 
     if (error) return <Alert message={error} type="error" showIcon />
     if (zone_id && (loading || !initialValues)) return <Loader loading={true} />
-    if (!store_id) return <Alert message={"Store ID not found!"} type='error' showIcon />
+    if (!store._id) return <Alert message={"Store ID not found!"} type='error' showIcon />
 
     return (<>
-        <FormComp onSuccess={onSuccess} initialValues={initialValues} store_id={store_id} {...props} />
+        <FormComp onSuccess={onSuccess} initialValues={initialValues} store={store} {...props} />
     </>)
 }
 GeoZoneForm.propTypes = {
     zone_id: PropTypes.string,
-    store_id: PropTypes.string.isRequired,
+    store: PropTypes.object.isRequired,
     onCancel: PropTypes.func.isRequired,
     staticZones: PropTypes.array,
 }

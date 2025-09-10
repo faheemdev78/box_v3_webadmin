@@ -6,9 +6,9 @@ import { __error } from '@_/lib/consoleHelper';
 import { ProductsList } from "@_/modules/products";
 import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
 import { Card, message, Row } from "antd";
+import { catchApolloError, checkApolloRequestErrors } from "@_/lib/utill_apollo";
 
 import LIST_DATA from '@_/graphql/product/productsQuery.graphql'
-import { checkApolloRequestErrors } from "@_/lib/utill_apollo";
 
 const defaultFilter = {}; // { status: 'online' }
 
@@ -42,10 +42,7 @@ function ProductsListPage(props) {
             }
          })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productsQuery }))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
+            .catch(catchApolloError)
         setBusy(false)
 
         if (resutls && resutls.error) {

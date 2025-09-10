@@ -100,4 +100,11 @@ export const UserRightsArray = [
         ]
     },
 
+    { _id: 1003, title: 'Voucher',
+        rules: [
+            { title: 'Show Vouchers', key: '1003.1' },
+            { title: 'Manage Vouchers', key: '1003.2' },
+        ]
+    },
+
 ];

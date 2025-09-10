@@ -1,7 +1,9 @@
 import PageProvider from '@_/components/pageProps';
 import { adminRoot } from '@_/configs'
 import { PageBar } from '@_/template'
+import { createApolloClient } from '@_/aClient/client';
 
+import GET_STORE from '@_/graphql/stores/store.graphql';
 
 export default async function ConsoleLayout({ children, params }: { 
     children: React.ReactNode;
@@ -10,10 +12,16 @@ export default async function ConsoleLayout({ children, params }: {
     const { store_id } = await params;
     const baseUrl = `${adminRoot}/store/${store_id}`;
 
+    const client = createApolloClient();
+    const { data: { store } } = await client.query({ query: GET_STORE, variables: { _id: store_id } });
+    // console.log("store: ", store)
+
     return (<>
-        <PageProvider pageProps={{ baseUrl, store_id }}>
+        <PageProvider pageProps={{ baseUrl, store_id, store }}>
+            <h3>{store.title}</h3>
             <div className='page-bar'>
                 <PageBar menuArray={[
+                    { title: 'Store Dashbord', href: `${baseUrl}` },
                     { title: 'Baskets', href: `${baseUrl}/baskets` },
                     { title: 'Banners', href: `${baseUrl}/banners` },
                     // { title: 'Discount Vouchers', href: `${baseUrl}/discount_vouchers` },

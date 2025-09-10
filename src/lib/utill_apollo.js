@@ -1,9 +1,8 @@
+import { __error } from "./consoleHelper";
+
 /* USAGE
     .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.user }))
 */
-
-import { __error } from "./consoleHelper";
-
 export function checkApolloRequestErrors({ results, allowEmpty = false, parseReturn }){
     if (!results && allowEmpty) return results;
     if (!results) return { error: { message:"Invalid or empty results!" } }
@@ -37,8 +36,11 @@ export function catchApolloError(err) {
     // console.log(__error("Error: "), err)
     console.log(__error("catchApolloError: "))
     console.error(err)
-    alert("Communication Error: Unable to fetch user session! please check your internet connection.")
-    return false;
+
+    return { error: { message: err.message || "Communication error" }}
+    
+    // alert("Communication Error: Unable to fetch user session! please check your internet connection.")
+    // return false;
 }
 
 

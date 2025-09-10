@@ -8,16 +8,16 @@ import { FieldArray } from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@_/components/form';
 import { useRouter } from 'next/navigation';
-import { publishStatus, gendersArray, userAccountGroups, adminRoot } from '@_/configs';
+import { publishStatus, gendersArray, userAccountGroups, adminRoot, userStatus } from '@_/configs';
 import Alert from 'antd/es/alert/Alert';
 import { Card, Col, message, Row, Space } from 'antd';
 import { AccTypesDD, StoresDD } from '@_/components/dropdowns';
 import { DevBlock } from '@_/components';
 import { PageHeader } from '@_/template';
 import { Page } from '@_/template/page';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
-import RECORD_ADD from '@_/graphql/users/addUser.graphql'
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import RECORD_ADD from '@_/graphql/users/addStoreStaff.graphql'
 
 
 export default function UserForm (props) {
@@ -25,26 +25,21 @@ export default function UserForm (props) {
     const router = useRouter()
 
     // const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE);
-    const [addUser, add_details] = useMutation(RECORD_ADD); // { data, loading, error }
+    const [addStoreStaff, add_details] = useMutation(RECORD_ADD); // { data, loading, error }
 
     const onSubmit = async (values) => {
         setError(null)
 
         let input = {
-            fname: values.fname,
-            mname: values.mname,
-            lname: values.lname,
-            email: values.email,
-            password: values.password,
+            _id_store: values.store._id,
             acc_type: values.acc_type.acc_type,
-            acc_group: String(values.acc_type.acc_type).indexOf("admin") > -1 ? "manager" : "employee",
             status: values.status,
-            note: values.note,
+            name: values.name,
+            email: values.email,
+            phone: values.phone,
+            password: values.password,
+            notes: values.notes,
         };
-
-        if (String(values.acc_type.acc_type).indexOf("admin") < 0){
-            Object.assign(input, { store: { _id: values.store._id } })
-        }
 
         if (values.password && (values.password != values.confirm_pwd)) {
             message.error("Password missmatch")
@@ -52,12 +47,9 @@ export default function UserForm (props) {
         }
         else if (values.password && (values.password == values.confirm_pwd)) Object.assign(input, { password: values.password });
 
-        const resutls = await addUser({ variables: { input }})
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.addUser }))
-            .catch(error => {
-                console.log(__error("Error: "), error)
-                return { error: { message: error.message || "Query Error" } }
-            });
+        const resutls = await addStoreStaff({ variables: { input }})
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.addStoreStaff }))
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             setError((resutls && resutls.error.message) || "Invalid Response")
@@ -70,7 +62,7 @@ export default function UserForm (props) {
     }
 
     return (<>
-        <PageHeader title="Add New Page"></PageHeader>
+        <PageHeader title="Add New User"></PageHeader>
 
         <Page>
             <Card>
@@ -101,7 +93,7 @@ export default function UserForm (props) {
                                             onChange={(___, raw) => form.mutators.onTypeChanged(raw)}
                                             label="Account Type" preload name="acc_type._id" validate={rules.required}
                                         />
-                                        <FormField type="select" name="status" label="Status" className={values.status == 'enabled' ? "active" : "inactive"} options={publishStatus} validate={rules.required} />
+                                        <FormField type="select" name="status" label="Status" className={values.status == 'enabled' ? "active" : "inactive"} options={userStatus} validate={rules.required} />
                                         {(values?.acc_type?._id && String(values?.acc_type?.acc_type).indexOf("admin") < 0) && <>
                                             <StoresDD onChange={(___, raw) => form.mutators.onStoreChanged(raw)} preload name="store._id" label="Store" validate={rules.required} />
                                         </>}
@@ -109,9 +101,7 @@ export default function UserForm (props) {
 
                                     {values?.acc_type?._id && <>
                                         <div><Space>
-                                            <FormField type="text" name="fname" label="First Name" validate={rules.required} />
-                                            <FormField type="text" name="lname" label="Last Name" />
-                                            <FormField type="select" name="gender" label="Gender" options={gendersArray} validate={rules.required} />
+                                            <FormField type="text" name="name" label="Name" validate={rules.required} />
                                             <FormField type="text" name="email" label="Email Address (Login Use)" validate={[rules.required, rules.isEmail]} />
                                             <FormField type="text" name="phone" label="Phone" placeholder="Mobile number" validate={[rules.required, rules.minChar(4)]} />
                                         </Space></div>
@@ -121,7 +111,7 @@ export default function UserForm (props) {
                                             <FormField type="password" name="confirm_pwd" label="Confirm Password" validate={[rules.required, rules.isEqual(values.password, 'Password missmatched')]} />
                                         </Space></div>
 
-                                        <FormField type="textarea" name="note" label="Note" placeholder="Notes" />
+                                        <FormField type="textarea" name="notes" label="Notes" placeholder="Notes" />
                                         <div style={{ padding:"20px" }} align="right"><SubmitButton loading={submitting} label={'Save'} /></div>
                                     </>}
                                 </Space>

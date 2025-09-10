@@ -1,0 +1,7 @@
+#import "../vouchers.graphql"
+
+query voucher($id: ID!) {
+    voucher(id: $id) {
+        ... VouchersInfo
+    }
+}

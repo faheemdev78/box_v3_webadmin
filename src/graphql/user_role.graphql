@@ -5,6 +5,7 @@ fragment UserRoleInfo on UserRole {
   title
   acc_type
   permissions
+  allowed_apps
 
   error {...ErrorInfo}
 }

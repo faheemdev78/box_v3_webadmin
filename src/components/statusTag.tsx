@@ -8,6 +8,7 @@ import { __error } from '@_/lib/consoleHelper';
 import { Form as FinalForm, Field as FinalField } from 'react-final-form';
 import { FormField, SubmitButton, rules, composeValidators, submitHandler } from '@_/components/form';
 import _ from 'lodash'
+import { publishStatus } from '@_/configs';
 
 /* eslint-disable react-hooks/exhaustive-deps */
 export const StatusTag: React.FC<StatusTagProps> = ({ size=14, value, editable, options, onSubmit, type="tag" }) => {
@@ -19,14 +20,11 @@ export const StatusTag: React.FC<StatusTagProps> = ({ size=14, value, editable, 
         setVal(value);
     }, [value])
 
-    // const [form] = AntForm.useForm();
-
     const toggleForm = async () => set_showModal(!showModal);
     
     const onFormSubmit = async (values: FormValues): Promise<string | boolean | undefined> => {
         setbusy(true)
         let result = await onSubmit(values);
-        // console.log("result: ", result)
         setbusy(false);
         if (!result) return;
 
@@ -65,7 +63,7 @@ export const StatusTag: React.FC<StatusTagProps> = ({ size=14, value, editable, 
                             {/* {error || router?.query?.error && <Alert message={error || router?.query?.error} showIcon type='error' />} */}
 
                             <form id="statusUpdater" {...submitHandler(formargs)}><Row gutter={[10, 10]}>
-                                <Col span={24}><FormField name="status" options={options} placeholder={`${val}`} type="select" validate={rules.required} /></Col>
+                                <Col span={24}><FormField name="status" options={options || publishStatus} placeholder={`${val}`} type="select" validate={rules.required} /></Col>
                                 <Col span={24}><FormField name="status_notes" label="Notes" type="textarea" /></Col>
                                 <Col span={24} align="center"><SubmitButton loading={submitting} disabled={invalid} color="orange" label="Update" /></Col>
                             </Row></form>

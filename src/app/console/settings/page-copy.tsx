@@ -19,7 +19,6 @@ import { FormField, FormFieldGroup, SubmitButton, rules, submitHandler } from '@
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useAppDispatch, useAppSelector, useAppStore } from '@/rStore/hooks';
-// import { setSettings, getSettings } from '@/rStore/slices/systemSlice';
 
 import GET_CONFIGS from '@_/graphql/value_pairs/valuePairs.graphql';
 import UPDATE_SORT from '@_/graphql/value_pairs/updateValuePairsSort.graphql';
@@ -218,7 +217,7 @@ export default function SettingsPage (props) {
             }
             if (_return.type == "switch") Object.assign(_return, { value: (_return.value === true) ? "yes" : "no" })
             if (_return.type == "select") Object.assign(_return, { value: JSON.stringify(_return.options) })
-            if (_return.type == "date" || _return.type == "date_time") Object.assign(_return, { value: dateToUtc(_return.value) })
+            if (_return.type == "date" || _return.type == "datetime") Object.assign(_return, { value: dateToUtc(_return.value) })
 
             return _return;
         })
@@ -265,7 +264,7 @@ export default function SettingsPage (props) {
         if (theField.value_type == "number") return { type: "number", label: label, tooltip: tooltip, allowClear: true }
         if (theField.value_type == "email") return { type: "email", label: label, tooltip: tooltip, allowClear: true }
         if (theField.value_type == "switch") return { type: "switch", label: label, tooltip: tooltip, allowClear: true }
-        if (theField.value_type == "date_time") return { type: "date", label: label, tooltip: tooltip, allowClear: true }
+        if (theField.value_type == "datetime") return { type: "date", label: label, tooltip: tooltip, allowClear: true }
         if (theField.value_type == "date") return { type: "date", label: label, tooltip: tooltip, allowClear: true }
         if (theField.value_type == "select") return { type: "select", options:[], label: label, tooltip: tooltip, allowClear: true }
 

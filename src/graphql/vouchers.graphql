@@ -1,0 +1,32 @@
+#import "./error.graphql"
+
+fragment VouchersInfo on Vouchers {
+  _id
+  title
+  code
+  description
+
+  type
+  status
+
+  value
+  maxDiscount
+  minSpend
+
+  appliesTo { scope productIds categoryIds storeIds }
+  excludes { productIds categoryIds storeIds }
+  combinable
+
+  bogo { buyQty getQty freeProductIds }
+  tiered { minSpend discountValue type }
+
+  startDate
+  endDate
+  usageLimit
+  perCustomerLimit
+
+  usedCount
+  usage { _id_user count lastUsedAt }
+
+  error {...ErrorInfo}
+}
