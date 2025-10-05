@@ -1,6 +1,5 @@
-####### import "../product.graphql"
-#import "../paginationResults.graphql"
-#import "../error.graphql"
+#import "../_fragment/paginationResults.graphql"
+#import "../_fragment/error.graphql"
 
 query productsQuery($limit: Int, $page: Int, $filter: String, $others: String, $_id_store: ID) {
     productsQuery(limit: $limit, page: $page, filter: $filter, others: $others, _id_store: $_id_store) {

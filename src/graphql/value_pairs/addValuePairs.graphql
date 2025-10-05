@@ -1,4 +1,4 @@
-#import "../value_pairs.graphql"
+#import "../_fragment/value_pairs.graphql"
 
 mutation addValuePairs($input: Add_ValuePairs!) {
     addValuePairs(input: $input) {

@@ -1,4 +1,4 @@
-#import "../user_role.graphql"
+#import "../_fragment/user/user_role.graphql"
 
 query userRoles($filter: String) {
     userRoles(filter:$filter) {

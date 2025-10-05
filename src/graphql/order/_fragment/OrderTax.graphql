@@ -1,0 +1,6 @@
+fragment OrderTaxInfo on OrderTax {
+  type
+  rate
+  amount
+  taxable
+}

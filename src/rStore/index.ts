@@ -10,6 +10,7 @@ import { encryptTransform } from 'redux-persist-transform-encrypt';
 import counterReducer from './slices/counterSlice';
 import sessionReducer from './slices/sessionSlice';
 import systemReducer from './slices/systemSlice';
+import tillVerificationReducer from './slices/tillVerificationSlice';
 import { __yellow } from '@_/lib/consoleHelper';
 import { sleep } from '@_/lib';
 
@@ -22,7 +23,7 @@ const migrations = {
         // Modify state structure if needed
         return {
             ...state,
-            counter: { value: state.counter.value ?? 0 },
+            // counter: { value: state.counter.value ?? 0 },
         };
     },
   };
@@ -31,7 +32,7 @@ const persistConfig = {
     key: 'root',
     storage: storageSession, // Use session storage
     blacklist: [], // Array
-    whitelist: ['session', 'system'], // Array
+    whitelist: ['session', 'system', 'tillVerification'], // Array - Added tillVerification for persistence
     version: 1,
     // throttle: 0, // number
     debug: process.env.NODE_ENV==='development', // boolean
@@ -55,6 +56,7 @@ const rootReducer = combineReducers({
     counter: counterReducer,
     session: sessionReducer,
     system: systemReducer,
+    tillVerification: tillVerificationReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

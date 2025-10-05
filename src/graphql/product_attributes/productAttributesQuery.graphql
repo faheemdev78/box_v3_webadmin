@@ -1,4 +1,4 @@
-#import "../ProductAttributes.graphql"
+#import "../_fragment/product/ProductAttributes.graphql"
 
 query productAttributesQuery($limit: Int, $page: Int, $filter: String, $others:String) {
     productAttributesQuery(first: $first, after: $after, filter: $filter, others: $others) {

@@ -3,8 +3,9 @@ import { defaultTZ } from '@_/configs';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface SettingsState {
-  firstRun: Boolean | null;
-  timezone: String | null;
+    firstRun: Boolean | null;
+    timezone: String | null;
+    currency: String | 'Rs';
 }
 interface SystemState {
     settings: SettingsState,
@@ -14,6 +15,7 @@ const initialState: SystemState = {
     settings: {
         firstRun: false,
         timezone: defaultTZ,
+        currency: 'Rs',
     },
     fmc_token: null,
 };

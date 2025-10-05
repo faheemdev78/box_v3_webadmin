@@ -20,7 +20,7 @@ export default async function ConsoleLayout({ children, params }: {
         <PageProvider pageProps={{ baseUrl, store_id, store }}>
             <h3>{store.title}</h3>
             <div className='page-bar'>
-                <PageBar menuArray={[
+                <PageBar pop_item_style={{ color:"#2D3E51" }} menuArray={[
                     { title: 'Store Dashbord', href: `${baseUrl}` },
                     { title: 'Baskets', href: `${baseUrl}/baskets` },
                     { title: 'Banners', href: `${baseUrl}/banners` },
@@ -29,7 +29,16 @@ export default async function ConsoleLayout({ children, params }: {
                     // { title: 'Vendors', href: `${baseUrl}/vendors` },                
                     { title: 'Geo Zones', href: `${baseUrl}/zones` },
                     { title: 'Products', href: `${baseUrl}/products` },
-                    { title: 'Orders', href: `${baseUrl}/orders` },
+                    { title: 'Orders', href: `${baseUrl}/orders`, //modulePermessions: '106',
+                        children: [
+                            { title: 'Orders List', href: `${baseUrl}/orders` },
+                            // { title: 'Orders on Till', href: `${baseUrl}/orders-on-till` },
+                            { title: 'Orders on Till', href: `${baseUrl}/till-verification` },
+                            { title: 'Ready to Dispatch', href: `${baseUrl}/ready-to-dispatch` },
+                            { title: 'Dispatched', href: `${baseUrl}/dispatched` },
+                            { title: 'Cart', href: `${baseUrl}/cart` },
+                        ]
+                    },                    
                     { title: 'Staff', href: `${baseUrl}/staff` },
                     { title: 'Vehicles', href: `${baseUrl}/vehicles` },
                     { title: 'Delivery Slots', href: `${baseUrl}/delivery_slots` },

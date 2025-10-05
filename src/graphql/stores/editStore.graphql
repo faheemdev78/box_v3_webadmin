@@ -1,4 +1,4 @@
-#import "../store.graphql"
+#import "../_fragment/store.graphql"
 
 mutation editStore($input: Edit_StoreInput!) {
     editStore(input: $input) {

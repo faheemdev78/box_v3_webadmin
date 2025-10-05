@@ -1,5 +1,5 @@
-#import "../imageSchema.graphql"
-#import "../error.graphql"
+#import "../_fragment/imageSchema.graphql"
+#import "../_fragment/error.graphql"
 
 mutation uploadGalleryItems($_id_product: ID!, $files: [ImageSchema_Input!]!) {
     uploadGalleryItems(_id_product: $_id_product, files: $files) {

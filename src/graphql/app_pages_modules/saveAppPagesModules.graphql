@@ -1,4 +1,4 @@
-#import "../app_pages_modules.graphql"
+#import "../_fragment/app_pages/app_pages_modules.graphql"
 
 mutation saveAppPagesModules($input: [Save_AppPagesModules!]!) {
     saveAppPagesModules(input: $input) {

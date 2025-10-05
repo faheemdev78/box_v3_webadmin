@@ -1,0 +1,53 @@
+
+#import "./_fragment/OrderDeliverySlot.graphql"
+#import "./_fragment/OrderPayment.graphql"
+#import "./_fragment/OriginalOrder.graphql"
+# import "./_fragment/ProcessingData.graphql"
+
+#import "../_fragment/user/UserAddressesRef.graphql"
+#import "../_fragment/error.graphql"
+#import "../_fragment/GeoZoneReff.graphql"
+
+query getOrignalOrder($filter: String!) {
+    order(filter: $filter) {
+        _id
+        serial
+        store { _id title }
+        zone { ...GeoZoneReffInfo }
+        customer { _id name }
+
+        original_order { ...OriginalOrderInfo }
+        # current_order { ...ProcessingDataInfo }
+        # processing_stages {
+        #     picking { ...ProcessingDataInfo }
+        #     till_verification { ...ProcessingDataInfo }
+        #     delivery { ...ProcessingDataInfo }
+        # }
+
+        delivery_slot { ...OrderDeliverySlotInfo }
+        delivery_note
+
+        # viewed
+        status { order payment fulfillment }
+        payment { ...OrderPaymentInfo }
+
+        shippingAddress { ...UserAddressesRefInfo }
+        # billingAddress { ...UserAddressesRefInfo }
+
+        pickup_allow
+
+        locked_by
+        locked_at
+        lock_expires_at
+        lock_type
+
+        customer_feedback
+
+        createdAt
+        updatedAt
+
+        error { ...ErrorInfo }
+        success { message details code  }
+        warning { code message details } 
+    }
+}

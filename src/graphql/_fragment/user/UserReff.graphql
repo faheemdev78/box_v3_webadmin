@@ -1,0 +1,5 @@
+fragment UserReffInfo on UserReff {
+    _id
+    name
+    #   email
+}

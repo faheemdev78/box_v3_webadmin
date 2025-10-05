@@ -13,7 +13,7 @@ export default function Layout({ children }) {
     <div className='page-bar'>
       <PageBar 
         menuArray={[
-          { title: 'Orders Dashvoard', href: `${adminRoot}/orders` },
+          { title: 'Orders Dashboard', href: `${adminRoot}/orders` },
           { title: 'Orders List', href: `${adminRoot}/orders/list` },
           { title: 'Orders on Till', href: `${adminRoot}/orders-on-till`, rolePermessions: '104.1' },
           { title: 'Ready to Dispatch', href: `${adminRoot}/ready-to-dispatch`, rolePermessions: '104.1' },

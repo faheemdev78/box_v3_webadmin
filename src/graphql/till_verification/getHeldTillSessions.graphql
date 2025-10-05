@@ -1,0 +1,19 @@
+#import "../_fragment/error.graphql"
+
+query getHeldTillSessions($_id_store: ID!) {
+    getHeldTillSessions(_id_store: $_id_store) {
+        sessions {
+            _id_session
+            _id_order
+            order_serial
+            held_at
+            items_verified
+            total_items
+            completion_percentage
+        }
+        total
+        error {
+            ...ErrorInfo
+        }
+    }
+}

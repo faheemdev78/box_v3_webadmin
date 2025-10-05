@@ -1,0 +1,13 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+
+mutation holdTillVerificationSession($input: HoldTillVerificationSessionInput!) {
+    holdTillVerificationSession(input: $input) {
+        success {
+            ...SuccessInfo
+        }
+        error {
+            ...ErrorInfo
+        }
+    }
+}

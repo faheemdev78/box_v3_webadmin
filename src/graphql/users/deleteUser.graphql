@@ -1,4 +1,4 @@
-#import "../response.graphql"
+#import "../_fragment/response.graphql"
 
 mutation deleteUser($id: ID!) {
     deleteUser(id: $id) {

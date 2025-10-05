@@ -1,4 +1,4 @@
-#import "../store.graphql"
+#import "../_fragment/store.graphql"
 
 query store($_id: ID!) {
     store(_id: $_id) {

@@ -1,0 +1,26 @@
+#import "./OrderItems.graphql"
+#import "./OrderTotals.graphql"
+#import "../../_fragment/DiscountReff.graphql"
+#import "../../_fragment/error.graphql"
+
+fragment ProcessingDataInfo on ProcessingData {
+  stage
+  handled_by { _id name }
+  baskets { _id title barcode color }
+  notes
+
+  items { ...OrderItemsInfo }
+
+  vouchers { ...DiscountReffInfo }
+  totals { ...OrderTotalsInfo }
+
+  _id_session
+
+  created_at
+  updated_at
+  total_time
+
+  error { ...ErrorInfo }
+}
+
+

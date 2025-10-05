@@ -1,4 +1,4 @@
-#import "../store.graphql"
+#import "../_fragment/store.graphql"
 
 query stores($filter: String, $others:String) {
     stores(filter: $filter, others:$others) {

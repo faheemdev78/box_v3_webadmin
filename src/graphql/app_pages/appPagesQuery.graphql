@@ -1,5 +1,5 @@
-#import "../paginationResults.graphql"
-#import "../error.graphql"
+#import "../_fragment/paginationResults.graphql"
+#import "../_fragment/error.graphql"
 
 query appPagesQuery($limit: Int, $page: Int, $filter: String, $others:String) {
     appPagesQuery(limit: $limit, page: $page, filter: $filter, others: $others) {

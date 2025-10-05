@@ -1,5 +1,5 @@
-#import "../imageSchema.graphql"
-#import "../error.graphql"
+#import "../_fragment/imageSchema.graphql"
+#import "../_fragment/error.graphql"
 
 mutation deleteGalleryItem($_id_product: ID!, $_id: ID!) {
     deleteGalleryItem(_id_product: $_id_product, _id: $_id) {

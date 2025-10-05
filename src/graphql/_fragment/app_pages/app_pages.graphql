@@ -1,0 +1,21 @@
+#import "../error.graphql"
+#import "../AppPageStyles.graphql"
+
+
+fragment AppPagesInfo on AppPages {
+  _id
+  title
+  slug
+  deleteable
+  published
+  draft
+  description
+  page_type { title type }
+  styles { ...AppPageStylesInfo }
+  p_limit
+
+  # createdAt
+  # updatedAt
+
+  error {...ErrorInfo}
+}

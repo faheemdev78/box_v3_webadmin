@@ -1,4 +1,4 @@
-#import "../error.graphql"
+#import "../_fragment/error.graphql"
 
 query getTotalOrdersForSlot($start_time: String!) {
     getTotalOrdersForSlot(start_time: $start_time) {

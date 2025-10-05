@@ -1,6 +1,6 @@
-#import "../value_pairs.graphql"
-#import "../paginationResults.graphql"
-#import "../error.graphql"
+#import "../_fragment/value_pairs.graphql"
+#import "../_fragment/paginationResults.graphql"
+#import "../_fragment/error.graphql"
 
 query valuePairsQuery($limit: Int, $page: Int, $filter: String, $others:String) {
     valuePairsQuery(limit: $limit, page: $page, filter: $filter, others: $others) {

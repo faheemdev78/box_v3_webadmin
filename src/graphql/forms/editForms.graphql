@@ -1,4 +1,4 @@
-#import "../forms.graphql"
+#import "../_fragment/forms.graphql"
 
 mutation editForms($input: Edit_Forms!) {
     editForms(input: $input) {

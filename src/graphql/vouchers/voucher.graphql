@@ -1,4 +1,4 @@
-#import "../vouchers.graphql"
+#import "../_fragment/vouchers.graphql"
 
 query voucher($id: ID!) {
     voucher(id: $id) {

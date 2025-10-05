@@ -1,5 +1,5 @@
-#import "../error.graphql"
-#import "../user.graphql"
+#import "../_fragment/error.graphql"
+#import "../_fragment/user/user.graphql"
 
 query getMyProfile {
     getMyProfile {

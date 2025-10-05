@@ -1,4 +1,4 @@
-#import "../imageSchema.graphql"
+#import "../_fragment/imageSchema.graphql"
 
 mutation uploadProductImg($_id_product: ID!, $file: ImageSchema_Input!) {
     uploadProductImg(_id_product: $_id_product, file: $file) {

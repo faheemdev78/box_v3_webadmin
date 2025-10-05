@@ -1,4 +1,4 @@
-#import "../error.graphql"
+#import "../_fragment/error.graphql"
 
 mutation deleteFormsData($id: ID!) {
     deleteFormsData(id: $id) {

@@ -1,42 +1,39 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types';
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client';
-import { Popconfirm, Alert, message, Row, Col, Modal } from 'antd';
-import { Barcode, Loader, Icon, Button, IconButton, Table, Avatar, ListHeader, DevBlock } from '@/components';
+import { Popconfirm, Alert, message, Row, Col, Modal, Space } from 'antd';
+import { Barcode, Loader, Icon, Button, IconButton, Table, Avatar, ListHeader, DevBlock, DeleteButton } from '@/components';
 import { __error } from '@_/lib/consoleHelper';
 import BasketFilter from './BasketFilter'
-import { checkApolloRequestErrors, lightOrDark } from '@_/lib/utill';
+import { catchApolloError, checkApolloRequestErrors, lightOrDark, utcToDate } from '@_/lib/utill';
 import BasketForm from './basket_form';
+import { defaultDateTimeFormat } from '@_/configs';
 
 import LIST_DATA from '@_/graphql/baskets/baskets.graphql';
 import RECORD_DELETE from '@_/graphql/baskets/deleteBasket.graphql';
 import RELEASE_BASKET from '@_/graphql/baskets/releaseBasket.graphql';
 
-const ReleaseBasketButtonComp = ({ basket, onSuccess }) => {
-    const [do_releaseBasket, release_details] = useMutation(RELEASE_BASKET);
-
+const ReleaseBasketButton = ({ basket, onSuccess }) => {
     const [busy, setBusy] = useState(false)
+    const [do_releaseBasket, release_details] = useMutation(RELEASE_BASKET);
+    
+    // if (!basket.is_locked) return null;
 
     const releaseBasket = async() => {        
         setBusy(true);
-        let results = await do_releaseBasket({ variables: { barcode: basket.barcode }, fetchPolicy: "no-cache" })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.releaseBasket }))
-            .catch(err => {
-                console.log(__error("Request ERROR : "), err);
-                return { error: { message:"Request ERROR"}}
-            })
+        let results = await do_releaseBasket({ variables: { filter: JSON.stringify({ barcode: basket.barcode }) }, fetchPolicy: "no-cache" })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.releaseBasket }))
+            .catch(catchApolloError)
         setBusy(false);
             
         if (!results || results.error) return message.error((results && results?.error?.message) || "Invalid Response");
+        
         message.success("Released!")
         if (onSuccess) onSuccess(results)
     }
     
-    if (basket?.taken_by?._id || basket.order_id) return <Button loading={busy} onClick={releaseBasket}>Release Basket</Button>
-    return null;
-     // return <DevBlock obj={basket} />
+    return <Button size="small" color="red" loading={busy} onClick={releaseBasket}>Reset Basket</Button>
 }
-const ReleaseBasketButton = ReleaseBasketButtonComp;
 
 
 const ListComp = ({ store }) => {
@@ -83,16 +80,10 @@ const ListComp = ({ store }) => {
     }
 
     const renderActions = (text, record) => {
-        return (
-            <span className="action_buttons">
-                <IconButton onClick={() => onEditRecord(record)} icon="pen" />
-                <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record._id)}>
-                    <IconButton icon="trash-alt" />
-                </Popconfirm>
-                {/* <Button onClick={()=>this.checkStatus(record)}>Check Status</Button> */}
-                {/* <CheckBasketStatusButton basket={record} /> */}
-            </span>
-        )
+        return (<Space>
+            <IconButton onClick={() => onEditRecord(record)} icon="pen" />
+            <DeleteButton onConfirm={() => handleDelete(record._id)} />
+        </Space>)
     }
 
     const onSuccess = (val) => fetchData();
@@ -106,27 +97,30 @@ const ListComp = ({ store }) => {
     }, [])
 
     const columns = [
-        { title: 'Basket', dataIndex: 'barcode', render:(txt, record) => {
-            return (<Row><Col style={{marginRight:'5px'}}><div className="basketLab">
-                {/* <div className="label" style={{ backgroundColor: record.color || "#FFFFFF", color: record.color ? lightOrDark(record.color) : "#0000FF"}}>{record.title}</div> */}
-                <div className="label" style={{ backgroundColor: record.color || "#FFFFFF", color: lightOrDark(record.color)=='light' ? "#000000" : "#FFFFFF", fontSize:'14px'}}>{record.title}</div>
-                <div className="barcode">
-                    <Barcode value={`${record.barcode}`} width={1} height={25} displayValue={true} />
-                </div>
-            </div></Col>
-            <Col><ReleaseBasketButton basket={record} onSuccess={onSuccess} /></Col>
-            {/* <Col><CheckBasketStatusButton basket={record} /></Col> */}
-            </Row>)
+        { title: 'Basket', dataIndex: 'barcode', render:(txt, record) => (<div>
+            {/* <div className="label" style={{ backgroundColor: record.color || "#FFFFFF", color: lightOrDark(record.color) == 'light' ? "#000000" : "#FFFFFF", fontSize: '14px' }}>{record.title}</div> */}
+            <h3>{record.title}</h3>
+            <Barcode 
+                value={`${record.barcode}`} 
+                background={record.color || "#FFFFFF"} 
+                lineColor={lightOrDark(record.color || "#FFFFFF") == 'light' ? '#000000' : '#FFFFFF'}
+                width={1} height={25} 
+                displayValue={true}
+            />
+        </div>)},
+        { title: 'In Use', dataIndex: 'record', render:(__, rec) => {
+            // if (!rec.is_locked) return <div />;
+
+            return (<>
+                {rec?.taken_by?.name  && <div>Taken By: {rec?.taken_by?.name}</div>}
+                {rec.locked_at && <div>Locked At: {utcToDate(rec.locked_at).format(defaultDateTimeFormat)}</div>}
+                {rec.lock_expires_at && <div>Auto unlock at: {utcToDate(rec.lock_expires_at).format(defaultDateTimeFormat)}</div>}
+                <ReleaseBasketButton basket={rec} onSuccess={() => fetchData({})} />
+            </>)
         } },
-        { title: 'Category', dataIndex: 'category' },
-        {
-            title: 'Actions',
-            dataIndex: '',
-            render: renderActions,
-            className: 'actions-column',
-            align: 'right',
-            width: '100px'
-        },
+        { title: 'Category', dataIndex: 'category', width: 100, align:"center" },
+        { title: 'Status', dataIndex: 'status', width: 100, align: "center" },
+        { title: 'Actions', dataIndex: '', render: renderActions, className: 'actions-column', align: 'right', width: '100px' },
     ];
 
     return (<>

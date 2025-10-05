@@ -1,4 +1,4 @@
-#import "../product_cat.graphql"
+#import "../_fragment/product/product_cat.graphql"
 
 query productCat($id: ID!) {
     productCat(id: $id) {

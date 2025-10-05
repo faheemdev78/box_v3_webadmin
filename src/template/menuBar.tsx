@@ -9,13 +9,13 @@ import { usePathname } from 'next/navigation';
 import { useAppSelector } from '@_/rStore/hooks'
 import { getSession } from '@_/rStore/slices/sessionSlice'
 
-export function LinkComp({ children, href = "#", onClick, className }: {
+export function LinkComp({ children, href = "#", onClick, className, style }: {
     children: React.ReactNode;
     href: string | "#";
     onClick: Function;
     className: string;
 }) {
-    return <Link className={`block-menu-item ${className || ""}`} href={href} onClick={onClick}>{children}</Link>
+    return <Link className={`block-menu-item ${className || ""}`} href={href} onClick={onClick} style={style}>{children}</Link>
 }
 
 
@@ -54,9 +54,10 @@ export function TopBar({ menuArray, session }: {
 }
 
 
-export function PageBar({ menuArray, _session }: {
+export function PageBar({ menuArray, _session, pop_item_style }: {
     menuArray: object[];
     _session?: object;
+    pop_item_style?: object;
 }) {
     const pathname = usePathname()
     const matchUrl = (href) => pathname.startsWith(href);
@@ -94,7 +95,7 @@ export function PageBar({ menuArray, _session }: {
                         classNames={{ body: "menu-bar-dd-children" }}
                         styles={{ body: { padding: 0, margin: 0, border: "0px solid red" } }}
                         title={false}
-                        content={filterPermissions(item.children, session)?.map((ch, ii) => (<LinkComp className={`${matchUrl(ch.href) ? 'active' : ''}`} href={ch.href} key={ii}>{ch.title}</LinkComp>))}
+                        content={filterPermissions(item.children, session)?.map((ch, ii) => (<LinkComp style={pop_item_style} className={`${matchUrl(ch.href) ? 'active' : ''}`} href={ch.href} key={ii}>{ch.title}</LinkComp>))}
                         arrow={true}
                         key={i}>
                         <Link className={`${matchUrl(item.href) ? 'active' : ''}`} href={item.href} key={i}>{item.title} <Icon className="more-icon" icon="angle-down" /></Link>

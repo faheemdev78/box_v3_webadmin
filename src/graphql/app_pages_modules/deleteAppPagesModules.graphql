@@ -1,4 +1,5 @@
-#import "../response.graphql"
+#import "../_fragment/response.graphql"
+
 
 mutation deleteAppPagesModules($_id: ID!) {
     deleteAppPagesModules(_id: $_id) {

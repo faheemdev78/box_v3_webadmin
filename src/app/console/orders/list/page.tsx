@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { __error } from '@_/lib/consoleHelper';
-import { ProductsList } from "@_/modules/products";
 import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
 import { Card, message, Row } from "antd";
-import { checkApolloRequestErrors } from "@_/lib/utill_apollo";
+import { catchApolloError, checkApolloRequestErrors } from "@_/lib/utill_apollo";
+import OrdersList from "@_/modules/orders/ordersList";
 
-import LIST_DATA from '@_/graphql/product/productsQuery.graphql'
+import LIST_DATA from '@_/graphql/order/ordersQuery.graphql'
 
 const defaultFilter = {}; // { status: 'online' }
 
@@ -21,7 +21,7 @@ function ProductsListPage(props) {
     })
     const [busy, setBusy] = useState(false)
 
-    const [productsQuery, { called, loading }] = useLazyQuery(LIST_DATA,
+    const [ordersQuery, { called, loading }] = useLazyQuery(LIST_DATA,
         { variables: { filter: JSON.stringify(state.filter) } }
     );
   
@@ -33,20 +33,17 @@ function ProductsListPage(props) {
             others: state.others || {},
         }
 
-        setBusy(true)
-        const resutls = await productsQuery({ 
+        // setBusy(true)
+        const resutls = await ordersQuery({ 
             variables: {
                 ...variables,
                 filter: JSON.stringify(variables.filter || {}),
                 others: JSON.stringify(variables.others || {})
             }
          })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productsQuery }))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
-        setBusy(false)
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.ordersQuery }))
+            .catch(catchApolloError)
+        // setBusy(false)
 
         if (resutls && resutls.error) {
             message.error(resutls.error.message);
@@ -63,11 +60,12 @@ function ProductsListPage(props) {
                 pageSize: resutls.pagination.limit,
             },
             filter: variables.filter,
-            dataSource: resutls?.edges?.map(o => ({
-                ...o,
-                children: o?.variations?.length > 0 && o.variations,
-                variations: undefined
-            })),
+            dataSource: resutls?.edges,
+            // dataSource: resutls?.edges?.map(o => ({
+            //     ...o,
+            //     children: o?.variations?.length > 0 && o.variations,
+            //     variations: undefined
+            // })),
         })
 
     }
@@ -79,7 +77,7 @@ function ProductsListPage(props) {
     
 
     return (<>
-        <ProductsList
+        <OrdersList
             {...state}
             busy={busy} setBusy={setBusy}
             fetchData={fetchData}

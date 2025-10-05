@@ -38,11 +38,11 @@ const nextConfig: NextConfig = {
   //   return config;
   // },
   // Optional: If using custom module aliases like @_/
-  resolve: {
-    alias: {
-      '@_': path.resolve(__dirname, 'src'),
-    },
-  },
+  // resolve: {
+  //   alias: {
+  //     '@_': path.resolve(__dirname, 'src'),
+  //   },
+  // },
 };
 
 export default nextConfig;

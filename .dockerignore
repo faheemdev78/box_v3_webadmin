@@ -1,7 +1,20 @@
-node_modules
-.git
-.DS_Store
-*.md
-*.log
-docker-compose*.yml
+# Since we're mounting everything, we can ignore most files during build
+# This makes the build context smaller and faster
 
+.git
+.gitignore
+README.md
+Dockerfile*
+docker-compose*
+.env*.local
+.DS_Store
+*.log
+coverage
+.nyc_output
+
+# Keep these files available for mounting:
+# node_modules (we want this)
+# src (we want this)
+# public (we want this)
+# package.json (we want this)
+# next.config.* (we want this)

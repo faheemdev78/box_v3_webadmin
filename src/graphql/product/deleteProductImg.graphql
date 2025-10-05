@@ -1,4 +1,4 @@
-#import "../response.graphql"
+#import "../_fragment/response.graphql"
 
 mutation deleteProductImg($_id_product: ID!) {
     deleteProductImg(_id_product: $_id_product) {

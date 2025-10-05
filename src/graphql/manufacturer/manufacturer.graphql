@@ -1,4 +1,4 @@
-#import "../manufacturer.graphql"
+#import "../_fragment/manufacturer.graphql"
 
 query manufacturer($id: ID!) {
     manufacturer(id: $id) {

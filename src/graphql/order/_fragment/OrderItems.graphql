@@ -1,0 +1,43 @@
+#import "../../_fragment/error.graphql"
+#import "../../_fragment/DiscountReff.graphql"
+#import "../../_fragment/product/prod_AttributesSchemaReff.graphql"
+#import "./OrderTax.graphql"
+
+
+
+fragment OrderItem_SubstituteForInfo on OrderItem_SubstituteFor { 
+  _id_product
+  title
+  barcode
+}
+
+
+fragment OrderItemsInfo on OrderItems {
+    _id_product
+    title
+    barcode
+    attributes { ...Prod_AttributesSchemaReff_Info }
+    categories { _id title }
+    vouchers { ...DiscountReffInfo }
+    qty
+
+    # /*********** Calculations ************* */
+    price_was
+    price
+    saved
+    subtotal
+    tax_amount
+    discount_amount
+    tax { ...OrderTaxInfo }
+    total
+    status
+
+    # /*********** Processing Data ************* */
+    processed_qty
+    issue_reason
+    is_substitute
+    substitute_for { ...OrderItem_SubstituteForInfo }
+    customer_approved_substitution
+
+    error { ...ErrorInfo }
+}

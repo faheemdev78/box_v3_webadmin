@@ -1,4 +1,4 @@
-#import "../brand.graphql"
+#import "../_fragment/brand.graphql"
 
 mutation addBrand($input: Add_BrandInput!) {
     addBrand(input: $input) {

@@ -14,9 +14,9 @@ import security from '@_/lib/security';
 import { PageHeader } from '@_/template';
 import { Page } from '@_/template/page';
 import { useAppSelector } from '@_/rStore/hooks';
+import { getSettings } from '@_/rStore/slices/systemSlice';
 
 import RECORD_DELETE from '@_/graphql/product/deleteProduct.graphql'
-import { getSettings } from '@_/rStore/slices/systemSlice';
 
 const defaultProps = {
   pageView: "list",

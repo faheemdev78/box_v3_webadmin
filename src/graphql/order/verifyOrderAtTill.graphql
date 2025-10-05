@@ -1,0 +1,18 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+
+mutation verifyOrderAtTill($input: VerifyOrderAtTillInput!) {
+    verifyOrderAtTill(input: $input) {
+        success { ...SuccessInfo }
+        error { ...ErrorInfo }
+        data {
+            _id_order
+            orderSerial
+            nextStage
+            assignedTo {
+                _id
+                name
+            }
+        }
+    }
+}

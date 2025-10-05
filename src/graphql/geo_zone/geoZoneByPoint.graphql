@@ -1,4 +1,4 @@
-#import "../geoZone.graphql"
+#import "../_fragment/geoZone.graphql"
 
 query geoZoneByPoint($coordinates: [Float]!) {
     geoZoneByPoint(coordinates: $coordinates) {

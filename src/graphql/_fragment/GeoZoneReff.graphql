@@ -1,0 +1,18 @@
+
+fragment GeoZoneReffInfo on GeoZoneReff {
+  _id_zone
+  title
+  category
+  # polygon { ...GeoPolygonReffInfo }
+  # city {
+  #   _id
+  #   title
+  #   code
+  #   child_of
+  #   center { ...GeoPointReffInfo }
+  #   type
+  #   status
+  # }
+  status
+  order_limit
+}

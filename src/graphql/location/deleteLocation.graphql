@@ -1,4 +1,4 @@
-#import "../error.graphql"
+#import "../_fragment/error.graphql"
 
 mutation deleteLocation($_id: ID!) {
     deleteLocation(_id: $_id) {

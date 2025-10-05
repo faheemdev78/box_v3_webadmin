@@ -1,4 +1,4 @@
-#import "../value_pairs.graphql"
+#import "../_fragment/value_pairs.graphql"
 
 mutation updateValuePairsSort($input: [Edit_ValuePairsSort!]!) {
     updateValuePairsSort(input: $input) {

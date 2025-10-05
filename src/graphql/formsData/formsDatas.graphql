@@ -1,4 +1,4 @@
-#import "../error.graphql"
+#import "../_fragment/error.graphql"
 
 query formsDatas($filter:String, $others:String){
     formsDatas(filter: $filter, others:$others){

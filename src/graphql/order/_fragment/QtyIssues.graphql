@@ -1,0 +1,8 @@
+fragment QtyIssuesInfo on QtyIssues {
+    _id_item
+    issue
+    action
+}
+
+
+

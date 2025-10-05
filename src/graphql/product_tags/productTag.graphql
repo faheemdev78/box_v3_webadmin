@@ -1,4 +1,4 @@
-#import "../product_tags.graphql"
+#import "../_fragment/product/product_tags.graphql"
 
 query productTag($id: ID!) {
     productTag(id: $id) {
