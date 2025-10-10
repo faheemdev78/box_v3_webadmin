@@ -25,7 +25,9 @@ import RESET_ORDER from '@_/graphql/order/resetOrderToZero.graphql'
 
 const defaultProps = {
   pageView: "list",
-  columns: ['serial', 'store', 'customer', 'original_order', 'delivery_slot', 'actions', 
+  columns: [
+    'serial', 'store', 'original_order', 'delivery_slot', 
+    // 'actions', 
     { key: 'status' }, 
     { key: 'pickup_allow' }, 
     { key: 'createdAt' }, 
@@ -103,50 +105,45 @@ const OrdersList: React.FC<OrdersListProps> = ({
   };
 
   const _columns = [
-    // _id
-    { title: 'Serial', _dataIndex: 'serial', key: 'serial', align: 'left', render: (__, { serial, current_stage }) => {
+    { title: 'Serial', _dataIndex: 'serial', key: 'serial', align: 'left', render: (__:any, { serial, current_stage, customer }:any) => {
       return (<>
         <Link href={`${adminRoot}/orders/preview/${serial}`}>{serial}</Link>
-        <div>Stage: {current_stage}</div>
+        <div><b>Customer:</b> {customer.name}</div>
       </>)
     } },
-    { title: 'Store', dataIndex: ['zone', 'title'], key: 'store', align: 'left', render:(_, rec) => {
-      return (<div>
+    { title: 'Store', dataIndex: ['zone', 'title'], key: 'store', align: 'left', render: (_: any, rec: any) => (<div>
         <div>{rec.store.title}</div>
-        <div>ZONE: {rec.zone.title}</div>
-      </div>)
-    } },
-    { title: 'Customer', dataIndex: ['customer','name'], key: 'customer', align: 'left' },
-    { title: 'Order', dataIndex: ['original_order', 'totals'], key: 'original_order', width: 150, align: 'left', render: (totals, rec) => {
+        <div><b>ZONE:</b> {rec.zone.title}</div>
+      </div>) },
+    { title: 'Order', dataIndex: ['original_order', 'totals'], key: 'original_order', width: 150, align: 'left', render: (totals:any, rec:any) => {
       return (<div>
         {/* totals.saved */}
-        <div>Total Items: {totals.totalQuantity}</div>
+        <div><b>Total Items:</b> {totals.totalQuantity}</div>
         {/* totals.subtotal */}
         {/* totals.discountTotal */}
         {/* totals.shipping */}
         {/* totals.taxRate */}
         {/* totals.taxAmount */}
-        <div>Total: {settings.currency}{totals.grandTotal}</div>
+        <div><b>{settings.currency}</b> {totals.grandTotal}</div>
       </div>)
     } },
-    { title: 'Slot', dataIndex: 'delivery_slot', key: 'delivery_slot', width: 140, align: 'left', render: (delivery_slot, rec) => {
+    { title: 'Slot', dataIndex: 'delivery_slot', key: 'delivery_slot', width: 120, align: 'left', render: (delivery_slot:any, rec:any) => {
       return (<div>
         <div>{String(delivery_slot.start_time).padStart(4, '0')} ~ {String(delivery_slot.end_time).padStart(4, '0')}</div>
         <div>{String(delivery_slot.day).toUpperCase()}</div>
       </div>)
     } },
-    { title: 'Status', dataIndex: ['status', 'order'], key: 'status', width: 100, align: 'left' },
-    { title: 'Pickup Allowrd', dataIndex: ['pickup_allow'], key: 'pickup_allow', width: 50, align: 'center', render: (pickup_allow, rec) => (<Tag color={pickup_allow ? 'green' : 'red'}>{pickup_allow ? "YES" : "NO"}</Tag>) },
-    { title: 'Created', dataIndex: ['createdAt'], key: 'createdAt', width: 115, align: 'left', render: (createdAt, rec) => (<div>{moment(createdAt).format(defaultDateTimeFormat)}</div>) },
-    { title: 'Updated', dataIndex: ['updatedAt'], key: 'updatedAt', width: 115, align: 'left', render: (updatedAt, rec) => (<div>{moment(updatedAt).format(defaultDateTimeFormat)}</div>) },
+    { title: 'Status', dataIndex: ['status', 'order'], key: 'status', width: 180, align: 'left', render: (__: any, { current_stage, status }: any) => (<div>
+        <div><b>Stage:</b> {current_stage}</div>
+        <div><b>Status:</b> {status.order}</div>
+      </div>) },
+    { title: 'Pickup Allowrd', dataIndex: ['pickup_allow'], key: 'pickup_allow', width: 50, align: 'center', render: (pickup_allow:boolean, rec:any) => (<Tag color={pickup_allow ? 'green' : 'red'}>{pickup_allow ? "YES" : "NO"}</Tag>) },
+    { title: 'Created', dataIndex: ['createdAt'], key: 'createdAt', width: 115, align: 'left', render: (createdAt:string, rec:any) => (<div>{moment(createdAt).format(defaultDateTimeFormat)}</div>) },
+    { title: 'Updated', dataIndex: ['updatedAt'], key: 'updatedAt', width: 115, align: 'left', render: (updatedAt:string, rec:any) => (<div>{moment(updatedAt).format(defaultDateTimeFormat)}</div>) },
 
     // Actions column
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 100,
-      align: 'center',
-      render: (_, record) => (
+    { title: 'Actions', key: 'actions', width: 100, align: 'center',
+      render: (_:any, record:any) => (
         <Space size="small">
           {canResetOrder && record.status?.order !== 'cancelled' && record.status?.order !== 'completed' && (
             <Popconfirm

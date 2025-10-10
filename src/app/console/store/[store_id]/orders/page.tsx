@@ -25,7 +25,12 @@ function ProductsListPage(props) {
     const [busy, setBusy] = useState(false)
 
     const [ordersQuery, { called, loading }] = useLazyQuery(LIST_DATA,
-        { variables: { filter: JSON.stringify({ ...state.filter, 'store._id': store._id }) } }
+        { 
+            variables: { 
+                filter: JSON.stringify({ ...state.filter, 'store._id': store._id })
+            },
+            fetchPolicy: 'network-only'
+        }
     );
   
     const fetchData = async ({ filter, pagination={} }) => {

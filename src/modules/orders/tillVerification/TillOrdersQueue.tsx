@@ -67,9 +67,7 @@ export const TillOrdersQueue: React.FC<TillOrdersQueueProps> = ({ limit = 50, pa
 
   const { orders, total, loading, error, refetch } = useTillVerificationQueue(_id_store, limit, page);
 
-  const handleStartVerification = (orderId: string) => {
-    router.push(`${adminRoot}/store/${_id_store}/till-verification/${orderId}/verify`);
-  };
+  // const handleStartVerification = (orderId: string) => router.push(`${adminRoot}/store/${_id_store}/till-verification/${orderId}/verify`);
 
   const columns = [
     { title: 'Order #', dataIndex: 'serial', key: 'serial', width: 200,
@@ -133,13 +131,21 @@ export const TillOrdersQueue: React.FC<TillOrdersQueueProps> = ({ limit = 50, pa
           </Space></Link>
         }
 
+        {/* {!(record.locked_by && !record.is_locked_by_me) && 
+          <Link className='button' href={`${adminRoot}/store/${_id_store}/till-verification/${record._id}/verify`}>
+            <PlayCircleOutlined />
+            {record.is_locked_by_me ? 'Resume' : 'Start'}
+          </Link>
+        } */}
 
-        {/* <Button type="primary" size="large" icon={<PlayCircleOutlined />}
-          // onClick={() => handleStartVerification(record._id)}
+        <Button type="primary" size="small" 
+          // icon={<PlayCircleOutlined />} 
           disabled={record.locked_by && !record.is_locked_by_me}
-        >
-          <Link href={`${adminRoot}/store/${_id_store}/till-verification/${record._id}/verify`}>{record.is_locked_by_me ? 'Resume' : 'Start'}</Link>
-        </Button> */}
+          >
+          <Link href={`${adminRoot}/store/${_id_store}/till-verification/${record._id}/verify`}>
+            <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
+          </Link>
+        </Button>
       </>),
     },
   ];
