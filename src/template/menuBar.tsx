@@ -14,6 +14,7 @@ export function LinkComp({ children, href = "#", onClick, className, style }: {
     href: string | "#";
     onClick: Function;
     className: string;
+    style: any;
 }) {
     return <Link className={`block-menu-item ${className || ""}`} href={href} onClick={onClick} style={style}>{children}</Link>
 }
@@ -60,13 +61,14 @@ export function PageBar({ menuArray, _session, pop_item_style }: {
     pop_item_style?: object;
 }) {
     const pathname = usePathname()
-    const matchUrl = (href) => pathname.startsWith(href);
+    const matchUrl = (href: string) => href == pathname; // (href === "/") ? pathname == href : pathname.startsWith(href);
+        // pathname !== "/" && pathname === href ? pathname.startsWith(href);
     const session = useAppSelector(getSession);
 
 
     return (<div className='menu-bar'>
       <Space size={0} split="|">
-            {filterPermissions(menuArray, session)?.map((item, i) => {
+            {filterPermissions(menuArray, session)?.map((item: any, i: number) => {
 
                 if (item.children && filterPermissions(item.children, session).length > 0) {
                     // return (<ConfigProvider

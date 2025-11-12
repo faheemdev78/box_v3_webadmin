@@ -3,7 +3,7 @@ import React, { Component, useEffect, useRef, useState } from 'react'
 import PropTypes from 'prop-types';
 import { Drawer, message, Row, Col, Divider, Alert, Space, Card } from 'antd';
 import { Button, DevBlock, FileUploader, GMap, Loader } from '@_/components';
-import { string_to_slug } from '@_/lib/utill';
+import { catchApolloError, checkApolloRequestErrors, string_to_slug } from '@_/lib/utill';
 import { adminRoot, publishStatus, geoZoneTypes } from '@_/configs';
 import { __error, __yellow } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery, useQuery } from '@apollo/client';
@@ -22,7 +22,6 @@ function FormComp({ initialValues, ...props}) {
     const [error, setError] = useState(false);
     const router = useRouter()
 
-    // const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE);
     const [addVehicle, add_details] = useMutation(RECORD_ADD); // { data, loading, error }
     const [editVehicle, edit_details] = useMutation(RECORD_EDIT); // { data, loading, error }
 
@@ -85,12 +84,10 @@ function FormComp({ initialValues, ...props}) {
 
     async function _addVehicle(values){
         let input = {...values}
-        const resutls = await addVehicle({ variables: { input } }).then((r) => (r?.data?.addVehicle))
-            .catch(error => {
-                console.log(__error("Error: "), error)
-                return { error: { message: error.message || "Request Error" } }
-            });
-
+        const resutls = await addVehicle({ variables: { input } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.addVehicle }))
+            .catch(catchApolloError)
+        
         return resutls;
     }
 
@@ -98,11 +95,9 @@ function FormComp({ initialValues, ...props}) {
         let input = { ...values }
         // delete input.store;
 
-        const resutls = await editVehicle({ variables: { input } }).then((r) => (r?.data?.editVehicle))
-            .catch(error => {
-                console.log(__error("Error: "), error)
-                return { error: { message: error.message || "Request Error" } }
-            });
+        const resutls = await editVehicle({ variables: { input } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.editVehicle }))
+            .catch(catchApolloError)
 
         return resutls;
     }
@@ -182,7 +177,7 @@ export function VehicleForm({ store, ...props }) {
     const [error, setError] = useState(null)
     const router = useRouter()
 
-    const [get_vehicle, { loading, data, called }] = useLazyQuery(RECORD_GET);
+    const [get_vehicle, { loading, data, called }] = useLazyQuery(RECORD_GET, { fetchPolicy: "no-cache" });
 
     useEffect(() => {
         if (called || loading || !props?.initialValues?._id) return;
@@ -194,12 +189,9 @@ export function VehicleForm({ store, ...props }) {
 
         let resutls = await get_vehicle({ 
                 variables: { _id: props.initialValues._id },
-                fetchPolicy: "no-cache"
-        }).then(r => (r?.data?.vehicle))
-            .catch(err => {
-                console.log(__error("Query Error: "), err)
-                return { error: { message: "Query Error" } }
-            })
+        })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.vehicle }))
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             setError((resutls && resutls?.error?.message) || "Vehicle not found!")

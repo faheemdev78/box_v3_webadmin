@@ -1,0 +1,31 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+
+mutation VerifyOrderItem(
+  $_id_order: ID!
+  $_id_product: ID!
+  $qty_verified: Int!
+) {
+  verifyOrderItem(
+    _id_order: $_id_order
+    _id_product: $_id_product
+    qty_verified: $qty_verified
+  ) {
+    order {
+      _id
+      current_order {
+        items {
+          _id_product
+          status
+          processed_qty
+        }
+      }
+    }
+    success {
+      ...SuccessInfo
+    }
+    error {
+      ...ErrorInfo
+    }
+  }
+}

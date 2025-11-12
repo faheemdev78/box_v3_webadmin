@@ -11,7 +11,7 @@ import { Page } from '@_/template/page';
 
 import LIST_ROLES from '@_/graphql/user_role/userRoles.graphql'
 import EDIT_USER_ROLE from '@_/graphql/user_role/editUserRole.graphql'
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 /* eslint-disable react-hooks/exhaustive-deps */
 export default function UserPermissions(props) {
@@ -21,15 +21,7 @@ export default function UserPermissions(props) {
   const [loading, set_loading] = useState(false)
   const [selected_rights, set_selected_rights] = useState([])
   
-  const [get_userRoles, roles_details] = useLazyQuery(
-    LIST_ROLES,
-    {
-      variables: {
-        filter: JSON.stringify({}), others: JSON.stringify({})
-      },
-      fetchPolicy: 'network-only'
-    }
-  );
+  const [get_userRoles, roles_details] = useLazyQuery(LIST_ROLES, { fetchPolicy: 'network-only' });
   
   const [editUserRole, edit_details] = useMutation(EDIT_USER_ROLE); // { data, loading, error }
 
@@ -42,6 +34,8 @@ export default function UserPermissions(props) {
     set_loading(true)
     let resutls = await get_userRoles()
       .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.userRoles }))
+      .catch(catchApolloError)
+      
     set_loading(false)
 
     if (!resutls || resutls.error){
@@ -118,6 +112,8 @@ export default function UserPermissions(props) {
       }
     })
       .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.editUserRole }))
+      .catch(catchApolloError)
+
 
     if (!resutls || resutls.error){
       set_loading(false);

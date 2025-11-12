@@ -1,4 +1,4 @@
-#import "../_fragment/vouchers.graphql"
+# import "./_fragment/vouchers.graphql"
 #import "../_fragment/paginationResults.graphql"
 #import "../_fragment/error.graphql"
 
@@ -6,7 +6,20 @@ query vouchersQuery($limit: Int, $page: Int, $filter: String, $others: String) {
     vouchersQuery(limit: $limit, page: $page, filter: $filter, others: $others) {
         pagination { ...PaginationResultsInfo }
         edges { 
-            ...VouchersInfo
+            _id
+            title
+            # code
+            # description
+            type
+            status
+            # value
+            # maxDiscount
+            # minSpend
+            startDate
+            endDate
+            usageLimit
+            perCustomerLimit
+            usedCount
         }
         error { ...ErrorInfo }
     }

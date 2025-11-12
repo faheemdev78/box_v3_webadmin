@@ -32,9 +32,7 @@ export default  function ProductsListPage(props) {
     })
     const [busy, setBusy] = useState(false)
 
-    const [ordersQuery, { called, loading }] = useLazyQuery(LIST_DATA,
-        { variables: { filter: JSON.stringify({ ...state.filter, ...permanentFilter }) } }
-    );
+    const [ordersQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
   
     const fetchData = async ({ filter, pagination={} }) => {
         const variables = {

@@ -1,4 +1,4 @@
-#import "../_fragment/FormsData.graphql"
+#import "./_fragment/formsData.graphql"
 
 subscription formsDatasUpdated($filter:String){
     formsDatasUpdated(filter: $filter){

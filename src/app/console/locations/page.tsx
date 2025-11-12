@@ -9,7 +9,7 @@ import { defaultPageSize } from '@_/configs';
 import { __error } from '@_/lib/consoleHelper';
 import { PageHeader } from '@_/template';
 import { Page } from '@_/template/page';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import LIST_DATA from '@_/graphql/location/locations.graphql'
 import DELETE_REC from '@_/graphql/location/deleteLocation.graphql';
@@ -25,10 +25,7 @@ export default function Locations(props) {
     
     const [deleteLocation, del_results] = useMutation(DELETE_REC); // { data, loading, error }
     
-    const [get_locations, { called, loading }] = useLazyQuery(
-        LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [get_locations, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called) return;
@@ -42,11 +39,8 @@ export default function Locations(props) {
             filter: JSON.stringify({}),
             others: JSON.stringify({})
         } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.locations }))
-            .catch(err=>{
-                console.log(__error("Error: "), err)
-                return { error:{message:"Invalid response!"}}
-            })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.locations }))
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No records found!")

@@ -8,6 +8,7 @@ import { ManufacturerForm } from '@_/modules/manufacturers/manufacturerForm';
 import { defaultPageSize } from '@_/configs';
 import { PageHeader } from '@_/template';
 import { __error, __yellow } from '@_/lib';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import LIST_DATA from '@_/graphql/manufacturer/manufacturersQuery.graphql'
 import RECORD_DELETE from '@_/graphql/manufacturer/deleteManufacturer.graphql';
@@ -29,10 +30,7 @@ export default function Manufacturer(props) {
     
     const [deleteManufacturer, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
     
-    const [manufacturersQuery, { called, loading }] = useLazyQuery(
-        LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [manufacturersQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'cache-and-network' });
 
     useEffect(() => {
         if (called) return;
@@ -57,14 +55,10 @@ export default function Manufacturer(props) {
                 page: skip, 
                 filter: JSON.stringify({}), // JSON.stringify(filter), 
                 others: JSON.stringify({})
-            },
-            fetchPolicy: 'cache-and-network'
+            }
         })
-            .then(r => (r?.data?.manufacturersQuery))
-            .catch(err=>{
-                console.log(__error("Error: "), err)
-                return { error:{message:"Invalid response!"}}
-            })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.manufacturersQuery }))
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No records found!")

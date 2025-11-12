@@ -1,4 +1,4 @@
-#import "../_fragment/location.graphql"
+#import "./_fragment/location.graphql"
 
 mutation addLocation($input: Add_LocationsInput!) {
     addLocation(input: $input) {

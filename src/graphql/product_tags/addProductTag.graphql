@@ -1,4 +1,4 @@
-#import "../_fragment/product/product_tags.graphql"
+#import "./_fragment/product_tags.graphql"
 
 mutation addProductTag($input: Add_ProductTagInput!) {
     addProductTag(input: $input) {

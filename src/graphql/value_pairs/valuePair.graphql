@@ -1,4 +1,4 @@
-#import "../_fragment/value_pairs.graphql"
+#import "./_fragment/value_pairs.graphql"
 
 query valuePair($id: ID!){
     valuePair(id: $id){

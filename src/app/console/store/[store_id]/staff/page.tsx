@@ -9,10 +9,12 @@ import Link from 'next/link';
 import { UsersList } from '@_/modules/users';
 import { Page, PageHeader } from '@_/template';
 import { Button, usePageProps } from '@_/components';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { __error } from '@_/lib/consoleHelper';
+import { ViewFilter, ViewConfig } from '@_/components/ViewFilter';
+import { createStaffViewConfig, INITIAL_STAFF_VIEWS } from './components/staffViewConfig';
 
-import LIST_DATA from '@_/graphql/users/usersQuery.graphql'
+import LIST_DATA from '@_/graphql/users/staffQuery.graphql'
 import RECORD_DELETE from '@_/graphql/geo_zone/deleteGeoZone.graphql';
 
 const defaultFilter = {}; // { status: 'online' }
@@ -29,14 +31,13 @@ export default function Staff() {
         busy: false,
     })
 
-    const [dataArray, set_dataArray] = useState(null)
+    const [dataArray, set_dataArray] = useState<any>(null)
+    const [savedViews, setSavedViews] = useState<ViewConfig[]>(INITIAL_STAFF_VIEWS)
+    const [activeView, setActiveView] = useState<ViewConfig | null>(null)
 
     const [deleteGeoZone, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
 
-    const [usersQuery, { called, loading }] = useLazyQuery(
-        LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [staffQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called || loading) return
@@ -54,7 +55,7 @@ export default function Staff() {
 
         setState({ ...state, filter, pagination: { current } })
 
-        const results = await usersQuery({
+        const results = await staffQuery({
             variables: {
                 limit,
                 page: skip,
@@ -62,11 +63,8 @@ export default function Staff() {
                 others: JSON.stringify({})
             }
         })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.usersQuery }))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.staffQuery }))
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No records found!")
@@ -77,14 +75,11 @@ export default function Staff() {
     }
     const onUpdateCallback = () => fetchData()
 
-    const handleDelete = async ({ _id }) => {
+    const handleDelete = async ({ _id="" }) => {
         let results = await deleteGeoZone(_id)
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deleteGeoZone }))
-            .catch(error => {
-                console.log(__error("ERROR"), error);
-                message.error("Invalid Response!")
-            })
-
+            .catch(catchApolloError)
+            
         if (!results || results.error) {
             message.error((results && results?.error?.message) || "Unable to delete record")
             return false;
@@ -94,18 +89,59 @@ export default function Staff() {
     }
 
 
+    // Create view configuration for current user
+    const viewConfig = createStaffViewConfig({
+        id: 'admin_user', // In production, get from auth context (using admin_user to match demo views)
+        role: 'admin', // In production, get from auth context
+        teamId: store._id
+    });
+
+    // View callbacks
+    const viewCallbacks = {
+        onApplyView: (view: ViewConfig) => {
+            setActiveView(view);
+            // TODO: Apply filters to the staff query
+            // Convert view.filterGroups to GraphQL filter format
+            console.log('Applying view:', view);
+            message.info(`Applied view: ${view.name}`);
+        },
+        onSaveView: async (view: ViewConfig) => {
+            // TODO: Save to database via GraphQL mutation
+            setSavedViews([...savedViews, view]);
+            console.log('Saving view:', view);
+        },
+        onUpdateView: async (view: ViewConfig) => {
+            // TODO: Update in database via GraphQL mutation
+            setSavedViews(savedViews.map(v => v.id === view.id ? view : v));
+            console.log('Updating view:', view);
+        },
+        onDeleteView: async (viewId: string) => {
+            // TODO: Delete from database via GraphQL mutation
+            setSavedViews(savedViews.filter(v => v.id !== viewId));
+            console.log('Deleting view:', viewId);
+        }
+    };
+
     return (<>
         <PageHeader title={`Staff`}>
             <Button color="orange" type="link"><Link href={`${adminRoot}/store/${store._id}/staff/new`}>Add Staff</Link></Button>
         </PageHeader>
 
         <Page>
-            <UsersList
-                loading={loading}
-                dataSource={dataArray && dataArray.edges}
-                handleDelete={handleDelete}
-                pagination={false}
+            <ViewFilter
+                config={viewConfig}
+                views={savedViews}
+                callbacks={viewCallbacks}
             />
+
+            <div style={{ marginTop: 16 }}>
+                <UsersList
+                    loading={loading}
+                    dataSource={dataArray && dataArray.edges}
+                    handleDelete={handleDelete}
+                    pagination={false}
+                />
+            </div>
         </Page>
 
     </>)

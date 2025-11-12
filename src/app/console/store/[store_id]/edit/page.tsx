@@ -26,7 +26,7 @@ export default function StoreWrapper(props) {
 
   const [fatelError, set_fatelError] = useState(null)
 
-  const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE);
+  const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE, { fetchPolicy: 'network-only' });
 
   useEffect(() => {
     if (called || loading || !store_id) return;

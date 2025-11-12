@@ -7,7 +7,7 @@ import LIST_DATA from '@_/graphql/page_settings/page_settings.graphql';
 
 
 const ListComp = ({ pageSettings, onEditRecord }) => {
-    const [get_pageSettings, { called, loading, error, data }] = useLazyQuery(LIST_DATA);
+    const [get_pageSettings, { called, loading, error, data }] = useLazyQuery(LIST_DATA, { fetchPolicy: "no-cache" });
     // const [changeUserPickupAllow, update_details] = useMutation(UPDATE_PICKUP_ALLOW);
     // const { data, loading } = useSubscription(QUERY_SUBSCRIPTION, { variables: { postID } });
 

@@ -20,10 +20,7 @@ import SEARCH_QUERY from '@_/graphql/product_attributes/productAttributes.graphq
 export const ProdAttributesSelector = ({ initialValues=[], onUpdate }) => {
     const [selection, set_selection] = useState(initialValues)
 
-    const [productAttributes, { data, called, loading }] = useLazyQuery(
-        SEARCH_QUERY,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [productAttributes, { data, called, loading }] = useLazyQuery(SEARCH_QUERY, { fetchPolicy: "network-only" });
     
     useEffect(() => {
         if (called || loading) return;

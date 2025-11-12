@@ -1,0 +1,14 @@
+#import "../../_fragment/error.graphql"
+#import "../../_fragment/GeoPointReff.graphql"
+
+fragment LocationInfo on Location {
+  _id
+  title
+  code
+  child_of
+  center {...GeoPointReffInfo}
+  type
+  status
+
+  error { ...ErrorInfo }
+}

@@ -11,6 +11,7 @@ import { FieldArray } from 'react-final-form-arrays';
 
 import RECORD_EDIT from '@_/graphql/product/editProduct.graphql'
 import GET_EXTRA_FIELDS from '@_/graphql/fields_definations/fieldsDefinations.graphql'
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 function ProdExtraFieldsFormComp({ initialValues, onSuccess, onCancel }) {
     const [error, setError] = useState(null)
@@ -141,9 +142,7 @@ function ProdExtraFieldsFormComp({ initialValues, onSuccess, onCancel }) {
 export function ProdExtraFieldsForm (props) {
     const [fetalError, setFetalError] = useState(null)
 
-    const [fieldsDefinations, { called, loading, data }] = useLazyQuery(GET_EXTRA_FIELDS,
-        { variables: { filter: JSON.stringify({}), others: JSON.stringify({ sort: { sort_order: 1 } }) } }
-    );
+    const [fieldsDefinations, { called, loading, data }] = useLazyQuery(GET_EXTRA_FIELDS, { fetchPolicy: "network-only" });
 
     useEffect(() => {
         if (called) return;
@@ -152,15 +151,14 @@ export function ProdExtraFieldsForm (props) {
 
     async function fetchExtraFields() {
         let results = await fieldsDefinations({
-            variables: {
-                filter: JSON.stringify({})
+            variables: { 
+                filter: JSON.stringify({}), 
+                others: JSON.stringify({ sort: { sort_order: 1 } })
             }
-        }).then(r => r?.data?.fieldsDefinations)
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: (err.message || "Unable to fetch Extra Fields") } }
-            })
-
+        })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.fieldsDefinations }))
+            .catch(catchApolloError);
+        
         if (results && results.error) {
             setFetalError(results.error.message);
             return;

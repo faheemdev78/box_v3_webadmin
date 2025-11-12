@@ -1,0 +1,108 @@
+'use client';
+
+import { useEffect, useState } from "react";
+import { useMutation, useLazyQuery } from '@apollo/client';
+import { __error } from '@_/lib/consoleHelper';
+import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
+import { Card, message, Row, Space, Tag, Typography } from "antd";
+import { catchApolloError, checkApolloRequestErrors } from "@_/lib/utill_apollo";
+import { Button, DevBlock, OrderTable, usePageProps } from '@_/components';
+import { Page } from "@_/template";
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+import LIST_DATA from '@_/graphql/order/getDispatchedQueue.graphql';
+
+dayjs.extend(relativeTime);
+
+const { Title, Text } = Typography;
+const defaultFilter = {};
+
+
+function DispatchedList(props:any) {
+    const { store } = usePageProps()
+  
+    const [state, setState] = useState({
+        pagination: defaultPagination,
+        pageView: "list",
+        dataSource: null,
+        filter: { ...defaultFilter },
+        _id_store: store._id,
+    })
+
+    const [getDispatchedQueue, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
+  
+    const fetchData = async ({ filter, pagination = {} }: { 
+        filter:any, 
+        pagination:any
+    }) => {
+      const variables = {
+          limit: pagination?.pageSize || state.pagination.pageSize,
+          page: pagination?.current || state.pagination.current,
+          filter: filter || state.filter || {},
+          others: state.others || {},
+          _id_store: store._id,
+      }
+
+        const resutls = await getDispatchedQueue({ 
+          variables: {
+              ...variables,
+              filter: JSON.stringify({ ...variables.filter, 'store._id': store._id }),
+              others: JSON.stringify(variables.others || {})
+          }
+        })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.getDispatchedQueue }))
+          .catch(catchApolloError)
+
+        if (resutls && resutls.error) {
+            message.error(resutls.error.message);
+            return;
+        }
+
+        setState({
+            ...state,
+            pagination: { 
+                ...state.pagination,
+                current: resutls.pagination.page,
+                total: resutls.pagination.totalDocs,
+                pageSize: resutls.pagination.limit,
+            },
+            filter: variables.filter,
+            dataSource: resutls?.edges,
+        })
+
+    }
+
+    useEffect(() => {
+        if (called || loading) return
+        fetchData({})
+    }, [props])
+    
+
+    return (<>
+        <Page>
+            <Card
+                title={<Space>
+                    <Title level={3} style={{ margin: 0 }}>Dispatched</Title>
+                    {!loading && <Tag color="green">{state?.pagination?.total || 0} orders found</Tag>}
+                </Space>}
+                extra={<Button onClick={() => fetchData({})} loading={loading}>Refresh</Button>}
+                styles={{ body: { padding: 0 } }}
+            >
+                <OrderTable
+                    busy={false} 
+                    columns={['serial', 'customer', 'picker', 'order', 'delivery_slot', 'status', 'createdAt', {
+                        key: 'actions',
+                        options: { reset: true, till_verification: false }
+                    }]} 
+                    dataSource={state.dataSource}
+                    pagination={state.pagination}
+                    scroll={{ x: 1200 }}
+                />
+            </Card>
+        </Page>
+
+    </>)
+}
+
+export default DispatchedList;

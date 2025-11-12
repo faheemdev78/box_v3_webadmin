@@ -13,7 +13,7 @@ import { adminRoot } from '@_/configs';
 import { PageHeader } from '@_/template';
 import { Page } from '@_/template/page';
 import { useParams } from 'next/navigation';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 import GET_RECORD from '@_/graphql/geo_zone/geoZone.graphql';
@@ -31,8 +31,8 @@ function EditStoreZone({ store }) {
     const [showZoneForm, set_showZoneForm] = useState(false)
     const [relatedZones, set_relatedZones] = useState(false)
     
-    const [geoZone, { loading, data, called }] = useLazyQuery(GET_RECORD);
-    const [geoZones, zones_resutls] = useLazyQuery(GEO_ZONES);
+    const [geoZone, { loading, data, called }] = useLazyQuery(GET_RECORD, { fetchPolicy: 'network-only' });
+    const [geoZones, zones_resutls] = useLazyQuery(GEO_ZONES, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called || loading || !zone_id) return;
@@ -64,10 +64,7 @@ function EditStoreZone({ store }) {
 
         let results = await geoZones({ variables: { filter: JSON.stringify(filter) } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZones }))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Unable to load related zones" } }
-            })
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error(results.error.message)
@@ -280,8 +277,8 @@ export default function Wrapper(props){
     const [fatelError, set_fatelError] = useState(null)
     const [showZoneForm, set_showZoneForm] = useState(false)
 
-    const [geoZone, { loading, data, called }] = useLazyQuery(GET_RECORD);
-    const [geoZones, zones_resutls] = useLazyQuery(GEO_ZONES);
+    const [geoZone, { loading, data, called }] = useLazyQuery(GET_RECORD, { fetchPolicy: 'network-only' });
+    const [geoZones, zones_resutls] = useLazyQuery(GEO_ZONES, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called || loading || !zone_id) return;
@@ -289,11 +286,9 @@ export default function Wrapper(props){
     }, [zone_id])
 
     const fetchZone = async () => {
-        let resutls = await geoZone({ variables: { _id: zone_id } }).then(r => (r?.data?.geoZone))
-            .catch(err => {
-                console.log(__error("Query Error: "), err)
-                return { error: { message: "Query Error" } }
-            })
+        let resutls = await geoZone({ variables: { _id: zone_id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZone }))
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             set_fatelError((resutls && resutls?.error?.message) || "Zone not found!")
@@ -315,11 +310,10 @@ export default function Wrapper(props){
             _id: { $ne: _id }
         }
 
-        let results = await geoZones({ variables: { filter: JSON.stringify(filter) } }).then(r => (r?.data?.geoZones))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Unable to load related zones" } }
-            })
+        let results = await geoZones({ variables: { filter: JSON.stringify(filter) } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZones }))
+            .catch(catchApolloError)
+
 
         if (results && results.error) {
             message.error(results.error.message)

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
 import { Drawer, message, Row, Col, Divider, Alert, Space } from 'antd';
 import { Button, DevBlock, FileUploader, GMap, Loader } from '@_/components';
-import { sleep, string_to_slug } from '@_/lib/utill';
+import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@_/lib/utill';
 import { publishStatus, locationTypes, adminRoot } from '@_/configs';
 import { __error } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client';
@@ -207,7 +207,7 @@ export const StoreForm = (props) => {
     const [fatelError, set_fatelError] = useState(false);
     const [error, setError] = useState(false);
     const [initialValues, set_initialValues] = useState(false);
-    const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE);
+    const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE, { fetchPolicy: "no-cache" });
 
     useEffect(() => {
         if (called || loading || !props.store_id) return;
@@ -217,11 +217,10 @@ export const StoreForm = (props) => {
     const fetchZone = async () => {
         setError(null)
 
-        let resutls = await get_store({ variables: { _id: props.store_id } }).then(r => (r?.data?.store))
-            .catch(err => {
-                console.log(__error("Query Error: "), err)
-                return { error: { message: "Query Error" } }
-            })
+        let resutls = await get_store({ variables: { _id: props.store_id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.store }))
+            .catch(catchApolloError)
+        
 
         if (!resutls || resutls.error) {
             set_fatelError((resutls && resutls?.error?.message) || "Store not found!")

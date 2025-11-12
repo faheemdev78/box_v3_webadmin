@@ -1,0 +1,41 @@
+#import "../_fragment/paginationResults.graphql"
+#import "../_fragment/error.graphql"
+#import "./_fragment/OrderTotals.graphql"
+#import "./_fragment/OrderDeliverySlot.graphql"
+
+
+query ordersOnTillQuery($limit: Int, $page: Int, $filter: String, $others:String, $_id_store:ID!) {
+    ordersOnTillQuery(limit: $limit, page: $page, filter: $filter, others: $others, _id_store: $_id_store) {
+        pagination { ...PaginationResultsInfo }
+        edges {
+            _id
+            serial
+            customer { _id name }
+            store { _id title }
+            delivery_slot { ...OrderDeliverySlotInfo }
+            current_stage
+            status { order payment fulfillment }
+            original_order {
+                totals { ...OrderTotalsInfo }
+            }
+            # current_order: ProcessingData
+            # processing_stages {
+            #     picking: ProcessingData
+            #     till_verification: ProcessingData
+            #     delivery: ProcessingData
+            # }
+            createdAt
+            viewed
+            pickup_allow
+
+            # Lock status
+            is_locked_by_me
+            # locked_by: ID
+            lock_expires_at
+            lock_type
+
+            # zone { _id_zone title }
+        }
+        error { ...ErrorInfo }
+    }
+}

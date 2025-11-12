@@ -130,15 +130,7 @@ export default function UserTypes() {
   const [dataArray, set_dataArray] = useState(null);
   const [error, setError] = useState(null);
 
-  const [usersQuery, { called, loading, data }] = useLazyQuery(
-    GET_LIST,
-    {
-      variables: {
-        filter: JSON.stringify({}), others: JSON.stringify({})
-      },
-      fetchPolicy: 'network-only'
-    }
-  );
+  const [getRoles, { called, loading, data }] = useLazyQuery(GET_LIST, { fetchPolicy: 'network-only' });
 
   const [deleteUserRole, del_details] = useMutation(DEL_REC); // { data, loading, error }
   
@@ -151,8 +143,10 @@ export default function UserTypes() {
   const fetchData = async () => {
     setBusy(true);
 
-    let resutls = await usersQuery()
+    let resutls = await getRoles()
       .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.userRoles }))
+      .catch(catchApolloError)
+      
 
     if (resutls.error) setError(resutls.error.message)
     else set_dataArray(resutls)

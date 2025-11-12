@@ -7,6 +7,7 @@ import debounce from 'lodash/debounce';
 import { Spin, Select, message } from 'antd';
 import { __error } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery, gql } from '@apollo/client';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 /* eslint-disable react-hooks/exhaustive-deps */
@@ -67,9 +68,11 @@ export const SearchableSelect = (props) => {
     const [value, setValue] = useState(props.data || []);
     const [busy, setBusy] = useState(false);
 
-    const [fetchQuery, { called, loading }] = useLazyQuery(
-        props.query,
-        // { variables: { filter: JSON.stringify({}) } }
+    const [fetchQuery, { called, loading }] = useLazyQuery(props.query, {
+            fetchPolicy: 'network-only', // no-cache, network-only
+            nextFetchPolicy: 'cache-first', // Used for subsequent executions
+            // variables: { filter: JSON.stringify({}) }
+        }
     );
 
     const fetchData = async (kw) => {
@@ -87,14 +90,10 @@ export const SearchableSelect = (props) => {
 
         let results = await fetchQuery({
             variables: { filter },
-            // fetchPolicy: // no-cache, network-only
-            fetchPolicy: 'network-only', // Used for first execution
             nextFetchPolicy: 'cache-first', // Used for subsequent executions
-        }).then(r => r?.data[props.queryName])
-        .catch(err=>{
-            console.log(__error("Error: "), err)
-            return { error: { message:"Invalid results!"}}
         })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data[props.queryName] }))
+            .catch(catchApolloError)
 
         setBusy(false);
 

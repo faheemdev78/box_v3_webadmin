@@ -1,4 +1,4 @@
-#import "../_fragment/vouchers.graphql"
+#import "./_fragment/vouchers.graphql"
 
 mutation editVehicle($input: Edit_VehiclesInput!) {
     editVehicle(input: $input) {

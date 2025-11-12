@@ -21,7 +21,7 @@ export default function ZoneDeliverySlots(props) {
     const [fatelError, set_fatelError] = useState(null)
     const { zone_id } = useParams<{ zone_id: string }>()
 
-    const [get_geoZone, { loading, data, called }] = useLazyQuery(GET_ZONE);
+    const [get_geoZone, { loading, data, called }] = useLazyQuery(GET_ZONE, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called || loading || !zone_id) return;

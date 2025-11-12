@@ -1,4 +1,4 @@
-#import "../_fragment/vouchers.graphql"
+#import "./_fragment/vouchers.graphql"
 
 mutation addVoucher($input: Add_VoucherInput!) {
     addVoucher(input: $input) {

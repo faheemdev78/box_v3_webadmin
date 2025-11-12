@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { __error } from '@_/lib/consoleHelper';
 import { useParams } from 'next/navigation';
 import { PageBar, PageHeader } from '@_/template';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import GET_STORE from '@_/graphql/stores/store.graphql';
 import UPDATE_STATUS from '@_/graphql/stores/editStore.graphql'
@@ -20,7 +20,7 @@ export default function StoreWrapper({ render, ...props }) {
 
     const [fatelError, set_fatelError] = useState(null)
 
-    const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE);
+    const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE, { fetchPolicy: "no-cache" });
     const [editStore, edit_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
     useEffect(() => {
@@ -31,10 +31,7 @@ export default function StoreWrapper({ render, ...props }) {
     const fetchData = async () => {
         let resutls = await get_store({ variables: { _id: store_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.store }))
-            .catch(err => {
-                console.log(__error("Query Error: "), err)
-                return { error: { message: "Query Error" } }
-            })
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             set_fatelError((resutls && resutls?.error?.message) || "Store not found!")
@@ -47,10 +44,7 @@ export default function StoreWrapper({ render, ...props }) {
     const onStatusUpdate = async (values) => {
         let resutls = await editStore({ variables: { input: { _id: store_id, status: values.status } } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.editStore }))
-            .catch(err => {
-                console.log(__error("Error: "), err);
-                return { error: { message: "Request Error!" } }
-            })
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             message.error((resutls && resutls?.error?.message) || "Unable to update product!");

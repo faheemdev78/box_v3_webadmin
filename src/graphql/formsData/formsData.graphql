@@ -1,4 +1,4 @@
-#import "../_fragment/formsData.graphql"
+#import "./_fragment/formsData.graphql"
 
 query formsData($filter:String!){
     formsData(filter: $filter){

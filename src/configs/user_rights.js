@@ -5,10 +5,10 @@ export const UserRightsArray = [
             { title: 'Account type management', key: '100.1' },
             { title: 'User permissions manager', key: '100.2' },
 
-            { heading: 'Staff Management', key: '0.00' },
-            { title: 'Add Staff', key: '100.10' },
-            { title: 'Update Staff', key: '100.11' },
-            { title: 'Delete Staff', key: '100.12' },
+            { heading: 'Staff Management', key: '100.10' },
+            { title: 'Add Staff', key: '100.11' },
+            { title: 'Update Staff', key: '100.12' },
+            { title: 'Delete Staff', key: '100.13' },
 
             { heading: 'Manager Account Management', key: '0.01' },
             { title: 'Add Managers', key: '100.20' },
@@ -104,6 +104,12 @@ export const UserRightsArray = [
         rules: [
             { title: 'Show Vouchers', key: '1003.1' },
             { title: 'Manage Vouchers', key: '1003.2' },
+        ]
+    },
+
+    { _id: 1004, title: 'View Manager',
+        rules: [
+            { title: 'Edit Views', key: '1004.1' },
         ]
     },
 

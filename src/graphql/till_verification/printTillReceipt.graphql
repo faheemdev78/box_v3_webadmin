@@ -1,0 +1,41 @@
+mutation PrintTillReceipt($_id_order: ID!) {
+  printTillReceipt(_id_order: $_id_order) {
+    success {
+      message
+    }
+    error {
+      message
+    }
+    receiptText
+    receiptData {
+      orderNumber
+      storeName
+      storeAddress
+      customerName
+      customerPhone
+      verifiedAt
+      verifiedBy
+      deliveryBaskets {
+        title
+        barcode
+        color
+      }
+      items {
+        title
+        qty
+        price
+        total
+        status
+      }
+      totals {
+        subtotal
+        grandTotal
+        taxAmount
+        shipping
+        discountTotal
+      }
+      paymentMethod
+      notes
+    }
+  }
+}

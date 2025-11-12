@@ -1,285 +1,409 @@
-'use client'
-/**
- * Till Verification POS Component
- * Main POS-style verification screen for item-by-item verification
- */
+// 'use client'
+// /**
+//  * Till Verification POS Component
+//  * Main POS-style verification screen for item-by-item verification
+//  * Updated for shift-based order verification system
+//  */
 
-import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Space, Button, Typography, Modal, Input, Spin, message } from 'antd';
-import { PauseCircleOutlined, CheckCircleOutlined, CloseCircleOutlined, LeftOutlined } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@_/rStore/hooks';
-import { getActiveSession, getVerificationItems, getSessionOrderData, getSessionStoreId } from '@_/rStore/slices/tillVerificationSlice';
-import { getSettings } from '@_/rStore/slices/systemSlice';
-import { useStartTillSession, useHoldTillSession, useCompleteTillSession, useCancelTillSession } from '@_/hooks/useTillVerification';
-import { VerificationProgress } from './VerificationProgress';
-import { ItemVerificationRow } from './ItemVerificationRow';
-import { HeldSessionsPanel } from './HeldSessionsPanel';
-import { Loader } from '@_/components';
+// import React, { useEffect, useState } from 'react';
+// import { Card, Row, Col, Space, Button, Typography, Modal, Input, message, Progress, Tag, Alert } from 'antd';
+// import { CheckCircleOutlined, LeftOutlined, ExclamationCircleOutlined, PrinterOutlined } from '@ant-design/icons';
+// import { useRouter } from 'next/navigation';
+// import { useAppSelector, useAppDispatch } from '@_/rStore/hooks';
+// import { getActiveShift, getCurrentOrderId, setCurrentOrder } from '@_/rStore/slices/tillVerificationSlice';
+// import { getSettings } from '@_/rStore/slices/systemSlice';
+// import {
+//   useStartOrderVerification,
+//   useCompleteOrderVerification,
+//   useMyLockedOrders,
+//   useMyActiveTillShift,
+//   usePrintTillReceipt
+// } from '@_/hooks/useTillVerification';
+// import { ItemVerificationRow } from './ItemVerificationRow';
+// import { BasketSelector } from './BasketSelector';
+// import { Loader } from '@_/components';
+// import { adminRoot } from '@_/configs';
 
-const { Title, Text } = Typography;
-const { TextArea } = Input;
+// const { Title, Text } = Typography;
+// const { TextArea } = Input;
 
-interface TillVerificationPOSProps {
-  orderId: string;
-  store_id: string; // fallback from route params
-}
+// interface TillVerificationPOSProps {
+//   orderId: string;
+//   store_id: string;
+// }
 
-export const TillVerificationPOS: React.FC<TillVerificationPOSProps> = ({ orderId, store_id: routeStoreId }) => {
-  const router = useRouter();
-  const settings = useAppSelector(getSettings);
+// export const TillVerificationPOS: React.FC<TillVerificationPOSProps> = ({ orderId, store_id }) => {
+//   const router = useRouter();
+//   const dispatch = useAppDispatch();
+//   const settings = useAppSelector(getSettings);
+//   const currentOrderId = useAppSelector(getCurrentOrderId);
 
-  const activeSession = useAppSelector(getActiveSession);
-  const orderData = useAppSelector(getSessionOrderData);
-  const verificationItems = useAppSelector(getVerificationItems);
-  const sessionStoreId = useAppSelector(getSessionStoreId);
+//   // Fetch active shift and locked orders
+//   const { session: activeShift, loading: shiftLoading } = useMyActiveTillShift();
+//   const { orders: lockedOrders, loading: loadingOrders, refetch } = useMyLockedOrders();
 
-  // Use store_id from Redux if session is active, otherwise use route param
-  const store_id = sessionStoreId || routeStoreId;
+//   // Mutations
+//   const { startOrder } = useStartOrderVerification();
+//   const { completeOrder, loading: completingOrder } = useCompleteOrderVerification();
+//   const { printReceipt, loading: printingReceipt } = usePrintTillReceipt();
 
-  const { startTillSession, loading: startLoading } = useStartTillSession();
-  const { holdSession, loading: holdLoading } = useHoldTillSession();
-  const { completeSession, loading: completeLoading } = useCompleteTillSession();
-  const { cancelSession, loading: cancelLoading } = useCancelTillSession();
+//   const [showCompleteModal, setShowCompleteModal] = useState(false);
+//   const [selectedBasketIds, setSelectedBasketIds] = useState<string[]>([]);
+//   const [completeNotes, setCompleteNotes] = useState('');
+//   const [initAttempted, setInitAttempted] = useState(false);
+//   const [showReceiptModal, setShowReceiptModal] = useState(false);
+//   const [receiptText, setReceiptText] = useState<string>('');
 
-  const [showHoldModal, setShowHoldModal] = useState(false);
-  const [showCompleteModal, setShowCompleteModal] = useState(false);
-  const [showCancelModal, setShowCancelModal] = useState(false);
-  const [holdNotes, setHoldNotes] = useState('');
-  const [completeNotes, setCompleteNotes] = useState('');
-  const [cancelReason, setCancelReason] = useState('');
-  const [sessionInitialized, setSessionInitialized] = useState(false);
+//   // Find current order from locked orders
+//   const orderData = lockedOrders.find((o: any) => o._id === orderId);
 
-  // Initialize session on mount
-  useEffect(() => {
-    const initializeSession = async () => {
-      if (!activeSession._id_session && !sessionInitialized) {
-        try {
-          setSessionInitialized(true);
-          await startTillSession(orderId);
-          message.success('Till verification session started');
-        } catch (error: any) {
-          message.error(error.message || 'Failed to start session');
-          router.push(`/console/store/${store_id}/till-verification`);
-        }
-      }
-    };
+//   // Initialize order verification on mount
+//   useEffect(() => {
+//     if (initAttempted || loadingOrders) return;
 
-    initializeSession();
-  }, [orderId, activeSession._id_session, sessionInitialized]);
+//     const initializeOrder = async () => {
+//       setInitAttempted(true);
 
-  const handleHold = async () => {
-    try {
-      await holdSession(holdNotes);
-      message.success('Session held successfully');
-      setShowHoldModal(false);
-      setHoldNotes('');
-      router.push(`/console/store/${store_id}/till-verification`);
-    } catch (error: any) {
-      message.error(error.message || 'Failed to hold session');
-    }
-  };
+//       if (!orderData) {
+//         // Order not in locked orders - try to start verification
+//         try {
+//           console.log('Starting order verification for:', orderId);
+//           await startOrder(orderId);
+//           dispatch(setCurrentOrder(orderId));
+//           message.success('Order verification started');
+//         } catch (error: any) {
+//           console.error('Failed to start order:', error);
+//           message.error(error.message || 'Failed to start order verification');
+//           router.push(`${adminRoot}/store/${store_id}/till-verification`);
+//         }
+//       } else {
+//         // Order already locked - just set as current
+//         console.log('Order already locked, setting as current');
+//         dispatch(setCurrentOrder(orderId));
+//       }
+//     };
 
-  const handleComplete = async () => {
-    try {
-      // TODO: Add delivery basket selection
-      const deliveryBaskets: string[] = [];
-      await completeSession(deliveryBaskets, completeNotes);
-      message.success('Verification completed successfully!');
-      setShowCompleteModal(false);
-      setCompleteNotes('');
-      router.push(`/console/store/${store_id}/till-verification`);
-    } catch (error: any) {
-      message.error(error.message || 'Failed to complete session');
-    }
-  };
+//     initializeOrder();
+//   }, [orderId, loadingOrders, orderData, initAttempted, dispatch, startOrder, router, store_id]);
 
-  const handleCancel = async () => {
-    if (!cancelReason.trim()) {
-      message.warning('Please provide a reason for cancellation');
-      return;
-    }
+//   const handleComplete = async () => {
+//     if (!orderData) return;
 
-    try {
-      await cancelSession(cancelReason);
-      message.info('Session cancelled');
-      setShowCancelModal(false);
-      setCancelReason('');
-      router.push(`/console/store/${store_id}/till-verification`);
-    } catch (error: any) {
-      message.error(error.message || 'Failed to cancel session');
-    }
-  };
+//     // Validate basket selection
+//     if (selectedBasketIds.length === 0) {
+//       message.error('Please select at least one delivery basket');
+//       return;
+//     }
 
-  const handleBack = () => {
-    Modal.confirm({
-      title: 'Leave Verification?',
-      content: 'You have an active verification session. Do you want to hold it or cancel?',
-      okText: 'Hold Session',
-      cancelText: 'Stay',
-      onOk: () => setShowHoldModal(true),
-    });
-  };
+//     try {
+//       await completeOrder(orderId, selectedBasketIds, completeNotes);
+//       message.success('Order verification completed successfully!');
+//       setShowCompleteModal(false);
+//       setSelectedBasketIds([]);
+//       setCompleteNotes('');
+//       dispatch(setCurrentOrder(null));
+//       router.push(`${adminRoot}/store/${store_id}/till-verification`);
+//     } catch (error: any) {
+//       message.error(error.message || 'Failed to complete verification');
+//     }
+//   };
 
-  if (startLoading || !orderData) {
-    return (<div style={{ textAlign: 'center', padding: '100px 0' }}>
-      <Loader loading={true}>Starting verification session...</Loader>
-    </div>);
-  }
+//   const handlePrintReceipt = async () => {
+//     try {
+//       const result = await printReceipt(orderId);
+//       if (result?.receiptText) {
+//         setReceiptText(result.receiptText);
+//         setShowReceiptModal(true);
+//         message.success('Receipt generated successfully!');
+//       }
+//     } catch (error: any) {
+//       message.error(error.message || 'Failed to print receipt');
+//     }
+//   };
 
-  const orderItems = orderData?.current_order?.items || [];
-  const customer = orderData?.customer;
-  const picker = orderData?.processing_stages?.picking?.handled_by;
+//   const handleBasketSelectionChange = (basketIds: string[]) => {
+//     setSelectedBasketIds(basketIds);
+//   };
 
-  return (
-    <div style={{ padding: 24, backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{ marginBottom: 16 }}>
-        <Row align="middle" justify="space-between">
-          <Col>
-            <Space>
-              <Button icon={<LeftOutlined />} onClick={handleBack} size="large">Back</Button>
-              <Space direction="vertical" size={0}>
-                <Title level={3} style={{ margin: 0 }}>Till Verification - Order #{orderData?.serial}</Title>
-                <Text type="secondary">Customer: {customer?.name} | Picker: {picker?.name}</Text>
-              </Space>
-            </Space>
-          </Col>
-          <Col>
-            <Space>
-              <Button icon={<PauseCircleOutlined />} onClick={() => setShowHoldModal(true)} loading={holdLoading} size="large">Hold</Button>
-              <Button type="primary" icon={<CheckCircleOutlined />} onClick={() => setShowCompleteModal(true)} loading={completeLoading} size="large">Complete</Button>
-              <Button danger icon={<CloseCircleOutlined />} onClick={() => setShowCancelModal(true)} loading={cancelLoading} size="large">Cancel</Button>
-            </Space>
-          </Col>
-        </Row>
-      </div>
+//   const handleBack = () => {
+//     // Just navigate back - order stays locked (auto-hold)
+//     dispatch(setCurrentOrder(null));
+//     router.push(`${adminRoot}/store/${store_id}/till-verification`);
+//   };
 
-      {/* Main Content */}
-      <Row gutter={16}>
-        {/* Left Column - Items List */}
-        <Col xs={24} lg={16}>
-          <Card title={<Title level={4} style={{ margin: 0 }}>Items to Verify</Title>} style={{ minHeight: '70vh' }}>
-            <Space direction="vertical" style={{ width: '100%' }}>
-              {orderItems.map((item: any) => {
-                const verificationStatus = verificationItems[item._id_product] || {
-                  status: 'pending',
-                  qty_expected: item.qty,
-                  qty_verified: 0,
-                  notes: '',
-                  verified_at: null,
-                };
+//   // Check if shift is active
+//   if (!activeShift) {
+//     return (
+//       <div style={{ textAlign: 'center', padding: '100px 0' }}>
+//         <Card>
+//           <Space direction="vertical">
+//             <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
+//             <Title level={4}>No Active Shift</Title>
+//             <Text>You must have an active shift to verify orders.</Text>
+//             <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>
+//               Go to Queue
+//             </Button>
+//           </Space>
+//         </Card>
+//       </div>
+//     );
+//   }
 
-                return (
-                  <ItemVerificationRow key={item._id_product} item={item} verificationStatus={verificationStatus} />
-                );
-              })}
-            </Space>
-          </Card>
-        </Col>
+//   // Loading state - show what's happening
+//   if (loadingOrders || (!orderData && !initAttempted)) {
+//     return (
+//       <div style={{ textAlign: 'center', padding: '100px 0' }}>
+//         <Loader loading={true}>
+//           {loadingOrders ? 'Loading locked orders...' : 'Initializing...'}
+//         </Loader>
+//       </div>
+//     );
+//   }
 
-        {/* Right Column - Progress & Held Sessions */}
-        <Col xs={24} lg={8}>
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            {/* Progress */}
-            <VerificationProgress />
+//   // If init attempted but still no order data, show error
+//   if (!orderData && initAttempted) {
+//     return (
+//       <div style={{ textAlign: 'center', padding: '100px 0' }}>
+//         <Card>
+//           <Space direction="vertical">
+//             <ExclamationCircleOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
+//             <Title level={4}>Failed to Load Order</Title>
+//             <Text>Could not load order data. The order might not be available for verification.</Text>
+//             <Space>
+//               <Button onClick={() => window.location.reload()}>Reload Page</Button>
+//               <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>
+//                 Back to Queue
+//               </Button>
+//             </Space>
+//           </Space>
+//         </Card>
+//       </div>
+//     );
+//   }
 
-            {/* Held Sessions */}
-            <HeldSessionsPanel _id_store={store_id} />
+//   const orderItems = orderData?.current_order?.items || [];
+//   const customer = orderData?.customer;
+//   const picker = orderData?.processing_stages?.picking?.handled_by;
 
-            {/* Order Summary */}
-            <Card size="small" title="Order Summary">
-              <Space direction="vertical" style={{ width: '100%' }} size="small">
-                <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Text>Subtotal:</Text>
-                  <Text strong>{settings.currency}{orderData?.current_order?.totals?.subTotal?.toFixed(2) || '0.00'}</Text>
-                </Space>
-                {orderData?.current_order?.totals?.discount > 0 && (
-                  <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                    <Text type="secondary">Discount:</Text>
-                    <Text type="secondary">-{settings.currency}{orderData?.current_order?.totals?.discount?.toFixed(2)}</Text>
-                  </Space>
-                )}
-                <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Text>Tax:</Text>
-                  <Text>{settings.currency}{orderData?.current_order?.totals?.tax?.toFixed(2) || '0.00'}</Text>
-                </Space>
-                <div style={{ borderTop: '1px solid #d9d9d9', paddingTop: 8, marginTop: 8 }}>
-                  <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                    <Text strong style={{ fontSize: 16 }}>Total:</Text>
-                    <Text strong style={{ fontSize: 18, color: '#1890ff' }}>
-                      {settings.currency}{orderData?.current_order?.totals?.grandTotal?.toFixed(2) || '0.00'}
-                    </Text>
-                  </Space>
-                </div>
-              </Space>
-            </Card>
-          </Space>
-        </Col>
-      </Row>
+//   // Calculate verification progress
+//   const totalItems = orderItems.length;
+//   const verifiedItems = orderItems.filter((item: any) => item.processed_qty > 0 || item.verification_status).length;
+//   const progressPercent = totalItems > 0 ? (verifiedItems / totalItems) * 100 : 0;
 
-      {/* Hold Session Modal */}
-      <Modal
-        title="Hold Verification Session"
-        open={showHoldModal}
-        onOk={handleHold}
-        onCancel={() => setShowHoldModal(false)}
-        okText="Hold Session"
-        confirmLoading={holdLoading}
-      >
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Text>Your progress will be saved and you can resume this verification later.</Text>
-          <TextArea
-            placeholder="Optional: Add notes about why you're holding this session..."
-            value={holdNotes}
-            onChange={(e) => setHoldNotes(e.target.value)}
-            rows={3}
-          />
-        </Space>
-      </Modal>
+//   return (
+//     <div style={{ padding: 24, backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
+//       {/* Header */}
+//       <div style={{ marginBottom: 16 }}>
+//         <Row align="middle" justify="space-between">
+//           <Col>
+//             <Space>
+//               <Button icon={<LeftOutlined />} onClick={handleBack} size="large">Back</Button>
+//               <Space direction="vertical" size={0}>
+//                 <Title level={3} style={{ margin: 0 }}>Till Verification - Order #{orderData?.serial}</Title>
+//                 <Text type="secondary">Customer: {customer?.name} | Picker: {picker?.name}</Text>
+//               </Space>
+//             </Space>
+//           </Col>
+//           <Col>
+//             <Button
+//               type="primary"
+//               icon={<CheckCircleOutlined />}
+//               onClick={() => setShowCompleteModal(true)}
+//               loading={completingOrder}
+//               size="large"
+//               disabled={verifiedItems === 0}
+//             >
+//               Complete Verification
+//             </Button>
+//           </Col>
+//         </Row>
+//       </div>
 
-      {/* Complete Session Modal */}
-      <Modal
-        title="Complete Verification"
-        open={showCompleteModal}
-        onOk={handleComplete}
-        onCancel={() => setShowCompleteModal(false)}
-        okText="Complete Verification"
-        confirmLoading={completeLoading}
-      >
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Text>Are you sure you want to complete this verification?</Text>
-          <TextArea
-            placeholder="Optional: Add completion notes..."
-            value={completeNotes}
-            onChange={(e) => setCompleteNotes(e.target.value)}
-            rows={3}
-          />
-        </Space>
-      </Modal>
+//       {/* Main Content */}
+//       <Row gutter={16}>
+//         {/* Left Column - Items List */}
+//         <Col xs={24} lg={16}>
+//           <Card title={<Title level={4} style={{ margin: 0 }}>Items to Verify</Title>} style={{ minHeight: '70vh' }}>
+//             <Space direction="vertical" style={{ width: '100%' }}>
+//               {orderItems.map((item: any) => {
+//                 // Get verification status from order item
+//                 const verificationStatus = {
+//                   status: item.verification_status || 'pending',
+//                   qty_expected: item.qty,
+//                   qty_verified: item.processed_qty || 0,
+//                   notes: item.verification_notes || '',
+//                   verified_at: item.verified_at || null,
+//                 };
 
-      {/* Cancel Session Modal */}
-      <Modal
-        title="Cancel Verification"
-        open={showCancelModal}
-        onOk={handleCancel}
-        onCancel={() => setShowCancelModal(false)}
-        okText="Cancel Session"
-        okButtonProps={{ danger: true }}
-        confirmLoading={cancelLoading}
-      >
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Text type="danger">This will cancel the verification session and release the order.</Text>
-          <TextArea
-            placeholder="Required: Reason for cancellation..."
-            value={cancelReason}
-            onChange={(e) => setCancelReason(e.target.value)}
-            rows={3}
-          />
-        </Space>
-      </Modal>
-    </div>
-  );
-};
+//                 return (
+//                   <ItemVerificationRow
+//                     key={item._id_product}
+//                     item={item}
+//                     verificationStatus={verificationStatus}
+//                     orderId={orderId}
+//                   />
+//                 );
+//               })}
+//             </Space>
+//           </Card>
+//         </Col>
 
-export default TillVerificationPOS;
+//         {/* Right Column - Progress & Summary */}
+//         <Col xs={24} lg={8}>
+//           <Space direction="vertical" style={{ width: '100%' }} size="middle">
+//             {/* Progress Card */}
+//             <Card size="small" title="Verification Progress">
+//               <Space direction="vertical" style={{ width: '100%' }} size="small">
+//                 <div>
+//                   <Text strong style={{ fontSize: 16 }}>
+//                     {verifiedItems} / {totalItems} items
+//                   </Text>
+//                 </div>
+//                 <Progress
+//                   percent={Math.round(progressPercent)}
+//                   status={verifiedItems === totalItems ? 'success' : 'active'}
+//                   strokeColor={verifiedItems === totalItems ? '#52c41a' : '#1890ff'}
+//                 />
+//                 <Space>
+//                   <Tag color="success">{verifiedItems} Verified</Tag>
+//                   <Tag color="default">{totalItems - verifiedItems} Pending</Tag>
+//                 </Space>
+//               </Space>
+//             </Card>
+
+//             {/* Order Summary */}
+//             <Card size="small" title="Order Summary">
+//               <Space direction="vertical" style={{ width: '100%' }} size="small">
+//                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+//                   <Text>Subtotal:</Text>
+//                   <Text strong>{settings.currency}{orderData?.current_order?.totals?.subTotal?.toFixed(2) || '0.00'}</Text>
+//                 </Space>
+//                 {orderData?.current_order?.totals?.discount > 0 && (
+//                   <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+//                     <Text type="secondary">Discount:</Text>
+//                     <Text type="secondary">-{settings.currency}{orderData?.current_order?.totals?.discount?.toFixed(2)}</Text>
+//                   </Space>
+//                 )}
+//                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+//                   <Text>Tax:</Text>
+//                   <Text>{settings.currency}{orderData?.current_order?.totals?.tax?.toFixed(2) || '0.00'}</Text>
+//                 </Space>
+//                 <div style={{ borderTop: '1px solid #d9d9d9', paddingTop: 8, marginTop: 8 }}>
+//                   <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+//                     <Text strong style={{ fontSize: 16 }}>Total:</Text>
+//                     <Text strong style={{ fontSize: 18, color: '#1890ff' }}>
+//                       {settings.currency}{orderData?.current_order?.totals?.grandTotal?.toFixed(2) || '0.00'}
+//                     </Text>
+//                   </Space>
+//                 </div>
+//               </Space>
+//             </Card>
+
+//             {/* Tips Card */}
+//             <Card size="small" title="💡 Tips" styles={{ body: { padding: 12 } }}>
+//               <Space direction="vertical" size="small">
+//                 <Text type="secondary" style={{ fontSize: 12 }}>
+//                   • Navigate away to auto-hold this order
+//                 </Text>
+//                 <Text type="secondary" style={{ fontSize: 12 }}>
+//                   • Verify items by clicking the Verify button
+//                 </Text>
+//                 <Text type="secondary" style={{ fontSize: 12 }}>
+//                   • Mark issues using Missing/Qty Issue buttons
+//                 </Text>
+//               </Space>
+//             </Card>
+//           </Space>
+//         </Col>
+//       </Row>
+
+//       {/* Complete Verification Modal */}
+//       <Modal
+//         title="Complete Verification"
+//         open={showCompleteModal}
+//         onOk={handleComplete}
+//         onCancel={() => {
+//           setShowCompleteModal(false);
+//           setSelectedBasketIds([]);
+//         }}
+//         okText="Complete Verification"
+//         confirmLoading={completingOrder}
+//         width={800}
+//         okButtonProps={{ disabled: selectedBasketIds.length === 0 }}
+//       >
+//         <Space direction="vertical" style={{ width: '100%' }} size="large">
+//           <div>
+//             <Text>
+//               Verification Progress: <Text strong>{verifiedItems} / {totalItems} items</Text>
+//             </Text>
+//             {verifiedItems < totalItems && (
+//               <Alert
+//                 message="Not all items have been verified. Continue anyway?"
+//                 type="warning"
+//                 showIcon
+//                 style={{ marginTop: 8 }}
+//               />
+//             )}
+//           </div>
+
+//           <div>
+//             <Title level={5} style={{ marginBottom: 12 }}>Select Delivery Baskets</Title>
+//             <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+//               Select the delivery baskets for this order. Items from pickup baskets will be transferred to these baskets.
+//             </Text>
+//             <BasketSelector
+//               storeId={store_id}
+//               onSelectionChange={handleBasketSelectionChange}
+//               minRequired={1}
+//             />
+//           </div>
+
+//           <TextArea
+//             placeholder="Optional: Add completion notes..."
+//             value={completeNotes}
+//             onChange={(e) => setCompleteNotes(e.target.value)}
+//             rows={3}
+//           />
+//         </Space>
+//       </Modal>
+
+//       {/* Receipt Printing Modal */}
+//       <Modal
+//         title="Till Receipt"
+//         open={showReceiptModal}
+//         onCancel={() => setShowReceiptModal(false)}
+//         footer={[
+//           <Button key="close" onClick={() => setShowReceiptModal(false)}>
+//             Close
+//           </Button>,
+//           <Button
+//             key="print"
+//             type="primary"
+//             icon={<PrinterOutlined />}
+//             onClick={() => {
+//               // In a real implementation, this would send to thermal printer
+//               window.print();
+//             }}
+//           >
+//             Print
+//           </Button>,
+//         ]}
+//         width={600}
+//       >
+//         <div style={{
+//           fontFamily: 'monospace',
+//           whiteSpace: 'pre-wrap',
+//           backgroundColor: '#f5f5f5',
+//           padding: 16,
+//           borderRadius: 4,
+//           fontSize: 12,
+//           lineHeight: 1.4
+//         }}>
+//           {receiptText}
+//         </div>
+//       </Modal>
+//     </div>
+//   );
+// };
+
+// export default TillVerificationPOS;

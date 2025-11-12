@@ -8,15 +8,13 @@ import { PageHeader } from '@_/template';
 
 import LIST_DATA from '@_/graphql/product_attributes/productAttributes.graphql'
 import RECORD_DELETE from '@_/graphql/product_type/deleteProductType.graphql';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 export default function ProductAttributesPage (props) {
     const [productAttributes, set_productAttributes] = useState(null)
     const [showForm, set_showForm] = useState({ show: false, fields: undefined })
 
-    const [get_productAttributes, { data, called, loading }] = useLazyQuery(
-        LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [get_productAttributes, { data, called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'cache-and-network' });
     const [deleteProductType, del_details] = useMutation(RECORD_DELETE); // { data, loading, error }
 
     useEffect(() => {
@@ -25,13 +23,9 @@ export default function ProductAttributesPage (props) {
     }, [props])
 
     const fetchData = async () => {
-        let results = await get_productAttributes({
-            fetchPolicy: 'cache-and-network'
-        }).then(r => (r?.data?.productAttributes))
-            .catch(err => {
-                console.error(err)
-                return { error: { message: "Invalid response!" } }
-            })
+        let results = await get_productAttributes({})
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.productAttributes }))
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No records found!")

@@ -1,17 +1,23 @@
 /**
  * Item Verification Row Component
  * Individual item row with verification actions
+ * Updated for new till verification system
  */
 
 import React, { useState } from 'react';
-import { Card, Space, Button, Typography, Tag, Input, Modal, InputNumber } from 'antd';
-import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined, ClockCircleOutlined, EditOutlined } from '@ant-design/icons';
+import { Card, Space, Button, Typography, Tag, Input, Modal, InputNumber, message } from 'antd';
+import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined, ClockCircleOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useAppSelector } from '@_/rStore/hooks';
 import { getSettings } from '@_/rStore/slices/systemSlice';
-import { useItemVerification } from '@_/hooks/useTillVerification';
+import {
+  useVerifyOrderItem,
+  useMarkOrderItemMissing,
+  useMarkOrderItemDamaged,
+  useMarkOrderItemMismatch
+} from '@_/hooks/useTillVerification';
 import dayjs from 'dayjs';
 
-const { Text, Paragraph } = Typography;
+const { Text } = Typography;
 const { TextArea } = Input;
 
 interface ItemVerificationRowProps {
@@ -24,35 +30,50 @@ interface ItemVerificationRowProps {
     total: number;
   };
   verificationStatus: {
-    status: 'pending' | 'verified' | 'missing' | 'mismatch' | 'substitute';
+    status: 'pending' | 'verified' | 'missing' | 'damaged' | 'mismatch';
     qty_expected: number;
     qty_verified: number;
     notes: string;
     verified_at: Date | null;
   };
+  orderId: string;
 }
 
-export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, verificationStatus }) => {
+export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, verificationStatus, orderId }) => {
   const settings = useAppSelector(getSettings);
-  const { verifyItem, markMissing, markMismatch } = useItemVerification();
+
+  const { verifyItem, loading: verifyLoading } = useVerifyOrderItem();
+  const { markMissing, loading: missingLoading } = useMarkOrderItemMissing();
+  const { markDamaged, loading: damagedLoading } = useMarkOrderItemDamaged();
+  const { markMismatch, loading: mismatchLoading } = useMarkOrderItemMismatch();
   const [showMissingModal, setShowMissingModal] = useState(false);
   const [showMismatchModal, setShowMismatchModal] = useState(false);
   const [missingNotes, setMissingNotes] = useState('');
   const [mismatchQty, setMismatchQty] = useState(verificationStatus.qty_verified || 0);
   const [mismatchNotes, setMismatchNotes] = useState('');
 
-  const handleVerify = () => {
-    verifyItem(item._id_product, verificationStatus.qty_expected);
+  const handleVerify = async () => {
+    try {
+      await verifyItem(orderId, item._id_product, verificationStatus.qty_expected);
+      message.success(`${item.title} verified`);
+    } catch (error: any) {
+      message.error(error.message || 'Failed to verify item');
+    }
   };
 
   const handleMissing = () => {
     setShowMissingModal(true);
   };
 
-  const confirmMissing = () => {
-    markMissing(item._id_product, missingNotes);
-    setShowMissingModal(false);
-    setMissingNotes('');
+  const confirmMissing = async () => {
+    try {
+      await markMissing(orderId, item._id_product, missingNotes || 'Item not found');
+      message.warning(`${item.title} marked as missing`);
+      setShowMissingModal(false);
+      setMissingNotes('');
+    } catch (error: any) {
+      message.error(error.message || 'Failed to mark item as missing');
+    }
   };
 
   const handleMismatch = () => {
@@ -60,11 +81,16 @@ export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, 
     setShowMismatchModal(true);
   };
 
-  const confirmMismatch = () => {
+  const confirmMismatch = async () => {
     if (mismatchQty >= 0 && mismatchQty !== verificationStatus.qty_expected) {
-      markMismatch(item._id_product, mismatchQty, mismatchNotes);
-      setShowMismatchModal(false);
-      setMismatchNotes('');
+      try {
+        await markMismatch(orderId, item._id_product, mismatchQty, mismatchNotes || 'Quantity mismatch');
+        message.warning(`${item.title} quantity updated to ${mismatchQty}`);
+        setShowMismatchModal(false);
+        setMismatchNotes('');
+      } catch (error: any) {
+        message.error(error.message || 'Failed to mark quantity mismatch');
+      }
     }
   };
 

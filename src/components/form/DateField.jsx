@@ -14,6 +14,7 @@ import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 import moment from 'moment';
 import momentTz from "moment-timezone";
+import { utcToDateField } from '@_/lib/utill';
 
 const { RangePicker } = AntDatePicker;
 
@@ -45,6 +46,9 @@ export const DateField = props => {
                     if (props.onChange) props.onChange(m, dateString)
                 }
 
+                let value = input.value;
+                if (_.isString(input.value)) value = utcToDateField(value);
+
                 return (
                     <div className={`${styles.field} ${styles.date}`} style={props.wrapperStyle}>
                         <Label isRequired={props.isRequired}>{props.label}</Label>
@@ -52,6 +56,7 @@ export const DateField = props => {
                             <AntDatePicker
                                 {...fieldProps}
                                 {...input}
+                                value={value}
                                 // allowClear={false}
                                 // onChange={onChange}
                             />
@@ -89,6 +94,10 @@ export const DateField = props => {
         return (<Field {...props.final_fieldProps}>
             {({ input, meta }) => {
                 // ant-picker ant-picker-range css-dev-only-do-not-override-byeoj0
+
+                // let value = input.value;
+                if (input.value && _.isString(input.value[0])) value = [utcToDateField(value[0]), utcToDateField(value[1])];
+
                 return (
                     <div className={`${styles.field} ${styles.date}`} style={props.wrapperStyle}>
                         <Label isRequired={props.isRequired}>{props.label}</Label>
@@ -98,6 +107,7 @@ export const DateField = props => {
                                 className={`${props.isRequired && styles.is_required_field}`}
                                 style={props.style}
                                 {...input}
+                                value={value}
                                 onBlur={props.onBlur || input.onBlur}
                                 onPanelChange={props.onPanelChange || input.onPanelChange}
                                 // disabled={[true, true]}

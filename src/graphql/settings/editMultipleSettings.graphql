@@ -1,4 +1,4 @@
-#import "../_fragment/settings.graphql"
+#import "./_fragment/settings.graphql"
 
 mutation editMultipleSettings($input: [Edit_SettingsInput!]!) {
     editMultipleSettings(input: $input) {

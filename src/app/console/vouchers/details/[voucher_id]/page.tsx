@@ -13,9 +13,7 @@ export default function VoucherDetails() {
     const { voucher_id } = useParams<{ voucher_id: string }>()
     // const { prod_id, ...params } = useParams()
 
-    const [getVoucher, { called, loading, data }] = useLazyQuery(GET_DATA,
-        { variables: { id: voucher_id } }
-    );
+    const [getVoucher, { called, loading, data }] = useLazyQuery(GET_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called) return;

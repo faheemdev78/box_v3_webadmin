@@ -6,8 +6,10 @@ import { __error, __yellow } from '@_/lib/consoleHelper';
 // import StoreWrapper from '@_/modules/store/storeWrapper';
 
 import { StaffWrapper, StaffView } from "@_/modules/staff";
+import { StaffProfile } from './components';
 
 export default function Wrapper(props){
     // const { prod_id } = useParams<{ prod_id: string }>()
-    return (<StaffWrapper {...props} render={({ staff, onStatusUpdate }) => (<StaffView onStatusUpdate={onStatusUpdate} staff={staff} {...props} />)} />)
+    return (<StaffWrapper {...props} render={({ staff, onStatusUpdate }) => (<StaffProfile onStatusUpdate={onStatusUpdate} staff={staff} {...props} />)} />)
+    // return (<StaffWrapper {...props} render={({ staff, onStatusUpdate }) => (<StaffView onStatusUpdate={onStatusUpdate} staff={staff} {...props} />)} />)
 }

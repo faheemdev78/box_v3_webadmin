@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react'
 // import PropTypes from 'prop-types';
-import { Alert, Button as AntButton, Dropdown, Popconfirm, Tooltip, ConfigProvider } from "antd";
+import { Alert, Button as AntButton, Dropdown, Popconfirm, Tooltip, ConfigProvider, ButtonProps } from "antd";
 // import { useResponsive } from 'antd-style';
 import styles from './Button.module.scss'
 import { useRouter } from "next/navigation";
@@ -14,11 +14,15 @@ import { __error } from '@_/lib/consoleHelper';
 
 const CLICK_TIMEOUT = 500; // 2000 = 2 seconds
 
-export const Button = ({ onClick, tooltip, ...props }: { 
-    onClick: Function, 
-    tooltip?: string, 
-    color?: string
-}) => {
+interface BtnProps extends ButtonProps {
+    // onClick: Function,
+    tooltip?: string | object,
+    // color?: string | undefined,
+    children?: any,
+    icon?: any,
+    // size?: string,
+}
+export const Button = ({ onClick, tooltip, ...props }: BtnProps) => {
     // const { xxl } = useResponsive();
 
     let class_name = [styles.custom_bt]
@@ -36,7 +40,10 @@ export const Button = ({ onClick, tooltip, ...props }: {
         );
     }
 
-    if (tooltip) return <Tooltip title={tooltip}><AntButton onClick={throttledHandlePress} variant="solid" {...props} className={class_name} /></Tooltip>
+    if (tooltip) {
+        let _tooltip = (_.isString(tooltip)) ? { title: tooltip } : tooltip;
+        return <Tooltip {..._tooltip}><AntButton onClick={throttledHandlePress} variant="solid" {...props} className={class_name} /></Tooltip>
+    }
     return <AntButton onClick={onClick && throttledHandlePress} variant="solid" {...props} className={class_name} />;
 }
 

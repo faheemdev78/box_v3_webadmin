@@ -27,7 +27,7 @@ export default function VehicleDetails() {
     const [fatelError, set_fatelError] = useState(null)
     const [showForm, set_showForm] = useState(false)
 
-    const [getVehicle, { loading, data, called }] = useLazyQuery(GET_RECORD);
+    const [getVehicle, { loading, data, called }] = useLazyQuery(GET_RECORD, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (loading || called) return;

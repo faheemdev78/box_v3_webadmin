@@ -155,7 +155,9 @@ const SortableTable = ({ fields, onUpdate }) => {
 
 
 export default function SettingsPage (props) {
-    const [getValuePairs, { called, loading, data }] = useLazyQuery(GET_CONFIGS);
+    const [getValuePairs, { called, loading, data }] = useLazyQuery(GET_CONFIGS, {
+        fetchPolicy: "network-only"
+    });
     const [updateValuePairArray, edit_details] = useMutation(EDIT_MULTIPLE);
     const [deleteValuePairs, del_details] = useMutation(DEL_SETTINGS);
 
@@ -186,8 +188,7 @@ export default function SettingsPage (props) {
                 filter: JSON.stringify({
                     department: "sys_configs",
                 })
-            },
-            fetchPolicy: "network-only"
+            }
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.valuePairs }))
             .catch(catchApolloError)

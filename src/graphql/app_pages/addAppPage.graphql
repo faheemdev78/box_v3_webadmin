@@ -1,4 +1,4 @@
-#import "../_fragment/app_pages/app_pages.graphql"
+#import "./_fragment/app_pages.graphql"
 
 mutation addAppPage($input: Add_AppPages!) {
     addAppPage(input: $input) {

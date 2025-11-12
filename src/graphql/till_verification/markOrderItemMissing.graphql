@@ -1,0 +1,32 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+
+mutation MarkOrderItemMissing(
+  $_id_order: ID!
+  $_id_product: ID!
+  $reason: String!
+) {
+  markOrderItemMissing(
+    _id_order: $_id_order
+    _id_product: $_id_product
+    reason: $reason
+  ) {
+    order {
+      _id
+      current_order {
+        items {
+          _id_product
+          status
+          processed_qty
+          issue_reason
+        }
+      }
+    }
+    success {
+      ...SuccessInfo
+    }
+    error {
+      ...ErrorInfo
+    }
+  }
+}

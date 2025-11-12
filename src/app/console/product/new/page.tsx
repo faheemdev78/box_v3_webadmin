@@ -925,9 +925,7 @@ function CreateProductForm ({ initialValues }) {
 export default function CreateProductFormWrapper (props) {
     const [fetalError, setFetalError] = useState(null)
 
-    const [fieldsDefinations, { called, loading, data }] = useLazyQuery(GET_EXTRA_FIELDS,
-        { variables: { filter: JSON.stringify({}), others: JSON.stringify({ sort: { sort_order: 1 } }) } }
-    );
+    const [fieldsDefinations, { called, loading, data }] = useLazyQuery(GET_EXTRA_FIELDS, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called) return;
@@ -937,7 +935,8 @@ export default function CreateProductFormWrapper (props) {
     async function fetchExtraFields() {
         let results = await fieldsDefinations({
             variables: {
-                filter: JSON.stringify({})
+                filter: JSON.stringify({}), 
+                others: JSON.stringify({ sort: { sort_order: 1 } })
             }
         }).then(r => r?.data?.fieldsDefinations)
             .catch(err => {

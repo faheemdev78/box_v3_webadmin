@@ -1,4 +1,4 @@
-#import "../_fragment/delivery_slots.graphql"
+#import "./_fragment/delivery_slots.graphql"
 
 query deliverySlotsByDay($day:String!, $_id_store: ID!) {
     deliverySlotsByDay(day: $day, _id_store: $_id_store) {

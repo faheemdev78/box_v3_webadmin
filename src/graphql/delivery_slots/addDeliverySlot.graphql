@@ -1,4 +1,4 @@
-#import "../_fragment/delivery_slots.graphql"
+#import "./_fragment/delivery_slots.graphql"
 
 mutation addDeliverySlot($input: Add_DeliverySlotInput!) {
     addDeliverySlot(input: $input) {

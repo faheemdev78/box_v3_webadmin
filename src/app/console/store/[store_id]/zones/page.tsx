@@ -118,9 +118,7 @@ export default function StoreZones() {
     const [dataArray, set_dataArray] = useState(null)
 
     const [deleteGeoZone, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
-    const [geoZoneQuery, { called, loading }] = useLazyQuery( LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [geoZoneQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called || loading) return

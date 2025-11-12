@@ -7,6 +7,7 @@ import { BrandForm } from '@_/modules/brand/brandForm';
 import { defaultPageSize } from '@_/configs';
 import { PageHeader } from '@_/template';
 import { __error, __yellow } from '@_/lib';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import LIST_DATA from '@_/graphql/brand/brandsQuery.graphql'
 import RECORD_DELETE from '@_/graphql/brand/deleteBrand.graphql';
@@ -29,10 +30,7 @@ export default function Brands(props) {
     
     const [deleteBrand, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
     
-    const [brandsQuery, { called, loading }] = useLazyQuery(
-        LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [brandsQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'cache-and-network' });
 
     useEffect(() => {
         if (called) return;
@@ -58,13 +56,9 @@ export default function Brands(props) {
                 filter: JSON.stringify({}), // JSON.stringify(filter), 
                 others: JSON.stringify({})
             },
-            fetchPolicy: 'cache-and-network'
         })
-            .then(r => (r?.data?.brandsQuery))
-            .catch(err=>{
-                console.error(err)
-                return { error:{message:"Invalid response!"}}
-            })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.brandsQuery }))
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No records found!")
@@ -76,12 +70,9 @@ export default function Brands(props) {
     const onUpdateCallback = () => fetchData()
 
     const handleDelete = async ({ _id }) => {
-        let results = await deleteBrand(id)
-            .then(r => (r?.data?.deleteBrand))
-            .catch(error => {
-                console.error(error);
-                message.error("Invalid Response!")
-            })
+        let results = await deleteBrand({ variables: { _id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.deleteBrand }))
+            .catch(catchApolloError)
 
         if (!results || results.error) {
             message.error((results && results?.error?.message) || "Unable to delete record")

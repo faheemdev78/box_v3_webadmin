@@ -6,57 +6,18 @@ import { Alert, Card, Col, ColorPicker, Divider, Modal, Row, Skeleton, Space } f
 import { Heading } from '../../typography';
 import { useForm } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays';
-import { useMutation, useLazyQuery } from '@apollo/client';
 import { ProductListSelector } from '@_/modules/products/components';
 import cssStyles from './productList.module.scss'
 import { ComponentSchedule, ComponentStyling, parseStylesOutput } from '../../lib';
 import { Image, Avatar, Button, Icon, Loader, ProdSkeleton_ListItem } from '@_/components';
 import { publishStatus } from '@_/configs';
 import { __error } from '@_/lib/consoleHelper';
+import { useAppSelector } from '@_/rStore/hooks';
+import { getSettings } from '@_/rStore/slices/systemSlice';
 
-
-import LIST_DATA from '@_/graphql/product/productsQuery.graphql'
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 function ProductList({ onProductsLoad, item: { data, schedule_start, schedule_end, values, sort_order, styles, status, name } }) {
-    const [productsArray, set_productsArray] = useState(null);
-    const [busy, setBusy] = useState(false);
-
-    const [productsQuery, { data: __data, called, loading }] = useLazyQuery(LIST_DATA,
-        { variables: { filter: JSON.stringify({}) } }
-    );
-    
-    // useEffect(() => {
-    //     if (called || !values || !values.products || values?.products?.length < 1) return;
-    //     fetchProducts();
-    // }, [values, called])
-
-    const fetchProducts = async() => {
-        setBusy(true);
-        let ids = values.products.map(o=>(o._id))
-        let filter = { _id: { $in: ids }}
-
-        // await sleep(2000)
-        const resutls = await productsQuery({
-            variables: {
-                limit: 20,
-                page: 1,
-                filter: JSON.stringify(filter),
-                others: JSON.stringify({})
-            }
-        })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productsQuery }))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
-
-        setBusy(false);
-        if (resutls || resutls?.edges?.length>0) {
-            if (onProductsLoad) onProductsLoad(resutls.edges)
-            set_productsArray(resutls.edges);
-        }
-    }
+    const {currency} = useAppSelector(getSettings)
 
     let style = parseStylesOutput(styles)
     if (status == 'offline') Object.assign(style, { opacity: 0.5 })
@@ -69,46 +30,42 @@ function ProductList({ onProductsLoad, item: { data, schedule_start, schedule_en
     let itemsArray = products || new Array(_num_products).fill({})
 
     return (<>
-        {/* <div className={styles.comp_prod_list}>{values || <span style={{ color: "#999" }}>Empty ProductList</span>}</div> */}
         <div className={cssStyles.comp_prod_list} style={style}>
             <div className={cssStyles.feature_icons}><Space direction='vertical' size={2}>
                 {isScheduled && <Icon icon="clock" />}
             </Space></div>
-            
+
             {values?.title?.show && <h2>{values.title.text}</h2>}
 
-            <ProdSkeleton_ListItem loading={busy} count={3} gutter={[20, 20]}>
-                <Row gutter={[12, 10]}>
-                    {itemsArray.map((item, i) => {
-                        let off_percent = 0;
-                        if (item.price && item.price_was && item.price_was > item.price) off_percent = 100 - ((item.price / item.price_was) * 100);
+            <Row gutter={[12, 10]}>
+                {itemsArray.map((item, i) => {
+                    let off_percent = 0;
+                    if (item.price && item.price_was && item.price_was > item.price) off_percent = 100 - ((item.price / item.price_was) * 100);
 
-                        return (<Col span={8} key={i}>
-                            <div className={cssStyles.thumb} style={{  }}>
-                                {item?.picture?.thumbnails ? 
-                                    <Image src={`${process.env.NEXT_PUBLIC_CDN_ASSETS}/${item.picture.thumbnails[0]}`} width={142} height={142} alt={item.title} style={{ width:"100%", height:"auto" }} /> : 
-                                    <Icon style={{ fontSize: "64px", color: "#999999" }} icon="image" />}
-                            </div>
-                            {/* <Skeleton.Avatar size={120} shape='square' /> */}
+                    return (<Col span={8} key={i}>
+                        <div className={cssStyles.thumb} style={{}}>
+                            {item?.picture?.thumbnails ?
+                                <Image src={`${process.env.NEXT_PUBLIC_CDN_ASSETS}/${item.picture.thumbnails[0]}`} width={142} height={142} alt={item.title} style={{ width: "100%", height: "auto" }} /> :
+                                <Icon style={{ fontSize: "64px", color: "#999999" }} icon="image" />
+                            }
+                        </div>
 
-                            {item?.attributes?.length>0 && <Space>
-                                {item?.attributes?.map((o, ii) => (<div style={{ border: "1px solid #EDEFF3", backgroundColor: "#F5F6FB" }} key={ii}>{o}</div>))}
-                                {/* {!item?.attributes && <div style={{ border: "1px solid #EDEFF3", backgroundColor: "#F5F6FB" }}>attribute</div>} */}
-                            </Space>}
+                        {item?.attributes?.length > 0 && <Space size={2}>
+                            {item?.attributes?.map((o, ii) => (<div style={{ border: "1px solid #EDEFF3", borderRadius:"3px", backgroundColor: "#F5F6FB", fontSize:"11px" }} key={ii}>{o.val}{o.title}</div>))}
+                        </Space>}
 
-                            <div style={{ fontSize: "18px", color: "#3D3D3D" }}>{item.title || <Skeleton.Node style={{ width: "120px", height: "15px" }} />}</div>
-                            {off_percent > 0 && <div style={{ fontSize: "12px", color: "#1155CB" }}>{off_percent}% OFF</div>}
+                        <div style={{ fontSize: "18px", color: "#3D3D3D" }}>{item.title || <Skeleton.Node style={{ width: "120px", height: "15px" }} />}</div>
+                        {off_percent > 0 && <div style={{ fontSize: "12px", color: "#1155CB" }}>{off_percent}% OFF</div>}
 
-                            <Row>
-                                <Col flex="auto" style={{ color: "#3D3D3D", fontSize: "14px", fontWeight: "bold" }}>RS{item.price || <Skeleton.Node style={{ width: "50px", height: "15px" }} />}</Col>
-                                <Col style={{ color: "#9097A9", fontSize: "14px" }}>{item.price_was > 0 ? `RS${item.price_was}` : ``}</Col>
-                            </Row>
-                        </Col>)
-                    })}
-                </Row>
-            </ProdSkeleton_ListItem>
+                        <Row>
+                            <Col flex="auto" style={{ color: "#3D3D3D", fontSize: "14px", fontWeight: "bold" }}>{currency}<Skeleton.Node style={{ width: "50px", height: "15px" }} /></Col>
+                            <Col style={{ color: "#9097A9", fontSize: "14px" }}><Skeleton.Node style={{ width: "50px", height: "15px" }} /></Col>
+                        </Row>
+                    </Col>)
+                })}
+            </Row>
 
-            {values?.all_btn?.show && <div align="right" style={{ marginTop:"15px" }}><Button onClick={() => console.log(values.all_btn.link)} size="small">Show All</Button></div>}
+            {values?.all_btn?.show && <div align="right" style={{ marginTop: "15px" }}><Button onClick={() => console.log(values.all_btn.link)} size="small">Show All</Button></div>}
         </div>
     </>)
 }

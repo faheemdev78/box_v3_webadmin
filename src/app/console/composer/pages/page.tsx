@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Alert, Card, Col, message, Modal, Row, Space, Tag } from "antd";
-import { adminRoot, defaultPagination, defaultPageSize, defaultDateTimeFormat } from "@_/configs";
+import { adminRoot, defaultPagination, defaultPageSize, defaultDateTimeFormat, defaultDateFormat } from "@_/configs";
 import { Button, DeleteButton, DevBlock, Table } from "@_/components";
 import { useLazyQuery, useMutation } from '@apollo/client';
 import AppPageCreatorForm from "@_/modules/composer/appPageCreatorForm";
-import { utcToDate } from "@_/lib/utill";
+import { catchApolloError, checkApolloRequestErrors, utcToDate } from "@_/lib/utill";
 import { __error } from "@_/lib/consoleHelper";
 import { PageHeader } from "@_/template";
 
@@ -22,11 +22,9 @@ function PagesHome(props) {
     const [error, setError] = useState(null)
     const [showCreateForm, set_showCreateForm] = useState(false)
 
-    const [appPagesQuery, { called, loading, data }] = useLazyQuery(
-        QUERY_DATA,
-        // { variables: { ...pagination, filter: JSON.stringify(filter) } }
-        { variables: { first: defaultPageSize, after: 0, filter: JSON.stringify({}), others: JSON.stringify({}) }, }
-    );
+    const [appPagesQuery, { called, loading, data }] = useLazyQuery(QUERY_DATA, {
+        fetchPolicy: 'network-only'
+    });
 
     const [deleteAppPage, del_details] = useMutation(DEL_PAGE); // { data, loading, error }
 
@@ -56,7 +54,9 @@ function PagesHome(props) {
                 filter: JSON.stringify(_filter || {}),
                 others: JSON.stringify({})
             },
-        }).then(r => (r?.data?.appPagesQuery));
+        })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.appPagesQuery }))
+            .catch(catchApolloError)
 
         if (!results || results.error){
             setError((results && results.error.message) || 'Invalid response received!');
@@ -97,29 +97,42 @@ function PagesHome(props) {
     }
 
     const columns = [
-        {
-            title: "Page Title", dataIndex: 'title',
-            render: (text, rec) => {
+        { title: "Page Name", dataIndex: 'title', render: (text, rec) => {
                 return (<Row align="middle" gutter={[5]}>
                     <Col><Link href={`./editPage/${rec._id}`} className='a'>{rec.title}</Link></Col>
                     <Col><DeleteButton size="small" onClick={() => onDeletePage(rec._id)} /></Col>
                 </Row>)
             }
         },
-        { title: 'Slug', dataIndex: 'slug', align: "left", render: (txt, rec) => (txt.replace(/\/draft$/, "")) },
-        // { title: 'Created', dataIndex: 'createdAt', align: "left", render: (txt, rec) => (utcToDate(txt).format(defaultDateTimeFormat)), width: 120, align:'center' },
-        // { title: 'Updated', dataIndex: 'updatedAt', align: "left", render: (txt, rec) => (utcToDate(txt).format(defaultDateTimeFormat)), width: 120, align: 'center' },
-        // { title: "Status", dataIndex: 'status', align: "center", width: 100, render: (text, rec) => (<Tag color={text == 'enabled' ? "green" : "red"}>{text}</Tag>) },
+        { title: 'Description', dataIndex: 'description', align: "left", render:(___:string, rec:any) => {
+            return (<>
+                <div>{rec.slug.replace(/\/draft$/, "")}</div>
+            </>)
+        } },
+        { title: 'Status', dataIndex: 'published', align: 'center', width: 80, render: (published: boolean) => (<Tag color={published ? 'green' : 'red'}>{published ? "YES" : "NO"}</Tag>) },
+        { title: 'Schedule', dataIndex: 'scheduled_from', align: "left", width: 160, render:(___:string, rec:any) => {
+            if (!rec.scheduled_from) return null;
+            return (<>
+                <div><b>From:</b> {utcToDate(rec.scheduled_from).format(defaultDateFormat)}</div>
+                <div><b>To:</b> {utcToDate(rec.scheduled_to).format(defaultDateFormat)}</div>
+            </>)
+        } },
+        { title: 'Type', dataIndex: ['page_type', 'title'], align: "left", width: 150 },
+        { title: 'Created by', dataIndex: 'created_by', align: "left", width: 180, render: (created_by: string) => utcToDate(created_by).format(defaultDateTimeFormat) },
+        { title: 'Last Updated', dataIndex: 'updatedAt', align: "left", width: 180, render: (updatedAt: string) => utcToDate(updatedAt).format(defaultDateTimeFormat)},
     ];
 
 
     return (<>
-        <PageHeader title="Pages">
+        <PageHeader title="Pages" allowBack={false}>
             <Button onClick={() => set_showCreateForm(true)} color="orange">Create new page</Button>
         </PageHeader>
 
         {error && <Alert message={error} showIcon type="error" />}
-        <Table columns={columns} loading={busy} bordered
+        <Table 
+            bordered
+            columns={columns} 
+            loading={busy} 
             dataSource={dataArray && dataArray.edges}
             pagination={{
                 ...pagination,
@@ -127,7 +140,9 @@ function PagesHome(props) {
             }}
         />
 
-        <Modal title="Create New Page" footer={false} width={"1000px"} open={showCreateForm} onCancel={() => set_showCreateForm(false)}>
+        {/* <DevBlock obj={dataArray && dataArray.edges} /> */}
+
+        <Modal footer={false} width={"1000px"} open={showCreateForm} onCancel={() => set_showCreateForm(false)} destroyOnHidden>
             <AppPageCreatorForm onClose={() => set_showCreateForm(false)} />
         </Modal>
 

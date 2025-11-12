@@ -34,9 +34,7 @@ export function DeliverySlotManager({ store, zone }) {
     const [removeZoneFromSlot, remove_results] = useMutation(REMOVE_ZONE); // { data, loading, error }
     const [deleteDeliverySlot, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
 
-    const [deliverySlots, { called, loading, ...slots_details }] = useLazyQuery(LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [deliverySlots, { called, loading, ...slots_details }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'no-cache' });
 
     useEffect(() => {
         if (called) return;
@@ -52,7 +50,6 @@ export function DeliverySlotManager({ store, zone }) {
 
         var results = await deliverySlots({
             variables: { filter: JSON.stringify(_filter) },
-            fetchPolicy: 'no-cache',
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deliverySlots }))
             .catch(catchApolloError)

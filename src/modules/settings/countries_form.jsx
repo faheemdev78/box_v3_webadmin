@@ -98,7 +98,7 @@
 //                 loading={loadingEditNode}
 //                 onClose={onClose}
 //                 visible={showform}
-//                 bodyStyle={{ backgroundColor: "#f0f2f5" }}
+//                 styles={{ body: { backgroundColor: "#f0f2f5" } }}
 //                 footer={<>
 //                     <span></span>
 //                     <Button loading={loading} type="primary" onClick={() => {

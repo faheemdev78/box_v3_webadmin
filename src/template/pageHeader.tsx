@@ -32,16 +32,17 @@ interface PageHeaderProps {
     onSearch?: (value: string) => void;
     searchFields?: any[];
     children?: ReactNode;
+    allowBack?: boolean | true;
 }
 // export function PageHeader({ title, sub, onSearch, searchFields, children }) {
-export function PageHeader({ title, sub, onSearch, searchFields, children }: PageHeaderProps) {
+export function PageHeader({ title, sub, onSearch, searchFields, children, allowBack }: PageHeaderProps) {
     return (<div className='page-header'><div className='page-header-inner'>
         <Row align='middle' gutter={[10]}>
-            <Col><BackButton /></Col>
-            <Col flex="auto">
+            {allowBack &&  <Col><BackButton /></Col>}
+            <Col flex="auto"><Space>
                 <PageTitle>{title}</PageTitle>
                 {sub}
-            </Col>
+            </Space></Col>
             <Col><Space>
                 {onSearch && <>
                     <SearchBar style={{ maxWidth: "200px", minWidth: "200px", marginTop: "10px" }} onSearch={console.log} size="medium" />

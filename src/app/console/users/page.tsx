@@ -9,11 +9,11 @@ import { UsersList } from '@_/modules/users';
 import { Button, PageHeading } from '@_/components';
 import { Page } from '@_/template/page';
 import { PageBar, PageHeader } from '@_/template';
-
-import LIST_DATA from '@_/graphql/users/usersQuery.graphql'
-import RECORD_DELETE from '@_/graphql/stores/deleteStore.graphql';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { __error } from '@_/lib/consoleHelper';
+
+import LIST_DATA from '@_/graphql/users/staffQuery.graphql'
+import RECORD_DELETE from '@_/graphql/stores/deleteStore.graphql';
 
 const defaultFilter = { status: 'online' }
 
@@ -31,10 +31,7 @@ export default function Users(props) {
 
     const [deleteStore, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
 
-    const [usersQuery, { called, loading }] = useLazyQuery(
-        LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [staffQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called) return;
@@ -53,7 +50,7 @@ export default function Users(props) {
         setState({ ...state, filter, pagination: { current } })
         setBusy(true)
 
-        const results = await usersQuery({
+        const results = await staffQuery({
             variables: {
                 limit,
                 page: skip,
@@ -61,11 +58,8 @@ export default function Users(props) {
                 others: JSON.stringify({})
             }
         })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.usersQuery }))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.staffQuery }))
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No records found!")
@@ -78,10 +72,7 @@ export default function Users(props) {
     const handleDelete = async ({ _id }) => {
         let results = await deleteStore(id)
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deleteStore }))
-            .catch(error => {
-                console.log(__error("ERROR"), error);
-                message.error("Invalid Response!")
-            })
+            .catch(catchApolloError)
 
         if (!results || results.error) {
             message.error((results && results?.error?.message) || "Unable to delete record")

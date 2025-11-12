@@ -32,7 +32,7 @@ export function ProductView({ session, store, refresh, ...props }) {
     const canEditStore = security.verifyRole('104.4', session.user.permissions); // isStoreUser && security.verifyRole('104.4', session.user.permissions);
     const canReinitilize = security.verifyRole('104.7', session.user.permissions);
 
-    const [get_varients, { loading, data, called }] = useLazyQuery(GET_VARIENTS);
+    const [get_varients, { loading, data, called }] = useLazyQuery(GET_VARIENTS, { fetchPolicy: "network-only" });
     const [editStoreProductStatus, edit_status_details] = useMutation(UPDATE_PROD_STATUS); // { data, loading, error }
 
     useEffect(() => {

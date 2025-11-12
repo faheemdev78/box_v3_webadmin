@@ -31,7 +31,7 @@ export function ProductWrapper({ render, store, ...props }) {
     const [fatelError, set_fatelError] = useState(null)
     const [data, setData] = useState(null)
 
-    const [get_product, { loading, called }] = useLazyQuery(GET_PRODUCT);
+    const [get_product, { loading, called }] = useLazyQuery(GET_PRODUCT, { fetchPolicy: 'network-only' });
     const [updateProductStatus, status_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
     useEffect(() => {
@@ -42,10 +42,7 @@ export function ProductWrapper({ render, store, ...props }) {
     const fetchData = async () => {
         // console.log(__yellow("fetchData()"))
 
-        let resutls = await get_product({ 
-                variables,
-                fetchPolicy: 'network-only'
-            })
+        let resutls = await get_product({ variables })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.product }))
             .catch(catchApolloError)
         // console.log("resutls: ", resutls)

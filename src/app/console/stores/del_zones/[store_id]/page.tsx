@@ -11,7 +11,7 @@ import { useParams } from 'next/navigation';
 
 import LIST_DATA from '@_/graphql/geo_zone/geoZoneQuery.graphql';
 import RECORD_DELETE from '@_/graphql/geo_zone/deleteGeoZone.graphql';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 const GET_STORE = gql`query store($_id: ID!) {
     store(_id: $_id) {
@@ -28,7 +28,7 @@ function GeoZoneList({ store_id, ...props }){
     const [listArray, set_listArray] = useState(null)
     const [busy, setBusy] = useState(false)
     
-    const [geoZoneQuery, { called, loading }] = useLazyQuery(LIST_DATA); // { variables: { filter: JSON.stringify({}) } }
+    const [geoZoneQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
     const [deleteGeoZone, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
     
     useEffect(() => {
@@ -57,10 +57,7 @@ function GeoZoneList({ store_id, ...props }){
             }
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZoneQuery }))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No records found!")
@@ -71,12 +68,9 @@ function GeoZoneList({ store_id, ...props }){
     }
 
     const handleDelete = async ({ _id }) => {
-        let results = await deleteGeoZone(id)
-            .then(r => (r?.data?.deleteGeoZone))
-            .catch(error => {
-                console.log(__error("ERROR"), error);
-                message.error("Invalid Response!")
-            })
+        let results = await deleteGeoZone({ variables:{ _id }})
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deleteGeoZone }))
+            .catch(catchApolloError)
 
         if (!results || results.error) {
             message.error((results && results?.error?.message) || "Unable to delete record")
@@ -128,7 +122,7 @@ export default function StoreZones() {
     const [storeData, set_storeData] = useState(null)
     const [fatelError, set_fatelError] = useState(null)
 
-    const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE);
+    const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called || loading || !store_id) return;
@@ -136,11 +130,9 @@ export default function StoreZones() {
     }, [store_id])
 
     const fetchZone = async () => {
-        let resutls = await get_store({ variables: { _id: store_id } }).then(r => (r?.data?.store))
-            .catch(err => {
-                console.log(__error("Query Error: "), err)
-                return { error: { message: "Query Error" } }
-            })
+        let resutls = await get_store({ variables: { _id: store_id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.store }))
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             set_fatelError((resutls && resutls?.error?.message) || "Store not found!")

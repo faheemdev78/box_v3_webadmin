@@ -11,11 +11,11 @@ import _ from 'lodash'
 import { __error, __yellow } from '@_/lib/consoleHelper';
 import { DndContext, closestCenter, useSensor, useSensors, PointerSensor, DragOverlay } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { useDrop, useDrag } from 'ahooks';
-import { checkApolloRequestErrors, dateToUtc, parseJson, sleep, timestamp, uploadFile, utcToDate, utcToDateField } from "@_/lib/utill";
 import { Alert, Row, Col, Space, Card, message, Dropdown, Modal } from 'antd';
+import { CSS } from '@dnd-kit/utilities';
+import { useDrop, useDrag } from 'ahooks';
+import { catchApolloError, checkApolloRequestErrors, dateToUtc, parseJson, sleep, timestamp, uploadFile, utcToDate, utcToDateField } from "@_/lib/utill";
 import { PageTypeSelection, PageSettings, SideMenu, PropsWindow } from '@_/modules/composer';
 import { components } from '@_/modules/composer/components';
 import { useRouter, useParams } from 'next/navigation';
@@ -24,6 +24,8 @@ import styles from '@_/modules/composer/Composer.module.scss';
 import { parseStylesInput } from '@_/modules/composer/lib';
 import AppPageEditForm from '@_/modules/composer/appPageEditForm';
 
+import AppScheduleEditForm from '../../components/appScheduleEditForm';
+
 import FETCH_MODULES from '@_/graphql/app_pages_modules/appPagesModulesQuery.graphql'
 import FETCH_DATA from '@_/graphql/app_pages/appPage.graphql'
 import SAVE_ROWS from '@_/graphql/app_pages_modules/saveAppPagesModules.graphql'
@@ -31,22 +33,26 @@ import DELETE_ROW from '@_/graphql/app_pages_modules/deleteAppPagesModules.graph
 import PUBLISH_PAGE from '@_/graphql/app_pages/publishAppPage.graphql'
 
 
-const ItemRender = ({ item, item: { data, value, name } }) => {
+function ItemRender({ item, item: { data, value, name } }) {
     let found = components.find(o => o.type == data?.type)
     if (!found) return <Alert type="error" message={`Invalid field (${data?.type})`} />
 
-    return found.renderer({ item })
+    return found.renderer ? found.renderer({ item }) : <p>NO renderor</p>
 }
 
 const RowRender = ({ item }) => {
     if (!item.data) return <div style={{ border: "1px dashed blue", padding: "10px", margin: "10px" }}>Empty</div>;
-
     return (<div className={styles.data_item}>
         <ItemRender item={item} />
     </div>)
 }
 
-const DataRow = ({ thisNode, row_id, onItemDrop }) => {
+const DataRow = ({ thisNode, row_id, onItemDrop, field_name }: {
+    thisNode: any, 
+    row_id: string | number, 
+    onItemDrop: Function, 
+    field_name: string
+}) => {
     const [isHovering, setIsHovering] = useState(false);
     const dropRef = useRef(null);
 
@@ -72,9 +78,10 @@ const DataRow = ({ thisNode, row_id, onItemDrop }) => {
 }
 
 const AddRowButton = ({ fields }) => {
-    return (<div style={{ padding: "20px" }} align="center"><Button onClick={() => {
-        fields.push({ id: timestamp(), val: fields.length })
-    }}>Add Row</Button></div>)
+    return (<div style={{ padding: "20px", textAlign:"center" }}>
+        <IconButton size="large" color="blue" shape="circle" onClick={() => fields.push({ id: timestamp(), val: fields.length })} icon="plus" />
+        {/* <Button onClick={() => fields.push({ id: timestamp(), val: fields.length })}>Add Row</Button> */}
+    </div>)
 }
 
 // Sortable Field Component
@@ -96,7 +103,7 @@ const SortableField = ({ id, name, remove, index, children, onClick, onEdit, onR
         // border: "5px solid red",
     };
     // if (active && active.id == id) Object.assign(style, { height:"50px !important", overflow:"hidden", display:"block" })
-    if (active) console.log("active: ", active)
+    // if (active) console.log("active: ", active)
 
     let className = `${styles.data_row}`
     if (selected) className += ` ${styles.selected}`
@@ -123,38 +130,75 @@ const SortableField = ({ id, name, remove, index, children, onClick, onEdit, onR
     </Loader>)
 };
 
+function PublishButton({ published, disabled, setError, onUpdate }: { 
+    published: boolean, 
+    disabled: boolean, 
+    setError: (val: any) => void, 
+    onUpdate?: (val:any)=>void
+}){
+    const form = useForm()
+
+    const [publishAppPage, publishAppPage_details] = useMutation(PUBLISH_PAGE); // { data, loading, error }
+
+    const updatePublish = async () => {
+        setError(null);
+        const { rows, _id } = form.getState().values;
+
+        if (!rows?.length || !rows[0]?._id) {
+            setError("Oops! Seems like you haven't added anything into the page yet!");
+            return;
+        }
+
+        // Get the latest value from state (safe inside event handler)
+        const newPublished = !published;
+        const input = { _id, published: newPublished };
+
+        const result = await publishAppPage({ variables: { input } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.publishAppPage }))
+            .catch(catchApolloError);
+
+        if (result.error) {
+            setError(result?.error?.message || "Invalid response");
+            return;
+        }
+
+        message.success(newPublished ? "Published" : "Unpublished");
+        onUpdate?.(result);
+    }
+
+
+    return (<Button
+        onClick={updatePublish}
+        color={published ? "green" : 'red'}
+        loading={publishAppPage_details.loading}
+        disabled={disabled}
+    >{published ? 'Published' : 'Un-Published'}</Button>)
+}
+
+
 // export default function EditAppPage({ params }){
 export default function EditAppPage(){
     const { page_id } = useParams<{ page_id: string }>()
 
     const [fatelError, set_fatelError] = useState(false)
-    const [error, setError] = useState(false)
+    const [error, setError] = useState(null)
     const [saving, setSaving] = useState(false);
     const [busy, setBusy] = useState(false);
     const [pageData, set_pageData] = useState(null)
-    // const [data, setData] = useState({ rows: [] })
     const [showProps, set_showProps] = useState(false)
     const [sortDragging, set_sortDragging] = useState(null);
-    const [publishing, set_publishing] = useState(false);
+    // const [publishing, set_publishing] = useState(false);
     const [loadingModules, set_loadingModules] = useState(false);
-    // const [modulesArray, set_modulesArray] = useState(null);
     const [modulesPageNum, set_modulesPageNum] = useState(1);
     const [showPageEdit, set_showPageEdit] = useState(false);
-
-
-    // const router = useRouter();
+    const [showScheduleEdit, set_showScheduleEdit] = useState(false);
 
     const [deleteAppPagesModules, delRow_details] = useMutation(DELETE_ROW); // { data, loading, error }
     const [saveAppPagesModules, saveRows_details] = useMutation(SAVE_ROWS); // { data, loading, error }
-    const [publishAppPage, publishAppPage_details] = useMutation(PUBLISH_PAGE); // { data, loading, error }
+    // const [publishAppPage, publishAppPage_details] = useMutation(PUBLISH_PAGE); // { data, loading, error }
 
-    const [appPage, { called, loading }] = useLazyQuery(FETCH_DATA,
-        { variables: { filter: JSON.stringify({ _id: page_id }) } }
-    );
-
-    const [appPagesModulesQuery, modules_load] = useLazyQuery(FETCH_MODULES,
-        { variables: { limit: defaultPageSize, page: 1, filter: JSON.stringify({ _id_parent: page_id }), others: JSON.stringify({}) }, }
-    );
+    const [appPage, { called, loading }] = useLazyQuery(FETCH_DATA, { fetchPolicy: 'network-only' });
+    const [appPagesModulesQuery, modules_load] = useLazyQuery(FETCH_MODULES, { fetchPolicy: 'network-only' });
 
 
     useEffect(() => {
@@ -168,14 +212,10 @@ export default function EditAppPage(){
         let results = await appPage({
             variables: {
                 filter: JSON.stringify({ _id: page_id }),
-                fetchPolicy: 'network-only'
             }
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.appPage }))
-            .catch(err => {
-                console.log(__error("Error:"), err)
-                return { error: { message: "Unable to fetch page, request error!" } }
-            })
+            .catch(catchApolloError)
 
         if (!results || results.error) {
             set_fatelError((results && results.error.message) || "No page data found!")
@@ -201,13 +241,9 @@ export default function EditAppPage(){
                 filter: JSON.stringify({ _id_parent: page_id }),
                 others: JSON.stringify({ sort: { sort_order: 1 } })
             },
-            fetchPolicy: 'network-only'
         })
         .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.appPagesModulesQuery }))
-        .catch(err=>{
-            console.error(err);
-            return { error: { message: "Unable to fetch modules, request error!" } }
-        });
+        .catch(catchApolloError)
         set_loadingModules(false);
 
         if (!results || results.error) {
@@ -242,32 +278,32 @@ export default function EditAppPage(){
         return results;
     }
 
-    const onDeleteRow = async (row, callback) => {
-        // await sleep(2000)
-        // callback();
-        // return false;
-
-        let resutls = await deleteAppPagesModules({ variables: { _id: row._id } }).then(r => (r?.data?.deleteAppPagesModules))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Unable to delete module!" } }
-            })
-
-        if (!resutls || resutls.error) {
-            message.error((resutls && resutls.error.message) || "Invalid Response!")
-            return false;
+    const onDeleteRow = async (row:any, callback:Function) => {
+        if (row._id){
+            let resutls = await deleteAppPagesModules({ variables: { _id: row._id } })
+                .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.deleteAppPagesModules }))
+                .catch(catchApolloError)
+    
+            if (!resutls || resutls.error) {
+                message.error((resutls && resutls.error.message) || "Invalid Response!")
+                return false;
+            }
+    
+            let rows = pageData.rows.filter(o => (o._id !== row._id))
+            set_pageData((prev: any) => ({ ...prev, rows }))
+            message.success("Modules removed!")
+        }
+        else {
+            message.success("Removing local module")
         }
 
-        let rows = pageData.rows.filter(o => (o._id !== row._id))
-        set_pageData({ ...pageData, rows: rows })
-
-        message.success("Modules removed!")
         callback()
         return false;
     }
 
     const onSubmit = async ({ rows }) => {
-        // console.log(__yellow("onSubmit()"), rows)
+        console.log(__yellow("onSubmit()"), rows)
+        setError(null)
 
         if (!rows || rows.length < 1 || !rows[0]?.id) {
             setError("Oops! Seems like your havent added anything into the page yet!")
@@ -282,10 +318,7 @@ export default function EditAppPage(){
                 if (!row?.data?.type) return false;
 
                 let _values;// = { ...row.values }
-
-                if (_.isString(row.values)) {
-                    _values = row.values
-                }
+                if (_.isString(row.values)) _values = row.values
 
                 else if (row.data.type == 'prod_list_3_2') {
                     _values = JSON.stringify({
@@ -327,7 +360,7 @@ export default function EditAppPage(){
 
         // verify that there is no empty ROW
         if (!input.rows || input.rows.length < 1 || input.rows.includes(false)) {
-            setError("Loooks liek you have one or more empty rows, please populate the row(s) or remove!")
+            setError("Loooks like you have one or more empty rows, please populate the row(s) or remove!")
             return false;
         }
 
@@ -351,60 +384,60 @@ export default function EditAppPage(){
         return false;
     }
 
-    const uploadImage = async (file) => {
-        let result = uploadFile({ file, data: { upload_type: "page_assets" } }).catch(err => {
-            console.log(__error("Error: "), err)
-            return { error: { message: "Unable to comeplte upload!" } }
-        })
+    // const uploadImage = async (file) => {
+    //     let result = uploadFile({ file, data: { upload_type: "page_assets" } }).catch(err => {
+    //         console.log(__error("Error: "), err)
+    //         return { error: { message: "Unable to comeplte upload!" } }
+    //     })
 
-        if (!result || result.error) {
-            setError((result && result.error.message) && "Invalid Upload response!")
-            return false;
-        }
+    //     if (!result || result.error) {
+    //         setError((result && result.error.message) && "Invalid Upload response!")
+    //         return false;
+    //     }
 
-        return result;
-    }
+    //     return result;
+    // }
 
-    const updatePublish = async ({ rows, published }) => {
-        if (!rows || rows.length < 1 || !rows[0]?.id) {
-            setError("Oops! Seems like your havent added anything into the page yet!")
-            return false;
-        }
+    // const updatePublish = async (values: any, published:boolean) => {
+    //     console.log("updatePublish() ", values)
 
-        setError(null);
-        set_publishing(true)
+    //     // const form = useForm()
+    //     // let _values = form.getState().values
+    //     // console.log("_values: ", _values)
 
-        let result = await publishAppPage({ variables: { input: { _id: pageData._id, published } } })
-            .then(r => (r?.data?.publishAppPage))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Unable to publish at the moment!" } }
-            })
-        set_publishing(false)
+    //     // const { rows, published } = values;
 
-        if (!result || result.error) {
-            setError((result && result?.error?.message) || "Invalid response")
-            return false;
-        }
+    //     // if (!rows || rows.length < 1 || !rows[0]?._id) {
+    //     //     setError("Oops! Seems like your havent added anything into the page yet!")
+    //     //     return false;
+    //     // }
+    //     // setError(null);
 
-        message.success("Published")
+    //     // return false;
 
-        set_pageData({ ...pageData, published: published })
-    }
+    //     // set_publishing(true)
+    //     // let result = await publishAppPage({ variables: { input: { _id: pageData._id, published } } })
+    //     //     .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr:any) => rr?.data?.publishAppPage }))
+    //     //     .catch(catchApolloError)
+    //     // set_publishing(false)
+
+    //     // if (!result || result.error) {
+    //     //     setError((result && result?.error?.message) || "Invalid response")
+    //     //     return false;
+    //     // }
+
+    //     // message.success("Published")
+
+    //     // set_pageData((prev:any) => ({ ...prev, published: published }))
+    // }
 
     const toggleSettings = () => set_showPageEdit(!showPageEdit)
+    const toggleSchedule = () => set_showScheduleEdit(!showScheduleEdit)
 
-    const savePageSettings = async (values) => {
-        setBusy(true)
-        await sleep(1500)
-        setBusy(false)
-        toggleSettings(false)
-
-        return true;
-    }
     const onSettingsUpdate = (values) => {
-        set_pageData({ ...pageData, ...values })
-        toggleSettings()
+        set_pageData((prev: any) => ({ ...prev, ...values }))
+        if (showPageEdit) toggleSettings()
+        if (showScheduleEdit) toggleSchedule()
     }
 
 
@@ -445,7 +478,7 @@ export default function EditAppPage(){
         <FinalForm onSubmit={onSubmit} initialValues={pageData}
             mutators={{ ...arrayMutators }}
             render={(formargs) => {
-                const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
+                const { handleSubmit, submitting, form, values, invalid, errors, submitFailed, dirty } = formargs;
 
                 const onItemDrop = ({ item, zone, id }, { field, fields, index }) => {
                     // alert(`custom: ${item.label} dropped into zone ${zone}`);
@@ -456,6 +489,10 @@ export default function EditAppPage(){
                     fields.update(index, { id, zone, data: item })
                 }
 
+                const hasNoRows = values?.rows?.length < 1;
+                const hasEmptyRows = values?.rows?.length > 0 && !values?.rows[0]?._id;
+                const disablePublish = hasEmptyRows || dirty;
+                const disableSave = !dirty;// || hasEmptyRows;
 
                 return (<>
                     {error && <Alert message={error} showIcon type='error' />}
@@ -463,27 +500,37 @@ export default function EditAppPage(){
 
                         <div style={{ borderBottom: "1px solid #D0DAE5", padding: "10px", backgroundColor: "#FFF" }}>
                             <Row gutter={[20, 20]}>
-                                <Col span={8}><Button disabled={!pageData.published} onClick={toggleSettings} icon={<Icon icon="cog" />}>Settings</Button></Col>
+                                <Col span={8}><Space>
+                                    <Button onClick={toggleSettings} tooltip={{ title: "Settings", placement:"bottom" }} icon={<Icon icon="cog" />} />
+                                    <Button onClick={toggleSchedule} tooltip={{ title: "Schedule", placement:"bottom" }} icon={<Icon icon="clock" />} />
+                                </Space></Col>
                                 <Col span={8} align="center">
-                                    <Space>
-                                        <div>Web</div>
-                                        <div>|</div>
-                                        <div>Mobile</div>
-                                    </Space>
+                                    {/* <Space split="|"><div>Web</div><div>Mobile</div></Space> */}
                                     <h4>{pageData.title}</h4>
                                 </Col>
-                                <Col span={8} align="right">
-                                    <Space>
-                                        {!pageData.published && <Alert type='warning' showIcon message="Contents updated" />}
-                                        <ExternalSubmitButton color="orange" loading={saving} label="Save" form_id="page_composer_form" />
-                                        <Button onClick={() => updatePublish({ ...values, published: !pageData.published })} color="blue" loading={publishing} disabled={pageData.published}>Publish</Button>
-                                    </Space>
-                                </Col>
+                                <Col span={8} align="right"><Space>
+                                    {/* {dirty && <Alert type='warning' showIcon message="Contents updated" />} */}
+                                    <ExternalSubmitButton 
+                                        color="orange" 
+                                        disabled={disableSave} 
+                                        loading={saving} 
+                                        label="Save" 
+                                        form_id="page_composer_form"
+                                    />
+                                    <PublishButton 
+                                        published={pageData.published} 
+                                        disabled={disablePublish}
+                                        setError={setError}
+                                        onUpdate={(val) => {
+                                            set_pageData((prev: any) => ({ ...prev, published: val.published }))
+                                        }}
+                                    />
+                                </Space></Col>
                             </Row>
                         </div>
 
 
-                        <Row gutter={[0]}>
+                        <Row gutter={[0, 0]}>
                             <Col><SideMenu /></Col>
 
                             <Col flex="auto" style={{ border: "0px solid black" }} align="center">
@@ -518,7 +565,7 @@ export default function EditAppPage(){
                                                                             field_name={name}
                                                                             row_id={index}
                                                                             // onItemClick={onItemClick}
-                                                                            onItemDrop={args => onItemDrop(args, { field: thisNode, fields, index })}
+                                                                            onItemDrop={(args:any) => onItemDrop(args, { field: thisNode, fields, index })}
                                                                         />
                                                                     </SortableField>
                                                                 </div>)
@@ -533,6 +580,8 @@ export default function EditAppPage(){
                                         </FieldArray>
                                     </div>
                                 </div>
+
+                                <DevBlock obj={values?.rows} title="values.rows" />
 
                             </Col>
 
@@ -549,15 +598,31 @@ export default function EditAppPage(){
                             open={showPageEdit}
                             onCancel={() => set_showPageEdit(false)}
                         >
-                            <AppPageEditForm onCancel={() => set_showPageEdit(false)} onUpdate={onSettingsUpdate} page_id={pageData._id} />
+                            <AppPageEditForm onCancel={() => set_showPageEdit(false)} onUpdate={onSettingsUpdate} />
                         </Modal>
 
-                        <DevBlock obj={{ ...values }} />
+                        <Modal
+                            footer={false}
+                            closable={!busy}
+                            cancelButtonProps={{ disabled: busy }}
+                            // confirmLoading={busy}
+                            // onOk={() => savePageSettings(values)}
+                            title="Page Schedule"
+                            width="500px"
+                            open={showScheduleEdit}
+                            onCancel={() => set_showScheduleEdit(false)}
+                        >
+                            <AppScheduleEditForm onCancel={() => set_showScheduleEdit(false)} onUpdate={onSettingsUpdate} />
+                        </Modal>
+
+                        {/* <DevBlock obj={{ ...values }} /> */}
                     </form>
                 </>)
 
             }}
         />
+
+
 
         <DevBlock obj={pageData} />
     </>)

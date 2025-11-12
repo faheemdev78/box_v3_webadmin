@@ -14,6 +14,7 @@ import arrayMutators from 'final-form-arrays'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, FormFieldGroup } from '@_/components/form';
 
 import GET_TYPE from '@_/graphql/product_type/prodType.graphql'
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 export const ProductAttributesSelector = props => {
@@ -22,10 +23,7 @@ export const ProductAttributesSelector = props => {
     const [attrOnDD, setAttrOnDD] = useState();
     const [attributesList, setAttributesList] = useState(props?.formValues?.attributes || []);
 
-    const [get_prodType, { called, loading }] = useLazyQuery(
-        GET_TYPE,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [get_prodType, { called, loading }] = useLazyQuery(GET_TYPE, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (!prodType || props._id_type != prodType._id) {
@@ -38,12 +36,9 @@ export const ProductAttributesSelector = props => {
         if (!_id_type) return;
 
         let results = await get_prodType({ variables: { id: _id_type } })
-        .then(r => (r?.data?.prodType))
-        .catch(err=>{
-            console.log(__error("Error: "), err)
-            return { error:{message:"Invalid response!"}}
-        })
-
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.prodType }))
+            .catch(catchApolloError)
+        
         if (results && results.error){
             message.error(results.error.message)
             setProdType(null)

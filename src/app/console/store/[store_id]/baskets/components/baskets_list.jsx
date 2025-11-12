@@ -15,13 +15,13 @@ import RELEASE_BASKET from '@_/graphql/baskets/releaseBasket.graphql';
 
 const ReleaseBasketButton = ({ basket, onSuccess }) => {
     const [busy, setBusy] = useState(false)
-    const [do_releaseBasket, release_details] = useMutation(RELEASE_BASKET);
+    const [do_releaseBasket, release_details] = useMutation(RELEASE_BASKET, {});
     
     // if (!basket.is_locked) return null;
 
     const releaseBasket = async() => {        
         setBusy(true);
-        let results = await do_releaseBasket({ variables: { filter: JSON.stringify({ barcode: basket.barcode }) }, fetchPolicy: "no-cache" })
+        let results = await do_releaseBasket({ variables: { filter: JSON.stringify({ barcode: basket.barcode }) } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.releaseBasket }))
             .catch(catchApolloError)
         setBusy(false);
@@ -37,8 +37,8 @@ const ReleaseBasketButton = ({ basket, onSuccess }) => {
 
 
 const ListComp = ({ store }) => {
-    const [get_baskets, { called, loading, error, data }] = useLazyQuery(LIST_DATA);
-    const [deleteBasket, del_details] = useMutation(RECORD_DELETE);
+    const [get_baskets, { called, loading, error, data }] = useLazyQuery(LIST_DATA, { fetchPolicy: "no-cache" });
+    const [deleteBasket, del_details] = useMutation(RECORD_DELETE, {});
     // const { data, loading } = useSubscription(QUERY_SUBSCRIPTION, { variables: { postID } });
 
     const [busy, setBusy] = useState(false)
@@ -47,12 +47,10 @@ const ListComp = ({ store }) => {
 
     const handleDelete = async(id) => {
         setBusy(true);
-        let results = await deleteBasket({ variables: { id }, fetchPolicy: "no-cache" })
-            .then(e => (e?.data?.deleteBasket))
-            .catch(err => {
-                console.log(__error("Request ERROR : "), err);
-                return { error: { message: "Request ERROR" } }
-            })
+        let results = await deleteBasket({ variables: { id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deleteBasket }))
+            .catch(catchApolloError)
+
         setBusy(false);
 
         if (!results || results.error) return message.error((results && results?.error?.message) || "Unable to delete record")
@@ -67,12 +65,9 @@ const ListComp = ({ store }) => {
         }
 
         setBusy(true);
-        let results = await get_baskets({ variables: { filter: JSON.stringify(filter) }, fetchPolicy: "no-cache" })
-            .then(e => (e?.data?.baskets))
-            .catch(err => {
-                console.log(__error("Request ERROR : "), err);
-                return { error: { message: "Request ERROR" } }
-            })
+        let results = await get_baskets({ variables: { filter: JSON.stringify(filter) } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.baskets }))
+            .catch(catchApolloError)
         setBusy(false);
         
         // if (!results || results.error) return message.error((results && results?.error?.message) || "no ")
@@ -109,8 +104,6 @@ const ListComp = ({ store }) => {
             />
         </div>)},
         { title: 'In Use', dataIndex: 'record', render:(__, rec) => {
-            // if (!rec.is_locked) return <div />;
-
             return (<>
                 {rec?.taken_by?.name  && <div>Taken By: {rec?.taken_by?.name}</div>}
                 {rec.locked_at && <div>Locked At: {utcToDate(rec.locked_at).format(defaultDateTimeFormat)}</div>}
@@ -119,7 +112,7 @@ const ListComp = ({ store }) => {
             </>)
         } },
         { title: 'Category', dataIndex: 'category', width: 100, align:"center" },
-        { title: 'Status', dataIndex: 'status', width: 100, align: "center" },
+        { title: 'Status', dataIndex: 'status', width: 120, align: "center" },
         { title: 'Actions', dataIndex: '', render: renderActions, className: 'actions-column', align: 'right', width: '100px' },
     ];
 

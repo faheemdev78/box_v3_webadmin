@@ -47,7 +47,7 @@ query ordersQuery($limit: Int, $page: Int, $filter: String, $others: String, $_i
             # locked_by
             # locked_at
             # lock_expires_at
-            # lock_type
+            lock_type
 
             createdAt
             updatedAt

@@ -1,4 +1,4 @@
-#import "../_fragment/settings.graphql"
+#import "./_fragment/settings.graphql"
 
 mutation addSettings($input: Add_SettingsInput!) {
     addSettings(input: $input) {

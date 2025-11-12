@@ -24,7 +24,6 @@ export default function UserForm (props) {
     const [error, setError] = useState(false);
     const router = useRouter()
 
-    // const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE);
     const [addStoreStaff, add_details] = useMutation(RECORD_ADD); // { data, loading, error }
 
     const onSubmit = async (values) => {

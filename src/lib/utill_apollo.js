@@ -17,7 +17,7 @@ export function checkApolloRequestErrors({ results, allowEmpty = false, parseRet
 
     // if (!results || results.error) return { error: { message: (results && results?.error?.message) || "Invalid or empty results!" } }
     if (results.errors) {
-        // console.log(__error("results.errors: "), results.errors)
+        console.error(results.errors)
         return { error: { message: results.errors?.map(o => (o.message)) }}
     }
 

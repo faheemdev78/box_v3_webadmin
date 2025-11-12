@@ -8,6 +8,7 @@ import security from '@_/lib/security';
 import { NOIMAGE, PROD_GAL_SIZE } from '@_/configs';
 import axios from 'axios';
 import { useLazyQuery, useMutation } from '@apollo/client';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 // import GET_PRODUCT from '@_/graphql/product/get_product_images.graphql';
 
@@ -26,8 +27,6 @@ export function ProductImageManager({ session, ...props }) {
     const [initialValues, set_initialValues] = useState(props.initialValues)
     const [messageApi, contextHolder] = message.useMessage();
 
-    // const [get_product_images, { loading, called }] = useLazyQuery(GET_PRODUCT);
-    
     const [uploadProductImg, img_updates] = useMutation(UPDATE_MAIN_IMG); // { data, loading, error }
     const [deleteProductImg, del_img_updates] = useMutation(DEL_MAIN_IMG); // { data, loading, error }
     
@@ -57,11 +56,10 @@ export function ProductImageManager({ session, ...props }) {
                 type: file.type,
                 thumbnails: file.thumbnails
             }
-        } }).then(r => r?.data?.uploadProductImg)
-        .catch(err=>{
-            console.error(err)
-            return { error:{message:"Request Error"}}
-        })
+        } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadProductImg }))
+            .catch(catchApolloError);
+        
 
         if (!results || results.error){
             messageApi.open({ 
@@ -95,11 +93,9 @@ export function ProductImageManager({ session, ...props }) {
             }))
         }
 
-        let results = await uploadGalleryItems({ variables }).then(r => (r?.data?.uploadGalleryItems))
-            .catch(err => {
-                console.error(err);
-                return { error:{message:"Request Error"}}
-            })
+        let results = await uploadGalleryItems({ variables })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadGalleryItems }))
+            .catch(catchApolloError);
 
         if (!results || results.error){
             messageApi.open({
@@ -129,11 +125,9 @@ export function ProductImageManager({ session, ...props }) {
                 thumbnails: file.thumbnails
             }
         }
-        }).then(r => r?.data?.uploadProductVideo)
-        .catch(err=>{
-            console.error(err)
-            return { error:{message:"Request Error"}}
         })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadProductVideo }))
+            .catch(catchApolloError);
 
         if (!results || results.error){
             messageApi.open({ 
@@ -162,11 +156,9 @@ export function ProductImageManager({ session, ...props }) {
     const onRemoveImgeClick = async(e) => {
         // console.log("onRemoveImgeClick()", e)
 
-        let resutls = await deleteProductImg({ variables: { _id_product: initialValues._id } }).then(r => (r?.data?.deleteProductImg))
-            .catch(err => {
-                console.error(err);
-                return { error: { message:"Request Error!"}}
-            })
+        let resutls = await deleteProductImg({ variables: { _id_product: initialValues._id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.deleteProductImg }))
+            .catch(catchApolloError);
 
         if (!resutls || resutls.error){
             message.error(resutls && resutls?.error?.message || "Invalid Response!")
@@ -180,13 +172,9 @@ export function ProductImageManager({ session, ...props }) {
     }
 
     const onRemoveGallImgeClick = async(e) => {
-        // console.log("onRemoveGallImgeClick()", e)
-
-        let resutls = await deleteGalleryItem({ variables: { _id_product: initialValues._id, _id: e._id } }).then(r => (r?.data?.deleteGalleryItem))
-            .catch(err => {
-                console.error(err);
-                return { error: { message:"Request Error!"}}
-            })
+        let resutls = await deleteGalleryItem({ variables: { _id_product: initialValues._id, _id: e._id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.deleteGalleryItem }))
+            .catch(catchApolloError);
 
         if (!resutls || resutls.error){
             message.error(resutls && resutls?.error?.message || "Invalid Response!")
@@ -202,13 +190,9 @@ export function ProductImageManager({ session, ...props }) {
     }
 
     const onRemoveVdoClick = async(e) => {
-        console.log("onRemoveVdoClick()", e)
-
-        let resutls = await deleteProductVideo({ variables: { _id_product: initialValues._id } }).then(r => (r?.data?.deleteProductVideo))
-            .catch(err => {
-                console.error(err);
-                return { error: { message:"Request Error!"}}
-            })
+        let resutls = await deleteProductVideo({ variables: { _id_product: initialValues._id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.deleteProductVideo }))
+            .catch(catchApolloError);
 
         if (!resutls || resutls.error){
             message.error(resutls && resutls?.error?.message || "Invalid Response!")

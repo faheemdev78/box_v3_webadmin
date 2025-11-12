@@ -25,7 +25,7 @@ function FormComp({ onSuccess, initialValues, store, ...props }) {
 
     const [editGeoZone, edit_details] = useMutation(RECORD_EDIT); // { data, loading, error }
     const [addGeoZone, add_details] = useMutation(RECORD_ADD); // { data, loading, error }
-    const [geoZones, zones_resutls] = useLazyQuery(GEO_ZONES);
+    const [geoZones, zones_resutls] = useLazyQuery(GEO_ZONES, { fetchPolicy: "network-only" });
 
     const onSubmit = async (values) => {
         setError(null);
@@ -219,7 +219,9 @@ export default function GeoZoneForm({ zone_id, store, ...props }) {
     const [error, setError] = useState(null)
     const router = useRouter()
 
-    const [get_geoZone, { loading, data, called }] = useLazyQuery(GEO_ZONE);
+    const [get_geoZone, { loading, data, called }] = useLazyQuery(GEO_ZONE, {
+        fetchPolicy: "no-cache"
+    });
 
     useEffect(() => {
         if (called || loading || !zone_id) return;
@@ -230,13 +232,10 @@ export default function GeoZoneForm({ zone_id, store, ...props }) {
         setError(null)
 
         let resutls = await get_geoZone({ 
-                variables: { _id: zone_id },
-                fetchPolicy: "no-cache"
-            }).then(r => (r?.data?.geoZone))
-            .catch(err => {
-                console.log(__error("Query Error: "), err)
-                return { error: { message: "Query Error" } }
+                variables: { _id: zone_id }
             })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZone }))
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             setError((resutls && resutls?.error?.message) || "Zone not found!")

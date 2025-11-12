@@ -1,4 +1,4 @@
-#import "../_fragment/user/user_role.graphql"
+#import "./_fragment/user_role.graphql"
 
 query userRole($_id: ID!) {
     userRole(_id:$_id) {

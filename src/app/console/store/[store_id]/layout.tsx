@@ -31,12 +31,12 @@ export default async function ConsoleLayout({ children, params }: {
                     { title: 'Products', href: `${baseUrl}/products` },
                     { title: 'Orders', href: `${baseUrl}/orders`, //modulePermessions: '106',
                         children: [
-                            { title: 'Orders List', href: `${baseUrl}/orders` },
+                            { title: 'Orders', href: `${baseUrl}/orders` },
                             // { title: 'Orders on Till', href: `${baseUrl}/orders-on-till` },
                             { title: 'Orders on Till', href: `${baseUrl}/till-verification` },
                             { title: 'Ready to Dispatch', href: `${baseUrl}/ready-to-dispatch` },
                             { title: 'Dispatched', href: `${baseUrl}/dispatched` },
-                            { title: 'Cart', href: `${baseUrl}/cart` },
+                            { title: 'Carts', href: `${baseUrl}/cart` },
                         ]
                     },                    
                     { title: 'Staff', href: `${baseUrl}/staff` },

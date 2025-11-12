@@ -34,9 +34,7 @@ export default function StoreProductsHome({ ...props }) {
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState(null)
 
-    const [productsQuery, { called, loading }] = useLazyQuery(LIST_DATA,
-        { variables: { filter: JSON.stringify(state.filter) } }
-    );
+    const [productsQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called || loading) return

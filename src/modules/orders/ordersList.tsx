@@ -23,7 +23,7 @@ import moment from 'moment';
 
 import RESET_ORDER from '@_/graphql/order/resetOrderToZero.graphql'
 
-const defaultProps = {
+export const defaultProps = {
   pageView: "list",
   columns: [
     'serial', 'store', 'original_order', 'delivery_slot', 
@@ -59,18 +59,15 @@ const OrdersList: React.FC<OrdersListProps> = ({
 
   const handleResetOrder = async (order) => {
     setBusy(true);
+
     try {
-      const result = await resetOrder({
+      const processedResult = await resetOrder({
         variables: {
           _id_order: order._id
         }
-      });
-
-      const processedResult = checkApolloRequestErrors({
-        results: result,
-        allowEmpty: false,
-        parseReturn: (r) => r?.data?.resetOrderToZero
-      });
+      })
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.resetOrderToZero }))
+        .catch(catchApolloError)
 
       if (processedResult.error) {
         message.error(`Failed to reset order: ${processedResult.error.message}`);
@@ -133,9 +130,11 @@ const OrdersList: React.FC<OrdersListProps> = ({
         <div>{String(delivery_slot.day).toUpperCase()}</div>
       </div>)
     } },
-    { title: 'Status', dataIndex: ['status', 'order'], key: 'status', width: 180, align: 'left', render: (__: any, { current_stage, status }: any) => (<div>
+    {
+      title: 'Status', dataIndex: ['status', 'order'], key: 'status', width: 220, align: 'left', render: (__: any, { current_stage, status, lock_type }: any) => (<div>
         <div><b>Stage:</b> {current_stage}</div>
         <div><b>Status:</b> {status.order}</div>
+        {lock_type && <div><Icon icon="lock" /> {lock_type}</div>}
       </div>) },
     { title: 'Pickup Allowrd', dataIndex: ['pickup_allow'], key: 'pickup_allow', width: 50, align: 'center', render: (pickup_allow:boolean, rec:any) => (<Tag color={pickup_allow ? 'green' : 'red'}>{pickup_allow ? "YES" : "NO"}</Tag>) },
     { title: 'Created', dataIndex: ['createdAt'], key: 'createdAt', width: 115, align: 'left', render: (createdAt:string, rec:any) => (<div>{moment(createdAt).format(defaultDateTimeFormat)}</div>) },
@@ -200,7 +199,9 @@ const OrdersList: React.FC<OrdersListProps> = ({
     <PageHeader 
       title={<>{props.title || "Orders"}</>}
       sub={<div>{pagination ? `Total ${pagination.total || 0} records found` : null}</div>}
-    />
+    >
+      <Button onClick={() => fetchData({})}>Refresh</Button>
+    </ PageHeader>
 
     <Page>
       {!(searchFilterConfig && searchFilterConfig.hide===true) && <Row>

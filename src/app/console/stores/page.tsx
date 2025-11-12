@@ -31,9 +31,7 @@ export default function Stores(props) {
     const router = useRouter()
 
     const [deleteStore, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
-    const [storesQuery, { called, loading }] = useLazyQuery(LIST_DATA,
-        { variables: { filter: JSON.stringify({}) } }
-    );
+    const [storesQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called) return;
@@ -61,10 +59,7 @@ export default function Stores(props) {
             }
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.storesQuery }))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No records found!")

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { Card, Col, message, Popconfirm, Row, Space } from 'antd';
-import { adminRoot, defaultPageSize, defaultPagination } from '@_/configs';
+import { adminRoot, defaultDateTimeFormat, defaultPageSize, defaultPagination } from '@_/configs';
 import Link from 'next/link';
 import { Button, IconButton, PageHeading, Table } from '@_/components';
 import { Page } from '@_/template/page';
@@ -13,6 +13,7 @@ import { __error } from '@_/lib/consoleHelper';
 
 import LIST_DATA from '@_/graphql/vouchers/vouchersQuery.graphql'
 import RECORD_DELETE from '@_/graphql/vouchers/deleteVoucher.graphql';
+import { utcToDate } from '@_/lib/utill';
 
 const defaultFilter = { status: 'online' }
 
@@ -29,9 +30,7 @@ export default function Vouchers(props:any) {
     const [busy, setBusy] = useState(false)
 
     const [deleteVoucher, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
-    const [vouchersQuery, { called, loading }] = useLazyQuery(LIST_DATA,
-        { variables: { filter: JSON.stringify({}) } }
-    );
+    const [vouchersQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called) return;
@@ -107,18 +106,26 @@ export default function Vouchers(props:any) {
 
     const columns = [
         { title: 'Title', dataIndex: 'title', key: 'title',
-            render: (___, rec) => {
-                return <Link href={`${adminRoot}/vouchers/details/${rec._id}`}>{rec.title}</Link>
+            render: (title: string, rec: any) => {
+                return <Link href={`${adminRoot}/vouchers/details/${rec._id}`}>{title}</Link>
             }
         },
+        { title: 'Type', dataIndex: 'type', key: 'type', width: 150, align: 'center' },
+        { title: 'Schedule', dataIndex: 'startDate', key: 'startDate', width: 230, align: 'left', render: (___:string, rec:any) => {
+            return (<>
+                <div><b>From: </b>{utcToDate(rec.startDate).format(defaultDateTimeFormat)}</div>
+                <div><b>To: </b>{utcToDate(rec.endDate).format(defaultDateTimeFormat)}</div>
+            </>)
+        } },
+        { title: 'Used Count', dataIndex: 'usedCount', key: 'usedCount', width: 100, align: 'center' },
         { title: 'Status', dataIndex: 'status', key: 'status', width: 100, align: 'center' },
         {
             title: 'Actions', dataIndex: 'actions', width: 120, key: 'actions', align: 'right',
-            render: (text, rec) => {
+            render: (text: string, rec: any) => {
                 return (<Space>
                     {/* <IconButton onClick={() => set_showForm({ show: true, fields: rec })} icon="pen" /> */}
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}>
-                        <IconButton icon="trash-alt" />
+                        <IconButton onClick={()=>void(0)} icon="trash-alt" />
                     </Popconfirm>
                 </Space>)
             }

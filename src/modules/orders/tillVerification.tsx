@@ -28,7 +28,7 @@ export default function TillVerification({ serial }) {
     const [busy, setBusy] = useState(false);
     const [verificationStatus, setVerificationStatus] = useState('pending'); // pending, verified, rejected
 
-    const [getOrderDetails, { loading }] = useLazyQuery(ORDER_DETAILS_QUERY);
+    const [getOrderDetails, { loading }] = useLazyQuery(ORDER_DETAILS_QUERY, { fetchPolicy: "network-only" });
     const [verifyOrder] = useMutation(VERIFY_ORDER_AT_TILL);
     const [rejectOrder] = useMutation(REJECT_ORDER_AT_TILL);
 

@@ -9,6 +9,7 @@ import { defaultPageSize } from '@_/configs';
 import styles from './ProductListSelector.module.scss'
 
 import LIST_DATA from '@_/graphql/product/productsQuery.graphql'
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 const id_gen = (() => {
     let id = 0;
@@ -50,10 +51,7 @@ export const ProductListSelector = ({ limit, onSubmit, selected_products }) => {
         })
     }, [selected_products])
 
-    const [productsQuery, { data, called, loading }] = useLazyQuery(
-        LIST_DATA,
-        { variables: { filter: JSON.stringify({}) } }
-    );
+    const [productsQuery, { data, called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
 
     const doSearch = async (filter) => {
         setBusy(true)
@@ -77,11 +75,9 @@ export const ProductListSelector = ({ limit, onSubmit, selected_products }) => {
                 others: JSON.stringify({})
             }
         })
-            .then(r => (r?.data?.productsQuery))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productsQuery }))
+            .catch(catchApolloError)
+
         setBusy(false)
         if (resutls && resutls.error) {
             message.error(resutls.error.message);

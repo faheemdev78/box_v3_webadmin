@@ -11,7 +11,7 @@ import { Page } from '@_/template/page';
 
 import LIST_DATA from '@_/graphql/product_tags/productTagsQuery.graphql'
 import RECORD_DELETE from '@_/graphql/product_tags/deleteProductTag.graphql';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { __error } from '@_/lib/consoleHelper';
 
 
@@ -32,10 +32,7 @@ export default function Tags(props) {
     
     const [deleteProductTag, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
     
-    const [productTagsQuery, { called, loading }] = useLazyQuery(
-        LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [productTagsQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called) return;
@@ -61,10 +58,7 @@ export default function Tags(props) {
             others: JSON.stringify({})
         } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productTagsQuery }))
-            .catch(err=>{
-                console.log(__error("Error: "), err)
-                return { error:{message:"Invalid response!"}}
-            })
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No records found!")
@@ -78,10 +72,7 @@ export default function Tags(props) {
     const handleDelete = async ({ _id }) => {
         let results = await deleteProductTag(id)
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deleteProductTag }))
-            .catch(error => {
-                console.log(__error("ERROR"), error);
-                message.error("Invalid Response!")
-            })
+            .catch(catchApolloError)
 
         if (!results || results.error) {
             message.error((results && results?.error?.message) || "Unable to delete record")

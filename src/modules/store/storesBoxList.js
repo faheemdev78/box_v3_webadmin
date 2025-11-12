@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 import LIST_DATA from '@_/graphql/stores/stores.graphql'
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 const { Meta } = Card;
@@ -17,7 +18,7 @@ const { Meta } = Card;
 export default function StoresBoxList(props) {
     const [error, setError] = useState(false)
 
-    const [get_stores, { called, loading, data }] = useLazyQuery(LIST_DATA);
+    const [get_stores, { called, loading, data }] = useLazyQuery(LIST_DATA, { fetchPolicy: "no-cache" });
 
     useEffect(() => {
         if (called || loading) return;
@@ -31,11 +32,9 @@ export default function StoresBoxList(props) {
                 others: JSON.stringify({})
             }
         })
-            .then(r => (r?.data?.stores))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.stores }))
+            .catch(catchApolloError)
+        
 
         if (results && results.error) {
             setError((results && results?.error?.message) || "No records found!")

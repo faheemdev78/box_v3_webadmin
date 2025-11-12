@@ -9,6 +9,7 @@ import { useLazyQuery, gql } from '@apollo/client';
 import { Field } from 'react-final-form'
 import { Icon } from './icon';
 import { Loader } from './loader';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 // import SEARCH_QUERY from '@_/graphql/product_cat/productCats.graphql'
 const SEARCH_QUERY = gql`query productCats($filter:String, $others:String){
@@ -63,10 +64,7 @@ export const ProdCatTreeSelection = (props) => {
         setAutoExpandParent(false);
     }
 
-    const [productCats, { called, loading }] = useLazyQuery(
-        SEARCH_QUERY,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [productCats, { called, loading }] = useLazyQuery(SEARCH_QUERY, { fetchPolicy: "network-only" });
 
     useEffect(() => {
         if (called || loading) return;
@@ -74,12 +72,10 @@ export const ProdCatTreeSelection = (props) => {
     }, [props, called, loading])
 
     const fetchData = async() => {
-        let resutls = await productCats().then(r => (r?.data?.productCats))
-        .catch(err=>{
-            console.log(__error("Error: "), err)
-            return { error:{message:"Unable to fetch categories"}}
-        })
-
+        let resutls = await productCats()
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productCats }))
+            .catch(catchApolloError)
+        
         if (!resutls || resutls.error){
             message.error((resutls && resutls?.error?.message) || "No categories found!")
             return false;

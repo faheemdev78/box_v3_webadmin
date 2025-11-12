@@ -1,4 +1,4 @@
-#import "../_fragment/vehicles.graphql"
+#import "./_fragment/vehicles.graphql"
 
 query vehicles($filter: String, $others:String) {
     vehicles(filter: $filter, others:$others) {

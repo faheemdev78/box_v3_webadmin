@@ -1,4 +1,4 @@
-#import "../_fragment/fieldsDefination.graphql"
+#import "./_fragment/fieldsDefination.graphql"
 
 query fieldsDefination($_id: ID!) {
     fieldsDefination(_id: $_id) {

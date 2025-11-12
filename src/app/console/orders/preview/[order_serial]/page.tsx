@@ -15,9 +15,7 @@ export default function OrderPreview() {
     const [error, setError] = useState(null)
     const { order_serial } = useParams();
 
-    const [getOrignalOrder, { called, loading, data }] = useLazyQuery(ORDER,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [getOrignalOrder, { called, loading, data }] = useLazyQuery(ORDER, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (!order_serial || called) return;

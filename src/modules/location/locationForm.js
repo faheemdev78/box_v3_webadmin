@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
 import { message, Row, Col, Divider, Alert, Space } from 'antd';
 import { Drawer, Button, DevBlock, FileUploader, GMap, Loader } from '@_/components';
-import { sleep, string_to_slug } from '@_/lib/utill';
+import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@_/lib/utill';
 import { publishStatus, locationTypes } from '@_/configs';
 import { __error } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client';
@@ -35,8 +35,7 @@ const FormComponent = ({ onSubmit, ...props }) => {
     const [error, setError] = useState(false);
     const [initialValues, set_initialValues] = useState(false);
 
-    const [get_location, location_results] = useLazyQuery(GET_LOCATION, {/*{ variables: { filter: JSON.stringify({}) } }*/ });
-
+    const [get_location, location_results] = useLazyQuery(GET_LOCATION, { fetchPolicy: "network-only" });
 
     useEffect(() => {
         if (!props?.initialValues?._id || location_results.called || location_results.loading) return;
@@ -48,7 +47,11 @@ const FormComponent = ({ onSubmit, ...props }) => {
     }, [props.initialValues])
 
     const fetchInitialValues = async () => {
-        let results = await get_location({ variables: { _id: props.initialValues._id } }).then(r => (r?.data?.location))
+        let results = await get_location({ variables: { _id: props.initialValues._id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.location }))
+            .catch(catchApolloError)
+        
+        .then(r => (r?.data?.location))
             .catch(err => {
                 console.log(__error("Error: "), err)
                 return { error: { message: "No records found!" } }

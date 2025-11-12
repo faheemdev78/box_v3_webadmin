@@ -21,7 +21,7 @@ export const RenderError = meta => {
 
 export const SubmitButton = (props) => <Button type="primary" htmlType="submit" {...props} color={props.color || "orange"}>{props.label || 'Submit'}</Button>
 
-export const ExternalSubmitButton = ({ label, form_id, color, loading }) => <Button loading={loading} color={color} onClick={() => {
+export const ExternalSubmitButton = ({ label, form_id, ...props }) => <Button {...props} onClick={() => {
     document.getElementById(form_id).dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))
 }}>{label || "Submit"}</Button>
 

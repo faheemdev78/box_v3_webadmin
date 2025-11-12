@@ -15,7 +15,7 @@ export const CustomerList = ({ dataSource, pagination = false, handleDelete, loa
                 return (<Space>
                     <Avatar src={rec.avatarUrl} />
                     <div>
-                        <Link href={`${adminRoot}/customer/${rec._id}`}>{rec.name}</Link>
+                        <Link href={`${adminRoot}/customer/profile/${rec._id}`}>{rec.name}</Link>
                         <div>{rec.email}</div>
                     </div>
                 </Space>)

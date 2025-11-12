@@ -1,0 +1,11 @@
+#import "../../_fragment/error.graphql"
+
+fragment UserRoleInfo on UserRole {
+  _id
+  title
+  acc_type
+  permissions
+  allowed_apps
+
+  error {...ErrorInfo}
+}

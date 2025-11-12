@@ -9,10 +9,11 @@ import { __error } from '@_/lib/consoleHelper';
 import { Loader, IconButton, Drawer, Button, DevBlock, Heading, Avatar } from '@/components'
 
 import GET_PRODUCTS from '@_/graphql/product/products_short_list.graphql';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 export const ProductSelector = props => {
-    const [get_products_short_list, { called, loading, error, data }] = useLazyQuery(GET_PRODUCTS);
+    const [get_products_short_list, { called, loading, error, data }] = useLazyQuery(GET_PRODUCTS, { fetchPolicy: "no-cache" });
     // const [changeUserPickupAllow, update_details] = useMutation(UPDATE_PICKUP_ALLOW);
     // const { data, loading } = useSubscription(QUERY_SUBSCRIPTION, { variables: { postID } });
     
@@ -39,23 +40,17 @@ export const ProductSelector = props => {
 
         filter = JSON.stringify(filter);
 
-        get_products_short_list({ variables: { filter } }).then(e => {
-            if (e.error || e.errors) {
-                console.log("ERROR: ", e);
-                message.error(__error("ERROR "), (e.error && e.error.message) || (e.errors && e.errors[0].message));
-                setState({ kw: value, loading: false })
-                return;
-            }
+        let resutls = await get_products_short_list({ variables: { filter } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.products }))
+            .catch(catchApolloError)
 
-            setList(e.data.products)
+        if (resutls && resutls?.error?.message) {
+            message.error((resutls && resutls?.error?.message) || "Invalid response!");
             setState({ loading: false })
-
-        }).catch(err => {
-            console.log(__error("API Call ERROR: PRODUCTS : "), err);
-            message.error("Request ERROR");
-            setState({ loading: false })
-        })
-
+            return false;
+        }
+        setList(e.data.products)
+        setState({ loading: false })
     }
     const fetchData = debounce(_fetchData, 800);
 

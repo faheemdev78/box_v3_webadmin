@@ -13,6 +13,7 @@ import { __error } from '@_/lib/consoleHelper';
 import GET_QUERY_RECORDS from '@_/graphql/fields_definations/fieldsDefinationsQuery.graphql'
 import DELETE_RECORD from '@_/graphql/fields_definations/deleteFieldsDefination.graphql'
 import { PageHeader } from '@_/template';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 export default function ProductFields(props) {
@@ -28,9 +29,7 @@ export default function ProductFields(props) {
     const [busy, setBusy] = useState(false)
     const [showForm, set_showForm] = useState(false)
 
-    const [fieldsDefinationsQuery, { called, loading }] = useLazyQuery(GET_QUERY_RECORDS,
-        { variables: { filter: JSON.stringify(state.filter) } }
-    );
+    const [fieldsDefinationsQuery, { called, loading }] = useLazyQuery(GET_QUERY_RECORDS, { fetchPolicy: 'cache-and-network' });
 
     const [deleteFieldsDefination, dell_details] = useMutation(DELETE_RECORD); // { data, loading, error }
 
@@ -49,13 +48,10 @@ export default function ProductFields(props) {
                 filter: JSON.stringify(variables.filter || {}),
                 others: JSON.stringify(variables.others || {})
             },
-            fetchPolicy: 'cache-and-network'
         })
-            .then(r => (r?.data?.fieldsDefinationsQuery))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.fieldsDefinationsQuery }))
+            .catch(catchApolloError)
+
         setBusy(false)
 
         if (resutls && resutls.error) {

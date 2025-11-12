@@ -11,14 +11,11 @@ export default function ClientSide() {
     // const { data, loading, error } = useQuery(TEST_QUERY);
     const [session, setSession] = useState(null)   
 
-    const [loadGreeting, { called, loading, data }] = useLazyQuery(
-        TEST_QUERY,
-        { variables: { args: "english" }, fetchPolicy: "network-only" }
-    );
+    const [loadGreeting, { called, loading, data }] = useLazyQuery(TEST_QUERY, { fetchPolicy: "network-only" });
 
     useEffect(() => {
         if (called) return;
-        loadGreeting();
+        loadGreeting({ variables: { args: "english" } });
 
         setSession(getSessionToken())
     }, []);
@@ -31,7 +28,7 @@ export default function ClientSide() {
         <h1>Client Side</h1>
         <p>session: {session}</p>
 
-        <button onClick={() => loadGreeting()}>Reload Query</button>
+        <button onClick={() => loadGreeting({ variables: { args: "english" } })}>Reload Query</button>
 
         <div><pre>{JSON.stringify(data)}</pre></div>
 

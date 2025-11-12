@@ -1,4 +1,4 @@
-#import "../_fragment/value_pairs.graphql"
+#import "./_fragment/value_pairs.graphql"
 
 mutation updateValuePairArray($input: [Edit_ValuePairs_Array!]!) {
     updateValuePairArray(input: $input) {

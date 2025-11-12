@@ -50,7 +50,6 @@ const setProduct = (newValueArray, state, tools) => {
 }
 
 const FormComp = props => {
-    // const [ordersQuery, { called, loading, error, data }] = useLazyQuery(LIST_DATA);
     const [editPageSettings, edit_details] = useMutation(RECORD_EDIT);
     // const { data, loading } = useSubscription(QUERY_SUBSCRIPTION, { variables: { postID } });
     
@@ -104,7 +103,9 @@ const FormComp = props => {
     const pageOptions = pageOptionsArray[props?.fields?.key];
 
     return (<>
-        <Drawer width={"500px"} destroyOnClose maskClosable={false} placement="right" visible={showform} onClose={onClose} bodyStyle={{ backgroundColor: "#f0f2f5", padding:0 }} title={`Edit Page Setting`}
+        <Drawer width={"500px"} destroyOnClose maskClosable={false} placement="right" visible={showform} onClose={onClose} 
+            styles={{ body: { backgroundColor: "#f0f2f5", padding: 0 } }}
+            title={`Edit Page Setting`}
             footer={<>
                 <span></span>
                 <Button loading={busy} disabled={loadingEditNode} type="primary" onClick={() => {
@@ -338,16 +339,13 @@ FormComp.propTypes = {
 }
 
 export const Wrapper = (props) => {
-    const [get_pageSetting, { called, loading, error, data }] = useLazyQuery(RECORD);
+    const [get_pageSetting, { called, loading, error, data }] = useLazyQuery(RECORD, { fetchPolicy: "no-cache" });
     // const [changeUserPickupAllow, update_details] = useMutation(UPDATE_PICKUP_ALLOW);
     // const { data, loading } = useSubscription(QUERY_SUBSCRIPTION, { variables: { postID } });
 
     useEffect(() => {
         if (called || !props?.fields?._id) return;
-        get_pageSetting({
-            variables: { id: props.fields._id },
-            fetchPolicy: "no-cache",
-        })
+        get_pageSetting({ variables: { id: props.fields._id } })
     }, [props])
 
     var initialValues = false;

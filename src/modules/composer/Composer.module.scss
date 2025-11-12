@@ -1,3 +1,25 @@
+@use "@/styles/vars" as *;
+
+
+.template_selection_block {
+    border: 1px solid #7FD1DE;
+    width: 218px;
+    height: 260px;
+    padding: 20px;
+    cursor: pointer;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    &:hover{
+        border: 1px solid orange;
+    }
+    .icon{
+        margin-bottom: 10px;
+    }
+}
+
 .custom_scroller::-webkit-scrollbar {
     width: 8px;
 }
@@ -79,7 +101,7 @@
         top: 0;
         right: -100px;
         width: 100px;
-        background-color: #425B76;
+        background-color: $primery;
         padding: 5px 10px;
     }
 
@@ -91,7 +113,7 @@
         left: -28px;
         width: 28px;
         height: 100%;
-        background-color: #425B76;
+        background-color: $primery;
         padding: 10px 10px;
         cursor: grab;
         &:active{

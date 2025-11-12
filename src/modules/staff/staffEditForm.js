@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types';
 import { Drawer, message, Row, Col, Divider, Alert, Space } from 'antd';
 import { Button, DevBlock, FileUploader, GMap, Loader } from '@_/components';
-import { checkApolloRequestErrors, sleep, string_to_slug } from '@_/lib/utill';
+import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@_/lib/utill';
 import { publishStatus, locationTypes, adminRoot, userStatus } from '@_/configs';
 import { __error } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client';
@@ -101,7 +101,7 @@ export const StaffEditForm = ({ user_id, onSuccess, ...props }) => {
     const [fatelError, set_fatelError] = useState(false);
     const [error, setError] = useState(false);
     const [initialValues, set_initialValues] = useState(props.initialValues || false);
-    const [get_user, { loading, data, called }] = useLazyQuery(GET_RECORD);
+    const [get_user, { loading, data, called }] = useLazyQuery(GET_RECORD, { fetchPolicy: "no-cache" });
 
     useEffect(() => {
         if (called || loading || !user_id || initialValues) return;
@@ -113,10 +113,7 @@ export const StaffEditForm = ({ user_id, onSuccess, ...props }) => {
 
         let resutls = await get_user({ variables: { _id: user_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.user }))
-            .catch(err => {
-                console.log(__error("Query Error: "), err)
-                return { error: { message: "Query Error" } }
-            })
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             set_fatelError((resutls && resutls?.error?.message) || "Store not found!")

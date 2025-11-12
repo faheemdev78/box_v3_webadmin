@@ -1,7 +1,8 @@
 #import "../../_fragment/error.graphql"
 #import "../../_fragment/DiscountReff.graphql"
-#import "../../_fragment/product/prod_AttributesSchemaReff.graphql"
 #import "./OrderTax.graphql"
+
+#import "../../product/_fragment/prod_AttributesSchemaReff.graphql"
 
 
 

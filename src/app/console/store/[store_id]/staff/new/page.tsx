@@ -15,7 +15,7 @@ import { AccTypesDD } from '@_/components/dropdowns';
 import { DevBlock, usePageProps } from '@_/components';
 import { PageHeader } from '@_/template';
 // import StoreWrapper from '@_/modules/store/storeWrapper';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import RECORD_ADD from '@_/graphql/users/addStoreStaff.graphql'
 import EDIT_ADD from '@_/graphql/users/editStoreStaff.graphql'
@@ -27,7 +27,6 @@ export default function StaffForm () {
     const [error, setError] = useState(false);
     const router = useRouter()
 
-    // const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE);
     const [addStoreStaff, add_details] = useMutation(RECORD_ADD); // { data, loading, error }
 
     const onSubmit = async (values) => {
@@ -52,10 +51,7 @@ export default function StaffForm () {
 
         const resutls = await addStoreStaff({ variables: { input } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.addStoreStaff }))
-            .catch(error => {
-                console.log(__error("Error: "), error)
-                return { error: { message: error.message || "Query Error" } }
-            });
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             setError((resutls && resutls.error.message) || "Invalid Response")

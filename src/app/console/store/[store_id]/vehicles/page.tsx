@@ -9,7 +9,7 @@ import { VehiclesList } from '@_/modules/vehicles';
 import { PageHeader } from '@_/template';
 import { Button, usePageProps } from '@_/components';
 import { Page } from '@_/template/page';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { __error } from '@_/lib/consoleHelper';
 
 import LIST_DATA from '@_/graphql/vehicles/vehiclesQuery.graphql'
@@ -31,10 +31,7 @@ export default function Vehicles() {
 
     const [deleteVehicle, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
 
-    const [vehiclesQuery, { called, loading }] = useLazyQuery(
-        LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [vehiclesQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called || loading) return
@@ -61,10 +58,7 @@ export default function Vehicles() {
             }
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.vehiclesQuery }))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Invalid response!" } }
-            })
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No records found!")

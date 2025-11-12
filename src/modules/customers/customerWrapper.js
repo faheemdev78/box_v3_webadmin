@@ -24,7 +24,7 @@ export function CustomerWrapper({ render, ...props }) {
     const [data, setData] = useState(null)
     const session = useSelector((state) => state.session);
 
-    const [getUser, { loading, called }] = useLazyQuery(GET_USER);
+    const [getUser, { loading, called }] = useLazyQuery(GET_USER, { fetchPolicy: "network-only" });
     const [updateUserStatus, status_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
     useEffect(() => {

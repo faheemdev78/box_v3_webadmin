@@ -7,6 +7,7 @@ import { Button, IconButton, Loader, Table } from '@_/components';
 import { CategoriesForm } from '@_/modules/categories';
 import { PageHeader } from '@_/template';
 import { __error, __yellow } from '@_/lib';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import LIST_DATA from '@_/graphql/product_cat/productCats.graphql'
 import RECORD_DELETE from '@_/graphql/product_cat/deleteProductCat.graphql';
@@ -27,10 +28,7 @@ export default function CategoriesPage (props) {
     // const [productCats, set_productCats] = useState(null)
     const [showCatForm, set_showCatForm] = useState({ show: false, fields: undefined })
 
-    const [get_productCats, { data, called, loading }] = useLazyQuery(
-        LIST_DATA,
-        // { variables: { filter: JSON.stringify({}) } }
-    );
+    const [get_productCats, { data, called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'cache-and-network' });
     const [deleteProductCat, del_details] = useMutation(RECORD_DELETE); // { data, loading, error }
 
     useEffect(() => {
@@ -41,11 +39,9 @@ export default function CategoriesPage (props) {
     const fetchData = async () => {
         console.log(__yellow("fetchData()"));
         
-        let results = await get_productCats({ fetchPolicy: 'cache-and-network' }).then(r => (r?.data?.productCats))
-            .catch(err => {
-                console.error(err)
-                return { error: { message: "Invalid response!" } }
-            })
+        let results = await get_productCats()
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.productCats }))
+            .catch(catchApolloError)
 
         if (results && results.error) {
             message.error((results && results?.error?.message) || "No categories found!")
@@ -55,12 +51,9 @@ export default function CategoriesPage (props) {
     const onUpdateCallback = () => fetchData()
 
     const handleDelete = async ({ _id }) => {
-        let results = await deleteProductCat(id)
-            .then(r => (r?.data?.deleteProductCat))
-            .catch(error => {
-                console.log(__error("ERROR"), error);
-                message.error("Invalid Response!")
-            })
+        let results = await deleteProductCat({ variables: { _id }})
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.deleteProductCat }))
+            .catch(catchApolloError)
 
         if (!results || results.error) {
             message.error((results && results?.error?.message) || "Unable to delete record")

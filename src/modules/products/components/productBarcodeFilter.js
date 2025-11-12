@@ -9,6 +9,7 @@ import _ from 'lodash';
 import { useMutation, useLazyQuery } from '@apollo/client';
 
 import PRODUCTS from '@_/graphql/product/products.graphql'
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 const renderItem = (id, title, picture_thumb) => ({
@@ -25,10 +26,7 @@ export const ProductBarcodeFilter = props => {
     const [busy, setBusy] = useState(false)
     const [results, setResults] = useState([])
 
-    const [products, { called, loading }] = useLazyQuery(
-        PRODUCTS,
-        { variables: { filter: JSON.stringify({}) } }
-    );
+    const [products, { called, loading }] = useLazyQuery(PRODUCTS, { fetchPolicy: "no-cache" });
 
     const searchProduct = async(value) => {
         setResults([
@@ -39,17 +37,12 @@ export const ProductBarcodeFilter = props => {
             }
         ]);
 
-
         let results = await products({ 
             variables: { filter: JSON.stringify({ barcode: value }) },
-            fetchPolicy: "no-cache",
         })
-            .then(r => r?.data?.products)
-            .catch(err=>{
-                console.log(__error("Error: "), err)
-                return { error:{message:"Invalid response!"}}
-            })
-
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.products }))
+            .catch(catchApolloError)
+        
         setResults([])
 
         if (results && results.error){

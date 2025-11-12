@@ -1,4 +1,4 @@
-#import "../_fragment/product/ProductAttributes.graphql"
+#import "./_fragment/ProductAttributes.graphql"
 
 query productAttribute($id: ID!) {
     productAttribute(id: $id) {

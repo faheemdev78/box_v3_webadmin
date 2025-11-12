@@ -1,36 +1,44 @@
 /**
  * Custom hooks for Till Verification operations
- * Wraps GraphQL queries and mutations with Redux state management
+ * Updated for shift-based system
  */
 
+import React from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { useAppDispatch, useAppSelector } from '@_/rStore/hooks';
 import {
-  startSession,
-  endSession,
-  holdCurrentSession,
-  resumeHeldSession,
-  verifyItem,
-  markItemMissing,
-  markItemMismatch,
+  setActiveShift,
+  clearShift,
+  setCurrentOrder,
+  setQueueLoading,
   setLoading,
-  getActiveSession,
-  getVerificationProgress,
-  getHeldSessions,
+  getActiveShift,
+  getCurrentOrderId,
 } from '@_/rStore/slices/tillVerificationSlice';
+import { __error } from '@_/lib/consoleHelper';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import GET_TILL_QUEUE from '@_/graphql/till_verification/getTillVerificationQueue.graphql';
-import START_TILL_SESSION from '@_/graphql/till_verification/startTillVerificationSession.graphql';
-import HOLD_TILL_SESSION from '@_/graphql/till_verification/holdTillVerificationSession.graphql';
-import RESUME_TILL_SESSION from '@_/graphql/till_verification/resumeTillVerificationSession.graphql';
-import COMPLETE_TILL_SESSION from '@_/graphql/till_verification/completeTillVerificationSession.graphql';
-import CANCEL_TILL_SESSION from '@_/graphql/till_verification/cancelTillVerificationSession.graphql';
-import GET_HELD_SESSIONS from '@_/graphql/till_verification/getHeldTillSessions.graphql';
-import GET_ACTIVE_SESSION from '@_/graphql/till_verification/getActiveTillSession.graphql';
+import GET_MY_ACTIVE_SHIFT from '@_/graphql/till_verification/getMyActiveTillShift.graphql';
+// import GET_MY_LOCKED_ORDERS from '@_/graphql/till_verification/getMyLockedOrders.graphql';
+import OPEN_TILL_SHIFT from '@_/graphql/till_verification/openTillShift.graphql';
+import CLOSE_TILL_SHIFT from '@_/graphql/till_verification/closeTillShift.graphql';
+import START_ORDER_VERIFICATION from '@_/graphql/till_verification/startOrderVerification.graphql';
+import COMPLETE_ORDER_VERIFICATION from '@_/graphql/till_verification/completeOrderVerification.graphql';
+import VERIFY_ORDER_ITEM from '@_/graphql/till_verification/verifyOrderItem.graphql';
+import MARK_ORDER_ITEM_MISSING from '@_/graphql/till_verification/markOrderItemMissing.graphql';
+import MARK_ORDER_ITEM_DAMAGED from '@_/graphql/till_verification/markOrderItemDamaged.graphql';
+import MARK_ORDER_ITEM_MISMATCH from '@_/graphql/till_verification/markOrderItemMismatch.graphql';
+import PRINT_TILL_RECEIPT from '@_/graphql/till_verification/printTillReceipt.graphql';
+
+// ===================================
+// Shift Management Hooks
+// ===================================
 
 /**
  * Hook for getting till verification queue
  */
+// TODO: REMOVE this
 export const useTillVerificationQueue = (_id_store: string, limit = 50, page = 1) => {
   const { data, loading, error, refetch } = useQuery(GET_TILL_QUEUE, {
     variables: { _id_store, limit, page },
@@ -47,317 +55,409 @@ export const useTillVerificationQueue = (_id_store: string, limit = 50, page = 1
 };
 
 /**
- * Hook for starting a till verification session
+ * Hook for getting my active till shift
  */
-export const useStartTillSession = () => {
+export const useMyActiveTillShift = () => {
   const dispatch = useAppDispatch();
-  const [startSessionMutation, { loading }] = useMutation(START_TILL_SESSION);
-
-  const startTillSession = async (_id_order: string) => {
-    dispatch(setLoading(true));
-    try {
-      const result = await startSessionMutation({
-        variables: {
-          input: { _id_order },
-        },
-      });
-
-      const response = result.data?.startTillVerificationSession;
-
-      if (response?.error) {
-        throw new Error(response.error.message);
-      }
-
-      if (response?.session) {
-        // Initialize Redux state with session data
-        dispatch(
-          startSession({
-            _id_session: response.session._id,
-            _id_order: response.session._id_order,
-            order_data: response.session.order_data,
-          })
-        );
-      }
-
-      return response;
-    } catch (error) {
-      console.error('Error starting till session:', error);
-      throw error;
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-
-  return { startTillSession, loading };
-};
-
-/**
- * Hook for holding current session
- */
-export const useHoldTillSession = () => {
-  const dispatch = useAppDispatch();
-  const activeSession = useAppSelector(getActiveSession);
-  const verificationProgress = useAppSelector(getVerificationProgress);
-  const [holdSessionMutation, { loading }] = useMutation(HOLD_TILL_SESSION);
-
-  const holdSession = async (notes?: string) => {
-    if (!activeSession._id_session) {
-      throw new Error('No active session to hold');
-    }
-
-    dispatch(setLoading(true));
-    try {
-      // Convert Redux state to GraphQL input format
-      const itemsArray = Object.entries(verificationProgress.items).map(([_id_item, item]) => ({
-        _id_item,
-        status: item.status.toUpperCase(),
-        qty_expected: item.qty_expected,
-        qty_verified: item.qty_verified,
-        notes: item.notes,
-        substitute_product_id: item.substitute_product?._id,
-      }));
-
-      const result = await holdSessionMutation({
-        variables: {
-          input: {
-            _id_session: activeSession._id_session,
-            current_progress: {
-              items: itemsArray,
-              stats: verificationProgress.stats,
-            },
-            notes,
-          },
-        },
-      });
-
-      const response = result.data?.holdTillVerificationSession;
-
-      if (response?.error) {
-        throw new Error(response.error.message);
-      }
-
-      // Update Redux state
-      dispatch(holdCurrentSession());
-
-      return response;
-    } catch (error) {
-      console.error('Error holding session:', error);
-      throw error;
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-
-  return { holdSession, loading };
-};
-
-/**
- * Hook for resuming a held session
- */
-export const useResumeTillSession = () => {
-  const dispatch = useAppDispatch();
-  const [resumeSessionMutation, { loading }] = useMutation(RESUME_TILL_SESSION);
-
-  const resumeSession = async (_id_session: string) => {
-    dispatch(setLoading(true));
-    try {
-      const result = await resumeSessionMutation({
-        variables: { _id_session },
-      });
-
-      const response = result.data?.resumeTillVerificationSession;
-
-      if (response?.error) {
-        throw new Error(response.error.message);
-      }
-
-      if (response?.session) {
-        // Restore Redux state from held session
-        dispatch(
-          resumeHeldSession({
-            _id_session: response.session._id,
-            order_data: response.session.order_data,
-          })
-        );
-      }
-
-      return response;
-    } catch (error) {
-      console.error('Error resuming session:', error);
-      throw error;
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-
-  return { resumeSession, loading };
-};
-
-/**
- * Hook for completing verification session
- */
-export const useCompleteTillSession = () => {
-  const dispatch = useAppDispatch();
-  const activeSession = useAppSelector(getActiveSession);
-  const verificationProgress = useAppSelector(getVerificationProgress);
-  const [completeSessionMutation, { loading }] = useMutation(COMPLETE_TILL_SESSION);
-
-  const completeSession = async (delivery_baskets: string[], notes?: string) => {
-    if (!activeSession._id_session) {
-      throw new Error('No active session to complete');
-    }
-
-    dispatch(setLoading(true));
-    try {
-      // Convert Redux state to GraphQL input format
-      const itemsArray = Object.entries(verificationProgress.items).map(([_id_item, item]) => ({
-        _id_item,
-        status: item.status.toUpperCase(),
-        qty_expected: item.qty_expected,
-        qty_verified: item.qty_verified,
-        notes: item.notes,
-        substitute_product_id: item.substitute_product?._id,
-      }));
-
-      const result = await completeSessionMutation({
-        variables: {
-          input: {
-            _id_session: activeSession._id_session,
-            verification_data: {
-              items: itemsArray,
-              stats: verificationProgress.stats,
-            },
-            delivery_baskets,
-            notes,
-          },
-        },
-      });
-
-      const response = result.data?.completeTillVerificationSession;
-
-      if (response?.error) {
-        throw new Error(response.error.message);
-      }
-
-      // Clear Redux state
-      dispatch(endSession());
-
-      return response;
-    } catch (error) {
-      console.error('Error completing session:', error);
-      throw error;
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-
-  return { completeSession, loading };
-};
-
-/**
- * Hook for canceling session
- */
-export const useCancelTillSession = () => {
-  const dispatch = useAppDispatch();
-  const activeSession = useAppSelector(getActiveSession);
-  const [cancelSessionMutation, { loading }] = useMutation(CANCEL_TILL_SESSION);
-
-  const cancelSession = async (reason: string) => {
-    if (!activeSession._id_session) {
-      throw new Error('No active session to cancel');
-    }
-
-    dispatch(setLoading(true));
-    try {
-      const result = await cancelSessionMutation({
-        variables: {
-          input: {
-            _id_session: activeSession._id_session,
-            reason,
-          },
-        },
-      });
-
-      const response = result.data?.cancelTillVerificationSession;
-
-      if (response?.error) {
-        throw new Error(response.error.message);
-      }
-
-      // Clear Redux state
-      dispatch(endSession());
-
-      return response;
-    } catch (error) {
-      console.error('Error canceling session:', error);
-      throw error;
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
-
-  return { cancelSession, loading };
-};
-
-/**
- * Hook for getting held sessions
- */
-export const useHeldTillSessions = (_id_store: string) => {
-  const { data, loading, error, refetch } = useQuery(GET_HELD_SESSIONS, {
-    variables: { _id_store },
-    skip: !_id_store,
+  const { data, loading, error, refetch } = useQuery(GET_MY_ACTIVE_SHIFT, {
+    fetchPolicy: 'cache-and-network',
   });
 
+  // Auto-update Redux when shift data changes (in useEffect to avoid setState during render)
+  React.useEffect(() => {
+    if (data?.getMyActiveTillShift?.session && !loading) {
+      const session = data.getMyActiveTillShift.session;
+      dispatch(
+        setActiveShift({
+          _id: session._id,
+          session_started_at: session.session_started_at,
+          performance: session.performance,
+        })
+      );
+    } else if (!data?.getMyActiveTillShift?.session && !loading) {
+      dispatch(setActiveShift(null));
+    }
+  }, [data, loading, dispatch]);
+
   return {
-    sessions: data?.getHeldTillSessions?.sessions || [],
-    total: data?.getHeldTillSessions?.total || 0,
+    session: data?.getMyActiveTillShift?.session,
     loading,
-    error: error || data?.getHeldTillSessions?.error,
+    error: error || data?.getMyActiveTillShift?.error,
     refetch,
   };
 };
 
 /**
- * Hook for getting active session on mount (recovery)
+ * Hook for getting my locked orders
  */
-export const useActiveTillSession = () => {
+// export const useMyLockedOrders = () => {
+//   // const { data, loading, error, refetch } = useQuery(GET_MY_LOCKED_ORDERS, {
+//   //   fetchPolicy: 'cache-and-network',
+//   //   pollInterval: 10000, // Refresh every 10 seconds
+//   // });
+
+//   const { data, loading, error, refetch } = useQuery(GET_MY_LOCKED_ORDERS, {
+//     fetchPolicy: 'network-only',
+//     // pollInterval: 10000, // Refresh every 10 seconds
+//   });
+  
+//   if (!loading) console.log("data, loading: ", {data})
+
+//   return {
+//     orders: data?.getMyLockedOrders || [],
+//     total: data?.getMyLockedOrders?.length || 0,
+//     loading,
+//     error: error,
+//     refetch,
+//   };
+// };
+
+/**
+ * Hook for opening till shift
+ */
+export const useOpenTillShift = () => {
   const dispatch = useAppDispatch();
-  const { data, loading, error } = useQuery(GET_ACTIVE_SESSION);
+  const [openShiftMutation, { loading }] = useMutation(OPEN_TILL_SHIFT);
 
-  // Auto-restore session if found
-  if (data?.getActiveTillSession?.session && !loading) {
-    const session = data.getActiveTillSession.session;
-    dispatch(
-      startSession({
-        _id_session: session._id,
-        _id_order: session._id_order,
-        order_data: session.order_data,
-      })
-    );
-  }
+  const openShift = async (_id_store?: string) => {
+    dispatch(setLoading(true));
+    const response = await openShiftMutation({
+      variables: _id_store ? { _id_store } : undefined,
+    })
+      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.openTillShift }))
+      .catch(catchApolloError)
+    dispatch(setLoading(false));
+      
+    if (response?.error) {
+      console.log(__error("response: "), response)
+      throw new Error(response.error.message);
+    }
+    
+    if (response?.session) {
+      dispatch(
+        setActiveShift({
+          _id: response.session._id,
+          session_started_at: response.session.session_started_at,
+          performance: response.session.performance,
+        })
+      );
+    }
 
-  return {
-    session: data?.getActiveTillSession?.session,
-    loading,
-    error: error || data?.getActiveTillSession?.error,
+    return response;
+    
+    // try {
+    // } catch (error) {
+    //   console.error('Error opening till shift:', error);
+    //   throw error;
+    // } finally {
+    //   dispatch(setLoading(false));
+    // }
   };
+
+  return { openShift, loading };
 };
 
 /**
- * Hook for item verification actions
+ * Hook for closing till shift
  */
-export const useItemVerification = () => {
+export const useCloseTillShift = () => {
+  const dispatch = useAppDispatch();
+  const [closeShiftMutation, { loading }] = useMutation(CLOSE_TILL_SHIFT);
+
+  const closeShift = async (notes?: string) => {
+    dispatch(setLoading(true));
+    try {
+      const result = await closeShiftMutation({
+        variables: { notes },
+      });
+
+      const response = result.data?.closeTillShift;
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      // Clear Redux state
+      dispatch(clearShift());
+
+      return response;
+    } catch (error) {
+      console.error('Error closing till shift:', error);
+      throw error;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  return { closeShift, loading };
+};
+
+// ===================================
+// Order Verification Hooks
+// ===================================
+
+/**
+ * Hook for starting order verification
+ */
+export const useStartOrderVerification = () => {
   const dispatch = useAppDispatch();
 
-  return {
-    verifyItem: (itemId: string, qty?: number) => {
-      dispatch(verifyItem({ itemId, qty }));
-    },
-    markMissing: (itemId: string, notes?: string) => {
-      dispatch(markItemMissing({ itemId, notes }));
-    },
-    markMismatch: (itemId: string, qty_verified: number, notes?: string) => {
-      dispatch(markItemMismatch({ itemId, qty_verified, notes }));
-    },
+  const [startOrderMutation, { loading }] = useMutation(START_ORDER_VERIFICATION, {
+    refetchQueries: [GET_TILL_QUEUE],
+    // refetchQueries: [GET_MY_LOCKED_ORDERS, GET_TILL_QUEUE],
+  });
+
+  const startOrder = async (_id_order: string) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await startOrderMutation({
+        variables: { _id_order },
+      })
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr:any) => rr?.data?.startOrderVerification }))
+        .catch(catchApolloError)
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      // Set as current order in Redux
+      if (response?.order) {
+        dispatch(setCurrentOrder(_id_order));
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error starting order verification:', error);
+      throw error;
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
+
+  return { startOrder, loading };
+};
+
+/**
+ * Hook for completing order verification
+ */
+export const useCompleteOrderVerification = () => {
+  const dispatch = useAppDispatch();
+  const [completeOrderMutation, { loading }] = useMutation(COMPLETE_ORDER_VERIFICATION, {
+    refetchQueries: [GET_TILL_QUEUE, GET_MY_ACTIVE_SHIFT],
+    // refetchQueries: [GET_MY_LOCKED_ORDERS, GET_TILL_QUEUE, GET_MY_ACTIVE_SHIFT],
+  });
+
+  const completeOrder = async (
+    _id_order: string,
+    delivery_basket_ids: string[],
+    notes?: string
+  ) => {
+    dispatch(setLoading(true));
+    try {
+      const result = await completeOrderMutation({
+        variables: { _id_order, delivery_basket_ids, notes },
+      });
+
+      const response = result.data?.completeOrderVerification;
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      // Clear current order from Redux
+      dispatch(setCurrentOrder(null));
+
+      return response;
+    } catch (error) {
+      console.error('Error completing order verification:', error);
+      throw error;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  return { completeOrder, loading };
+};
+
+// ===================================
+// Item Verification Hooks
+// ===================================
+
+/**
+ * Hook for verifying order item
+ */
+export const useVerifyOrderItem = () => {
+  const [verifyItemMutation, { loading }] = useMutation(VERIFY_ORDER_ITEM, {
+    // refetchQueries: [GET_MY_LOCKED_ORDERS],
+  });
+
+  const verifyItem = async (_id_order: string, _id_product: string, qty_verified: number) => {
+    try {
+      const result = await verifyItemMutation({
+        variables: { _id_order, _id_product, qty_verified },
+      });
+
+      const response = result.data?.verifyOrderItem;
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error verifying item:', error);
+      throw error;
+    }
+  };
+
+  return { verifyItem, loading };
+};
+
+/**
+ * Hook for marking item as missing
+ */
+export const useMarkOrderItemMissing = () => {
+  const [markMissingMutation, { loading }] = useMutation(MARK_ORDER_ITEM_MISSING, {
+    // refetchQueries: [GET_MY_LOCKED_ORDERS],
+  });
+
+  const markMissing = async (_id_order: string, _id_product: string, reason: string) => {
+    try {
+      const result = await markMissingMutation({
+        variables: { _id_order, _id_product, reason },
+      });
+
+      const response = result.data?.markOrderItemMissing;
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error marking item missing:', error);
+      throw error;
+    }
+  };
+
+  return { markMissing, loading };
+};
+
+/**
+ * Hook for marking item as damaged
+ */
+export const useMarkOrderItemDamaged = () => {
+  const [markDamagedMutation, { loading }] = useMutation(MARK_ORDER_ITEM_DAMAGED, {
+    // refetchQueries: [GET_MY_LOCKED_ORDERS],
+  });
+
+  const markDamaged = async (_id_order: string, _id_product: string, reason: string) => {
+    try {
+      const result = await markDamagedMutation({
+        variables: { _id_order, _id_product, reason },
+      });
+
+      const response = result.data?.markOrderItemDamaged;
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error marking item damaged:', error);
+      throw error;
+    }
+  };
+
+  return { markDamaged, loading };
+};
+
+/**
+ * Hook for marking item quantity mismatch
+ */
+export const useMarkOrderItemMismatch = () => {
+  const [markMismatchMutation, { loading }] = useMutation(MARK_ORDER_ITEM_MISMATCH, {
+    // refetchQueries: [GET_MY_LOCKED_ORDERS],
+  });
+
+  const markMismatch = async (
+    _id_order: string,
+    _id_product: string,
+    qty_verified: number,
+    reason: string
+  ) => {
+    try {
+      const result = await markMismatchMutation({
+        variables: { _id_order, _id_product, qty_verified, reason },
+      });
+
+      const response = result.data?.markOrderItemMismatch;
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error marking item mismatch:', error);
+      throw error;
+    }
+  };
+
+  return { markMismatch, loading };
+};
+
+// ===================================
+// Composite Hooks
+// ===================================
+
+/**
+ * Combined hook for item verification actions
+ */
+export const useItemVerificationActions = () => {
+  const { verifyItem, loading: verifyLoading } = useVerifyOrderItem();
+  const { markMissing, loading: missingLoading } = useMarkOrderItemMissing();
+  const { markDamaged, loading: damagedLoading } = useMarkOrderItemDamaged();
+  const { markMismatch, loading: mismatchLoading } = useMarkOrderItemMismatch();
+
+  return {
+    verifyItem,
+    markMissing,
+    markDamaged,
+    markMismatch,
+    loading: verifyLoading || missingLoading || damagedLoading || mismatchLoading,
+  };
+};
+
+// ===================================
+// Receipt Printing Hook
+// ===================================
+
+/**
+ * Hook for printing till receipt
+ */
+export const usePrintTillReceipt = () => {
+  const [printReceiptMutation, { loading }] = useMutation(PRINT_TILL_RECEIPT);
+
+  const printReceipt = async (_id_order: string) => {
+    try {
+      const result = await printReceiptMutation({
+        variables: { _id_order },
+      });
+
+      const response = result.data?.printTillReceipt;
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error printing receipt:', error);
+      throw error;
+    }
+  };
+
+  return { printReceipt, loading };
 };

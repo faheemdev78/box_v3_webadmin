@@ -1,0 +1,25 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+
+mutation OpenTillShift($_id_store: ID) {
+  openTillShift(_id_store: $_id_store) {
+    session {
+      _id
+      _id_staff
+      _id_store
+      session_type
+      status
+      session_started_at
+      performance {
+        total_units_processed
+        successful_units
+      }
+    }
+    success {
+      ...SuccessInfo
+    }
+    error {
+      ...ErrorInfo
+    }
+  }
+}

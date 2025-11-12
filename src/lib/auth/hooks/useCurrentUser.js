@@ -11,10 +11,7 @@ export const useCurrentUser = () => {
 
     const [token, setToken] = useState(null);
 
-    const [loadGreeting, { called, loading, data }] = useLazyQuery(
-        GET_CURRENT_USER,
-        { fetchPolicy: "network-only" }
-    );
+    const [loadGreeting, { called, loading, data }] = useLazyQuery(GET_CURRENT_USER, { fetchPolicy: "network-only" });
 
     useEffect(() => { // This only runs on client-side
         if (token !== null || called) return;

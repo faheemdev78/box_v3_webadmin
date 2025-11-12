@@ -6,7 +6,7 @@ import { Loader, StatusTag } from '@_/components';
 import { adminRoot, publishStatus } from '@_/configs';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import GET_ZONE from '@_/graphql/geo_zone/geoZone.graphql';
 import UPDATE_STATUS from '@_/graphql/geo_zone/editGeoZone.graphql'
@@ -16,7 +16,7 @@ export default function ZoneWrapper({ render, ...props }) {
 
     const [fatelError, set_fatelError] = useState(null)
 
-    const [get_geoZone, { loading, data, called }] = useLazyQuery(GET_ZONE);
+    const [get_geoZone, { loading, data, called }] = useLazyQuery(GET_ZONE, { fetchPolicy: "network-only" });
     const [editGeoZone, edit_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
     useEffect(() => {
@@ -27,10 +27,7 @@ export default function ZoneWrapper({ render, ...props }) {
     const fetchData = async () => {
         let resutls = await get_geoZone({ variables: { _id: zone_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZone }))
-            .catch(err => {
-                console.log(__error("Query Error: "), err)
-                return { error: { message: "Query Error" } }
-            })
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             set_fatelError((resutls && resutls?.error?.message) || "Zone not found!")

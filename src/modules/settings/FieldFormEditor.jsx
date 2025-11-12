@@ -4,7 +4,7 @@ import { Drawer, Button, Heading, Icon, Loader, DevBlock, IconButton } from '@/c
 import { message, Row, Col, Modal, Alert } from 'antd';
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client';
 import { __error } from '@_/lib/consoleHelper';
-import { dateToUtc } from '@_/lib/utill';
+import { catchApolloError, checkApolloRequestErrors, dateToUtc } from '@_/lib/utill';
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@_/components/form';
 import arrayMutators from 'final-form-arrays'
@@ -17,7 +17,6 @@ import EDIT_VALUE from '@_/graphql/value_pairs/editValuePairs.graphql';
 
 
 const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, client }) => {
-    // const [get_valuePair, { called, loading, error, data }] = useLazyQuery(GET_VALUE);
     const [addValuePairs, add_details] = useMutation(ADD_VALUE);
     const [editValuePairs, edit_details] = useMutation(EDIT_VALUE);
     // const { data, loading } = useSubscription(QUERY_SUBSCRIPTION, { variables: { postID } });
@@ -49,12 +48,9 @@ const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, c
 
     const updateSettings = async (input) => {
         let resutls = await editValuePairs({ variables: { input } })
-            .then(({ data }) => (data && data.editValuePairs))
-            .catch(err => {
-                console.error(err)
-                return { error: { message: "Request Error" } }
-            })
-
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.editValuePairs }))
+            .catch(catchApolloError)
+        
         if (!resutls || resutls?.error?.message) {
             alert((resutls && resutls?.error?.message) || "Invalid response!");
             return false;
@@ -66,11 +62,8 @@ const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, c
 
     const addSettings = async (input) => {
         let resutls = await addValuePairs({ variables: { input } })
-            .then(({ data }) => (data && data.addValuePairs))
-            .catch(err => {
-                console.error(err)
-                return { error: { message:"Request Error" }}
-            })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.addValuePairs }))
+            .catch(catchApolloError)
 
         if (!resutls || resutls?.error?.message) {
             alert((resutls && resutls?.error?.message) || "Invalid response!");

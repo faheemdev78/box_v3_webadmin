@@ -319,7 +319,7 @@ function RenderGroup({ initialValues, title, refetchData, session, onEditField }
 
 
 export default function SettingsPage (props) {
-    const [getValuePairs, { called, loading, data }] = useLazyQuery(GET_VALUES);
+    const [getValuePairs, { called, loading, data }] = useLazyQuery(GET_VALUES, { fetchPolicy: "network-only" });
     const [updateValuePairArray, edit_details] = useMutation(EDIT_MULTIPLE);
     const [deleteValuePairs, del_details] = useMutation(DEL_SETTINGS);
 
@@ -349,8 +349,7 @@ export default function SettingsPage (props) {
                 filter: JSON.stringify({
                     department: "sys_configs",
                 })
-            },
-            fetchPolicy: "network-only"
+            }
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.valuePairs }))
             .catch(catchApolloError)

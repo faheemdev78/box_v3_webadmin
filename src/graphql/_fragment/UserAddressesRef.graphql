@@ -1,0 +1,18 @@
+#import "./GeoPointReff.graphql"
+
+fragment UserAddressesRefInfo on UserAddressesRef {
+  _id
+  title
+  _id_user
+  full_address
+  city {
+    _id title
+    # code child_of
+    # center: GeoPointReff
+    # type status
+  }
+  geo_point { ...GeoPointReffInfo }
+  delivery_instructions
+  is_default
+  verified
+}

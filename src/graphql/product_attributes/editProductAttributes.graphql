@@ -1,4 +1,4 @@
-#import "../_fragment/product/ProductAttributes.graphql"
+#import "./_fragment/ProductAttributes.graphql"
 
 mutation editProductAttributes($input: Edit_ProductAttributesInput!) {
     editProductAttributes(input: $input) {

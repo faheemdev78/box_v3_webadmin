@@ -1,4 +1,4 @@
-#import "../_fragment/settings.graphql"
+#import "./_fragment/settings.graphql"
 
 mutation updateSettingsSort($input: [Edit_SettingsSort!]!) {
     updateSettingsSort(input: $input) {

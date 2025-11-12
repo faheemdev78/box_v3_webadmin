@@ -16,11 +16,11 @@ export const topMenuArray = [
     },
     { title: 'Orders', href: `${adminRoot}/orders`, modulePermessions: '106',
         children: [
-            { title: 'Orders List', href: `${adminRoot}/orders`, modulePermessions: '106' },
-            { title: 'Orders on Till', href: `${adminRoot}/orders-on-till`, rolePermessions: '104.1' },
-            { title: 'Ready to Dispatch', href: `${adminRoot}/ready-to-dispatch`, rolePermessions: '104.1' },
-            { title: 'Dispatched', href: `${adminRoot}/dispatched`, rolePermessions: '104.1' },
-            { title: 'Cart', href: `${adminRoot}/cart`, rolePermessions: '104.1' },
+            { title: 'Orders', href: `${adminRoot}/orders`, modulePermessions: '106' },
+            // { title: 'Orders on Till', href: `${adminRoot}/orders-on-till`, rolePermessions: '104.1' },
+            // { title: 'Ready to Dispatch', href: `${adminRoot}/ready-to-dispatch`, rolePermessions: '104.1' },
+            // { title: 'Dispatched', href: `${adminRoot}/dispatched`, rolePermessions: '104.1' },
+            { title: 'Carts', href: `${adminRoot}/cart`, rolePermessions: '104.1' },
         ]
     },
     { title: 'Stores', href: `${adminRoot}/stores`, rolePermessions: "103.0",
@@ -35,11 +35,11 @@ export const topMenuArray = [
             // { title: 'Vendors', href: `${adminRoot}/store/{ID}/vendors` },
         ]
     },
-    { title: 'Composer', href: `${adminRoot}/composer`, modulePermessions: '1000',
-        children: [
-            { title: 'Components', href: `${adminRoot}/composer/components`, rolePermessions: '1000.3' },
-            { title: 'Pages', href: `${adminRoot}/composer/pages` },
-        ]
+    { title: 'Composer', href: `${adminRoot}/composer/pages`, modulePermessions: '1000',
+        // children: [
+        //     { title: 'Components', href: `${adminRoot}/composer/components`, rolePermessions: '1000.3' },
+        //     { title: 'Pages', href: `${adminRoot}/composer/pages` },
+        // ]
     },
 
     {
@@ -49,8 +49,10 @@ export const topMenuArray = [
             { title: 'Users', href: `${adminRoot}/users`, rolePermessions: '100.0' }, // modulePermessions
             { title: 'Locations', href: `${adminRoot}/locations`, rolePermessions: '900.1' },
             { title: 'Tags', href: `${adminRoot}/tags`, rolePermessions: '900.4' },
-            { title: 'Customers', href: `${adminRoot}/customers`, rolePermessions: '1002.1' },
+            { title: 'Customers', href: `${adminRoot}/customer`, rolePermessions: '1002.1' },
+            { title: 'Staff', href: `${adminRoot}/staff`, rolePermessions: '100.10' },
             { title: 'Vouchers', href: `${adminRoot}/vouchers`, rolePermessions: '1003.1' },
+            { title: 'View Manager', href: `${adminRoot}/view_manager`, modulePermessions: '1004' },
         ]
     },
 ]

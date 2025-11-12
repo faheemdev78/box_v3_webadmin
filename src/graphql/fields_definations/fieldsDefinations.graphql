@@ -1,4 +1,4 @@
-#import "../_fragment/fieldsDefination.graphql"
+#import "./_fragment/fieldsDefination.graphql"
 
 query fieldsDefinations($filter: String, $others:String) {
     fieldsDefinations(filter: $filter, others:$others) {

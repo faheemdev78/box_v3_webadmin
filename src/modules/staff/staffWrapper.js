@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { __error } from '@_/lib/consoleHelper';
 import { useParams } from 'next/navigation';
 import { PageBar, PageHeader } from '@_/template';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import GET_STAFF from '@_/graphql/users/user.graphql';
 import UPDATE_STATUS from '@_/graphql/users/updateUserStatus.graphql'
@@ -18,7 +18,7 @@ export function StaffWrapper({ render, ...props }) {
 
     const [fatelError, set_fatelError] = useState(null)
 
-    const [get_user, { loading, data, called }] = useLazyQuery(GET_STAFF);
+    const [get_user, { loading, data, called }] = useLazyQuery(GET_STAFF, { fetchPolicy: "no-cache" });
     const [updateUserStatus, edit_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
     useEffect(() => {
@@ -29,10 +29,7 @@ export function StaffWrapper({ render, ...props }) {
     const fetchData = async () => {
         let resutls = await get_user({ variables: { _id: user_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.user }))
-            .catch(err => {
-                console.log(__error("Query Error: "), err)
-                return { error: { message: "Query Error" } }
-            })
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             set_fatelError((resutls && resutls?.error?.message) || "Staff not found!")
@@ -53,11 +50,8 @@ export function StaffWrapper({ render, ...props }) {
                     status: values.status
                 }
             })
-            .then(r => (r?.data?.updateUserStatus))
-            .catch(err => {
-                console.log(__error("Error: "), err);
-                return { error: { message: "Request Error!" } }
-            })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.updateUserStatus }))
+            .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             message.error((resutls && resutls?.error?.message) || "Unable to update user status!");

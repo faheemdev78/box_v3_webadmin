@@ -1,0 +1,34 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+
+mutation MarkOrderItemMismatch(
+  $_id_order: ID!
+  $_id_product: ID!
+  $qty_verified: Int!
+  $reason: String!
+) {
+  markOrderItemMismatch(
+    _id_order: $_id_order
+    _id_product: $_id_product
+    qty_verified: $qty_verified
+    reason: $reason
+  ) {
+    order {
+      _id
+      current_order {
+        items {
+          _id_product
+          status
+          processed_qty
+          issue_reason
+        }
+      }
+    }
+    success {
+      ...SuccessInfo
+    }
+    error {
+      ...ErrorInfo
+    }
+  }
+}

@@ -26,4 +26,6 @@ export * from './dnd_containers';
 export * from './prodCatTreeSelection';
 export * from './prodAttributesSelector';
 
+export * from './orderTable';
+
 export * from './pageProps';
