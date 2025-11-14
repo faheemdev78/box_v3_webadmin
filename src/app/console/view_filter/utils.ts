@@ -31,7 +31,8 @@ export function generateTableColumns(
   customRenderers?: Record<string, (value: any, record?: any) => React.ReactNode>,
   customColumns?: Record<string, Partial<any>>
 ) {
-  return visibleColumnKeys.map(columnKey => {
+  // Process configured columns
+  const configuredColumns = visibleColumnKeys.map(columnKey => {
     const columnDef = config.availableColumns.find(col => col.key === columnKey);
     const fieldDef = config.fields.find(field => field.key === columnKey);
 
@@ -105,6 +106,41 @@ export function generateTableColumns(
 
     return baseColumn;
   }).filter(Boolean); // Remove any null columns
+
+  // Add unconfigured columns from customColumns
+  // These are columns that exist in customColumns but not in the entity configuration
+  if (customColumns) {
+    const unconfiguredColumns = Object.keys(customColumns)
+      .filter(columnKey => {
+        // Check if this column is NOT in the entity config
+        const isInConfig = config.availableColumns.some(col => col.key === columnKey);
+        return !isInConfig;
+      })
+      .map(columnKey => {
+        const customConfig = customColumns[columnKey];
+
+        // Create a minimal column configuration for unconfigured columns
+        const baseUnconfiguredColumn: any = {
+          key: columnKey,
+          dataIndex: columnKey,
+          title: customConfig.title || columnKey, // Use provided title or default to key
+          width: customConfig.width || 150,
+          align: customConfig.align || 'left',
+          render: customConfig.render || ((value: any) => value || '--')
+        };
+
+        // Merge with any other custom properties
+        return {
+          ...baseUnconfiguredColumn,
+          ...customConfig
+        };
+      });
+
+    // Append unconfigured columns at the end
+    return [...configuredColumns, ...unconfiguredColumns];
+  }
+
+  return configuredColumns;
 }
 
 /**

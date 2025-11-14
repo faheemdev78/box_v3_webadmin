@@ -14,15 +14,15 @@ export const topMenuArray = [
             { title: 'Product Fields', href: `${adminRoot}/product_props/fields`, rolePermessions: '104.8' },
         ]
     },
-    { title: 'Orders', href: `${adminRoot}/orders`, modulePermessions: '106',
-        children: [
-            { title: 'Orders', href: `${adminRoot}/orders`, modulePermessions: '106' },
-            // { title: 'Orders on Till', href: `${adminRoot}/orders-on-till`, rolePermessions: '104.1' },
-            // { title: 'Ready to Dispatch', href: `${adminRoot}/ready-to-dispatch`, rolePermessions: '104.1' },
-            // { title: 'Dispatched', href: `${adminRoot}/dispatched`, rolePermessions: '104.1' },
-            { title: 'Carts', href: `${adminRoot}/cart`, rolePermessions: '104.1' },
-        ]
-    },
+    // { title: 'Orders', href: `${adminRoot}/orders`, modulePermessions: '106',
+    //     children: [
+    //         { title: 'Orders', href: `${adminRoot}/orders`, modulePermessions: '106' },
+    //         // { title: 'Orders on Till', href: `${adminRoot}/orders-on-till`, rolePermessions: '104.1' },
+    //         // { title: 'Ready to Dispatch', href: `${adminRoot}/ready-to-dispatch`, rolePermessions: '104.1' },
+    //         // { title: 'Dispatched', href: `${adminRoot}/dispatched`, rolePermessions: '104.1' },
+    //         { title: 'Carts', href: `${adminRoot}/cart`, rolePermessions: '104.1' },
+    //     ]
+    // },
     { title: 'Stores', href: `${adminRoot}/stores`, rolePermessions: "103.0",
         children: [
             // { title: 'Baskets', href: `${adminRoot}/store/{ID}/baskets` },

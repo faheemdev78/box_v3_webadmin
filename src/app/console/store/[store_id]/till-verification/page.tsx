@@ -38,7 +38,7 @@ import { getActiveShift } from '@_/rStore/slices/tillVerificationSlice';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import duration from 'dayjs/plugin/duration';
-import { Loader, OrderTable, Button, usePageProps, DevBlock } from '@_/components';
+import { Loader, OrderTable, Button, usePageProps, DevBlock, Icon } from '@_/components';
 import { adminRoot, defaultPageSize, defaultPagination } from '@_/configs';
 import Link from 'next/link';
 import { Page } from '@_/template';
@@ -47,6 +47,8 @@ import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo'
 import moment from 'moment';
 import { utcToDate } from '@_/lib/utill';
 import { __yellow } from '@_/lib/consoleHelper';
+import { DynamicViewFilter } from '@_/app/console/view_filter/components/DynamicViewFilter';
+import { ResetButton } from '../orders/components';
 
 import LIST_DATA from '@_/graphql/order/ordersOnTillQuery.graphql'
 
@@ -252,6 +254,7 @@ export default function TillOrders(){
 
     
     <Page>
+
       <Card
         title={<Space>
           <Title level={3} style={{ margin: 0 }}>Orders On-Till</Title>

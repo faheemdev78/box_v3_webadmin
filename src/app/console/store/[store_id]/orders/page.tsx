@@ -5,7 +5,7 @@ import { useMutation, useLazyQuery } from '@apollo/client';
 import { __error } from '@_/lib/consoleHelper';
 import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
 import { Alert, Card, message, Row, Space, Tag, Typography } from "antd";
-import { PlayCircleOutlined, UserOutlined, ShoppingOutlined, ClockCircleOutlined, PauseCircleOutlined, LogoutOutlined, LoginOutlined, LockOutlined } from '@ant-design/icons';
+import { UserOutlined, ShoppingOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { catchApolloError, checkApolloRequestErrors } from "@_/lib/utill_apollo";
 import OrdersList, { defaultProps } from "@_/modules/orders/ordersList";
 import { Button, DevBlock, Icon, OrderTable, usePageProps } from '@_/components';
@@ -341,35 +341,39 @@ function OrdersListPage(props:any) {
                         width: 130,
                         // render: (status: string) => (status)
                     },
+                    // Example of unconfigured column - this will be added automatically
+                    // even if it's not in the view configuration (will appear at the end)
+                    // Note: If "status" is configured but hidden in view, it stays hidden
+                    // But "actions" is not in config, so it will always appear
                     actions: {
+                        title: 'Actions',
+                        width: 200,
+                        fixed: 'right',
                         render: (_: any, record: any) => {
-                            let hasActiosn = columns.find(o => o.key == 'actions')
-                            if (!hasActiosn) return null;
+                            return (<div>
+                                {(record.locked_by && !record.is_locked_by_me) && <div><Icon icon="lock" /> by someone else</div>}
 
-                            return (<Space size="small">
-                                {(hasActiosn?.options?.reset && record.current_stage !== 'pending') && (
-                                    <ResetButton size="small" handleResetOrder={() => handleResetOrder(record)} />
-                                )}
 
-                                {hasActiosn?.options?.till_verification && <>
-                                    {(record.locked_by && !record.is_locked_by_me) && <>
-                                        <Icon icon="lock" /> Locked by someone else
-                                    </>}
+                                <Space size="small">
+                                    {(record.current_stage !== 'pending') && (
+                                        <ResetButton size="small" handleResetOrder={() => handleResetOrder(record)} />
+                                    )}
 
-                                    {((record.locked_by && record.is_locked_by_me) || !record.locked_by) && <>
+                                    {((record.locked_by && record.is_locked_by_me) || !record.locked_by) && <span>
                                         <Button size="small" color="blue"
                                             onClick={() => router.push(`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`)}
                                             icon={<PlayCircleOutlined />}>{record.is_locked_by_me ? 'Resume' : 'Start'}</Button>
+                                    </span>}
+
+                                    {(record.locked_by) && <>
+                                        <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`}><Space size={2}>
+                                            <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
+                                        </Space></Link>
                                     </>}
-                                </>}
 
-                                {(record.locked_by && hasActiosn?.options?.till_verification) && <>
-                                    <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`}><Space size={2}>
-                                        <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
-                                    </Space></Link>
-                                </>}
+                                </Space>
+                            </div>)
 
-                            </Space>)
                         },
                     },
 
@@ -381,7 +385,7 @@ function OrdersListPage(props:any) {
                 callbacks={viewCallbacks}
             /> */}
 
-            <div style={{ marginTop: 16 }}>
+            {/* <div style={{ marginTop: 16 }}>
                 <Card
                     title={<Space>
                         <Title level={3} style={{ margin: 0 }}>Orders</Title>
@@ -403,7 +407,7 @@ function OrdersListPage(props:any) {
                         scroll={{ x: 1200 }}
                     />
                 </Card>
-            </div>
+            </div> */}
 
         </Page>
 

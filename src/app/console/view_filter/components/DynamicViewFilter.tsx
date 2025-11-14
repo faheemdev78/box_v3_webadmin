@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Card, Tabs, Button, Space, Input, Table, Tag, message, Drawer, Modal } from 'antd';
+import { Card, Tabs, Button, Space, Input, Table, Tag, message, Modal } from 'antd';
 import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import { useQuery, useMutation } from '@apollo/client';
 import { GET_ENTITY_CONFIG, GET_SAVED_VIEWS, GET_FILTERED_DATA } from '../graphql/queries';
@@ -9,6 +9,7 @@ import { CREATE_SAVED_VIEW, UPDATE_SAVED_VIEW, DELETE_SAVED_VIEW, PIN_SAVED_VIEW
 import { QuickFiltersBar } from './QuickFiltersBar';
 import { AdvancedFiltersDrawer } from './AdvancedFiltersDrawer';
 import { EditColumnsModal } from './EditColumnsModal';
+import { AllViewsDrawer } from './AllViewsDrawer';
 import { generateTableColumns, getRowKey } from '../utils';
 
 interface DynamicViewFilterProps {
@@ -341,9 +342,14 @@ export const DynamicViewFilter: React.FC<DynamicViewFilterProps> = ({
     </Card>
 
     {/* All Views Drawer */}
-    <Drawer title="All Views" open={showAllViews} onClose={() => setShowAllViews(false)} width={720}>
-      <p>View management UI coming soon...</p>
-    </Drawer>
+    <AllViewsDrawer
+      visible={showAllViews}
+      onClose={() => setShowAllViews(false)}
+      views={views}
+      activeViewId={activeViewId}
+      onSelectView={setActiveViewId}
+      onRefetch={refetchViews}
+    />
 
     {/* Advanced Filters Drawer */}
     {activeView && entityConfig && (
