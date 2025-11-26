@@ -14,9 +14,72 @@ export interface TillShift {
   };
 }
 
+export interface OrderItem {
+  _id_product: string;
+  title: string;
+  barcode?: string;
+  qty: number;
+  price: number;
+  total: number;
+  processed_qty: number;
+  verification_status?: 'pending' | 'verified' | 'missing' | 'damaged' | 'mismatch';
+  verification_notes?: string;
+  verified_at?: Date | null;
+  issue_reason?: string;
+  status?: string;
+}
+
+export interface OrderTotals {
+  subTotal: number;
+  discount: number;
+  tax: number;
+  grandTotal: number;
+}
+
+export interface HeldOrder {
+  _id: string;
+  serial: string;
+  customer?: {
+    _id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+  };
+  current_order?: {
+    items: OrderItem[];
+    totals: OrderTotals;
+    stage?: string;
+    handled_by?: {
+      _id: string;
+      name: string;
+    };
+  };
+  processing_stages?: {
+    picking?: {
+      handled_by?: {
+        _id: string;
+        name: string;
+      };
+    };
+  };
+  status?: {
+    order: string;
+    payment: string;
+    fulfillment: string;
+  };
+  locked_by?: string;
+  locked_at?: Date;
+  lock_expires_at?: Date;
+  is_locked_by_me?: boolean;
+  last_updated_at?: Date; // Local tracking for UI
+}
+
 export interface TillVerificationState {
   // Active shift session
   activeShift: TillShift | null;
+
+  // Held orders cache (key: orderId)
+  heldOrders: Record<string, HeldOrder>;
 
   // UI state
   currentOrderId: string | null; // Which order is on verification screen
@@ -37,6 +100,7 @@ export interface TillVerificationState {
 
 const initialState: TillVerificationState = {
   activeShift: null,
+  heldOrders: {},
   currentOrderId: null,
   queueLoading: false,
   ui: {
@@ -61,6 +125,10 @@ export const tillVerificationSlice = createSlice({
      * Set active shift
      */
     setActiveShift: (state, action: PayloadAction<TillShift | null>) => {
+      console.log('📦 Redux reducer setActiveShift called', {
+        payload: action.payload,
+        previousShift: state.activeShift,
+      });
       state.activeShift = action.payload;
     },
 
@@ -81,6 +149,119 @@ export const tillVerificationSlice = createSlice({
      */
     setCurrentOrder: (state, action: PayloadAction<string | null>) => {
       state.currentOrderId = action.payload;
+    },
+
+    /**
+     * Add or update a held order in the cache
+     */
+    upsertHeldOrder: (state, action: PayloadAction<HeldOrder>) => {
+      const order = action.payload;
+      console.log("upsertHeldOrder: ", action?.payload?._id)
+
+      // Ensure heldOrders exists (defensive programming)
+      if (!state.heldOrders) {
+        state.heldOrders = {};
+      }
+
+      state.heldOrders[order._id] = {
+        ...order,
+        last_updated_at: new Date(),
+      };
+    },
+
+    /**
+     * Update order items after verification action
+     */
+    updateOrderItems: (state, action: PayloadAction<{ orderId: string; items: OrderItem[] }>) => {
+      const { orderId, items } = action.payload;
+
+      // Ensure heldOrders exists
+      if (!state.heldOrders) {
+        state.heldOrders = {};
+      }
+
+      if (state.heldOrders[orderId]) {
+        state.heldOrders[orderId].current_order = {
+          ...state.heldOrders[orderId].current_order!,
+          items,
+        };
+        state.heldOrders[orderId].last_updated_at = new Date();
+      }
+    },
+
+    /**
+     * Update order totals after verification action
+     */
+    updateOrderTotals: (state, action: PayloadAction<{ orderId: string; totals: OrderTotals }>) => {
+      const { orderId, totals } = action.payload;
+
+      // Ensure heldOrders exists
+      if (!state.heldOrders) {
+        state.heldOrders = {};
+      }
+
+      if (state.heldOrders[orderId]?.current_order) {
+        state.heldOrders[orderId].current_order!.totals = totals;
+        state.heldOrders[orderId].last_updated_at = new Date();
+      }
+    },
+
+    /**
+     * Update a single item in an order (optimistic update)
+     */
+    updateOrderItem: (
+      state,
+      action: PayloadAction<{
+        orderId: string;
+        productId: string;
+        updates: Partial<OrderItem>;
+      }>
+    ) => {
+      const { orderId, productId, updates } = action.payload;
+
+      // Ensure heldOrders exists
+      if (!state.heldOrders) {
+        state.heldOrders = {};
+      }
+
+      const order = state.heldOrders[orderId];
+      if (order?.current_order?.items) {
+        const itemIndex = order.current_order.items.findIndex(
+          (item) => item._id_product === productId
+        );
+        if (itemIndex !== -1) {
+          order.current_order.items[itemIndex] = {
+            ...order.current_order.items[itemIndex],
+            ...updates,
+          };
+          order.last_updated_at = new Date();
+        }
+      }
+    },
+
+    /**
+     * Remove order from held orders (on complete)
+     */
+    removeHeldOrder: (state, action: PayloadAction<string>) => {
+      const orderId = action.payload;
+
+      // Ensure heldOrders exists
+      if (!state.heldOrders) {
+        state.heldOrders = {};
+      }
+
+      delete state.heldOrders[orderId];
+      if (state.currentOrderId === orderId) {
+        state.currentOrderId = null;
+      }
+    },
+
+    /**
+     * Clear all held orders
+     */
+    clearHeldOrders: (state) => {
+      state.heldOrders = {};
+      state.currentOrderId = null;
     },
 
     // ================================
@@ -139,6 +320,12 @@ export const {
 
   // Order actions
   setCurrentOrder,
+  upsertHeldOrder,
+  updateOrderItems,
+  updateOrderTotals,
+  updateOrderItem,
+  removeHeldOrder,
+  clearHeldOrders,
 
   // UI actions
   setQueueLoading,
@@ -173,3 +360,27 @@ export const getTillVerificationUI = (state: any) =>
 
 export const isShiftActive = (state: any): boolean =>
   state.tillVerification.activeShift !== null;
+
+// ===================================
+// Held Orders Selectors
+// ===================================
+
+export const getHeldOrders = (state: any): Record<string, HeldOrder> =>
+  state.tillVerification.heldOrders;
+
+export const getHeldOrdersArray = (state: any): HeldOrder[] =>
+  Object.values(state.tillVerification?.heldOrders || {});
+
+export const getHeldOrderById = (state: any, orderId: string): HeldOrder | null =>
+  state.tillVerification?.heldOrders?.[orderId] || null;
+
+export const getCurrentOrder = (state: any): HeldOrder | null => {
+  const currentOrderId = state.tillVerification?.currentOrderId;
+  if (!currentOrderId) return null;
+  const heldOrders = state.tillVerification?.heldOrders;
+  if (!heldOrders) return null;
+  return heldOrders[currentOrderId] || null;
+};
+
+export const getHeldOrdersCount = (state: any): number =>
+  Object.keys(state.tillVerification?.heldOrders || {}).length;

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { __error } from '@_/lib/consoleHelper';
 import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
-import { Alert, Card, message, Row, Space, Tag, Typography } from "antd";
+import { Alert, Card, message, Popover, Row, Space, Tag, Tooltip, Typography } from "antd";
 import { UserOutlined, ShoppingOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { catchApolloError, checkApolloRequestErrors } from "@_/lib/utill_apollo";
 import OrdersList, { defaultProps } from "@_/modules/orders/ordersList";
@@ -18,10 +18,12 @@ import { useAppSelector } from "@_/rStore/hooks";
 import { getSettings } from "@_/rStore/slices/systemSlice";
 import { utcToDate } from "@_/lib/utill";
 import { ResetButton } from "./components";
+import { useRouter } from "next/navigation";
 
 import LIST_DATA from '@_/graphql/order/ordersQuery.graphql'
 import RESET_ORDER from '@_/graphql/order/resetOrderToZero.graphql'
-import { useRouter } from "next/navigation";
+import REVERT_ORDER_STAGE from '@_/graphql/order/revertOrderStage.graphql'
+import { getSession } from "@_/rStore/slices/sessionSlice";
 
 const { Title, Text } = Typography;
 
@@ -30,6 +32,7 @@ const defaultFilter = {}; // { status: 'online' }
 function OrdersListPage(props:any) {
     const { store } = usePageProps()
     const settings = useAppSelector(getSettings);
+    const userSession = useAppSelector(getSession);
     const router = useRouter()
     
     const [busy, setBusy] = useState(false)
@@ -46,6 +49,7 @@ function OrdersListPage(props:any) {
 
     const [ordersQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
     const [resetOrder, resetOrder_results] = useMutation(RESET_ORDER);
+    const [revertOrderStage, { loading: reverting }] = useMutation(REVERT_ORDER_STAGE);
 
     const fetchData = async ({ filter = {}, pagination = {} }: { filter?: any; pagination?: any } = {}) => {
         setFatelError(false);
@@ -177,7 +181,61 @@ function OrdersListPage(props:any) {
                     {resetData.resources_released?.inventory_restored && ' ✓ Inventory'}
                 </div>
             </div>);
+            fetchData({});
         }
+    };
+
+    const handleRevertOrder = async (order: any, targetStage: string) => {
+        const stageName = targetStage === 'pending' ? 'Pending' :
+                         targetStage === 'picking-complete' ? 'Picking Complete' :
+                         targetStage === 'ready-to-dispatch' ? 'Ready to Dispatch' : targetStage;
+
+        const confirmed = window.confirm(`Are you sure you want to revert order ${order.serial} to ${stageName}?\n\nThis will restore the order to its state at that stage.`);
+        if (!confirmed) return;
+
+        const reason = window.prompt(`Please provide a reason for reverting to ${stageName}:`);
+        if (!reason || !reason.trim()) {
+            message.warning('Revert cancelled: Reason is required');
+            return;
+        }
+
+        setBusy(true);
+        const processedResult = await revertOrderStage({
+            variables: {
+                input: {
+                    _id_order: order._id,
+                    target_stage: targetStage,
+                    reason: reason.trim(),
+                    notes: ''
+                }
+            }
+        })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.revertOrderStage }))
+            .catch(catchApolloError);
+        setBusy(false);
+
+        if (processedResult.error) {
+            message.error(`Failed to revert order: ${processedResult.error.message}`);
+            return;
+        }
+
+        if (processedResult.success) {
+            message.success(`Order ${order.serial} has been reverted to ${stageName}`);
+            fetchData({});
+        }
+    };
+
+    const canRevertTo = (order: any, targetStage: string) => {
+        if (!order?.current_stage) return false;
+
+        const currentStage = order.current_stage;
+        const stageOrder = ['pending', 'picking', 'picking-complete', 'till_verification', 'ready-to-dispatch', 'delivering', 'delivered', 'completed'];
+
+        const currentIndex = stageOrder.indexOf(currentStage);
+        const targetIndex = stageOrder.indexOf(targetStage);
+
+        // Can only revert backwards
+        return targetIndex < currentIndex && !['cancelled', 'completed'].includes(currentStage);
     };
     
 
@@ -346,32 +404,49 @@ function OrdersListPage(props:any) {
                     // Note: If "status" is configured but hidden in view, it stays hidden
                     // But "actions" is not in config, so it will always appear
                     actions: {
-                        title: 'Actions',
-                        width: 200,
-                        fixed: 'right',
+                        title: 'Actions', width: 150, fixed: 'right',
                         render: (_: any, record: any) => {
                             return (<div>
-                                {(record.locked_by && !record.is_locked_by_me) && <div><Icon icon="lock" /> by someone else</div>}
+                                {/* {(record.locked_by && !record.is_locked_by_me) && <div><Icon icon="lock" /> by someone else</div>} */}
+                                {/* {(record.locked_by && record.locked_by === userSession.user._id) && <div><Tooltip title="Locked by someone else"><Icon icon="lock" /></Tooltip></div>} */}
 
-
-                                <Space size="small">
+                                <Space size="small" wrap style={{ width: '100%' }}>
+                                    {record.locked_by && <span>
+                                        {record.locked_by === userSession.user._id ? 
+                                            <span style={{ color:"green" }}><Tooltip title="Locked by you"><Icon icon="lock" /></Tooltip></span> :
+                                            <span style={{ color: "red" }}><Tooltip title="Locked by someone else"><Icon icon="lock" /></Tooltip></span>
+                                        }
+                                    </span>}
+                                    
                                     {(record.current_stage !== 'pending') && (
                                         <ResetButton size="small" handleResetOrder={() => handleResetOrder(record)} />
                                     )}
 
-                                    {((record.locked_by && record.is_locked_by_me) || !record.locked_by) && <span>
+                                    {/* {((record.locked_by && record.is_locked_by_me) || !record.locked_by) && <span>
                                         <Button size="small" color="blue"
                                             onClick={() => router.push(`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`)}
                                             icon={<PlayCircleOutlined />}>{record.is_locked_by_me ? 'Resume' : 'Start'}</Button>
-                                    </span>}
+                                    </span>} */}
 
-                                    {(record.locked_by) && <>
+                                    {/* {(record.locked_by) && <>
                                         <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`}><Space size={2}>
                                             <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
                                         </Space></Link>
-                                    </>}
+                                    </>} */}
+
+                                    {/* Revert Buttons */}
+                                    <Popover 
+                                        content={<div>
+                                            <Space size="small" wrap direction="vertical" style={{ width:"100%" }}>
+                                                {canRevertTo(record, 'pending') && (<Button size="small" danger block onClick={() => handleRevertOrder(record, 'pending')}>to Pending</Button>)}
+                                                {canRevertTo(record, 'picking-complete') && (<Button block size="small" onClick={() => handleRevertOrder(record, 'picking-complete')}>to Picking Complete</Button>)}
+                                                {canRevertTo(record, 'ready-to-dispatch') && (<Button block size="small" onClick={() => handleRevertOrder(record, 'ready-to-dispatch')}>to Ready to Dispatch</Button>)}
+                                            </Space>
+                                        </div>} 
+                                        title="Title" trigger="click"><Button size="small">Undo</Button></Popover>
 
                                 </Space>
+
                             </div>)
 
                         },

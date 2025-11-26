@@ -204,6 +204,8 @@ export const AdvancedFiltersDrawer: React.FC<AdvancedFiltersDrawerProps> = ({
 
   // Get value input for a filter
   const renderValueInput = (filter: FilterCondition, groupId: string) => {
+    console.log("renderValueInput() => filter.field: ", filter.field)
+    console.log("fields: ", fields)
     const field = getField(filter.field);
 
     // For operators that don't need a value

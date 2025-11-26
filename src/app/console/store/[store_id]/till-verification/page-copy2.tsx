@@ -116,7 +116,7 @@ function ActiveSession({ store, onSessionUpdate }:{
             <Button danger icon={<LogoutOutlined />} onClick={() => setShowCloseShiftModal(true)} loading={closingShift}>Close Shift</Button>
         </Space>
         
-          {activeShift?.till_verification_orders?.length > 0 && <>
+          {activeShift.till_verification_orders.length > 0 && <>
             <Text strong>Orders on Hold: </Text>
             <Space>{activeShift.till_verification_orders.map((order:any, i:number) => {
               return <Link href={`${adminRoot}/store/${activeShift._id_store}/till-verification/${order._id_order}/verify`} key={i}><Tag color="yellow">{order.order_serial}</Tag></Link>
@@ -152,7 +152,7 @@ export default function TillOrders(){
   const router = useRouter();
   const settings = useAppSelector(getSettings);
   const tillVerification = useAppSelector(getTillVerification);
-  // console.log("tillVerification: ", tillVerification)
+  console.log("tillVerification: ", tillVerification)
 
   const [state, setState] = useState({
       pagination: defaultPagination,
@@ -279,7 +279,6 @@ export default function TillOrders(){
       </Card>
     </Page>
 
-    <DevBlock obj={tillVerification} title="tillVerification" />
     {/* <DevBlock obj={shiftSession} title="shiftSession" /> */}
     {/* <DevBlock obj={state.dataSource} title="dataSource" /> */}
     {/* <DevBlock obj={lockedOrders} title="lockedOrders" /> */}

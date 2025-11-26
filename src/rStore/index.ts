@@ -26,14 +26,55 @@ const migrations = {
             // counter: { value: state.counter.value ?? 0 },
         };
     },
+    2: (state: any) => {
+        // Ensure tillVerification has proper structure
+        return {
+            ...state,
+            tillVerification: {
+                ...(state.tillVerification || {}),
+                heldOrders: state.tillVerification?.heldOrders || {},
+                currentOrderId: state.tillVerification?.currentOrderId || null,
+                activeShift: state.tillVerification?.activeShift || null,
+                queueLoading: state.tillVerification?.queueLoading || false,
+                ui: state.tillVerification?.ui || {
+                    is_loading: false,
+                    show_held_orders: true,
+                },
+            },
+        };
+    },
   };
+
+// State reconciler to ensure tillVerification structure always exists
+const stateReconciler = (inboundState: any, originalState: any, reducedState: any) => {
+    const reconciledState = {
+        ...reducedState,
+        ...inboundState,
+    };
+
+    // Ensure tillVerification has the correct structure
+    if (reconciledState.tillVerification) {
+        reconciledState.tillVerification = {
+            activeShift: reconciledState.tillVerification.activeShift || null,
+            heldOrders: reconciledState.tillVerification.heldOrders || {},
+            currentOrderId: reconciledState.tillVerification.currentOrderId || null,
+            queueLoading: reconciledState.tillVerification.queueLoading || false,
+            ui: reconciledState.tillVerification.ui || {
+                is_loading: false,
+                show_held_orders: true,
+            },
+        };
+    }
+
+    return reconciledState;
+};
 
 const persistConfig = {
     key: 'root',
     storage: storageSession, // Use session storage
     blacklist: [], // Array
-    whitelist: ['session', 'system', 'tillVerification'], // Array - Added tillVerification for persistence
-    version: 1,
+    whitelist: ['session', 'system'], // Array - Added tillVerification for persistence
+    version: 2, // Updated to trigger migration for tillVerification structure fix
     // throttle: 0, // number
     debug: process.env.NODE_ENV==='development', // boolean
     // serialize: true, // boolean
@@ -47,6 +88,7 @@ const persistConfig = {
         }),
     ],
     migrate: createMigrate(migrations, { debug: true }),
+    stateReconciler: stateReconciler as any, // Custom state reconciler
     writeFailHandler: (err: Error) => {
         console.error('Redux Write failed', err);
     }

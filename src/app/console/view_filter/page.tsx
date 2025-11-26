@@ -232,16 +232,8 @@ export default function ViewFilterPage() {
 
             {/* Right side actions */}
             <Space style={{ marginLeft: 16 }}>
-              <Button
-                type="text"
-                icon={<PlusOutlined />}
-                onClick={() => setShowCreateModal(true)}
-              >
-                Add view ({views.length}/5)
-              </Button>
-              <Button type="link" onClick={() => setShowAllViews(true)}>
-                All Views
-              </Button>
+              <Button type="text" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>Add view ({views.length}/5)</Button>
+              <Button type="link" onClick={() => setShowAllViews(true)}>All Views</Button>
             </Space>
           </div>
         </div>
@@ -264,9 +256,7 @@ export default function ViewFilterPage() {
                 }}
                 trigger={['click']}
               >
-                <Button>
-                  {qf.label} <DownOutlined />
-                </Button>
+                <Button>{qf.label} <DownOutlined /></Button>
               </Dropdown>
             ))}
 
@@ -276,12 +266,7 @@ export default function ViewFilterPage() {
             )}
 
             {/* Advanced Filters Button */}
-            <Button
-              icon={<FilterOutlined />}
-              onClick={() => setShowAdvancedFilters(true)}
-            >
-              Advanced filters
-            </Button>
+            <Button icon={<FilterOutlined />} onClick={() => setShowAdvancedFilters(true)}>Advanced filters</Button>
           </Space>
         </div>
 
@@ -315,12 +300,7 @@ export default function ViewFilterPage() {
       </Card>
 
       {/* All Views Drawer */}
-      <Drawer
-        title="All Views"
-        open={showAllViews}
-        onClose={() => setShowAllViews(false)}
-        width={720}
-      >
+      <Drawer title="All Views" open={showAllViews} onClose={() => setShowAllViews(false)} width={720}>
         <Tabs
           defaultActiveKey="all"
           items={[

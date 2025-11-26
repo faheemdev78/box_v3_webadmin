@@ -8,7 +8,7 @@ import React from 'react';
 export const Loader = ({ loading, children, style, className, size, center } : {
     loading: boolean;
     children?: React.ReactNode;
-    style?: object;
+    style?: any;
     className?: string;
     size?: string | number;
     center?: boolean;

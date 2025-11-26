@@ -5,16 +5,11 @@
  */
 
 import React, { useState } from 'react';
-import { Card, Space, Button, Typography, Tag, Input, Modal, InputNumber, message } from 'antd';
+import { Card, Space, Button, Typography, Tag, Input, Modal, InputNumber, message, Row, Col } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined, ClockCircleOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useAppSelector } from '@_/rStore/hooks';
 import { getSettings } from '@_/rStore/slices/systemSlice';
-import {
-  useVerifyOrderItem,
-  useMarkOrderItemMissing,
-  useMarkOrderItemDamaged,
-  useMarkOrderItemMismatch
-} from '@_/hooks/useTillVerification';
+import { useVerifyOrderItem, useMarkOrderItemMissing, useMarkOrderItemDamaged, useMarkOrderItemMismatch } from '@_/hooks/useTillVerification';
 import dayjs from 'dayjs';
 
 const { Text } = Typography;
@@ -61,9 +56,7 @@ export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, 
     }
   };
 
-  const handleMissing = () => {
-    setShowMissingModal(true);
-  };
+  const handleMissing = () => setShowMissingModal(true);
 
   const confirmMissing = async () => {
     try {
@@ -132,6 +125,13 @@ export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, 
 
   return (<>
     <Card size="small" style={getCardStyle()}>
+      <Row gutter={[5, 5]}>
+        <Col span={8}>Avatar</Col>
+        <Col span={8}>Product</Col>
+        <Col span={8}>Qty</Col>
+        <Col span={8}>Price</Col>
+      </Row>
+
       <Space direction="vertical" style={{ width: '100%' }} size="small">
         {/* Item Info */}
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
@@ -188,9 +188,7 @@ export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, 
       okButtonProps={{ danger: true }}
     >
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Text>
-          Mark <Text strong>{item.title}</Text> as missing?
-        </Text>
+        <Text>Mark <Text strong>{item.title}</Text> as missing?</Text>
         <TextArea
           placeholder="Optional: Reason for missing item..."
           value={missingNotes}
@@ -210,9 +208,7 @@ export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, 
       okButtonProps={{ disabled: mismatchQty === verificationStatus.qty_expected }}
     >
       <Space direction="vertical" style={{ width: '100%' }}>
-        <Text>
-          Expected quantity: <Text strong>{verificationStatus.qty_expected}</Text>
-        </Text>
+        <Text>Expected quantity: <Text strong>{verificationStatus.qty_expected}</Text></Text>
         <Space>
           <Text>Actual quantity found:</Text>
           <InputNumber

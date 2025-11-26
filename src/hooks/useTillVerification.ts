@@ -3,8 +3,8 @@
  * Updated for shift-based system
  */
 
-import React from 'react';
-import { useMutation, useQuery } from '@apollo/client';
+import React, { useState } from 'react';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
 import { useAppDispatch, useAppSelector } from '@_/rStore/hooks';
 import {
   setActiveShift,
@@ -14,8 +14,13 @@ import {
   setLoading,
   getActiveShift,
   getCurrentOrderId,
+  upsertHeldOrder,
+  updateOrderItem,
+  updateOrderItems,
+  updateOrderTotals,
+  removeHeldOrder,
 } from '@_/rStore/slices/tillVerificationSlice';
-import { __error } from '@_/lib/consoleHelper';
+import { __error, __yellow } from '@_/lib/consoleHelper';
 import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import GET_TILL_QUEUE from '@_/graphql/till_verification/getTillVerificationQueue.graphql';
@@ -59,28 +64,49 @@ export const useTillVerificationQueue = (_id_store: string, limit = 50, page = 1
  */
 export const useMyActiveTillShift = () => {
   const dispatch = useAppDispatch();
+  const activeShift = useAppSelector(getActiveShift);
+  const [ready, setReady] = useState(false)
+
   const { data, loading, error, refetch } = useQuery(GET_MY_ACTIVE_SHIFT, {
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: "network-only", // 'cache-and-network',
   });
 
   // Auto-update Redux when shift data changes (in useEffect to avoid setState during render)
   React.useEffect(() => {
-    if (data?.getMyActiveTillShift?.session && !loading) {
+    if (loading || ready) return;
+
+    console.log('🔄 useMyActiveTillShift useEffect triggered', {
+      hasData: !!data?.getMyActiveTillShift?.session,
+      loading,
+      sessionId: data?.getMyActiveTillShift?.session?._id
+    });
+
+    if (data?.getMyActiveTillShift?.session) {
       const session = data.getMyActiveTillShift.session;
-      dispatch(
-        setActiveShift({
-          _id: session._id,
-          session_started_at: session.session_started_at,
-          performance: session.performance,
-        })
-      );
-    } else if (!data?.getMyActiveTillShift?.session && !loading) {
+      const new_activeShift = {
+        _id: session._id,
+        session_started_at: session.session_started_at,
+        performance: session.performance,
+      }
+      console.log('✅ Dispatching setActiveShift to Redux', new_activeShift);
+
+      if (JSON.stringify(activeShift) !== JSON.stringify(new_activeShift)) {
+        dispatch(setActiveShift(new_activeShift));
+        setReady(true)
+      }
+
+    } else if (!data?.getMyActiveTillShift?.session) {
+      console.log('❌ No active shift found, dispatching null to Redux');
       dispatch(setActiveShift(null));
+      setReady(true)
     }
   }, [data, loading, dispatch]);
 
+  if (!ready) return { loading:true }
+
+  console.log("useMyActiveTillShift.ready")
   return {
-    session: data?.getMyActiveTillShift?.session,
+    session: activeShift, // data?.getMyActiveTillShift?.session,
     loading,
     error: error || data?.getMyActiveTillShift?.error,
     refetch,
@@ -120,6 +146,7 @@ export const useOpenTillShift = () => {
   const [openShiftMutation, { loading }] = useMutation(OPEN_TILL_SHIFT);
 
   const openShift = async (_id_store?: string) => {
+    
     dispatch(setLoading(true));
     const response = await openShiftMutation({
       variables: _id_store ? { _id_store } : undefined,
@@ -202,9 +229,8 @@ export const useCloseTillShift = () => {
 export const useStartOrderVerification = () => {
   const dispatch = useAppDispatch();
 
-  const [startOrderMutation, { loading }] = useMutation(START_ORDER_VERIFICATION, {
+  const [startOrderMutation, { loading, called }] = useMutation(START_ORDER_VERIFICATION, {
     refetchQueries: [GET_TILL_QUEUE],
-    // refetchQueries: [GET_MY_LOCKED_ORDERS, GET_TILL_QUEUE],
   });
 
   const startOrder = async (_id_order: string) => {
@@ -216,12 +242,13 @@ export const useStartOrderVerification = () => {
         .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr:any) => rr?.data?.startOrderVerification }))
         .catch(catchApolloError)
 
-      if (response?.error) {
-        throw new Error(response.error.message);
-      }
+      console.log("response: ", response.order)
 
-      // Set as current order in Redux
+      if (response?.error) throw new Error(response.error.message);
+
+      // Add order to held orders cache and set as current
       if (response?.order) {
+        dispatch(upsertHeldOrder(response.order));
         dispatch(setCurrentOrder(_id_order));
       }
 
@@ -234,7 +261,7 @@ export const useStartOrderVerification = () => {
     }
   };
 
-  return { startOrder, loading };
+  return { startOrder, loading, called };
 };
 
 /**
@@ -244,7 +271,6 @@ export const useCompleteOrderVerification = () => {
   const dispatch = useAppDispatch();
   const [completeOrderMutation, { loading }] = useMutation(COMPLETE_ORDER_VERIFICATION, {
     refetchQueries: [GET_TILL_QUEUE, GET_MY_ACTIVE_SHIFT],
-    // refetchQueries: [GET_MY_LOCKED_ORDERS, GET_TILL_QUEUE, GET_MY_ACTIVE_SHIFT],
   });
 
   const completeOrder = async (
@@ -264,7 +290,8 @@ export const useCompleteOrderVerification = () => {
         throw new Error(response.error.message);
       }
 
-      // Clear current order from Redux
+      // Remove order from held orders and clear current
+      dispatch(removeHeldOrder(_id_order));
       dispatch(setCurrentOrder(null));
 
       return response;
@@ -287,25 +314,54 @@ export const useCompleteOrderVerification = () => {
  * Hook for verifying order item
  */
 export const useVerifyOrderItem = () => {
-  const [verifyItemMutation, { loading }] = useMutation(VERIFY_ORDER_ITEM, {
-    // refetchQueries: [GET_MY_LOCKED_ORDERS],
-  });
+  const dispatch = useAppDispatch();
+  const [verifyItemMutation, { loading }] = useMutation(VERIFY_ORDER_ITEM);
 
   const verifyItem = async (_id_order: string, _id_product: string, qty_verified: number) => {
-    try {
-      const result = await verifyItemMutation({
-        variables: { _id_order, _id_product, qty_verified },
-      });
+    // Optimistic update
+    dispatch(updateOrderItem({
+      orderId: _id_order,
+      productId: _id_product,
+      updates: {
+        processed_qty: qty_verified,
+        verification_status: 'verified',
+        verified_at: new Date(),
+      },
+    }));
 
-      const response = result.data?.verifyOrderItem;
+    try {
+      const response = await verifyItemMutation({
+        variables: { _id_order, _id_product, qty_verified },
+      })
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.verifyOrderItem }))
+        .catch(catchApolloError)
+      // const response = result.data?.verifyOrderItem;
 
       if (response?.error) {
         throw new Error(response.error.message);
       }
 
+      // Sync with backend response
+      if (response?.order?.current_order?.items) {
+        dispatch(updateOrderItems({
+          orderId: _id_order,
+          items: response.order.current_order.items,
+        }));
+      }
+
       return response;
     } catch (error) {
       console.error('Error verifying item:', error);
+      // Revert optimistic update on error
+      dispatch(updateOrderItem({
+        orderId: _id_order,
+        productId: _id_product,
+        updates: {
+          processed_qty: 0,
+          verification_status: 'pending',
+          verified_at: null,
+        },
+      }));
       throw error;
     }
   };
@@ -317,25 +373,59 @@ export const useVerifyOrderItem = () => {
  * Hook for marking item as missing
  */
 export const useMarkOrderItemMissing = () => {
-  const [markMissingMutation, { loading }] = useMutation(MARK_ORDER_ITEM_MISSING, {
-    // refetchQueries: [GET_MY_LOCKED_ORDERS],
-  });
+  console.log(__yellow("useMarkOrderItemMissing()"))
+  
+  const dispatch = useAppDispatch();
+  const [markMissingMutation, { loading }] = useMutation(MARK_ORDER_ITEM_MISSING);
 
   const markMissing = async (_id_order: string, _id_product: string, reason: string) => {
-    try {
-      const result = await markMissingMutation({
-        variables: { _id_order, _id_product, reason },
-      });
+    // Optimistic update
+    dispatch(updateOrderItem({
+      orderId: _id_order,
+      productId: _id_product,
+      updates: {
+        processed_qty: 0,
+        verification_status: 'missing',
+        issue_reason: reason,
+        verified_at: new Date(),
+      },
+    }));
 
-      const response = result.data?.markOrderItemMissing;
+    try {
+      const response = await markMissingMutation({
+        variables: { _id_order, _id_product, reason },
+      })
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.markOrderItemMissing }))
+        .catch(catchApolloError)
+      // const response = result.data?.markOrderItemMissing;
+      console.log("response: ", response)
 
       if (response?.error) {
         throw new Error(response.error.message);
       }
 
+      // Sync with backend response
+      if (response?.order?.current_order?.items) {
+        dispatch(updateOrderItems({
+          orderId: _id_order,
+          items: response.order.current_order.items,
+        }));
+      }
+
       return response;
     } catch (error) {
       console.error('Error marking item missing:', error);
+      // Revert optimistic update on error
+      dispatch(updateOrderItem({
+        orderId: _id_order,
+        productId: _id_product,
+        updates: {
+          processed_qty: 0,
+          verification_status: 'pending',
+          issue_reason: undefined,
+          verified_at: null,
+        },
+      }));
       throw error;
     }
   };
@@ -377,9 +467,8 @@ export const useMarkOrderItemDamaged = () => {
  * Hook for marking item quantity mismatch
  */
 export const useMarkOrderItemMismatch = () => {
-  const [markMismatchMutation, { loading }] = useMutation(MARK_ORDER_ITEM_MISMATCH, {
-    // refetchQueries: [GET_MY_LOCKED_ORDERS],
-  });
+  const dispatch = useAppDispatch();
+  const [markMismatchMutation, { loading }] = useMutation(MARK_ORDER_ITEM_MISMATCH);
 
   const markMismatch = async (
     _id_order: string,
@@ -387,6 +476,18 @@ export const useMarkOrderItemMismatch = () => {
     qty_verified: number,
     reason: string
   ) => {
+    // Optimistic update
+    dispatch(updateOrderItem({
+      orderId: _id_order,
+      productId: _id_product,
+      updates: {
+        processed_qty: qty_verified,
+        verification_status: 'mismatch',
+        issue_reason: reason,
+        verified_at: new Date(),
+      },
+    }));
+
     try {
       const result = await markMismatchMutation({
         variables: { _id_order, _id_product, qty_verified, reason },
@@ -398,9 +499,28 @@ export const useMarkOrderItemMismatch = () => {
         throw new Error(response.error.message);
       }
 
+      // Sync with backend response
+      if (response?.order?.current_order?.items) {
+        dispatch(updateOrderItems({
+          orderId: _id_order,
+          items: response.order.current_order.items,
+        }));
+      }
+
       return response;
     } catch (error) {
       console.error('Error marking item mismatch:', error);
+      // Revert optimistic update on error
+      dispatch(updateOrderItem({
+        orderId: _id_order,
+        productId: _id_product,
+        updates: {
+          processed_qty: 0,
+          verification_status: 'pending',
+          issue_reason: undefined,
+          verified_at: null,
+        },
+      }));
       throw error;
     }
   };

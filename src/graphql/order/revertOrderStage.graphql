@@ -1,0 +1,19 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+#import "../_fragment/UserReff.graphql"
+
+mutation revertOrderStage($input: RevertOrderStageInput!) {
+  revertOrderStage(input: $input) {
+    success { ...SuccessInfo }
+    error { ...ErrorInfo }
+    data {
+      _id_order
+      orderSerial
+      previousStage
+      currentStage
+      reverted_at
+      reverted_by { ...UserReffInfo }
+      reason
+    }
+  }
+}

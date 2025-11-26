@@ -16,6 +16,7 @@ import {
   faLock,
   faPlay,
   faTrash,
+  faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { __error } from '@_/lib/consoleHelper';
@@ -24,7 +25,7 @@ library.add(
   faEllipsisV, faThList, faThLarge, faSearch, faBarcode, faPlus, faMinus,  faImage, faArrowRight, 
   faStopwatch, faClock, faCog, faEye, faSquareCheck, faSquare, faBell, faMultiply, faMessage, faAngleDown,
   faPen, faTrashAlt, faTrash, faCopy, faRefresh, faAddressCard, faLocation, faInfoCircle, faMapLocation, faBasketShopping,
-  faLock, faPlay
+  faLock, faPlay, faArrowLeft
 )
  
 

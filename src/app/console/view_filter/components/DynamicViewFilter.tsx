@@ -57,10 +57,13 @@ export const DynamicViewFilter: React.FC<DynamicViewFilterProps> = ({
   // Fetch entity configuration
   const { data: configData, loading: configLoading } = useQuery(GET_ENTITY_CONFIG, {
     variables: { entityType },
+    fetchPolicy: "no-cache",
     onError: (error) => message.error(`Failed to load entity config: ${error.message}`)
   });
   
   const entityConfig = configData?.entityConfig;
+  // console.log("entityType: ", entityType)
+  // console.log("entityConfig: ", entityConfig)
   
 
   // Fetch saved views

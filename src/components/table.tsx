@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Table as AntTable, Space } from 'antd';
+import { Table as AntTable, Space, TableProps } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { DndContext } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -10,7 +10,11 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities';
 import { Button, DeleteButton, IconButton } from './button';
 
-export const Table = _props => {
+interface MyTableProps extends TableProps {
+    tooltip?: string | object,
+}
+
+export const Table: React.FC<MyTableProps> = (_props) => {
     const props = { ..._props }
     delete props.isSortable;
     delete props.onSortSave;

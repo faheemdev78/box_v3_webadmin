@@ -204,9 +204,7 @@ export const AllViewsDrawer: React.FC<AllViewsDrawerProps> = ({
       </Space>
 
       {/* Views List */}
-      {filteredAndSortedViews.length === 0 ? (
-        <Empty description="No views found" />
-      ) : (
+      {filteredAndSortedViews.length === 0 ? (<Empty description="No views found" />) : (
         <List
           dataSource={filteredAndSortedViews}
           renderItem={(view) => {
@@ -220,22 +218,20 @@ export const AllViewsDrawer: React.FC<AllViewsDrawerProps> = ({
                   border: isActive ? '2px solid #1890ff' : '1px solid #d9d9d9',
                   cursor: 'pointer'
                 }}
-                bodyStyle={{ padding: 16 }}
+                styles={{
+                  body:{
+                    padding: 16
+                  }
+                }}
                 onClick={() => handleSwitchView(view._id)}
               >
-                <Space direction="vertical" style={{ width: '100%' }} size="small">
+                <Space direction="vertical" style={{ width: '100%' }} size={0}>
                   {/* Header Row */}
                   <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                     <Space>
-                      <Title level={5} style={{ margin: 0 }}>
-                        {view.name}
-                      </Title>
+                      <Title level={5} style={{ margin: 0 }}>{view.name}</Title>
                       {isActive && <Tag color="blue">Active</Tag>}
-                      {view.isDefault && (
-                        <Tooltip title="Default view">
-                          <StarFilled style={{ color: '#faad14' }} />
-                        </Tooltip>
-                      )}
+                      {view.isDefault && (<Tooltip title="Default view"><StarFilled style={{ color: '#faad14' }} /></Tooltip>)}
                     </Space>
 
                     <Space onClick={(e) => e.stopPropagation()}>
@@ -269,11 +265,7 @@ export const AllViewsDrawer: React.FC<AllViewsDrawerProps> = ({
                   </Space>
 
                   {/* Description */}
-                  {view.description && (
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                      {view.description}
-                    </Text>
-                  )}
+                  {view.description && (<Text type="secondary" style={{ fontSize: 12 }}>{view.description}</Text>)}
 
                   {/* Metadata Row */}
                   <Space size="large" style={{ fontSize: 12 }}>
@@ -303,23 +295,19 @@ export const AllViewsDrawer: React.FC<AllViewsDrawerProps> = ({
                   </Space>
 
                   {/* Filters Preview */}
-                  {view.filters && view.filters.length > 0 && (
-                    <div>
-                      <Text type="secondary" style={{ fontSize: 11 }}>
-                        Filters: {view.filters.map((f: any) => f.field).join(', ')}
-                      </Text>
-                    </div>
-                  )}
+                  {view.filters && view.filters.length > 0 && (<div>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      Filters: {view.filters.map((f: any) => f.field).join(', ')}
+                    </Text>
+                  </div>)}
 
                   {/* Columns Preview */}
-                  {view.columns && view.columns.length > 0 && (
-                    <div>
-                      <Text type="secondary" style={{ fontSize: 11 }}>
-                        Columns: {view.columns.slice(0, 5).join(', ')}
-                        {view.columns.length > 5 && ` +${view.columns.length - 5} more`}
-                      </Text>
-                    </div>
-                  )}
+                  {view.columns && view.columns.length > 0 && (<div>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      Columns: {view.columns.slice(0, 5).join(', ')}
+                      {view.columns.length > 5 && ` +${view.columns.length - 5} more`}
+                    </Text>
+                  </div>)}
                 </Space>
               </Card>
             );
