@@ -40,6 +40,7 @@ export default async function ConsoleLayout({ children, params }: {
                         ]
                     },                    
                     { title: 'Staff', href: `${baseUrl}/staff` },
+                    { title: 'Drivers', href: `${baseUrl}/drivers` },
                     { title: 'Vehicles', href: `${baseUrl}/vehicles` },
                     { title: 'Delivery Slots', href: `${baseUrl}/delivery_slots` },
                 ]} />

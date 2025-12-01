@@ -1,5 +1,6 @@
 #import "../_fragment/error.graphql"
 #import "../_fragment/success.graphql"
+#import "../order/_fragment/OrderItems.graphql"
 
 mutation MarkOrderItemMismatch(
   $_id_order: ID!
@@ -17,10 +18,7 @@ mutation MarkOrderItemMismatch(
       _id
       current_order {
         items {
-          _id_product
-          status
-          processed_qty
-          issue_reason
+          ...OrderItemsInfo
         }
       }
     }

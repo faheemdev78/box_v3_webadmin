@@ -22,18 +22,21 @@ export interface OrderItem {
   price: number;
   total: number;
   processed_qty: number;
-  verification_status?: 'pending' | 'verified' | 'missing' | 'damaged' | 'mismatch';
-  verification_notes?: string;
-  verified_at?: Date | null;
-  issue_reason?: string;
+  // Backend uses 'status' field with values: confirmed, out_of_stock, damaged, requested, picked
   status?: string;
+  issue_reason?: string;
+  verified_at?: Date | null;
 }
 
 export interface OrderTotals {
-  subTotal: number;
-  discount: number;
-  tax: number;
+  subtotal: number;
+  discountTotal: number;
+  taxAmount: number;
   grandTotal: number;
+  // Legacy fields for backward compatibility
+  subTotal?: number;
+  discount?: number;
+  tax?: number;
 }
 
 export interface HeldOrder {

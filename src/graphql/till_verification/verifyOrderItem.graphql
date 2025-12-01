@@ -1,5 +1,6 @@
 #import "../_fragment/error.graphql"
 #import "../_fragment/success.graphql"
+#import "../order/_fragment/OrderItems.graphql"
 
 mutation VerifyOrderItem(
   $_id_order: ID!
@@ -15,9 +16,7 @@ mutation VerifyOrderItem(
       _id
       current_order {
         items {
-          _id_product
-          status
-          processed_qty
+          ...OrderItemsInfo
         }
       }
     }

@@ -318,13 +318,13 @@ export const useVerifyOrderItem = () => {
   const [verifyItemMutation, { loading }] = useMutation(VERIFY_ORDER_ITEM);
 
   const verifyItem = async (_id_order: string, _id_product: string, qty_verified: number) => {
-    // Optimistic update
+    // Optimistic update - backend will set status to 'confirmed'
     dispatch(updateOrderItem({
       orderId: _id_order,
       productId: _id_product,
       updates: {
         processed_qty: qty_verified,
-        verification_status: 'verified',
+        status: 'confirmed',
         verified_at: new Date(),
       },
     }));
@@ -335,7 +335,6 @@ export const useVerifyOrderItem = () => {
       })
         .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.verifyOrderItem }))
         .catch(catchApolloError)
-      // const response = result.data?.verifyOrderItem;
 
       if (response?.error) {
         throw new Error(response.error.message);
@@ -352,13 +351,13 @@ export const useVerifyOrderItem = () => {
       return response;
     } catch (error) {
       console.error('Error verifying item:', error);
-      // Revert optimistic update on error
+      // Revert optimistic update on error - reset to 'requested' or 'picked'
       dispatch(updateOrderItem({
         orderId: _id_order,
         productId: _id_product,
         updates: {
           processed_qty: 0,
-          verification_status: 'pending',
+          status: 'requested',
           verified_at: null,
         },
       }));
@@ -379,13 +378,13 @@ export const useMarkOrderItemMissing = () => {
   const [markMissingMutation, { loading }] = useMutation(MARK_ORDER_ITEM_MISSING);
 
   const markMissing = async (_id_order: string, _id_product: string, reason: string) => {
-    // Optimistic update
+    // Optimistic update - backend will set status to 'out_of_stock'
     dispatch(updateOrderItem({
       orderId: _id_order,
       productId: _id_product,
       updates: {
         processed_qty: 0,
-        verification_status: 'missing',
+        status: 'out_of_stock',
         issue_reason: reason,
         verified_at: new Date(),
       },
@@ -397,8 +396,6 @@ export const useMarkOrderItemMissing = () => {
       })
         .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.markOrderItemMissing }))
         .catch(catchApolloError)
-      // const response = result.data?.markOrderItemMissing;
-      console.log("response: ", response)
 
       if (response?.error) {
         throw new Error(response.error.message);
@@ -421,7 +418,7 @@ export const useMarkOrderItemMissing = () => {
         productId: _id_product,
         updates: {
           processed_qty: 0,
-          verification_status: 'pending',
+          status: 'requested',
           issue_reason: undefined,
           verified_at: null,
         },
@@ -476,13 +473,13 @@ export const useMarkOrderItemMismatch = () => {
     qty_verified: number,
     reason: string
   ) => {
-    // Optimistic update
+    // Optimistic update - backend will set status to 'confirmed' with issue_reason
     dispatch(updateOrderItem({
       orderId: _id_order,
       productId: _id_product,
       updates: {
         processed_qty: qty_verified,
-        verification_status: 'mismatch',
+        status: 'confirmed',
         issue_reason: reason,
         verified_at: new Date(),
       },
@@ -516,7 +513,7 @@ export const useMarkOrderItemMismatch = () => {
         productId: _id_product,
         updates: {
           processed_qty: 0,
-          verification_status: 'pending',
+          status: 'requested',
           issue_reason: undefined,
           verified_at: null,
         },

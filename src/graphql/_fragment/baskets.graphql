@@ -8,7 +8,6 @@ fragment BasketInfo on Basket {
   color
   category
   
-  # is_locked
   # locked_by: ID
   locked_at
   lock_expires_at

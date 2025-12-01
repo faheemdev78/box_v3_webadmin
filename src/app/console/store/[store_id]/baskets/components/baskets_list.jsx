@@ -17,8 +17,6 @@ const ReleaseBasketButton = ({ basket, onSuccess }) => {
     const [busy, setBusy] = useState(false)
     const [do_releaseBasket, release_details] = useMutation(RELEASE_BASKET, {});
     
-    // if (!basket.is_locked) return null;
-
     const releaseBasket = async() => {        
         setBusy(true);
         let results = await do_releaseBasket({ variables: { filter: JSON.stringify({ barcode: basket.barcode }) } })
