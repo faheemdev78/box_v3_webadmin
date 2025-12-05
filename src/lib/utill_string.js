@@ -3,9 +3,9 @@ import moment from 'moment';
 import axios from 'axios';
 import { __error, __yellow } from './consoleHelper';
 import dayjs from 'dayjs';
-import _ from 'lodash';
 import { nanoid } from 'nanoid'
 import { message } from 'antd';
+import { isString } from './lodash_alt';
 
 
 // moment.tz.setDefault("Canada/Mountain");
@@ -34,7 +34,7 @@ export const parseJson = (jsonString, returnBoolean = false) => {
     if (!jsonString) return returnBoolean ? false : jsonObject;
 
     try {
-        if (typeof jsonString !== "string" || !_.isString(jsonString) || jsonString == undefined || jsonString == null || jsonString == "") {
+        if (typeof jsonString !== "string" || !isString(jsonString) || jsonString == undefined || jsonString == null || jsonString == "") {
             // return false;
             if (returnBoolean) jsonObject = false;
         } else {

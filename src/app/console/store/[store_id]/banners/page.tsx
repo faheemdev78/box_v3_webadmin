@@ -15,4 +15,4 @@ export default function BannersPage() {
 
 // export default function Wrapper(props){
 //     return (<StoreWrapper {...props} render={({ store }) => (<BannersPage store={store} {...props} />)} />)
-}
+// }

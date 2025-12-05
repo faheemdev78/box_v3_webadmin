@@ -3,7 +3,7 @@ import moment from 'moment';
 import axios from 'axios';
 import { __error, __yellow } from './consoleHelper';
 import dayjs from 'dayjs';
-import _ from 'lodash';
+import { isString } from './lodash_alt';
 import { nanoid } from 'nanoid'
 import { message } from 'antd';
 
@@ -314,7 +314,7 @@ export const formToFilter = (_fields) => {
 
         if (!isNaN(val)) return Number(val)
 
-        if (_.isString(val)) return String(val);
+        if (isString(val)) return String(val);
         if (val.keywords) return val;
 
         return false;

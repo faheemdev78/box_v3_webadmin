@@ -1,4 +1,4 @@
-#import "../../_fragment/response.graphql"
+#import "../_fragment/response.graphql"
 
 mutation deleteDeliverySlot($_id: ID!) {
     deleteDeliverySlot(_id: $_id) {
