@@ -20,14 +20,14 @@ import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo'
 import RECORD_ADD from '@_/graphql/users/addStoreStaff.graphql'
 
 
-export default function UserForm (props) {
+function UserForm () {
     const [error, setError] = useState(false);
     const router = useRouter()
 
     const [addStoreStaff, add_details] = useMutation(RECORD_ADD); // { data, loading, error }
 
-    const onSubmit = async (values) => {
-        setError(null)
+    const onSubmit = async (values: any) => {
+        setError(null as any)
 
         let input = {
             _id_store: values.store._id,
@@ -47,7 +47,7 @@ export default function UserForm (props) {
         else if (values.password && (values.password == values.confirm_pwd)) Object.assign(input, { password: values.password });
 
         const resutls = await addStoreStaff({ variables: { input }})
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.addStoreStaff }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.addStoreStaff }))
             .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
@@ -89,12 +89,12 @@ export default function UserForm (props) {
 
                                     <div><Space>
                                         <AccTypesDD
-                                            onChange={(___, raw) => form.mutators.onTypeChanged(raw)}
+                                            onChange={(___: any, raw: any) => form.mutators.onTypeChanged(raw)}
                                             label="Account Type" preload name="acc_type._id" validate={rules.required}
                                         />
                                         <FormField type="select" name="status" label="Status" className={values.status == 'enabled' ? "active" : "inactive"} options={userStatus} validate={rules.required} />
                                         {(values?.acc_type?._id && String(values?.acc_type?.acc_type).indexOf("admin") < 0) && <>
-                                            <StoresDD onChange={(___, raw) => form.mutators.onStoreChanged(raw)} preload name="store._id" label="Store" validate={rules.required} />
+                                            <StoresDD onChange={(___: any, raw: any) => form.mutators.onStoreChanged(raw)} preload name="store._id" label="Store" validate={rules.required} />
                                         </>}
                                     </Space></div>
 
@@ -111,7 +111,7 @@ export default function UserForm (props) {
                                         </Space></div>
 
                                         <FormField type="textarea" name="notes" label="Notes" placeholder="Notes" />
-                                        <div style={{ padding:"20px" }} align="right"><SubmitButton loading={submitting} label={'Save'} /></div>
+                                        <div style={{ padding:"20px", textAlign:"right" }}><SubmitButton loading={submitting} label={'Save'} /></div>
                                     </>}
                                 </Space>
 
@@ -128,3 +128,4 @@ export default function UserForm (props) {
     </>)
 }
 
+export default UserForm

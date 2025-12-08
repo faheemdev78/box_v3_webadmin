@@ -142,7 +142,7 @@ const DUMMY_USER_EXTRAS = {
     average_delivery_time: '45 minutes'
 };
 
-function CustomerDashboard({ user, session, refresh }) {
+function CustomerDashboard({ user, session, refresh }: { user: any; session: any; refresh: () => void }) {
     if (!session || !session?.user?._id) return <Alert message="Invalid user session" showIcon type='error' />
 
     const getStatusColor = (status: string) => {
@@ -372,10 +372,11 @@ function CustomerDashboard({ user, session, refresh }) {
                         dataSource={DUMMY_ADDRESSES}
                         renderItem={(address) => (
                             <List.Item
+                                key={address._id || address.label}
                                 actions={[
-                                    address.is_default ? <Tag color="blue">Default</Tag> : <a>Set Default</a>,
-                                    <a>Edit</a>,
-                                    <a style={{ color: 'red' }}>Delete</a>
+                                    <span key="default">{address.is_default ? <Tag color="blue">Default</Tag> : <a>Set Default</a>}</span>,
+                                    <a key="edit">Edit</a>,
+                                    <a key="delete" style={{ color: 'red' }}>Delete</a>
                                 ]}
                             >
                                 <List.Item.Meta
@@ -428,6 +429,8 @@ function CustomerDashboard({ user, session, refresh }) {
     </>)
 }
 
-export default function Wrapper(props){
-    return (<CustomerWrapper {...props} render={({ user, session, refresh }) => (<CustomerDashboard user={user} session={session} refresh={refresh} {...props} />)} />)
+function Wrapper(props: any){
+    return (<CustomerWrapper {...props} render={({ user, session, refresh }: { user: any; session: any; refresh: () => void }) => (<CustomerDashboard user={user} session={session} refresh={refresh} {...props} />)} />)
 }
+
+export default Wrapper;

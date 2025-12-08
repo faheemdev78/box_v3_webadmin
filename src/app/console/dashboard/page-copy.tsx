@@ -14,7 +14,7 @@ import { Page } from "@_/template";
 // import { getSessionToken } from "@_/lib/auth";
 
 
-async function ConsoleHome(props) {
+async function ConsoleHome() {
     // const session = await getSessionToken()
     // const [session, setSession] = useState(null);
     // const session = useSelector((state) => state.session);

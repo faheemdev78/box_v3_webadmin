@@ -30,6 +30,7 @@ export const ProductAttributesSelector = props => {
             getProdType(props._id_type);
             // sleep(2000)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props._id_type])
 
     const getProdType = async (_id_type) => {

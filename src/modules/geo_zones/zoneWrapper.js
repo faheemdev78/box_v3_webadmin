@@ -11,7 +11,7 @@ import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo'
 import GET_ZONE from '@_/graphql/geo_zone/geoZone.graphql';
 import UPDATE_STATUS from '@_/graphql/geo_zone/editGeoZone.graphql'
 
-export default function ZoneWrapper({ render, ...props }) {
+function ZoneWrapper({ render, ...props }) {
     const { zone_id } = useParams()
 
     const [fatelError, set_fatelError] = useState(null)
@@ -22,6 +22,7 @@ export default function ZoneWrapper({ render, ...props }) {
     useEffect(() => {
         if (called || loading || !zone_id) return;
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [zone_id])
 
     const fetchData = async () => {
@@ -81,3 +82,5 @@ export default function ZoneWrapper({ render, ...props }) {
     </>)
 
 }
+
+export default ZoneWrapper

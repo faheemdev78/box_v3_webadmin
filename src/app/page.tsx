@@ -8,8 +8,8 @@ import { adminRoot } from "@_/configs";
 import { redirect, RedirectType } from 'next/navigation';
 
 
-function ConsoleHome(props) {
-    const session = useSelector((state) => state.session);
+function ConsoleHome() {
+    const session = useSelector((state:any) => state.session);
     // const router = useRouter()
 
     useEffect(() => {

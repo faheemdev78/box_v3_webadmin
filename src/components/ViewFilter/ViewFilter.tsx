@@ -77,13 +77,31 @@ const SortableTabLabel = React.memo(({ view }: { view: ViewConfig }) => {
         </div>
     );
 });
+SortableTabLabel.displayName = 'SortableTabLabel';
+
+interface TabBarProps {
+    sensors: any;
+    handleDragEnd: any;
+    pinnedViews: ViewConfig[];
+    activeViewId: string | null;
+    applyView: (view: ViewConfig) => void;
+    setShowBuilder: (val: boolean) => void;
+    setEditingViewId: (val: string | null) => void;
+    currentFormRef: React.RefObject<any>;
+    showFilterDetails: boolean;
+    setShowFilterDetails: (val: boolean) => void;
+    showAllViews: boolean;
+    setShowAllViews: (val: boolean) => void;
+    showAddNewForm: boolean;
+    set_showAddNewForm: (val: boolean) => void;
+}
 
 const TabBar = ({ 
     sensors, handleDragEnd, pinnedViews, activeViewId, applyView, setShowBuilder, setEditingViewId, currentFormRef, 
     showFilterDetails, setShowFilterDetails,
     showAllViews, setShowAllViews,
     showAddNewForm, set_showAddNewForm
-}) => {
+}: TabBarProps) => {
     // const [showAddNewForm, set_showAddNewForm] = useState(false);
     // const [showAllViews, setShowAllViews] = useState(false);
     // const [showFilterDetails, setShowFilterDetails] = useState(false);
@@ -175,6 +193,7 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
                 callbacks.onApplyView(defaultView);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Sync with external views
@@ -452,26 +471,26 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
             setShowBuilder={setShowBuilder}
             setEditingViewId={setEditingViewId}
             currentFormRef={currentFormRef}
-            setShowFilterDetails={() => setShowFilterDetails(!showFilterDetails)}
+            setShowFilterDetails={setShowFilterDetails}
             showFilterDetails={showFilterDetails}
             showAllViews={showAllViews} setShowAllViews={setShowAllViews}
             showAddNewForm={showAddNewForm} set_showAddNewForm={set_showAddNewForm}
         />
 
-        {showFilterDetails && <>
+        {showFilterDetails && activeView && <>
             <ViewTab
                 view={activeView}
                 config={config}
                 // form={form}
-                onApply={() => applyView(activeView)}
-                onEdit={() => loadView(activeView)}
-                onDelete={() => handleDeleteView(activeView.id)}
-                onToggleFavorite={() => toggleFavorite(activeView.id)}
-                onTogglePin={() => togglePin(activeView.id)}
-                onSetDefault={() => setAsDefault(activeView.id)}
-                onClone={() => handleCloneView(activeView)}
-                canEdit={canEditView(activeView, config.currentUser.id, config.currentUser.role)}
-                canDelete={canDeleteView(activeView, config.currentUser.id, config.currentUser.role)}
+                onApply={() => activeView && applyView(activeView)}
+                onEdit={() => activeView && loadView(activeView)}
+                onDelete={() => activeView && handleDeleteView(activeView.id)}
+                onToggleFavorite={() => activeView && toggleFavorite(activeView.id)}
+                onTogglePin={() => activeView && togglePin(activeView.id)}
+                onSetDefault={() => activeView && setAsDefault(activeView.id)}
+                onClone={() => activeView && handleCloneView(activeView)}
+                canEdit={activeView ? canEditView(activeView, config.currentUser.id, config.currentUser.role) : false}
+                canDelete={activeView ? canDeleteView(activeView, config.currentUser.id, config.currentUser.role) : false}
                 isExpanded
             />
         </>}
@@ -481,7 +500,7 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
             <AllViewsTab
                 views={visibleViews}
                 config={config}
-                // form={form}
+                form={currentFormRef.current}
                 onLoad={loadView}
                 onApply={applyView}
                 onDelete={handleDeleteView}
@@ -502,16 +521,22 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
     </>)
 
     return (<>
-        <TabBar
-            sensors={sensors}
-            handleDragEnd={handleDragEnd}
-            pinnedViews={pinnedViews}
-            activeViewId={activeViewId}
-            applyView={applyView}
-            setShowBuilder={setShowBuilder}
-            setEditingViewId={setEditingViewId}
-            currentFormRef={currentFormRef}
-        />
+            <TabBar
+                sensors={sensors}
+                handleDragEnd={handleDragEnd}
+                pinnedViews={pinnedViews}
+                activeViewId={activeViewId}
+                applyView={applyView}
+                setShowBuilder={setShowBuilder}
+                setEditingViewId={setEditingViewId}
+                currentFormRef={currentFormRef}
+                showFilterDetails={showFilterDetails}
+                setShowFilterDetails={setShowFilterDetails}
+                showAllViews={showAllViews}
+                setShowAllViews={setShowAllViews}
+                showAddNewForm={showAddNewForm}
+                set_showAddNewForm={set_showAddNewForm}
+            />
         
 
         <Button type="link" icon={showFilterDetails ? <EyeInvisibleOutlined /> : <EyeOutlined />} onClick={() => setShowFilterDetails(!showFilterDetails)}>
@@ -519,21 +544,21 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
         </Button>
 
         {showFilterDetails && <>
-            <ViewTab
-                view={activeView}
+            {activeView && (<ViewTab
+                view={activeView!}
                 config={config}
                 // form={form}
-                onApply={() => applyView(activeView)}
-                onEdit={() => loadView(activeView)}
-                onDelete={() => handleDeleteView(activeView.id)}
-                onToggleFavorite={() => toggleFavorite(activeView.id)}
-                onTogglePin={() => togglePin(activeView.id)}
-                onSetDefault={() => setAsDefault(activeView.id)}
-                onClone={() => handleCloneView(activeView)}
-                canEdit={canEditView(activeView, config.currentUser.id, config.currentUser.role)}
-                canDelete={canDeleteView(activeView, config.currentUser.id, config.currentUser.role)}
+                onApply={() => applyView(activeView!)}
+                onEdit={() => loadView(activeView!)}
+                onDelete={() => handleDeleteView(activeView!.id)}
+                onToggleFavorite={() => toggleFavorite(activeView!.id)}
+                onTogglePin={() => togglePin(activeView!.id)}
+                onSetDefault={() => setAsDefault(activeView!.id)}
+                onClone={() => handleCloneView(activeView!)}
+                canEdit={canEditView(activeView!, config.currentUser.id, config.currentUser.role)}
+                canDelete={canDeleteView(activeView!, config.currentUser.id, config.currentUser.role)}
                 isExpanded
-            />
+            />)}
         </>}
 
         <hr />
@@ -697,22 +722,21 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
                                                         label: 'Filter Configuration',
                                                         showArrow: false,
                                                         children: (
-                                                            <ViewTab
-                                                                view={activeView}
-                                                                config={config}
-                                                                form={form}
-                                                                onApply={() => applyView(activeView)}
-                                                                onEdit={() => loadView(activeView)}
-                                                                onDelete={() => handleDeleteView(activeView.id)}
-                                                                onToggleFavorite={() => toggleFavorite(activeView.id)}
-                                                                onTogglePin={() => togglePin(activeView.id)}
-                                                                onSetDefault={() => setAsDefault(activeView.id)}
-                                                                onClone={() => handleCloneView(activeView)}
-                                                                canEdit={canEditView(activeView, config.currentUser.id, config.currentUser.role)}
-                                                                canDelete={canDeleteView(activeView, config.currentUser.id, config.currentUser.role)}
-                                                                isExpanded
-                                                            />
-                                                        )
+                                                                <ViewTab
+                                                                    view={activeView}
+                                                                    config={config}
+                                                                    onApply={() => activeView && applyView(activeView)}
+                                                                    onEdit={() => activeView && loadView(activeView)}
+                                                                    onDelete={() => activeView && handleDeleteView(activeView.id)}
+                                                                    onToggleFavorite={() => activeView && toggleFavorite(activeView.id)}
+                                                                    onTogglePin={() => activeView && togglePin(activeView.id)}
+                                                                    onSetDefault={() => activeView && setAsDefault(activeView.id)}
+                                                                    onClone={() => activeView && handleCloneView(activeView)}
+                                                                    canEdit={activeView ? canEditView(activeView, config.currentUser.id, config.currentUser.role) : false}
+                                                                    canDelete={activeView ? canDeleteView(activeView, config.currentUser.id, config.currentUser.role) : false}
+                                                                    isExpanded
+                                                                />
+                                                            )
                                                     }
                                                 ]}
                                             />

@@ -12,24 +12,24 @@ import { getSession } from '@_/rStore/slices/sessionSlice'
 export function LinkComp({ children, href = "#", onClick, className, style }: {
     children: React.ReactNode;
     href: string | "#";
-    onClick: Function;
-    className: string;
-    style: any;
+    onClick?: React.MouseEventHandler<HTMLAnchorElement>;
+    className?: string;
+    style?: any;
 }) {
     return <Link className={`block-menu-item ${className || ""}`} href={href} onClick={onClick} style={style}>{children}</Link>
 }
 
 
 export function TopBar({ menuArray, session }: {
-    menuArray: object[];
-    session: object;
+    menuArray: any[];
+    session: any;
 }) {
     const pathname = usePathname()
-    const matchUrl = (href) => pathname.startsWith(href);
+    const matchUrl = (href: string) => pathname.startsWith(href);
 
     return (<div className='menu-bar'>
         <Space size={0}>
-            {filterPermissions(menuArray, session).map((item, i) => {
+            {filterPermissions(menuArray, session).map((item: any, i: number) => {
                 if (item.children && item.children.length > 0) {
                     return (<Popover
                         color="#2D3E51"
@@ -37,7 +37,7 @@ export function TopBar({ menuArray, session }: {
                         // classNames={{ body: "menu-bar-item-children" }}
                         styles={{ body: { padding: 0, margin: 0, border: "0px solid red" } }}
                         title={false}
-                        content={filterPermissions(item.children, session)?.map((ch, ii) => (<LinkComp className={`${matchUrl(ch.href) ? 'active' : ''}`} href={ch.href || '#'} key={ii}>{ch.title}</LinkComp>))}
+                        content={filterPermissions(item.children, session)?.map((ch: any, ii: number) => (<LinkComp className={`${matchUrl(ch.href) ? 'active' : ''}`} href={ch.href || '#'} key={ii}>{ch.title}</LinkComp>))}
                         arrow={true}
                         key={i}>
                         <Link className={`${matchUrl(item.href) ? 'active' : ''}`} href={item.href || '#'} key={i}>
@@ -56,9 +56,9 @@ export function TopBar({ menuArray, session }: {
 
 
 export function PageBar({ menuArray, _session, pop_item_style }: {
-    menuArray: object[];
-    _session?: object;
-    pop_item_style?: object;
+    menuArray: any[];
+    _session?: any;
+    pop_item_style?: any;
 }) {
     const pathname = usePathname()
     const matchUrl = (href: string) => href == pathname; // (href === "/") ? pathname == href : pathname.startsWith(href);
@@ -97,7 +97,7 @@ export function PageBar({ menuArray, _session, pop_item_style }: {
                         classNames={{ body: "menu-bar-dd-children" }}
                         styles={{ body: { padding: 0, margin: 0, border: "0px solid red" } }}
                         title={false}
-                        content={filterPermissions(item.children, session)?.map((ch, ii) => (<LinkComp style={pop_item_style} className={`${matchUrl(ch.href) ? 'active' : ''}`} href={ch.href} key={ii}>{ch.title}</LinkComp>))}
+                        content={filterPermissions(item.children, session)?.map((ch: any, ii: number) => (<LinkComp style={pop_item_style} className={`${matchUrl(ch.href) ? 'active' : ''}`} href={ch.href} key={ii}>{ch.title}</LinkComp>))}
                         arrow={true}
                         key={i}>
                         <Link className={`${matchUrl(item.href) ? 'active' : ''}`} href={item.href} key={i}>{item.title} <Icon className="more-icon" icon="angle-down" /></Link>

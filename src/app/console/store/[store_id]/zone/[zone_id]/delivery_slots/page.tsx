@@ -15,8 +15,8 @@ import { __error } from '@_/lib/consoleHelper';
 import GET_ZONE from '@_/graphql/geo_zone/geoZone.graphql';
 
 // function ZoneDeliverySlots({ params: { zone_id }, store }) {
-export default function ZoneDeliverySlots(props) {
-    const { store } = usePageProps()
+function ZoneDeliverySlots() {
+    const { store } = usePageProps() as unknown as { store: any }
 
     const [fatelError, set_fatelError] = useState(null)
     const { zone_id } = useParams<{ zone_id: string }>()
@@ -26,11 +26,12 @@ export default function ZoneDeliverySlots(props) {
     useEffect(() => {
         if (called || loading || !zone_id) return;
         fetchData();
-    }, [zone_id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [zone_id, called, loading])
     
     const fetchData = async () => {
         let resutls = await get_geoZone({ variables: { _id: zone_id } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZone }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.geoZone }))
             .catch(catchApolloError)
 
         if (resutls && resutls.error) {
@@ -59,8 +60,9 @@ export default function ZoneDeliverySlots(props) {
     </>)
 }
 
+export default ZoneDeliverySlots;
+
 // export default function Wrapper(props){
 //     return (<StoreWrapper {...props} render={({ store }) => (<ZoneDeliverySlots {...props} store={store} />)} />)
 // }
-
 

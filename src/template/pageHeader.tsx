@@ -37,15 +37,28 @@ interface PageHeaderProps {
 // export function PageHeader({ title, sub, onSearch, searchFields, children }) {
 export function PageHeader({ title, sub, onSearch, searchFields, children, allowBack }: PageHeaderProps) {
     return (<div className='page-header'><div className='page-header-inner'>
-        <Row align='middle' gutter={[10]}>
-            {allowBack &&  <Col><BackButton /></Col>}
+        <Row align='middle' gutter={[10, 10]}>
+            {allowBack &&  <Col><BackButton onClick={undefined} tooltip={undefined} /></Col>}
             <Col flex="auto"><Space>
                 <PageTitle>{title}</PageTitle>
                 {sub}
             </Space></Col>
             <Col><Space>
                 {onSearch && <>
-                    <SearchBar style={{ maxWidth: "200px", minWidth: "200px", marginTop: "10px" }} onSearch={console.log} size="medium" />
+                    <SearchBar
+                        style={{ maxWidth: "200px", minWidth: "200px", marginTop: "10px" }}
+                        onSearch={console.log}
+                        size="medium"
+                        onFocus={undefined}
+                        placeholder={undefined}
+                        timeout={undefined}
+                        permanentFilter={undefined}
+                        filter={undefined}
+                        onFilterUpdate={undefined}
+                        onChange={undefined}
+                        loading={undefined}
+                        returnJson={undefined}
+                    />
                     {searchFields && <SearchFieldSelector searchFields={searchFields} />}
                 </>}
                 {children}

@@ -10,6 +10,6 @@ export interface PaginationProps {
     showQuickJumper ?: boolean;
     showSizeChanger ?: boolean;
     showTitle ?: boolean;
-    size ?: number;
+    size ?: 'default' | 'small';
     total ?: number;
 }

@@ -179,7 +179,7 @@ export function FilterBuilder({ config, form }: FilterBuilderProps) {
                                                                 </Col>
                                                                 <Col>
                                                                     <IconButton
-                                                                        type="danger"
+                                                                        danger
                                                                         icon="trash-alt"
                                                                         onClick={() => conditionFields.remove(condIndex)}
                                                                     />

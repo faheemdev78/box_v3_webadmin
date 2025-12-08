@@ -6,7 +6,7 @@ import { Page } from '@_/template/page'
 import { PageHeader } from '@_/template'
 import { Card } from 'antd'
 
-export default function AddStorePage() {
+function AddStorePage() {
   return (<>
     <PageHeader title={"Add New Store"} />
 
@@ -17,3 +17,5 @@ export default function AddStorePage() {
     </Page>
   </>)
 }
+
+export default AddStorePage

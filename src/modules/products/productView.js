@@ -38,12 +38,14 @@ export function ProductView({ session, store, refresh, ...props }) {
     useEffect(() => {
         if (!initialValues) return; // skip this for the frist time
         set_initialValues(props.initialValues)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.initialValues])
 
     useEffect(() => {
         if (initialValues && initialValues._id) set_initialValues(initialValues)
         if (!initialValues || !initialValues._id || loading || called) return;
         fetchVarients();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialValues])
 
     if (!session || !session?.user?._id) return <Alert message="Invalid session provided" showIcon type='error' />

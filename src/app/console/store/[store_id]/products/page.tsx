@@ -20,16 +20,18 @@ const defaultFilter = {}; // { status: 'online' }
 
 
 
-export default function StoreProductsHome({ ...props }) {
+function StoreProductsHome(props:any) {
     // const session = useSelector((state) => state.session);
     const session = useAppSelector(getSession)
-    const { store } = usePageProps()
+    const pageProps = (usePageProps() as any) || {};
+    const store = pageProps?.store || {}
 
     const [state, setState] = useState({
         pagination: defaultPagination,
         pageView: "list",
         dataSource: null,
         filter: { ...defaultFilter },
+        others: {},
     })
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState(null)
@@ -38,11 +40,12 @@ export default function StoreProductsHome({ ...props }) {
 
     useEffect(() => {
         if (called || loading) return
-        fetchData({})
-    }, [props])
+        fetchData({ filter: defaultFilter })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called, loading])
 
     
-    const fetchData = async ({ filter, pagination = {} }) => {
+    const fetchData = async ({ filter, pagination = {} }: { filter?: any; pagination?: any } = {}) => {
         // console.log(__yellow("fetchData()"), { filter, pagination })
         
         const variables = {
@@ -61,7 +64,7 @@ export default function StoreProductsHome({ ...props }) {
                 _id_store: store._id
             }
         })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productsQuery }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.productsQuery }))
             .catch(catchApolloError)
 
         setBusy(false)
@@ -82,7 +85,7 @@ export default function StoreProductsHome({ ...props }) {
                 pageSize: resutls.pagination.limit,
             },
             filter: variables.filter,
-            dataSource: resutls?.edges?.map(o => {
+            dataSource: resutls?.edges?.map((o: any) => {
                 return {
                     ...o,
                     children: o.variations, //o?.variations?.length > 0 && o.variations,
@@ -105,12 +108,15 @@ export default function StoreProductsHome({ ...props }) {
             {...state}
             busy={busy} setBusy={setBusy}
             fetchData={fetchData}
+            loading={loading}
             searchFilterConfig={props.searchFilterConfig}
-            parseEditLink={(record) => (`${adminRoot}/store/${store._id}/product/${record._id}/view`)}
+            parseEditLink={(record: any) => (`${adminRoot}/store/${store._id}/product/${record._id}/view`)}
             columns={columns}
         />
     </>)
 }
+
+export default StoreProductsHome;
 
 // export default function Wrapper(props){
 //     // const { data: session, status, update } = useSession()

@@ -40,7 +40,7 @@ const defaultFilter = {};
 
 
 function ReadytoDispatchList(props:any) {
-  const { store } = usePageProps()
+  const { store } = usePageProps() as unknown as { store: any }
   
   const [state, setState] = useState({
       pagination: defaultPagination,
@@ -52,12 +52,12 @@ function ReadytoDispatchList(props:any) {
 
   const [getReadyToDispatchQueue, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
   
-  const fetchData = async ({ filter, pagination={} }) => {
+  const fetchData = async ({ filter = {}, pagination={} }: { filter?: any; pagination?: { pageSize?: number; current?: number } }) => {
       const variables = {
           limit: pagination?.pageSize || state.pagination.pageSize,
           page: pagination?.current || state.pagination.current,
           filter: filter || state.filter || {},
-          others: state.others || {},
+          others: (state as any).others || {},
           _id_store: store._id,
       }
 
@@ -68,7 +68,7 @@ function ReadytoDispatchList(props:any) {
               others: JSON.stringify(variables.others || {})
           }
         })
-        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.getReadyToDispatchQueue }))
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.getReadyToDispatchQueue }))
           .catch(catchApolloError)
 
       if (resutls && resutls.error) {
@@ -94,7 +94,8 @@ function ReadytoDispatchList(props:any) {
   useEffect(() => {
       if (called || loading) return
       fetchData({})
-  }, [props])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [called, loading])
     
 
   return (<>
@@ -104,7 +105,7 @@ function ReadytoDispatchList(props:any) {
               <Title level={3} style={{ margin: 0 }}>Ready To Dispatch</Title>
               {!loading && <Tag color="green">{state?.pagination?.total || 0} orders found</Tag>}
           </Space>}
-          extra={<Button onClick={() => fetchData({})} loading={loading}>Refresh</Button>}
+          extra={<Button onClick={() => fetchData({ filter: state.filter, pagination: state.pagination })} loading={loading}>Refresh</Button>}
           styles={{ body: { padding: 0 } }}
       >
           <OrderTable
@@ -113,7 +114,7 @@ function ReadytoDispatchList(props:any) {
                 key: 'actions',
                 options: { reset: true, till_verification: false }
               }]} 
-              dataSource={state.dataSource}
+              dataSource={state.dataSource || []}
               pagination={state.pagination}
               scroll={{ x: 1200 }}
           />

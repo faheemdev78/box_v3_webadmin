@@ -41,24 +41,26 @@ const OrdersList: React.FC<OrdersListProps> = ({
   dataSource, fetchData, busy, setBusy, searchFilterConfig, ...props
 }) => {
   const router = useRouter()
-  const session = useAppSelector((state) => state.session);
+  const session = useAppSelector((state: any) => state.session);
   const settings = useAppSelector(getSettings)
   const isStoreUser = !!(session?.user?.store?._id);
 
   const [resetOrder, resetOrder_results] = useMutation(RESET_ORDER);
   const canResetOrder = security.verifyRole('106.9', session.user.permissions); // Order reset permission
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    fetchData({
-      pagination:{
-        pageSize: pagination.pageSize,
-        current: pagination.page,
-      }
-    })
+  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+    if (fetchData) {
+      fetchData({
+        pagination:{
+          pageSize: pagination.pageSize,
+          current: pagination.page,
+        }
+      })
+    }
   };
 
-  const handleResetOrder = async (order) => {
-    setBusy(true);
+  const handleResetOrder = async (order: any) => {
+    if (setBusy) setBusy(true);
 
     try {
       const processedResult = await resetOrder({
@@ -66,7 +68,7 @@ const OrdersList: React.FC<OrdersListProps> = ({
           _id_order: order._id
         }
       })
-        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.resetOrderToZero }))
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.resetOrderToZero }))
         .catch(catchApolloError)
 
       if (processedResult.error) {
@@ -90,14 +92,14 @@ const OrdersList: React.FC<OrdersListProps> = ({
           </div>
         );
         // Refresh the data
-        fetchData({ filter, pagination });
+        if (fetchData) fetchData({ filter, pagination });
       }
     } catch (error) {
       console.error('Error resetting order:', error);
       catchApolloError(error);
       message.error('Failed to reset order. Please try again.');
     } finally {
-      setBusy(false);
+      if (setBusy) setBusy(false);
     }
   };
 
@@ -196,11 +198,11 @@ const OrdersList: React.FC<OrdersListProps> = ({
 
 
   return (<>
-    <PageHeader 
-      title={<>{props.title || "Orders"}</>}
+    <PageHeader
+      title={<>{(props as any).title || "Orders"}</>}
       sub={<div>{pagination ? `Total ${pagination.total || 0} records found` : null}</div>}
     >
-      <Button onClick={() => fetchData({})}>Refresh</Button>
+      <Button onClick={() => fetchData && fetchData({})}>Refresh</Button>
     </ PageHeader>
 
     <Page>
@@ -219,15 +221,15 @@ const OrdersList: React.FC<OrdersListProps> = ({
         bordered
         loading={loading || busy}
         columns={_columns}
-        dataSource={dataSource || null}
+        dataSource={dataSource || undefined}
         // total={(pagination && pagination.total) || 0}
-        pagination={pagination || false}
+        pagination={pagination as any || false}
         // pageSize={(pagination && pagination.pageSize)}
         // current={(pagination && pagination.current) || 1}
         rowClassName={(record => {
           return record.status == 'offline' ? 'disabled-table-row' : "";
         })}
-        onChange={({ current, pageSize }: { current: number, pageSize: number }) => handleTableChange({ page: current, pageSize })}
+        onChange={(pagination: any, filters: any, sorter: any) => handleTableChange({ page: pagination.current, pageSize: pagination.pageSize }, filters, sorter)}
       />
     </Page>
 

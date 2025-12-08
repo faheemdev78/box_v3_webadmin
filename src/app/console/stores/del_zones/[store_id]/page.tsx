@@ -4,6 +4,7 @@ import { __error } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery, gql } from '@apollo/client';
 import { Alert, Col, Divider, message, Popconfirm, Row, Space } from 'antd';
 import { Button, DevBlock, IconButton, Loader, StatusTag, Table } from '@_/components';
+import { ColumnsType } from 'antd/es/table';
 import { adminRoot, defaultPageSize } from '@_/configs';
 import Link from 'next/link';
 import { PageHeader } from '@_/template';
@@ -19,13 +20,13 @@ const GET_STORE = gql`query store($_id: ID!) {
     }
 }`
 
-function GeoZoneList({ store_id, ...props }){
+function GeoZoneList({ store_id, ...props }: { store_id: any; [key: string]: any }){
     const [state, setState] = useState({
         pagination: { current: 1 },
         filter: { "store._id": store_id },
         busy: false,
     })
-    const [listArray, set_listArray] = useState(null)
+    const [listArray, set_listArray] = useState<any | null>(null)
     const [busy, setBusy] = useState(false)
     
     const [geoZoneQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
@@ -34,9 +35,10 @@ function GeoZoneList({ store_id, ...props }){
     useEffect(() => {
         if (called) return;
         fetchData()
-    }, [store_id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [store_id, called])
 
-    const fetchData = async (args = {}) => {
+    const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
         let skip = limit * (current - 1);
@@ -56,7 +58,7 @@ function GeoZoneList({ store_id, ...props }){
                 others: JSON.stringify({})
             }
         })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZoneQuery }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.geoZoneQuery }))
             .catch(catchApolloError)
 
         if (results && results.error) {
@@ -67,9 +69,9 @@ function GeoZoneList({ store_id, ...props }){
         set_listArray(results)
     }
 
-    const handleDelete = async ({ _id }) => {
+    const handleDelete = async ({ _id }: { _id: string }) => {
         let results = await deleteGeoZone({ variables:{ _id }})
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deleteGeoZone }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.deleteGeoZone }))
             .catch(catchApolloError)
 
         if (!results || results.error) {
@@ -80,18 +82,18 @@ function GeoZoneList({ store_id, ...props }){
         message.success("Record deleted")
     }
 
-    const columns = [
-        { title: 'Zone title', dataIndex: 'title', key: 'title', render:(___, rec) => {
+    const columns: ColumnsType<any> = [
+        { title: 'Zone title', dataIndex: 'title', key: 'title', render:(___: any, rec: any) => {
             return <Link href={`${adminRoot}/stores/zone/${rec._id}`}>{rec.title}</Link>
         } },
-        { title: 'Status', dataIndex: 'status', key: 'status', width: 100, align: 'center' },
+        { title: 'Status', dataIndex: 'status', key: 'status', width: 100, align: 'center' as const },
         {
             title: 'Actions',
             dataIndex: 'actions',
             width: 120,
             key: 'actions',
-            align: 'right',
-            render: (text, rec) => {
+            align: 'right' as const,
+            render: (_text: any, rec: any) => {
                 return (<Space>
                     {/* <IconButton onClick={() => set_showForm({ show: true, fields: rec })} icon="pen" /> */}
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}>
@@ -107,7 +109,7 @@ function GeoZoneList({ store_id, ...props }){
         <Table
             loading={loading}
             columns={columns}
-            dataSource={listArray && listArray.edges}
+            dataSource={listArray?.edges || []}
             pagination={false}
         />
         
@@ -116,10 +118,10 @@ function GeoZoneList({ store_id, ...props }){
 }
 
 
-export default function StoreZones() {
+function StoreZones() {
     const { store_id } = useParams<{ store_id: string }>()
 
-    const [storeData, set_storeData] = useState(null)
+    const [storeData, set_storeData] = useState<any | null>(null)
     const [fatelError, set_fatelError] = useState(null)
 
     const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE, { fetchPolicy: 'network-only' });
@@ -127,11 +129,12 @@ export default function StoreZones() {
     useEffect(() => {
         if (called || loading || !store_id) return;
         fetchZone();
-    }, [store_id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [store_id, called, loading])
 
     const fetchZone = async () => {
         let resutls = await get_store({ variables: { _id: store_id } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.store }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.store }))
             .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
@@ -156,3 +159,5 @@ export default function StoreZones() {
 
     </>)
 }
+
+export default StoreZones;

@@ -98,7 +98,14 @@ const INITIAL_PRODUCT_VIEWS: SavedView[] = [
   }
 ];
 
-const AllView = ({ views, setActiveViewId, setShowAllViews, handleDeleteView }) => {
+interface AllViewProps {
+  views: SavedView[];
+  setActiveViewId: (id: string) => void;
+  setShowAllViews: (show: boolean) => void;
+  handleDeleteView: (id: string) => void;
+}
+
+const AllView = ({ views, setActiveViewId, setShowAllViews, handleDeleteView }: AllViewProps) => {
   return (<Tabs
     defaultActiveKey="all"
     items={[
@@ -182,7 +189,7 @@ const AllView = ({ views, setActiveViewId, setShowAllViews, handleDeleteView }) 
   />)
 }
 
-export default function ProductsFilterPage() {
+function ProductsFilterPage() {
   const [views, setViews] = useState<SavedView[]>(INITIAL_PRODUCT_VIEWS);
   const [activeViewId, setActiveViewId] = useState<string>('view1');
   const [showAllViews, setShowAllViews] = useState(false);
@@ -213,6 +220,7 @@ export default function ProductsFilterPage() {
     }
 
     return result;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeView, products]);
 
   // Handle filter change (defined before useMemo)
@@ -288,6 +296,7 @@ export default function ProductsFilterPage() {
 
       return column;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeView, views, handleFilterChange]);
 
   const handleCreateView = () => {
@@ -492,7 +501,7 @@ export default function ProductsFilterPage() {
               placeholder="Enter view name"
             />
             {!newViewName.trim() && newViewName.length > 0 && (
-              <span style={{ color: 'red', fontSize: 12 }}>View name can't be blank</span>
+              <span style={{ color: 'red', fontSize: 12 }}>View name can&apos;t be blank</span>
             )}
           </div>
 
@@ -540,3 +549,5 @@ export default function ProductsFilterPage() {
     </Page>
   </>);
 }
+
+export default ProductsFilterPage

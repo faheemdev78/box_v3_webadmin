@@ -12,11 +12,13 @@ import PageProvider from "@_/components/pageProps";
 
 
 
-export default function ConsoleLayout({ children }: { children: React.ReactNode }) {
+function ConsoleLayout({ children }: { children: React.ReactNode }) {
   return (<PageProvider pageProps={{}}>
     {children}
   </PageProvider>)
 }
+
+export default ConsoleLayout;
 
 // export default function ConsoleLayout({ children }: { children: React.ReactNode }) {
 //   // const [session, setSession] = useState(null);

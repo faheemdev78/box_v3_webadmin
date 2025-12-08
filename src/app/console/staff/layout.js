@@ -1,8 +1,8 @@
 'use client'
-import { adminRoot } from "@_/configs"
+// import { adminRoot } from "@_/configs"
 // import { PageBar } from "@_/template"
 
-export default function Layout({ children }) {
+function Layout({ children }) {
     return (<>
         {/* <div className='page-bar'>
             <PageBar menuArray={[
@@ -15,3 +15,5 @@ export default function Layout({ children }) {
         {children}
     </>)
 }
+
+export default Layout

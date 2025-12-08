@@ -6,7 +6,8 @@ import { ComponentStyling, parseStylesOutput } from '../../lib';
 import { Card, Col, Row, Space } from 'antd';
 import { Heading } from '../../typography';
 
-export function Text_Render({ item: { data, values, styles, name } }) {
+export function Text_Render({ item }: { item: { data: any, values: any, styles: any, name: any } }) {
+    const { data, values, styles, name } = item;
     let style = parseStylesOutput(styles)
     return (<>
         <div className={cssStyles.comp_text} style={style}>
@@ -15,11 +16,12 @@ export function Text_Render({ item: { data, values, styles, name } }) {
     </>)
 }
 
-export function Text_Props({ item: { name, data, values } }){
+export function Text_Props({ item }: { item: { name: any, data: any, values: any } }){
+    const { name, data, values } = item;
     return (<>
         <Space direction='vertical'>
             <Card styles={{ body: { padding: "10px" } }}>
-                <Heading>Value</Heading>
+                <Heading style={undefined}>Value</Heading>
                 <FormField name={`${name}.values.value`} type="text" />
             </Card>
 
@@ -28,11 +30,14 @@ export function Text_Props({ item: { name, data, values } }){
     </>)
 }
 
-export default { 
-    type: "text", 
-    label: "Text", 
+const TextComponent = {
+    type: "text",
+    label: "Text",
     desc: "Simple text",
-    renderer: Text_Render, 
-    propsRender: Text_Props
-}
+    renderer: Text_Render,
+    propsRender: Text_Props,
+    displayName: "TextComponent"
+};
+
+export default TextComponent;
 

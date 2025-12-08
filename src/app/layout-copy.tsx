@@ -61,7 +61,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ApolloWrapper>
           {/* <SessionProvider> */}
             <AntdRegistry>
-              <ReduxProvider>
+              <ReduxProvider settings={{ firstRun: null, timezone: null, currency: 'Rs' }}>
                 <ValidateClientSession>
                   <Header />
                   <NextTopLoader />
@@ -76,5 +76,4 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     </html>
   );
 }
-
 

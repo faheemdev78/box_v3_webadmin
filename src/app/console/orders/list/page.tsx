@@ -12,18 +12,32 @@ import LIST_DATA from '@_/graphql/order/ordersQuery.graphql'
 
 const defaultFilter = {}; // { status: 'online' }
 
-function ProductsListPage(props) {
-    const [state, setState] = useState({
+type PaginationArgs = { pageSize?: number; current?: number };
+type FetchArgs = { filter?: any; pagination?: PaginationArgs };
+
+interface StateType {
+    pagination: typeof defaultPagination;
+    pageView: string;
+    dataSource: any[] | null;
+    filter: any;
+    others?: any;
+}
+
+type PageProps = { params?: any; searchParams?: any };
+
+function ProductsListPage(_props: PageProps) {
+    const [state, setState] = useState<StateType>({
         pagination: defaultPagination,
         pageView: "list",
         dataSource: null,
         filter: { ...defaultFilter },
+        others: {},
     })
     const [busy, setBusy] = useState(false)
 
     const [ordersQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
   
-    const fetchData = async ({ filter, pagination={} }) => {
+    const fetchData = async ({ filter, pagination = {} }: FetchArgs = {}) => {
         const variables = {
             limit: pagination?.pageSize || state.pagination.pageSize,
             page: pagination?.current || state.pagination.current,
@@ -39,7 +53,7 @@ function ProductsListPage(props) {
                 others: JSON.stringify(variables.others || {})
             }
          })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.ordersQuery }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.ordersQuery }))
             .catch(catchApolloError)
         // setBusy(false)
 
@@ -71,15 +85,18 @@ function ProductsListPage(props) {
     useEffect(() => {
         if (called || loading) return
         fetchData({})
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called, loading])
     
 
     return (<>
         <OrdersList
             {...state}
+            dataSource={state.dataSource || []}
+            pagination={{ ...state.pagination, size: undefined }}
             busy={busy} setBusy={setBusy}
             fetchData={fetchData}
-            searchFilterConfig={props.searchFilterConfig}
+            searchFilterConfig={(_props as any).searchFilterConfig}
             // onEditRecord={(prod) => router.push(`${adminRoot}/product/${prod._id}/view`)}
         />
     </>)

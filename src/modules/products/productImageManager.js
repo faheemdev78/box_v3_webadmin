@@ -41,6 +41,7 @@ export function ProductImageManager({ session, ...props }) {
     useEffect(() => {
         if (!initialValues) return; // skip this for the frist time
         set_initialValues(props.initialValues)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.initialValues])
 
     async function on_uploadMainImage ({ files }) {

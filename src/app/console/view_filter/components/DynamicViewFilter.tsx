@@ -259,7 +259,7 @@ export const DynamicViewFilter: React.FC<DynamicViewFilterProps> = ({
     return (<Card>
       <div style={{ textAlign: 'center', padding: '40px 0' }}>
         <h3>Entity Configuration Not Found</h3>
-        <p>Please configure the "{entityType}" entity in the View Manager first.</p>
+        <p>Please configure the &quot;{entityType}&quot; entity in the View Manager first.</p>
         <Button type="primary" href="/console/view_manager">Go to View Manager</Button>
       </div>
     </Card>);

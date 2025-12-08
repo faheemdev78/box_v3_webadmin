@@ -67,7 +67,7 @@ export function Drawer(props: DrawerProps){
   </ConfigProvider>)
 }
 
-export function DrawerFooter({ children }) {
+export function DrawerFooter({ children }: { children: React.ReactNode }) {
   return (
       <div style={{ border: "0px solid black", position: "absolute", bottom: 0, left: 0, width: "100%", backgroundColor: "#FFFFFF", padding: "10px 20px" }}>
           {children}

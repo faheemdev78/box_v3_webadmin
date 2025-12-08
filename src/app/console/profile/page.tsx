@@ -2,19 +2,20 @@
 
 import React from 'react'
 // import { useSession } from 'next-auth/react'
-import { DataRow, DevBlock, Loader, StatusTag } from '@_/components';
+import { DataRow, DevBlock, Loader } from '@_/components';
 import { PageHeader } from '@_/template';
 import { Card } from 'antd';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppSelector } from '@_/rStore/hooks';
+import type { RootState } from '@_/rStore';
 
-export default function Profile() {
+function Profile() {
     // const { data: session, status, update } = useSession();
-    const session = useSelector((state) => state.session);
+    const session = useAppSelector((state: RootState) => state.session);
 
     // if (status === "loading") return <Loader loading={true} />
 
     return (<>
-        <PageHeader title="My Profile" sub={<StatusTag value={session.user.status} />}></PageHeader>
+        <PageHeader title="My Profile"></PageHeader>
 
         <Card>
             <DataRow label={"Name"}>{session.user.name}</DataRow>
@@ -26,3 +27,5 @@ export default function Profile() {
     </>
     )
 }
+
+export default Profile;

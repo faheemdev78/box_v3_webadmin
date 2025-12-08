@@ -3,7 +3,7 @@
 import { adminRoot } from "@_/configs";
 import { PageBar, PageHeader } from "@_/template";
 
-function ComposerHome(props) {
+function ComposerHome() {
 
     return (<>
         <div className='page-bar'>

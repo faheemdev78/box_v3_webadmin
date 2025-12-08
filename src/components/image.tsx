@@ -1,9 +1,11 @@
 import React from 'react'
-import NextImage from 'next/image';
+import NextImage, { ImageProps as NextImageProps } from 'next/image';
 
-export function Image({ src, alt, ...props }) {
+type CustomImageProps = Omit<NextImageProps, 'src' | 'alt'> & { src: string; alt?: string };
 
-    let _src = src; 
+export function Image({ src, alt, ...props }: CustomImageProps) {
+
+    let _src: string = src; 
     if (!String(src).startsWith('/') && !String(src).startsWith('http')) _src = `${process.env.NEXT_PUBLIC_CDN_ASSETS}/${src}`;
     //String(src).startsWith('http') ? src : `${process.env.NEXT_PUBLIC_CDN_ASSETS}/${src}`;
 

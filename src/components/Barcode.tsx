@@ -1,13 +1,13 @@
 import React from 'react';
-import BarcodePackage from 'react-barcode';
+import BarcodePackage, { BarcodeProps } from 'react-barcode';
 
 
 export const Barcode = ({ value, width, height, format, displayValue, background = '#FFFFFF', lineColor='#000000' }:{
     value: string,
     width?: number, 
     height?: number, 
-    format?: string, 
-    displayValue?: string | number,
+    format?: BarcodeProps['format'], 
+    displayValue?: boolean,
     background?: string,
     lineColor?: string
 }) => {
@@ -16,7 +16,7 @@ export const Barcode = ({ value, width, height, format, displayValue, background
         width={width || 2}
         height={height || 50}
         format={format || "CODE128"}
-        displayValue={displayValue || false}
+        displayValue={displayValue ?? false}
         background={background}
         lineColor={lineColor}        
     />

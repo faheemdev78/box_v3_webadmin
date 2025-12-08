@@ -11,8 +11,8 @@ import { PageHeader } from '@_/template';
 import { usePageProps } from '@_/components';
 
 
-export default function Wrapper(props){
-    const { store } = usePageProps()
+function Wrapper(props:any){
+    const { store } = usePageProps() as unknown as { store: any }
 
     return (<>
         <Page>
@@ -31,3 +31,5 @@ export default function Wrapper(props){
 //         </Card>
 //     </Page>)} />)
 }
+
+export default Wrapper;

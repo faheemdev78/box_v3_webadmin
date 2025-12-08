@@ -11,9 +11,7 @@ import { Button } from '@_/components';
 
 import EDIT_DATA from '@_/graphql/app_pages/editAppPage.graphql'
 
-
-
-export default function AppPageEditForm({ onUpdate, onCancel }) {
+function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel: Function }) {
     const [error, setError] = useState(null)
     const [busy, setBusy] = useState(false)
     const form = useForm()
@@ -103,22 +101,24 @@ export default function AppPageEditForm({ onUpdate, onCancel }) {
                 <Divider>Page Info</Divider>
                 <FormField name="title" label="Page Title" type="text" validate={rules.required} />
                 <FormField name="slug" label="Page Slug" type="text" placeholder={'section1/section2/section3'}
-                    onChange={(e, callback) => callback(string_to_slug(e.target.value, "/"))}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>, callback: (val: string) => void) => callback(string_to_slug(e.target.value, "/"))}
                     validate={rules.required} />
                 <FormField name="description" label="Page Description" rows={2} type="textarea" />
                 <FormField name="p_limit" label="Pagination Limit" type="number" validate={rules.required} />
             </Col>
             <Col span={12}>
-                <ComponentStyling showHeading={false} />
+                <ComponentStyling name="" showHeading={false} />
             </Col>
         </Row>
 
         <hr />
         <Row>
-            <Col flex="auto"><Button onClick={onCancel} disabled={busy}>Cancel</Button></Col>
+            <Col flex="auto"><Button onClick={() => onCancel()} disabled={busy}>Cancel</Button></Col>
             <Col><Button loading={busy} onClick={saveSettings} color="orange">Save</Button></Col>
         </Row>
     </div>)
 
     // return <PageSettings data={data} onUpdate={onPageSettingsUpdate} />
 }
+
+export default AppPageEditForm

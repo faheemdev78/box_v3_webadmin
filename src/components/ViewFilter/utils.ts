@@ -46,7 +46,7 @@ export function canSeeView(view: ViewConfig, userId: string, teamId?: string): b
         case 'private':
             return view.createdBy === userId;
         case 'team':
-            return view.createdBy === userId || (teamId && view.createdBy.includes(teamId));
+            return view.createdBy === userId || (!!teamId && view.createdBy.includes(teamId));
         case 'everyone':
             return true;
         default:

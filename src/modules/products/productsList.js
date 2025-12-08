@@ -70,6 +70,7 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
       onDeleteClick={handleDelete}
     />
   })
+  renderGridItem.displayName = 'ProductGridItem';
 
   // if (status=='loading') return <Loader loading={true} />
 

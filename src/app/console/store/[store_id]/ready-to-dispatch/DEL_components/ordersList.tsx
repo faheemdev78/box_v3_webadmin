@@ -32,7 +32,7 @@ interface OrdersListProps {
 
 export const OrdersList: React.FC<OrdersListProps> = ({ limit = 50, page = 1, _id_store }) => {
   const settings = useAppSelector(getSettings);
-  const { store } = usePageProps()
+  const { store } = usePageProps() as unknown as { store: any }
 
   const [state, setState] = useState({
       pagination: defaultPagination,
@@ -44,12 +44,12 @@ export const OrdersList: React.FC<OrdersListProps> = ({ limit = 50, page = 1, _i
   // const [getReadyToDispatchQueue, { called, ...queue_restuls }] = useLazyQuery(GET_ORDER_QUEUE);
   const [getReadyToDispatchQueue, { called, loading }] = useLazyQuery(GET_ORDER_QUEUE, { fetchPolicy: 'network-only' });
 
-  const fetchData = async ({ filter, pagination = {} }) => {
+  const fetchData = async ({ filter, pagination = {} }: { filter?: any; pagination?: { pageSize?: number; current?: number } } = {}) => {
     const variables = {
       limit: pagination?.pageSize || state.pagination.pageSize,
       page: pagination?.current || state.pagination.current,
       filter: filter || state.filter || {},
-      others: state.others || {},
+      others: (state as any).others || {},
     }
 
     const resutls = await getReadyToDispatchQueue({
@@ -59,7 +59,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ limit = 50, page = 1, _i
         others: JSON.stringify(variables.others || {})
       }
     })
-      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.getReadyToDispatchQueue }))
+      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.getReadyToDispatchQueue }))
       .catch(catchApolloError)
     // setBusy(false)
 
@@ -94,15 +94,15 @@ export const OrdersList: React.FC<OrdersListProps> = ({ limit = 50, page = 1, _i
 
 
 
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [listData, set_listData] = useState({
-    dataSource: null,
+    dataSource: [] as any[],
     pagination: {
       current: page,
       pageSize: limit,
       total: 0,
       showSizeChanger: true,
-      showTotal: (total) => `Total ${total} orders`,
+      showTotal: (total: number) => `Total ${total} orders`,
     }
   })
 
@@ -111,29 +111,30 @@ export const OrdersList: React.FC<OrdersListProps> = ({ limit = 50, page = 1, _i
   useEffect(() => {
     if (called) return
     fetchOrdersList({});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [called]);
 
 
-  const fetchOrdersList = async ({ page=1, limit=defaultPageSize }) => {
+  const fetchOrdersList = async ({ page=1, limit=defaultPageSize }: { page?: number; limit?: number }) => {
     let resutls = await getReadyToDispatchQueue({ variables: {
       limit,
       page, 
       _id_store
     } })
-      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.getReadyToDispatchQueue }))
+      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.getReadyToDispatchQueue }))
       .catch(catchApolloError)
 
     if (resutls && resutls.error) setError(resutls.error.message)
 
     set_listData({
-      dataSource: resutls.edges,
+      dataSource: resutls?.edges || [],
       pagination: {
         ...resutls.pagination,
         current: page, // resutls.pagination.page,
         pageSize: limit, // resutls.pagination.limit,
         total: resutls.pagination.totalDocs,
         showSizeChanger: true,
-        showTotal: (total) => `Total ${total} orders`,
+        showTotal: (total: number) => `Total ${total} orders`,
       }
     })
 
@@ -211,7 +212,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ limit = 50, page = 1, _i
               <Title level={3} style={{ margin: 0 }}>Orders On-Till</Title>
               {!loading && <Tag color="green">{state?.pagination?.total || 0} orders found</Tag>}
           </Space>}
-          extra={<Button onClick={() => fetchData({})} loading={loading}>Refresh</Button>}
+          extra={<Button onClick={() => fetchData({ filter: state.filter, pagination: state.pagination })} loading={loading}>Refresh</Button>}
           styles={{ body: { padding: 0 } }}
       >
           <OrderTable
@@ -245,7 +246,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ limit = 50, page = 1, _i
           </Space>}
         /> */}
 
-        <Table
+        <Table<any>
           columns={columns}
           rowKey="_id"
           {...listData}
@@ -257,7 +258,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ limit = 50, page = 1, _i
           //   showSizeChanger: true,
           //   showTotal: (total) => `Total ${total} orders`,
           // }}
-          loading={queue_restuls.loading}
+          loading={loading}
           // scroll={{ x: 1200 }}
           // rowClassName={(record) => {
           //   if (record.is_locked_by_me) return 'row-locked-by-me';

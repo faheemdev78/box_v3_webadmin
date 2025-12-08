@@ -21,15 +21,15 @@ import GEO_ZONES from '@_/graphql/geo_zone/geoZones.graphql';
 
 
 // function EditStoreZone({ params: { zone_id }, store }) {
-function EditStoreZone({ store }) {
+function EditStoreZone({ store }: { store: any }) {
     const { zone_id } = useParams<{ zone_id: string }>()
 
-    const [zoneData, set_zoneData] = useState(null)
-    const [fatelError, set_fatelError] = useState(null)
+    const [zoneData, set_zoneData] = useState<any | null>(null)
+    const [fatelError, set_fatelError] = useState<string | null>(null)
     const [showDeliveryZones, set_showDeliveryZones] = useState(true)
     const [showServiceZones, set_showServiceZones] = useState(true)
     const [showZoneForm, set_showZoneForm] = useState(false)
-    const [relatedZones, set_relatedZones] = useState(false)
+    const [relatedZones, set_relatedZones] = useState<any[] | null>(null)
     
     const [geoZone, { loading, data, called }] = useLazyQuery(GET_RECORD, { fetchPolicy: 'network-only' });
     const [geoZones, zones_resutls] = useLazyQuery(GEO_ZONES, { fetchPolicy: 'network-only' });
@@ -37,7 +37,8 @@ function EditStoreZone({ store }) {
     useEffect(() => {
         if (called || loading || !zone_id) return;
         fetchZone();
-    }, [zone_id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [zone_id, called, loading])
 
     useEffect(() => {
     }, [showServiceZones])
@@ -48,12 +49,13 @@ function EditStoreZone({ store }) {
     useEffect(() => {
         if (relatedZones || !zoneData) return;
         loadRelatedZones()
-    }, [zoneData])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [zoneData, relatedZones])
     
 
     async function loadRelatedZones(){
         // geoZones({ variables: { filter: JSON.stringify({  }) } })
-        const { city, store, type } = zoneData;
+        const { city, store, type } = zoneData as any;
 
         let filter = {
             "city._id": city._id,
@@ -63,7 +65,7 @@ function EditStoreZone({ store }) {
         }
 
         let results = await geoZones({ variables: { filter: JSON.stringify(filter) } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZones }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.geoZones }))
             .catch(catchApolloError)
 
         if (results && results.error) {
@@ -76,7 +78,7 @@ function EditStoreZone({ store }) {
 
     const fetchZone = async () => {
         let resutls = await geoZone({ variables: { _id: zone_id } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZone }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.geoZone }))
             .catch(err => {
                 console.log(__error("Query Error: "), err)
                 return { error: { message: "Query Error" } }
@@ -101,13 +103,13 @@ function EditStoreZone({ store }) {
             <Link href={`${adminRoot}/store/${store._id}/zone/${zone_id}/delivery_slots`}>Delivery Slots</Link>
         </Space>
         <p>{zoneData.type}</p>
-        <div><StatusTag value={zoneData.status} /></div>
+        <div><StatusTag value={zoneData.status} options={[{ label: zoneData.status, value: zoneData.status }]} onSubmit={async() => zoneData.status} /></div>
         <p>{zoneData.city.title}</p>
 
 
         <Row gutter={[10, 20]}>
             <Col span={16}>
-                <div style={{ padding:"5px 0" }} align="right"><Space size={20}>
+                <div style={{ padding:"5px 0", textAlign: "right" }}><Space size={20}>
                     <Switch defaultChecked={false} onChange={set_showDeliveryZones} checked={showDeliveryZones} checkedChildren="Delivery Zones" unCheckedChildren="Delivery Zones" />
                     <Switch defaultChecked={false} onChange={set_showServiceZones} checked={showServiceZones} checkedChildren="Service Zones" unCheckedChildren="Service Zones" />
                 </Space></div>
@@ -115,13 +117,13 @@ function EditStoreZone({ store }) {
                 <div style={{ width: '100%', height: 'calc(100vh - 300px)', position: "relative" }}>
                     <GMap 
                         // center={getPolygonCenter(zoneData.polygon.coordinates)}
-                        onMapLoad={({ panToCoordinates }) => panToCoordinates(zoneData.polygon.coordinates)}
+                        onMapLoad={({ panToCoordinates }: any) => panToCoordinates(zoneData.polygon.coordinates)}
                         zoom={12} 
                         enableDrawing={false} 
                         staticZones={relatedZones}
                     >
                         <Polygon 
-                            path={zoneData.polygon.coordinates[0].map(([lng, lat]) => ({ lat, lng }))}
+                            path={zoneData.polygon.coordinates[0].map(([lng, lat]: [number, number]) => ({ lat, lng }))}
                             options={{
                                 fillColor: 'green', fillOpacity: 0.3,
                                 strokeColor: 'green', strokeOpacity: 0.8, strokeWeight: 2,
@@ -154,7 +156,7 @@ function EditStoreZone({ store }) {
 
 
         <Drawer open={showZoneForm} onClose={() => set_showZoneForm(false)} title={zoneData.title} footer={false} destroyOnHidden width="100%" height={"100%"} placement='top'>
-            {showZoneForm && <GeoZoneForm zone_id={zone_id} store_id={store._id} staticZones={relatedZones} />}
+            {showZoneForm && <GeoZoneForm zone_id={zone_id} store_id={store._id} store={store} staticZones={relatedZones} />}
         </Drawer>
 
         {/* <Drawer open={manageDeliverySlots} onClose={() => set_manageDeliverySlots(false)} title={'Delivery Slots'} footer={false} destroyOnHidden height="100%" placement='top'>
@@ -164,8 +166,8 @@ function EditStoreZone({ store }) {
     </>)
 }
 
-function ServiceZone({ initialValues, relatedZones, ...props }) {
-    const { store } = usePageProps()
+function ServiceZone({ initialValues, relatedZones, ...props }: { initialValues: any; relatedZones: any }) {
+    const { store } = usePageProps() as unknown as { store: any }
 
     const [showDeliveryZones, set_showDeliveryZones] = useState(true)
     const [showServiceZones, set_showServiceZones] = useState(true)
@@ -173,7 +175,7 @@ function ServiceZone({ initialValues, relatedZones, ...props }) {
     return (<>
         <Row gutter={[10, 20]}>
             <Col span={24}>
-                <div style={{ padding: "5px 0" }} align="right"><Space size={20}>
+                <div style={{ padding: "5px 0", textAlign: "right" }}><Space size={20}>
                     <Switch defaultChecked={false} onChange={set_showDeliveryZones} checked={showDeliveryZones} checkedChildren="Delivery Zones" unCheckedChildren="Delivery Zones" />
                     <Switch defaultChecked={false} onChange={set_showServiceZones} checked={showServiceZones} checkedChildren="Service Zones" unCheckedChildren="Service Zones" />
                 </Space></div>
@@ -181,13 +183,13 @@ function ServiceZone({ initialValues, relatedZones, ...props }) {
                 <div style={{ width: '100%', height: 'calc(100vh - 300px)', position: "relative" }}>
                     <GMap
                         // center={getPolygonCenter(initialValues.polygon.coordinates)}
-                        onMapLoad={({ panToCoordinates }) => panToCoordinates(initialValues.polygon.coordinates)}
+                        onMapLoad={({ panToCoordinates }: any) => panToCoordinates(initialValues.polygon.coordinates)}
                         zoom={12}
                         enableDrawing={false}
                         staticZones={relatedZones}
                     >
                         <Polygon
-                            path={initialValues.polygon.coordinates[0].map(([lng, lat]) => ({ lat, lng }))}
+                            path={initialValues.polygon.coordinates[0].map(([lng, lat]: [number, number]) => ({ lat, lng }))}
                             options={{
                                 fillColor: 'green', fillOpacity: 0.3,
                                 strokeColor: 'green', strokeOpacity: 0.8, strokeWeight: 2,
@@ -210,8 +212,8 @@ function ServiceZone({ initialValues, relatedZones, ...props }) {
     </>)
 }
 
-function DeliveryZone({ initialValues, relatedZones, ...props }) {
-    const { store } = usePageProps()
+function DeliveryZone({ initialValues, relatedZones, ...props }: { initialValues: any; relatedZones: any }) {
+    const { store } = usePageProps() as unknown as { store: any }
 
     const [showDeliveryZones, set_showDeliveryZones] = useState(true)
     const [showServiceZones, set_showServiceZones] = useState(true)
@@ -221,20 +223,20 @@ function DeliveryZone({ initialValues, relatedZones, ...props }) {
             <Col span={16}>
                 <h3>Display active orders on the zone</h3>
                 <Card>
-                    <div style={{ padding: "0 0 5px 0" }} align="right"><Space size={20}>
+                    <div style={{ padding: "0 0 5px 0", textAlign: "right" }}><Space size={20}>
                         <Switch defaultChecked={false} onChange={set_showDeliveryZones} checked={showDeliveryZones} checkedChildren="Delivery Zones" unCheckedChildren="Delivery Zones" />
                         <Switch defaultChecked={false} onChange={set_showServiceZones} checked={showServiceZones} checkedChildren="Service Zones" unCheckedChildren="Service Zones" />
                     </Space></div>
                     <div style={{ width: '100%', height: 'calc(100vh - 300px)', position: "relative" }}>
                         <GMap
                             // center={getPolygonCenter(initialValues.polygon.coordinates)}
-                            onMapLoad={({ panToCoordinates }) => panToCoordinates(initialValues.polygon.coordinates)}
+                            onMapLoad={({ panToCoordinates }: any) => panToCoordinates(initialValues.polygon.coordinates)}
                             zoom={12}
                             enableDrawing={false}
                             staticZones={relatedZones}
                         >
                             <Polygon
-                                path={initialValues.polygon.coordinates[0].map(([lng, lat]) => ({ lat, lng }))}
+                                path={initialValues.polygon.coordinates[0].map(([lng, lat]: [number, number]) => ({ lat, lng }))}
                                 options={{
                                     fillColor: 'green', fillOpacity: 0.3,
                                     strokeColor: 'green', strokeOpacity: 0.8, strokeWeight: 2,
@@ -270,11 +272,11 @@ function DeliveryZone({ initialValues, relatedZones, ...props }) {
 
 }
 
-export default function Wrapper(props){
-    const { store } = usePageProps()
+function Wrapper(props:any){
+    const { store } = usePageProps() as unknown as { store: any }
     const { store_id, zone_id } = useParams()
-    const [initialValues, set_initialValues] = useState(null)
-    const [fatelError, set_fatelError] = useState(null)
+    const [initialValues, set_initialValues] = useState<any | null>(null)
+    const [fatelError, set_fatelError] = useState<string | null>(null)
     const [showZoneForm, set_showZoneForm] = useState(false)
 
     const [geoZone, { loading, data, called }] = useLazyQuery(GET_RECORD, { fetchPolicy: 'network-only' });
@@ -283,11 +285,12 @@ export default function Wrapper(props){
     useEffect(() => {
         if (called || loading || !zone_id) return;
         fetchZone();
-    }, [zone_id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [zone_id, called, loading])
 
     const fetchZone = async () => {
         let resutls = await geoZone({ variables: { _id: zone_id } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZone }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.geoZone }))
             .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
@@ -299,7 +302,7 @@ export default function Wrapper(props){
         loadRelatedZones(resutls)
     }
 
-    async function loadRelatedZones(values) {
+    async function loadRelatedZones(values: any) {
         // geoZones({ variables: { filter: JSON.stringify({  }) } })
         const { city, store, type, _id } = values;
 
@@ -311,7 +314,7 @@ export default function Wrapper(props){
         }
 
         let results = await geoZones({ variables: { filter: JSON.stringify(filter) } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZones }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.geoZones }))
             .catch(catchApolloError)
 
 
@@ -332,7 +335,7 @@ export default function Wrapper(props){
             sub={<>
                 <Space split="|">
                     <IconButton onClick={() => set_showZoneForm(true)} icon="pen" size="small" />
-                    <StatusTag value={initialValues.status} />
+                    <StatusTag value={initialValues.status} options={[{ label: initialValues.status, value: initialValues.status }]} onSubmit={async() => initialValues.status} />
                     {initialValues.type == 'delivery' && <>
                         <Link href={`${adminRoot}/store/${store._id}/zone/${initialValues._id}/delivery_slots`}>Delivery Slots</Link>
                     </>}
@@ -377,3 +380,5 @@ export default function Wrapper(props){
     // return (<StoreWrapper {...props} render={({ store }) => ()} />)
 
 }
+
+export default Wrapper;

@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { Card, Col, message, Popconfirm, Row, Space } from 'antd';
+import { ColumnsType } from 'antd/es/table';
 import { Button, IconButton, Loader, Table } from '@_/components';
 import { LocationForm } from '@/modules/location/locationForm';
-import { defaultPageSize } from '@_/configs';
+// import { defaultPageSize } from '@_/configs';
 import { __error } from '@_/lib/consoleHelper';
 import { PageHeader } from '@_/template';
 import { Page } from '@_/template/page';
@@ -13,15 +14,15 @@ import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo'
 
 import LIST_DATA from '@_/graphql/location/locations.graphql'
 import DELETE_REC from '@_/graphql/location/deleteLocation.graphql';
-import ADD_REC from '@_/graphql/location/addLocation.graphql';
-import EDIT_REC from '@_/graphql/location/editLocation.graphql';
+// import ADD_REC from '@_/graphql/location/addLocation.graphql';
+// import EDIT_REC from '@_/graphql/location/editLocation.graphql';
 
 
 
-export default function Locations(props) {
-    const [showForm, set_showForm] = useState({ show: false, fields: undefined })
+function Locations() {
+    const [showForm, set_showForm] = useState<{ show: boolean; fields?: any }>({ show: false, fields: undefined })
     const [busy, setBusy] = useState(false)
-    const [data, setData] = useState(null)
+    const [data, setData] = useState<any[] | null>(null)
     
     const [deleteLocation, del_results] = useMutation(DELETE_REC); // { data, loading, error }
     
@@ -30,9 +31,10 @@ export default function Locations(props) {
     useEffect(() => {
         if (called) return;
         fetchData()
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called])
 
-    const fetchData = async (args={}) => {
+    const fetchData = async () => {
         setBusy(true)
 
         const results = await get_locations({ variables: { 
@@ -51,7 +53,7 @@ export default function Locations(props) {
     }
     const onUpdateCallback = () => fetchData()
 
-    const handleDelete = async ({ _id }) => {
+    const handleDelete = async ({ _id }: { _id: string }) => {
         let results = await deleteLocation({ variables: { _id }})
             .then(r => (r?.data?.deleteLocation))
             .catch(error => {
@@ -68,7 +70,7 @@ export default function Locations(props) {
         message.success("Record deleted")
     }
 
-    const columns = [
+    const columns: ColumnsType<any> = [
         { title: 'Location Name', dataIndex: 'title', key: 'title' },
         { title: 'Code', dataIndex: 'code', key: 'code', width: 100 },
         { title: 'Type', dataIndex: 'type', key: 'type', width: 100 },
@@ -85,7 +87,7 @@ export default function Locations(props) {
             width: 120,
             key: 'actions',
             align: 'right',
-            render: (text, rec) => {
+            render: (_text: unknown, rec: any) => {
                 return (<Space>
                     <IconButton onClick={() => set_showForm({ show: true, fields: rec })} icon="pen" />
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}>
@@ -98,7 +100,7 @@ export default function Locations(props) {
 
     return (<>
         <PageHeader title="Locations" sub={<div>{(data && data.length) || 0} records found</div>}>
-            <Button onClick={() => set_showForm({ show: true })} color="orange">Add New Location</Button>
+            <Button onClick={() => set_showForm({ show: true, fields: undefined })} color="orange">Add New Location</Button>
         </PageHeader>
 
 
@@ -106,7 +108,7 @@ export default function Locations(props) {
             <Table
                 loading={loading}
                 columns={columns}
-                dataSource={data}
+                dataSource={data || []}
                 pagination={false}
             />
         </Page>
@@ -122,3 +124,4 @@ export default function Locations(props) {
 
 }
 
+export default Locations;

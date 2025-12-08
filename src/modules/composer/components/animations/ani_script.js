@@ -20,10 +20,13 @@ function AniScriptProps({ item: { name, data, values } }) {
     </>)
 }
 
-export default { 
-    type: "ani_script", 
-    label: "Script", 
+const AniScriptComponent = {
+    type: "ani_script",
+    label: "Script",
     desc: ".zip",
-    renderer: AniScript, 
-    propsRender: AniScriptProps
+    renderer: AniScript,
+    propsRender: AniScriptProps,
+    displayName: "AniScriptComponent"
 };
+
+export default AniScriptComponent;

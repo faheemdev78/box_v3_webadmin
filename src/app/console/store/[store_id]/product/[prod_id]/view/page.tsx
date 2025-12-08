@@ -21,15 +21,16 @@ import { usePageProps } from '@_/components';
 //     </>)
 // }
 
-export default function Wrapper(props){
+function Wrapper(props: any){
     // const { prod_id, store_id } = useParams<{ prod_id: string, store_id: string }>()
     // const session = useAppSelector(getSession)
-    const { store } = usePageProps()
+    const pageProps = (usePageProps() as any) || {};
+    const store = pageProps?.store || {}
     
     return <ProductWrapper {...props}
         render={({ product, session }: { product: any; session: any; }) => {
             return (<>
-                <h3>{store.title}</h3>
+                <h3>{store?.title}</h3>
                 <ProductView {...props} initialValues={product} session={session} store={store} />
             </>)
 
@@ -58,3 +59,5 @@ export default function Wrapper(props){
     //     }}
     // />)
 }
+
+export default Wrapper;

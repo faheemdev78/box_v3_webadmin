@@ -18,13 +18,14 @@ import REJECT_ORDER_AT_TILL from '@_/graphql/order/rejectOrderAtTill.graphql';
 
 const { Title, Text } = Typography;
 
-export default function TillVerification({ serial }) {
+function TillVerification({ serial }: { serial:string }) {
     const router = useRouter();
-    const { store } = usePageProps();
+    const pageProps: any = usePageProps();
+    const store = pageProps?.store;
     const settings = useAppSelector(getSettings);
 
-    const [fatelError, set_fatelError] = useState(null);
-    const [order, setOrder] = useState(null);
+    const [fatelError, set_fatelError] = useState<string | null>(null);
+    const [order, setOrder] = useState<any>(null);
     const [busy, setBusy] = useState(false);
     const [verificationStatus, setVerificationStatus] = useState('pending'); // pending, verified, rejected
 
@@ -39,13 +40,13 @@ export default function TillVerification({ serial }) {
                 variables: {
                     filter: JSON.stringify({
                         serial,
-                        'store._id': store._id,
+                        'store._id': store?._id,
                         current_stage: "picking-complete",
                         'status.order': 'processing'
                     })
                 }
             })
-                .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.orderDetails }))
+                .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.orderDetails }))
                 .catch(catchApolloError);
 
             if (result?.error) {
@@ -69,9 +70,10 @@ export default function TillVerification({ serial }) {
         if (serial && store?._id) {
             fetchOrderDetails();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [serial, store]);
 
-    const handleVerificationComplete = async (status) => {
+    const handleVerificationComplete = async (status: string) => {
         if (!order?._id) return;
 
         setBusy(true);
@@ -83,14 +85,14 @@ export default function TillVerification({ serial }) {
                     variables: {
                         input: {
                             _id_order: order._id,
-                            notes: `Order verified at till by ${store.admin?.name || 'admin'}`
+                            notes: `Order verified at till by ${store?.admin?.name || 'admin'}`
                         }
                     }
                 })
                 .then(r => checkApolloRequestErrors({
                     results: r,
                     allowEmpty: false,
-                    parseReturn: (rr) => rr?.data?.verifyOrderAtTill
+                    parseReturn: (rr: any) => rr?.data?.verifyOrderAtTill
                 }))
                 .catch(catchApolloError);
             } else {
@@ -99,14 +101,14 @@ export default function TillVerification({ serial }) {
                         input: {
                             _id_order: order._id,
                             reason: 'Order rejected during till verification',
-                            notes: `Order rejected at till by ${store.admin?.name || 'admin'}`
+                            notes: `Order rejected at till by ${store?.admin?.name || 'admin'}`
                         }
                     }
                 })
                 .then(r => checkApolloRequestErrors({
                     results: r,
                     allowEmpty: false,
-                    parseReturn: (rr) => rr?.data?.rejectOrderAtTill
+                    parseReturn: (rr: any) => rr?.data?.rejectOrderAtTill
                 }))
                 .catch(catchApolloError);
             }
@@ -137,7 +139,7 @@ export default function TillVerification({ serial }) {
 
         return (
             <Card title="Order Items" className="mb-4">
-                {order.current_order.items.map((item, index) => (
+                {order.current_order.items.map((item: any, index: number) => (
                     <Row key={index} className="py-2 border-b last:border-b-0">
                         <Col span={12}>
                             <Text strong>{item.title}</Text>
@@ -174,7 +176,7 @@ export default function TillVerification({ serial }) {
         return (
             <Card title="Basket Information" className="mb-4">
                 <Space wrap>
-                    {order.current_order.baskets.map((basket, index) => (
+                    {order.current_order.baskets.map((basket: any, index: number) => (
                         <Tag key={index} color="blue">
                             {basket.barcode} - {basket.title}
                         </Tag>
@@ -307,3 +309,4 @@ export default function TillVerification({ serial }) {
     );
 }
 
+export default TillVerification

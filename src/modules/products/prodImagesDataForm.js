@@ -23,6 +23,7 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
         let gallery = ensureArrayLength(props?.initialValues?.gallery?.slice() || [], PROD_GAL_SIZE)
 
         set_initialValues({ ...props.initialValues, gallery })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.initialValues])
 
     async function onSubmit({ picture, video, gallery }){

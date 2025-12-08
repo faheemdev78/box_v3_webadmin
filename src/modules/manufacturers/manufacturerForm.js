@@ -154,7 +154,7 @@ export const ManufacturerForm = props => {
                             </Row>
                             
                             <Divider>SEO Details</Divider>
-                            <Row gutter={10, 10}>
+                            <Row gutter={[10, 10]}>
                                 <Col span={24}><FormField type="text" name="seo_title" label="SEO Title" /></Col>
                                 <Col span={24}><FormField type="text" name="seo_desc" label="SEO Desc" /></Col>
                             </Row>

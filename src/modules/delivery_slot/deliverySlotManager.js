@@ -39,6 +39,7 @@ export function DeliverySlotManager({ store, zone }) {
     useEffect(() => {
         if (called) return;
         fetchData()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [store])
 
     const fetchData = async (args = {}) => {

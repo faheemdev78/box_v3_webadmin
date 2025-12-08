@@ -4,9 +4,10 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { Alert, Breadcrumb, Col, message, Popconfirm, Row, Space } from 'antd';
 import { Button, DeleteButton, IconButton, Loader, MapComponent, Table, usePageProps } from '@_/components';
+import { ColumnsType } from 'antd/es/table';
 import { adminRoot, defaultPageSize } from '@_/configs';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 // import StoreWrapper from '@_/modules/store/storeWrapper';
 import { ZonesFilter } from '@_/modules/geo_zones';
 import { Page } from '@_/template/page';
@@ -19,11 +20,11 @@ import RECORD_DELETE from '@_/graphql/geo_zone/deleteGeoZone.graphql';
 
 const defaultFilter = {}; // { status: 'online' }
 
-export default function StoreZones() {
+function StoreZones() {
     const map = useRef(null);
     const maps = useRef(null);
 
-    const { store } = usePageProps()
+    const { store } = usePageProps() as unknown as { store: any }
 
     const [state, setState] = useState({
         pagination: { current: 1 },
@@ -31,7 +32,7 @@ export default function StoreZones() {
         filter: { ...defaultFilter, "store._id": store._id },
         busy: false,
     })
-    const [dataArray, set_dataArray] = useState(null)
+    const [dataArray, set_dataArray] = useState<any | null>(null)
 
     const [deleteGeoZone, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
     const [geoZoneQuery, { called, loading }] = useLazyQuery( LIST_DATA,
@@ -41,9 +42,10 @@ export default function StoreZones() {
     useEffect(() => {
         if (called || loading) return
         fetchData()
-    }, [store._id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [store._id, called, loading])
 
-    const fetchData = async (args = {}) => {
+    const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
         let skip = limit * (current - 1);
@@ -87,14 +89,14 @@ export default function StoreZones() {
         fetchData()
     }
 
-    async function onFilterUpdate(values){
+    async function onFilterUpdate(values: any){
         await fetchData({ filter: values })
         return false;
     }
   
 
-    const columns = [
-        { title: 'Zone Name', dataIndex: 'title', key: 'title', render:(__, rec) => {
+    const columns: ColumnsType<any> = [
+        { title: 'Zone Name', dataIndex: 'title', key: 'title', render:(__: any, rec: any) => {
             return <Link href={`${adminRoot}/store/${store._id}/zone/${rec._id}`}>{rec.title}</Link>
         } },
         { title: 'Store', dataIndex: ['store', 'title'], key: 'store' },
@@ -103,19 +105,19 @@ export default function StoreZones() {
                 { text: 'Service Area', value: 'service' },
                 { text: 'Delivery Zones', value: 'delivery' },
             ],
-            onFilter: (value, record) => record.type.indexOf(value) === 0,
-            sorter: (a, b) => a.type.length - b.type.length,
+            onFilter: (value: any, record: any) => record.type.indexOf(value as any) === 0,
+            sorter: (a: any, b: any) => a.type.length - b.type.length,
             // defaultSortOrder: 'descend',
         },
         {
             title: 'city', dataIndex: ['city', 'title'], width: '20%',
-            sorter: (a, b) => a.city.length - b.city.length,
-            defaultSortOrder: 'descend',
+            sorter: (a: any, b: any) => a.city.length - b.city.length,
+            defaultSortOrder: 'descend' as const,
         },
-        { title: 'Status', dataIndex: 'status', key: 'status', width: 100, align: 'center' },
+        { title: 'Status', dataIndex: 'status', key: 'status', width: 100, align: 'center' as const },
         {
             title: 'Actions', dataIndex: 'actions', width: 120, key: 'actions', align: 'right',
-            render: (text, rec) => {
+            render: (_text: any, rec: any) => {
                 return (<Space>
                     <DeleteButton onClick={() => handleDelete(rec)} />
                     {/* <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}><IconButton icon="trash-alt" /></Popconfirm> */}
@@ -135,10 +137,10 @@ export default function StoreZones() {
 
         <Page>
             <Table
-                title={() => (<ZonesFilter onUpdate={onFilterUpdate} />)}
+                title={() => (<ZonesFilter initialValues={state.filter} onUpdate={onFilterUpdate} />)}
                 loading={loading}
                 columns={columns}
-                dataSource={dataArray && dataArray.edges}
+                dataSource={dataArray?.edges || []}
                 pagination={false}
             />
         </Page>
@@ -146,6 +148,9 @@ export default function StoreZones() {
     </>)
 
 }
+
+export default StoreZones
+
 
 // export default function Wrapper(props){
 //     return (<StoreWrapper {...props} render={({ store }) => (<StoreZones store={store} />)} />)

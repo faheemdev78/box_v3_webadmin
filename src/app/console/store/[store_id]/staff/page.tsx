@@ -21,8 +21,8 @@ const defaultFilter = {}; // { status: 'online' }
 
 
 
-export default function Staff() {
-    const { store } = usePageProps()
+function Staff() {
+    const { store } = usePageProps() as unknown as { store: any }
 
     const [state, setState] = useState({
         pagination: { current: 1 },
@@ -42,9 +42,10 @@ export default function Staff() {
     useEffect(() => {
         if (called || loading) return
         fetchData()
-    }, [store._id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [store._id, called, loading])
 
-    const fetchData = async (args = {}) => {
+    const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
         let skip = limit * (current - 1);
@@ -63,7 +64,7 @@ export default function Staff() {
                 others: JSON.stringify({})
             }
         })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.staffQuery }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.staffQuery }))
             .catch(catchApolloError)
 
         if (results && results.error) {
@@ -76,8 +77,8 @@ export default function Staff() {
     const onUpdateCallback = () => fetchData()
 
     const handleDelete = async ({ _id="" }) => {
-        let results = await deleteGeoZone(_id)
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deleteGeoZone }))
+        let results = await deleteGeoZone({ variables: { _id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.deleteGeoZone }))
             .catch(catchApolloError)
             
         if (!results || results.error) {
@@ -147,6 +148,8 @@ export default function Staff() {
     </>)
 
 }
+
+export default Staff;
 
 // export default function Wrapper(props){
 //     return (<StoreWrapper {...props} render={({ store }) => (<Staff store={store} />)} />)

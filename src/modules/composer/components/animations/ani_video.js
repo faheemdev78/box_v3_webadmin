@@ -21,10 +21,13 @@ function AnimationVideoProps({ item: { name, data, values } }) {
 }
 
 
-export default { 
-    type: "ani_video", 
-    label: "Video", 
+const AnimationVideoComponent = {
+    type: "ani_video",
+    label: "Video",
     desc: ".mp4",
-    renderer: AnimationVideo, 
-    propsRender: AnimationVideoProps
-}
+    renderer: AnimationVideo,
+    propsRender: AnimationVideoProps,
+    displayName: "AnimationVideoComponent"
+};
+
+export default AnimationVideoComponent;

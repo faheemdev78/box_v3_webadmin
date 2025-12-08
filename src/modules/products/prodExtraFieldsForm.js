@@ -147,6 +147,7 @@ export function ProdExtraFieldsForm (props) {
     useEffect(() => {
         if (called) return;
         fetchExtraFields()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props])
 
     async function fetchExtraFields() {

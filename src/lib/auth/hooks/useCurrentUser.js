@@ -17,6 +17,7 @@ export const useCurrentUser = () => {
         if (token !== null || called) return;
         loadGreeting();
         setToken(getSessionToken());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (token === null) return {};

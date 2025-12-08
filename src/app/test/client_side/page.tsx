@@ -7,17 +7,17 @@ import { getSessionToken } from "@_/lib/auth";
 
 import TEST_QUERY from "@_/graphql/test/testQuery.graphql";
 
-export default function ClientSide() {
+function ClientSide() {
     // const { data, loading, error } = useQuery(TEST_QUERY);
-    const [session, setSession] = useState(null)   
+    const [session, setSession] = useState<string | null>(null)   
 
     const [loadGreeting, { called, loading, data }] = useLazyQuery(TEST_QUERY, { fetchPolicy: "network-only" });
 
     useEffect(() => {
         if (called) return;
         loadGreeting({ variables: { args: "english" } });
-
-        setSession(getSessionToken())
+        Promise.resolve(getSessionToken()).then(token => setSession(token as any)).catch(() => setSession(null))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 
@@ -34,3 +34,5 @@ export default function ClientSide() {
 
     </div>);
 }
+
+export default ClientSide

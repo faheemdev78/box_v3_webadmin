@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { Card, Col, message, Popconfirm, Row, Space } from 'antd';
 import { adminRoot, defaultPageSize } from '@_/configs';
-import Link from 'next/link';
+// import Link from 'next/link';
 import { StaffList } from './components';
 import { Button, PageHeading } from '@_/components';
 import { Page } from '@_/template/page';
@@ -18,7 +18,7 @@ const permFilter = {}
 const defaultFilter = {}; // { status: 'online' }
 
 
-export default function Users(props) {
+function Users(props: any) {
     const [state, setState] = useState({
         pagination: { current: 1 },
         pageView: "list",
@@ -26,7 +26,7 @@ export default function Users(props) {
         busy: false,
     })
 
-    const [dataArray, set_dataArray] = useState(null)
+    const [dataArray, set_dataArray] = useState<any | null>(null)
     const [busy, setBusy] = useState(false)
 
     // const [deleteStore, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
@@ -36,9 +36,10 @@ export default function Users(props) {
     useEffect(() => {
         if (called) return;
         fetchData()
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called])
 
-    const fetchData = async (args = {}) => {
+    const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
         let skip = limit * (current - 1);
@@ -67,7 +68,7 @@ export default function Users(props) {
         set_dataArray(results)
     }
 
-    const handleDelete = async ({ _id }) => {
+    const handleDelete = ({ _id }: { _id: string }) => {
         // let results = await deleteStore(id)
         //     .then(r => (r?.data?.deleteStore))
         //     .catch(error => {
@@ -81,6 +82,7 @@ export default function Users(props) {
         // }
 
         // message.success("Record deleted")
+        return;
     }
 
     return (<>
@@ -90,7 +92,7 @@ export default function Users(props) {
     
         <Page>
             <StaffList
-                dataSource={dataArray && dataArray.edges}
+                dataSource={dataArray?.edges || []}
                 pagination={false}
                 handleDelete={handleDelete}
                 loading={loading}
@@ -100,6 +102,8 @@ export default function Users(props) {
     </>)
 
 }
+
+export default Users;
 
 // export async function generateMetadata(_, parent) {
 //     const headersList = headers();

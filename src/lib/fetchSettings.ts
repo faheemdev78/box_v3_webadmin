@@ -14,14 +14,14 @@ export async function fetchSettings() {
         query: GET_CONFIGS,
         fetchPolicy: 'network-only',
     })
-        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.getSystemConfigs }))
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: { data?: { getSystemConfigs?: any[] } }) => rr?.data?.getSystemConfigs }))
         .catch(catchApolloError)
 
     if (results.error) return results;
     if (results.length < 1) return { error: { message:"No settings found"} };
 
-    let configs = {}
-    results.forEach(row => {
+    let configs: Record<string, any> = {}
+    results.forEach((row: any) => {
         let value = row.value;
         if (row.value_type === 'number') value = parseFloat(row.value);
         if (row.value_type === 'boolean') value = row.value === 'true';
@@ -35,5 +35,4 @@ export async function fetchSettings() {
     return configs;
     // return data?.configs ?? {}; // shape: { lang: "eng", tz: "lahore" }
 }
-
 

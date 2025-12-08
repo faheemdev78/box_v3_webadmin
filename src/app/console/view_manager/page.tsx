@@ -10,7 +10,7 @@ import { EntityConfigList } from './components/EntityConfigList';
 import { EntityConfigFormFinal } from './components/EntityConfigFormFinal';
 import { ViewTemplatesManager } from './components/ViewTemplatesManager';
 
-export default function ViewManagerPage() {
+function ViewManagerPage() {
   const [activeTab, setActiveTab] = useState('configs');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingConfig, setEditingConfig] = useState<any>(null);
@@ -89,3 +89,5 @@ export default function ViewManagerPage() {
     </Page>
   );
 }
+
+export default ViewManagerPage

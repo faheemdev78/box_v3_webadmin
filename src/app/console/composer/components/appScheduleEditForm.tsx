@@ -9,7 +9,7 @@ import { Button, DevBlock } from '@_/components';
 
 import EDIT_DATA from '@_/graphql/app_pages/scheduleAppPage.graphql'
 
-export default function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpdate: (args:any)=>void }) {
+function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpdate: (args:any)=>void }) {
     const [error, setError] = useState(null)
     const [busy, setBusy] = useState(false)
     const form = useForm()
@@ -66,3 +66,5 @@ export default function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: 
         
     </div>)
 }
+
+export default AppScheduleEditForm;

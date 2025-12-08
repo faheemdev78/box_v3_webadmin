@@ -7,6 +7,7 @@ import { DevBlock, Loader, Icon, Button } from '@_/components'
 import { PageHeader } from '@_/template'
 import { Page } from '@_/template/page'
 import { Alert, Card, Descriptions, Table, Tag, Space, Typography, Divider, Row, Col, Modal, Input, message } from 'antd'
+import type { ColumnsType } from 'antd/es/table';
 import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { useAppSelector } from '@_/rStore/hooks';
 import { getSettings } from '@_/rStore/slices/systemSlice';
@@ -19,9 +20,9 @@ import REVERT_ORDER_STAGE from '@/graphql/order/revertOrderStage.graphql'
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 
-export default function OrderPreview() {
+function OrderPreview() {
     const router = useRouter();
-    const [error, setError] = useState(null)
+    const [error, setError] = useState<string | null>(null)
     const { order_serial } = useParams();
     const settings = useAppSelector(getSettings);
     const [isRevertModalVisible, setIsRevertModalVisible] = useState(false);
@@ -35,7 +36,8 @@ export default function OrderPreview() {
     useEffect(() => {
         if (!order_serial || called) return;
         getchData();
-    }, [order_serial])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [order_serial, called])
 
     async function getchData(){
         setError(null)
@@ -43,10 +45,10 @@ export default function OrderPreview() {
             variables: {
                 filter: JSON.stringify({ serial: order_serial })
             }
-        }).then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.order }))
+        }).then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: { data?: { order?: any } }) => rr?.data?.order }))
         .catch(catchApolloError)
 
-        if (results.error) return setError(results.error)
+        if (results?.error) return setError(results.error.message || 'Invalid response')
     }
 
     const handleRevertClick = (targetStage: string) => {
@@ -111,29 +113,30 @@ export default function OrderPreview() {
 
     if (loading) return <Loader loading={true} />
     if (!data?.order) return <Alert message="Order not found!" type="error" showIcon />
-    if (error) return <Alert {...error} showIcon type="error" />
+    if (error) return <Alert message={error} showIcon type="error" />
 
     const order = data.order;
     const originalOrder = order.original_order;
     const totals = originalOrder?.totals;
 
     // Format currency
-    const formatCurrency = (amount) => {
-        return `${settings.currency || '$'} ${(amount / 100).toFixed(2)}`;
+    const formatCurrency = (amount: number) => {
+        const safeAmount = Number.isFinite(amount) ? amount : 0;
+        return `${settings.currency || '$'} ${(safeAmount / 100).toFixed(2)}`;
     };
 
     // Order items table columns
-    const itemColumns = [
+    const itemColumns: ColumnsType<any> = [
         {
             title: '#',
             width: 50,
-            render: (_, __, index) => index + 1,
+            render: (_: unknown, __: unknown, index: number) => index + 1,
         },
         {
             title: 'Product',
             dataIndex: 'title',
             key: 'title',
-            render: (title, record) => (
+            render: (title: string, record: any) => (
                 <div>
                     <div><strong>{title}</strong></div>
                     {record.barcode && <Text type="secondary" style={{ fontSize: '12px' }}>Barcode: {record.barcode}</Text>}
@@ -160,7 +163,7 @@ export default function OrderPreview() {
             key: 'price',
             width: 100,
             align: 'right',
-            render: (price, record) => (
+            render: (price: number, record: any) => (
                 <div>
                     {record.price_was && record.price_was > price && (
                         <div>
@@ -177,7 +180,7 @@ export default function OrderPreview() {
             key: 'qty',
             width: 70,
             align: 'center',
-            render: (qty) => <strong>{qty}</strong>,
+            render: (qty: number) => <strong>{qty}</strong>,
         },
         {
             title: 'Subtotal',
@@ -185,7 +188,7 @@ export default function OrderPreview() {
             key: 'subtotal',
             width: 100,
             align: 'right',
-            render: (subtotal) => <strong>{formatCurrency(subtotal)}</strong>,
+            render: (subtotal: number) => <strong>{formatCurrency(subtotal)}</strong>,
         },
         {
             title: 'Tax',
@@ -193,7 +196,7 @@ export default function OrderPreview() {
             key: 'tax_amount',
             width: 100,
             align: 'right',
-            render: (tax_amount, record) => (
+            render: (tax_amount: number, record: any) => (
                 <div>
                     <div>{formatCurrency(tax_amount)}</div>
                     {record.tax && (
@@ -210,14 +213,14 @@ export default function OrderPreview() {
             key: 'discount_amount',
             width: 100,
             align: 'right',
-            render: (discount_amount, record) => (
+            render: (discount_amount: number, record: any) => (
                 <div>
                     {discount_amount > 0 ? (
                         <>
                             <div style={{ color: '#52c41a' }}>-{formatCurrency(discount_amount)}</div>
                             {record.vouchers && record.vouchers.length > 0 && (
                                 <Text type="secondary" style={{ fontSize: '11px' }}>
-                                    {record.vouchers.map(v => v.title).join(', ')}
+                                    {record.vouchers.map((v: { title: string }) => v.title).join(', ')}
                                 </Text>
                             )}
                         </>
@@ -233,13 +236,13 @@ export default function OrderPreview() {
             key: 'total',
             width: 120,
             align: 'right',
-            render: (total) => <strong style={{ fontSize: '15px' }}>{formatCurrency(total)}</strong>,
+            render: (total: number) => <strong style={{ fontSize: '15px' }}>{formatCurrency(total)}</strong>,
         },
     ];
 
     // Status colors
-    const getStatusColor = (status) => {
-        const colors = {
+    const getStatusColor = (status: string) => {
+        const colors: Record<string, string> = {
             pending: 'orange',
             processing: 'blue',
             completed: 'green',
@@ -380,7 +383,7 @@ export default function OrderPreview() {
                             {/* Applied Vouchers */}
                             {originalOrder?.vouchers && originalOrder.vouchers.length > 0 && (<Card title="Applied Vouchers" variant="outlined" style={{ marginBottom: 24 }}>
                                 <Space direction="vertical" style={{ width: '100%' }}>
-                                    {originalOrder.vouchers.map((voucher, idx) => (
+                                    {originalOrder.vouchers.map((voucher: any, idx: number) => (
                                         <div key={idx} style={{ padding: '8px', background: '#f0f0f0', borderRadius: '4px' }}>
                                             <div><strong>{voucher.title}</strong></div>
                                             {voucher.code && <Text type="secondary">Code: {voucher.code}</Text>}
@@ -606,3 +609,5 @@ export default function OrderPreview() {
     </div>)
 
 }
+
+export default OrderPreview;

@@ -77,7 +77,9 @@ const getVerificationStatusFromItem = (item: any) => ({
   verified_at: item.verified_at || null,
 });
 
-function Header({ orderData, handleBack, setShowCompleteModal, completingOrder, verifiedItems }) {
+function Header({ orderData, handleBack, setShowCompleteModal, completingOrder, verifiedItems }:{
+  orderData:any, handleBack:React.MouseEventHandler<HTMLElement>, setShowCompleteModal:Function, completingOrder:boolean, verifiedItems:any
+}) {
   // const orderItems = orderData?.current_order?.items || [];
   const customer = orderData?.customer;
   const picker = orderData?.processing_stages?.picking?.handled_by;
@@ -113,7 +115,7 @@ function ErrorComp({ title, description, buttons }: { title:string, description:
   </Space></Card></div>)
 }
 
-const VerificationColumn = ({ item, orderId }) => {
+const VerificationColumn = ({ item, orderId }: { item:any, orderId:string }) => {
   // Use shared helper function
   const verificationStatus = getVerificationStatusFromItem(item);
 
@@ -257,7 +259,7 @@ const VerificationColumn = ({ item, orderId }) => {
 }
 
 
-export const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
+const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
   // console.log("TillVerificationPOS()")
   const { store, store_id }: any = usePageProps();
   const dispatch = useAppDispatch();
@@ -424,7 +426,7 @@ export const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
                     <Space direction='vertical' size={0}>
                       <Text strong style={{ fontSize: 16 }}>{title}</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>Barcode: {item.barcode}</Text>
-                      {item?.attributes?.map((atr, i) => (<Tag key={i}>{atr.val}{atr.title}</Tag>))}
+                      {item?.attributes?.map((atr: any, i: number) => (<Tag key={i}>{atr.val}{atr.title}</Tag>))}
                     </Space>
                   </Space>)
                 }
@@ -478,7 +480,7 @@ export const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
                   <Text>Subtotal:</Text>
                   <Text strong>{settings.currency}{orderData?.current_order?.totals?.subtotal?.toFixed(2) || '0.00'}</Text>
                 </Space>
-                {orderData?.current_order?.totals?.discountTotal > 0 && (<Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                {orderData?.current_order?.totals?.discountTotal && orderData.current_order.totals.discountTotal > 0 && (<Space style={{ width: '100%', justifyContent: 'space-between' }}>
                   <Text type="secondary">Discount:</Text>
                   <Text type="secondary">-{settings.currency}{orderData?.current_order?.totals?.discountTotal?.toFixed(2)}</Text>
                 </Space>)}
@@ -534,10 +536,10 @@ export const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
                   <br />
                   <Text style={{ fontSize: 9 }}>Date: {dayjs().format('DD/MM/YYYY HH:mm')}</Text>
                   <br />
-                  <Text style={{ fontSize: 9 }}>Zone: {orderData.zone.title}</Text>
+                  <Text style={{ fontSize: 9 }}>Zone: {(orderData as any)?.zone?.title || 'N/A'}</Text>
                   <br />
-                  {orderData?.current_order?.baskets && orderData.current_order.baskets.length > 0 && (
-                    <Text style={{ fontSize: 9 }}>Baskets: {orderData.current_order.baskets.map((b: any) => b.title || b.barcode).join(', ')}</Text>
+                  {(orderData?.current_order as any)?.baskets && (orderData?.current_order as any).baskets.length > 0 && (
+                    <Text style={{ fontSize: 9 }}>Baskets: {(orderData?.current_order as any).baskets.map((b: any) => b.title || b.barcode).join(', ')}</Text>
                   )}
                 </div>
 
@@ -580,7 +582,7 @@ export const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
                     <Text style={{ fontSize: 9 }}>Subtotal:</Text>
                     <Text style={{ fontSize: 9 }}>{settings.currency}{orderData?.current_order?.totals?.subtotal?.toFixed(2)}</Text>
                   </div>
-                  {orderData?.current_order?.totals?.discountTotal > 0 && (
+                  {orderData?.current_order?.totals?.discountTotal && orderData.current_order.totals.discountTotal > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Text style={{ fontSize: 9 }}>Discount:</Text>
                       <Text style={{ fontSize: 9 }}>-{settings.currency}{orderData?.current_order?.totals?.discountTotal?.toFixed(2)}</Text>
@@ -684,352 +686,352 @@ export const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 
 }
 
-export const BK___TillVerificationPOS = () => {
-  const { store, store_id }:any = usePageProps()
-  const params = useParams()
-  const orderId = params.orderId as string
+// export const BK___TillVerificationPOS = () => {
+//   const { store, store_id }:any = usePageProps()
+//   const params = useParams()
+//   const orderId = params.orderId as string
 
-  const router = useRouter();
-  const dispatch = useAppDispatch();
-  const settings = useAppSelector(getSettings);
+//   const router = useRouter();
+//   const dispatch = useAppDispatch();
+//   const settings = useAppSelector(getSettings);
 
-  // Get order from Redux state
-  const orderData = useAppSelector(getCurrentOrder);
+//   // Get order from Redux state
+//   const orderData = useAppSelector(getCurrentOrder);
 
-  // Fetch active shift
-  const { session: activeShift, loading: shiftLoading } = useMyActiveTillShift();
+//   // Fetch active shift
+//   const { session: activeShift, loading: shiftLoading } = useMyActiveTillShift();
 
-  // Mutations
-  const { startOrder } = useStartOrderVerification();
-  const { completeOrder, loading: completingOrder } = useCompleteOrderVerification();
-  const { printReceipt, loading: printingReceipt } = usePrintTillReceipt();
+//   // Mutations
+//   const { startOrder } = useStartOrderVerification();
+//   const { completeOrder, loading: completingOrder } = useCompleteOrderVerification();
+//   const { printReceipt, loading: printingReceipt } = usePrintTillReceipt();
 
-  const [showCompleteModal, setShowCompleteModal] = useState(false);
-  const [selectedBasketIds, setSelectedBasketIds] = useState<string[]>([]);
-  const [completeNotes, setCompleteNotes] = useState('');
-  const [initAttempted, setInitAttempted] = useState(false);
-  const [showReceiptModal, setShowReceiptModal] = useState(false);
-  const [receiptText, setReceiptText] = useState<string>('');
-  const [fatelError, setFatelError] = useState<string | null>(null);
+//   const [showCompleteModal, setShowCompleteModal] = useState(false);
+//   const [selectedBasketIds, setSelectedBasketIds] = useState<string[]>([]);
+//   const [completeNotes, setCompleteNotes] = useState('');
+//   const [initAttempted, setInitAttempted] = useState(false);
+//   const [showReceiptModal, setShowReceiptModal] = useState(false);
+//   const [receiptText, setReceiptText] = useState<string>('');
+//   const [fatelError, setFatelError] = useState<string | null>(null);
 
-  // Initialize order verification on mount
-  useEffect(() => {
-    if (initAttempted) return;
+//   // Initialize order verification on mount
+//   useEffect(() => {
+//     if (initAttempted) return;
 
-    const initializeOrder = async () => {
-      setInitAttempted(true);
+//     const initializeOrder = async () => {
+//       setInitAttempted(true);
 
-      if (!orderData) {
-        // Order not in Redux - try to start verification
-        // Backend will handle if order is already locked by this user
-        try {
-          console.log('Starting order verification for:', orderId);
-          const result = await startOrder(orderId);
-          console.log("result: ", result)
+//       if (!orderData) {
+//         // Order not in Redux - try to start verification
+//         // Backend will handle if order is already locked by this user
+//         try {
+//           console.log('Starting order verification for:', orderId);
+//           const result = await startOrder(orderId);
+//           console.log("result: ", result)
 
-          // Check if backend returned "resuming" message
-          if (result?.success?.message?.includes('Resuming')) message.info('Resuming order verification');
-          else message.success('Order verification started');
-        } catch (error: any) {
-          console.error('Failed to start order:', error);
-          message.error(error.message || 'Failed to start order verification');
-          setFatelError(error.message || 'Failed to start order verification');
-        }
-      } else {
-        // Order already in Redux - just set as current
-        console.log('Order already in Redux, setting as current');
-        dispatch(setCurrentOrder(orderId));
-      }
-    };
+//           // Check if backend returned "resuming" message
+//           if (result?.success?.message?.includes('Resuming')) message.info('Resuming order verification');
+//           else message.success('Order verification started');
+//         } catch (error: any) {
+//           console.error('Failed to start order:', error);
+//           message.error(error.message || 'Failed to start order verification');
+//           setFatelError(error.message || 'Failed to start order verification');
+//         }
+//       } else {
+//         // Order already in Redux - just set as current
+//         console.log('Order already in Redux, setting as current');
+//         dispatch(setCurrentOrder(orderId));
+//       }
+//     };
 
-    initializeOrder();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderId]);
+//     initializeOrder();
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, [orderId]);
 
-  const handleComplete = async () => {
-    if (!orderData) return;
+//   const handleComplete = async () => {
+//     if (!orderData) return;
 
-    // Validate basket selection
-    if (selectedBasketIds.length === 0) {
-      message.error('Please select at least one delivery basket');
-      return;
-    }
+//     // Validate basket selection
+//     if (selectedBasketIds.length === 0) {
+//       message.error('Please select at least one delivery basket');
+//       return;
+//     }
 
-    try {
-      await completeOrder(orderId, selectedBasketIds, completeNotes);
-      message.success('Order verification completed successfully!');
-      setShowCompleteModal(false);
-      setSelectedBasketIds([]);
-      setCompleteNotes('');
-      dispatch(setCurrentOrder(null));
-      router.push(`${adminRoot}/store/${store_id}/till-verification`);
-    } catch (error: any) {
-      message.error(error.message || 'Failed to complete verification');
-    }
-  };
+//     try {
+//       await completeOrder(orderId, selectedBasketIds, completeNotes);
+//       message.success('Order verification completed successfully!');
+//       setShowCompleteModal(false);
+//       setSelectedBasketIds([]);
+//       setCompleteNotes('');
+//       dispatch(setCurrentOrder(null));
+//       router.push(`${adminRoot}/store/${store_id}/till-verification`);
+//     } catch (error: any) {
+//       message.error(error.message || 'Failed to complete verification');
+//     }
+//   };
 
-  const handlePrintReceipt = async () => {
-    try {
-      const result = await printReceipt(orderId);
-      if (result?.receiptText) {
-        setReceiptText(result.receiptText);
-        setShowReceiptModal(true);
-        message.success('Receipt generated successfully!');
-      }
-    } catch (error: any) {
-      message.error(error.message || 'Failed to print receipt');
-    }
-  };
+//   const handlePrintReceipt = async () => {
+//     try {
+//       const result = await printReceipt(orderId);
+//       if (result?.receiptText) {
+//         setReceiptText(result.receiptText);
+//         setShowReceiptModal(true);
+//         message.success('Receipt generated successfully!');
+//       }
+//     } catch (error: any) {
+//       message.error(error.message || 'Failed to print receipt');
+//     }
+//   };
 
-  const handleBasketSelectionChange = (basketIds: string[]) => {
-    setSelectedBasketIds(basketIds);
-  };
+//   const handleBasketSelectionChange = (basketIds: string[]) => {
+//     setSelectedBasketIds(basketIds);
+//   };
 
-  const handleBack = () => {
-    // Just navigate back - order stays locked (auto-hold)
-    dispatch(setCurrentOrder(null));
-    router.push(`${adminRoot}/store/${store_id}/till-verification`);
-  };
+//   const handleBack = () => {
+//     // Just navigate back - order stays locked (auto-hold)
+//     dispatch(setCurrentOrder(null));
+//     router.push(`${adminRoot}/store/${store_id}/till-verification`);
+//   };
 
-  // Check if shift is active
-  if (fatelError) return <Alert message={fatelError} showIcon type='error' />
+//   // Check if shift is active
+//   if (fatelError) return <Alert message={fatelError} showIcon type='error' />
 
-  if (!activeShift) {
-    return (
-      <div style={{ textAlign: 'center', padding: '100px 0' }}>
-        <Card>
-          <Space direction="vertical">
-            <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
-            <Title level={4}>No Active Shift</Title>
-            <Text>You must have an active shift to verify orders.</Text>
-            <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Go to Queue</Button>
-          </Space>
-        </Card>
-      </div>
-    );
-  }
+//   if (!activeShift) {
+//     return (
+//       <div style={{ textAlign: 'center', padding: '100px 0' }}>
+//         <Card>
+//           <Space direction="vertical">
+//             <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
+//             <Title level={4}>No Active Shift</Title>
+//             <Text>You must have an active shift to verify orders.</Text>
+//             <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Go to Queue</Button>
+//           </Space>
+//         </Card>
+//       </div>
+//     );
+//   }
 
-  // Loading state - show what's happening
-  if (!orderData) {
-    if (!initAttempted) return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Loader loading={true}>Initializing...</Loader></div>);
+//   // Loading state - show what's happening
+//   if (!orderData) {
+//     if (!initAttempted) return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Loader loading={true}>Initializing...</Loader></div>);
 
-    return (<div style={{ textAlign: 'center', padding: '100px 0' }}>
-      <Card>
-        <Space direction="vertical">
-          <ExclamationCircleOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
-          <Title level={4}>Failed to Load Order</Title>
-          <Text>Could not load order data. The order might not be available for verification.</Text>
-          <Space>
-            <Button onClick={() => window.location.reload()}>Reload Page</Button>
-            <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Back to Queue</Button>
-          </Space>
-        </Space>
-      </Card>
-    </div>);
-  }
-
-
-  const orderItems = orderData?.current_order?.items || [];
-  const customer = orderData?.customer;
-  const picker = orderData?.processing_stages?.picking?.handled_by;
-
-  // Calculate verification progress
-  const totalItems = orderItems.length;
-  const verifiedItems = orderItems.filter((item: any) =>
-    item.processed_qty > 0 || item.status === 'confirmed' || item.status === 'out_of_stock' || item.status === 'damaged'
-  ).length;
-  const progressPercent = totalItems > 0 ? (verifiedItems / totalItems) * 100 : 0;
-
-  return (<Page>
-    <div style={{ padding: 24, backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{ marginBottom: 16 }}>
-        <Row align="middle" justify="space-between">
-          <Col>
-            <Space>
-              <Button icon={<LeftOutlined />} onClick={handleBack} size="large">Back</Button>
-              <Space direction="vertical" size={0}>
-                <Title level={3} style={{ margin: 0 }}>Till Verification - Order #{orderData?.serial}</Title>
-                <Text type="secondary">Customer: {customer?.name} | Picker: {picker?.name}</Text>
-              </Space>
-            </Space>
-          </Col>
-          <Col>
-            <Button
-              type="primary" size="large" loading={completingOrder} disabled={verifiedItems === 0}
-              icon={<CheckCircleOutlined />}
-              onClick={() => setShowCompleteModal(true)}
-            >
-              Complete Verification
-            </Button>
-          </Col>
-        </Row>
-      </div>
-
-      {/* Main Content */}
-      <Row gutter={16}>
-        {/* Left Column - Items List */}
-        <Col xs={24} lg={16}>
-          <Card title={<Title level={4} style={{ margin: 0 }}>Items to Verify</Title>} style={{ minHeight: '70vh' }}>
-            <Space direction="vertical" style={{ width: '100%' }}>
-              {orderItems.map((item: any) => (
-                <ItemVerificationRow
-                  key={item._id_product}
-                  item={item}
-                  verificationStatus={getVerificationStatusFromItem(item)}
-                  orderId={orderId}
-                />
-              ))}
-            </Space>
-          </Card>
-        </Col>
-
-        {/* Right Column - Progress & Summary */}
-        <Col xs={24} lg={8}>
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
-            {/* Progress Card */}
-            <Card size="small" title="Verification Progress">
-              <Space direction="vertical" style={{ width: '100%' }} size="small">
-                <Text strong style={{ fontSize: 16 }}>{verifiedItems} / {totalItems} items</Text>
-                <Progress
-                  percent={Math.round(progressPercent)}
-                  status={verifiedItems === totalItems ? 'success' : 'active'}
-                  strokeColor={verifiedItems === totalItems ? '#52c41a' : '#1890ff'}
-                />
-                <Space>
-                  <Tag color="success">{verifiedItems} Verified</Tag>
-                  <Tag color="default">{totalItems - verifiedItems} Pending</Tag>
-                </Space>
-              </Space>
-            </Card>
-
-            {/* Order Summary */}
-            <Card size="small" title="Order Summary">
-              <Space direction="vertical" style={{ width: '100%' }} size="small">
-                <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Text>Subtotal:</Text>
-                  <Text strong>{settings.currency}{orderData?.current_order?.totals?.subTotal?.toFixed(2) || '0.00'}</Text>
-                </Space>
-                {orderData?.current_order?.totals?.discount > 0 && (
-                  <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                    <Text type="secondary">Discount:</Text>
-                    <Text type="secondary">-{settings.currency}{orderData?.current_order?.totals?.discount?.toFixed(2)}</Text>
-                  </Space>
-                )}
-                <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                  <Text>Tax:</Text>
-                  <Text>{settings.currency}{orderData?.current_order?.totals?.tax?.toFixed(2) || '0.00'}</Text>
-                </Space>
-                <div style={{ borderTop: '1px solid #d9d9d9', paddingTop: 8, marginTop: 8 }}>
-                  <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                    <Text strong style={{ fontSize: 16 }}>Total:</Text>
-                    <Text strong style={{ fontSize: 18, color: '#1890ff' }}>
-                      {settings.currency}{orderData?.current_order?.totals?.grandTotal?.toFixed(2) || '0.00'}
-                    </Text>
-                  </Space>
-                </div>
-              </Space>
-            </Card>
-
-            {/* Tips Card */}
-            <Card size="small" title="💡 Tips" styles={{ body: { padding: 12 } }}>
-              <Space direction="vertical" size="small">
-                <Text type="secondary" style={{ fontSize: 12 }}>• Navigate away to auto-hold this order</Text>
-                <Text type="secondary" style={{ fontSize: 12 }}>• Verify items by clicking the Verify button</Text>
-                <Text type="secondary" style={{ fontSize: 12 }}>• Mark issues using Missing/Qty Issue buttons</Text>
-              </Space>
-            </Card>
-          </Space>
-        </Col>
-      </Row>
-
-      {/* Complete Verification Modal */}
-      <Modal
-        title="Complete Verification"
-        open={showCompleteModal}
-        onOk={handleComplete}
-        onCancel={() => {
-          setShowCompleteModal(false);
-          setSelectedBasketIds([]);
-        }}
-        okText="Complete Verification"
-        confirmLoading={completingOrder}
-        width={800}
-        okButtonProps={{ disabled: selectedBasketIds.length === 0 }}
-      >
-        <Space direction="vertical" style={{ width: '100%' }} size="large">
-          <div>
-            <Text>Verification Progress: <Text strong>{verifiedItems} / {totalItems} items</Text></Text>
-            {verifiedItems < totalItems && (
-              <Alert type="warning" showIcon style={{ marginTop: 8 }} message="Not all items have been verified. Continue anyway?" />
-            )}
-          </div>
-
-          <div>
-            <Title level={5} style={{ marginBottom: 12 }}>Select Delivery Baskets</Title>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-              Select the delivery baskets for this order. Items from pickup baskets will be transferred to these baskets.
-            </Text>
-            <BasketSelector
-              storeId={store_id}
-              onSelectionChange={handleBasketSelectionChange}
-              minRequired={1}
-              category="dispatch"
-            />
-          </div>
-
-          <TextArea
-            placeholder="Optional: Add completion notes..."
-            value={completeNotes}
-            onChange={(e) => setCompleteNotes(e.target.value)}
-            rows={3}
-          />
-        </Space>
-      </Modal>
-
-      {/* Receipt Printing Modal */}
-      <Modal
-        title="Till Receipt"
-        open={showReceiptModal}
-        onCancel={() => setShowReceiptModal(false)}
-        footer={[
-          <Button key="close" onClick={() => setShowReceiptModal(false)}>Close</Button>,
-          <Button key="print" type="primary" icon={<PrinterOutlined />}
-            onClick={() => {
-              // In a real implementation, this would send to thermal printer
-              window.print();
-            }}
-          >
-            Print
-          </Button>,
-        ]}
-        width={600}
-      >
-        <div style={{
-          fontFamily: 'monospace',
-          whiteSpace: 'pre-wrap',
-          backgroundColor: '#f5f5f5',
-          padding: 16,
-          borderRadius: 4,
-          fontSize: 12,
-          lineHeight: 1.4
-        }}>
-          {receiptText}
-        </div>
-      </Modal>
-    </div>
-  </Page>);
-};
+//     return (<div style={{ textAlign: 'center', padding: '100px 0' }}>
+//       <Card>
+//         <Space direction="vertical">
+//           <ExclamationCircleOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
+//           <Title level={4}>Failed to Load Order</Title>
+//           <Text>Could not load order data. The order might not be available for verification.</Text>
+//           <Space>
+//             <Button onClick={() => window.location.reload()}>Reload Page</Button>
+//             <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Back to Queue</Button>
+//           </Space>
+//         </Space>
+//       </Card>
+//     </div>);
+//   }
 
 
-export default function TillVerificationPOS_Wrapper() {
+//   const orderItems = orderData?.current_order?.items || [];
+//   const customer = orderData?.customer;
+//   const picker = orderData?.processing_stages?.picking?.handled_by;
+
+//   // Calculate verification progress
+//   const totalItems = orderItems.length;
+//   const verifiedItems = orderItems.filter((item: any) =>
+//     item.processed_qty > 0 || item.status === 'confirmed' || item.status === 'out_of_stock' || item.status === 'damaged'
+//   ).length;
+//   const progressPercent = totalItems > 0 ? (verifiedItems / totalItems) * 100 : 0;
+
+//   return (<Page>
+//     <div style={{ padding: 24, backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
+//       {/* Header */}
+//       <div style={{ marginBottom: 16 }}>
+//         <Row align="middle" justify="space-between">
+//           <Col>
+//             <Space>
+//               <Button icon={<LeftOutlined />} onClick={handleBack} size="large">Back</Button>
+//               <Space direction="vertical" size={0}>
+//                 <Title level={3} style={{ margin: 0 }}>Till Verification - Order #{orderData?.serial}</Title>
+//                 <Text type="secondary">Customer: {customer?.name} | Picker: {picker?.name}</Text>
+//               </Space>
+//             </Space>
+//           </Col>
+//           <Col>
+//             <Button
+//               type="primary" size="large" loading={completingOrder} disabled={verifiedItems === 0}
+//               icon={<CheckCircleOutlined />}
+//               onClick={() => setShowCompleteModal(true)}
+//             >
+//               Complete Verification
+//             </Button>
+//           </Col>
+//         </Row>
+//       </div>
+
+//       {/* Main Content */}
+//       <Row gutter={16}>
+//         {/* Left Column - Items List */}
+//         <Col xs={24} lg={16}>
+//           <Card title={<Title level={4} style={{ margin: 0 }}>Items to Verify</Title>} style={{ minHeight: '70vh' }}>
+//             <Space direction="vertical" style={{ width: '100%' }}>
+//               {orderItems.map((item: any) => (
+//                 <ItemVerificationRow
+//                   key={item._id_product}
+//                   item={item}
+//                   verificationStatus={getVerificationStatusFromItem(item)}
+//                   orderId={orderId}
+//                 />
+//               ))}
+//             </Space>
+//           </Card>
+//         </Col>
+
+//         {/* Right Column - Progress & Summary */}
+//         <Col xs={24} lg={8}>
+//           <Space direction="vertical" style={{ width: '100%' }} size="middle">
+//             {/* Progress Card */}
+//             <Card size="small" title="Verification Progress">
+//               <Space direction="vertical" style={{ width: '100%' }} size="small">
+//                 <Text strong style={{ fontSize: 16 }}>{verifiedItems} / {totalItems} items</Text>
+//                 <Progress
+//                   percent={Math.round(progressPercent)}
+//                   status={verifiedItems === totalItems ? 'success' : 'active'}
+//                   strokeColor={verifiedItems === totalItems ? '#52c41a' : '#1890ff'}
+//                 />
+//                 <Space>
+//                   <Tag color="success">{verifiedItems} Verified</Tag>
+//                   <Tag color="default">{totalItems - verifiedItems} Pending</Tag>
+//                 </Space>
+//               </Space>
+//             </Card>
+
+//             {/* Order Summary */}
+//             <Card size="small" title="Order Summary">
+//               <Space direction="vertical" style={{ width: '100%' }} size="small">
+//                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+//                   <Text>Subtotal:</Text>
+//                   <Text strong>{settings.currency}{orderData?.current_order?.totals?.subTotal?.toFixed(2) || '0.00'}</Text>
+//                 </Space>
+//                 {orderData?.current_order?.totals?.discount > 0 && (
+//                   <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+//                     <Text type="secondary">Discount:</Text>
+//                     <Text type="secondary">-{settings.currency}{orderData?.current_order?.totals?.discount?.toFixed(2)}</Text>
+//                   </Space>
+//                 )}
+//                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+//                   <Text>Tax:</Text>
+//                   <Text>{settings.currency}{orderData?.current_order?.totals?.tax?.toFixed(2) || '0.00'}</Text>
+//                 </Space>
+//                 <div style={{ borderTop: '1px solid #d9d9d9', paddingTop: 8, marginTop: 8 }}>
+//                   <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+//                     <Text strong style={{ fontSize: 16 }}>Total:</Text>
+//                     <Text strong style={{ fontSize: 18, color: '#1890ff' }}>
+//                       {settings.currency}{orderData?.current_order?.totals?.grandTotal?.toFixed(2) || '0.00'}
+//                     </Text>
+//                   </Space>
+//                 </div>
+//               </Space>
+//             </Card>
+
+//             {/* Tips Card */}
+//             <Card size="small" title="💡 Tips" styles={{ body: { padding: 12 } }}>
+//               <Space direction="vertical" size="small">
+//                 <Text type="secondary" style={{ fontSize: 12 }}>• Navigate away to auto-hold this order</Text>
+//                 <Text type="secondary" style={{ fontSize: 12 }}>• Verify items by clicking the Verify button</Text>
+//                 <Text type="secondary" style={{ fontSize: 12 }}>• Mark issues using Missing/Qty Issue buttons</Text>
+//               </Space>
+//             </Card>
+//           </Space>
+//         </Col>
+//       </Row>
+
+//       {/* Complete Verification Modal */}
+//       <Modal
+//         title="Complete Verification"
+//         open={showCompleteModal}
+//         onOk={handleComplete}
+//         onCancel={() => {
+//           setShowCompleteModal(false);
+//           setSelectedBasketIds([]);
+//         }}
+//         okText="Complete Verification"
+//         confirmLoading={completingOrder}
+//         width={800}
+//         okButtonProps={{ disabled: selectedBasketIds.length === 0 }}
+//       >
+//         <Space direction="vertical" style={{ width: '100%' }} size="large">
+//           <div>
+//             <Text>Verification Progress: <Text strong>{verifiedItems} / {totalItems} items</Text></Text>
+//             {verifiedItems < totalItems && (
+//               <Alert type="warning" showIcon style={{ marginTop: 8 }} message="Not all items have been verified. Continue anyway?" />
+//             )}
+//           </div>
+
+//           <div>
+//             <Title level={5} style={{ marginBottom: 12 }}>Select Delivery Baskets</Title>
+//             <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+//               Select the delivery baskets for this order. Items from pickup baskets will be transferred to these baskets.
+//             </Text>
+//             <BasketSelector
+//               storeId={store_id}
+//               onSelectionChange={handleBasketSelectionChange}
+//               minRequired={1}
+//               category="dispatch"
+//             />
+//           </div>
+
+//           <TextArea
+//             placeholder="Optional: Add completion notes..."
+//             value={completeNotes}
+//             onChange={(e) => setCompleteNotes(e.target.value)}
+//             rows={3}
+//           />
+//         </Space>
+//       </Modal>
+
+//       {/* Receipt Printing Modal */}
+//       <Modal
+//         title="Till Receipt"
+//         open={showReceiptModal}
+//         onCancel={() => setShowReceiptModal(false)}
+//         footer={[
+//           <Button key="close" onClick={() => setShowReceiptModal(false)}>Close</Button>,
+//           <Button key="print" type="primary" icon={<PrinterOutlined />}
+//             onClick={() => {
+//               // In a real implementation, this would send to thermal printer
+//               window.print();
+//             }}
+//           >
+//             Print
+//           </Button>,
+//         ]}
+//         width={600}
+//       >
+//         <div style={{
+//           fontFamily: 'monospace',
+//           whiteSpace: 'pre-wrap',
+//           backgroundColor: '#f5f5f5',
+//           padding: 16,
+//           borderRadius: 4,
+//           fontSize: 12,
+//           lineHeight: 1.4
+//         }}>
+//           {receiptText}
+//         </div>
+//       </Modal>
+//     </div>
+//   </Page>);
+// };
+
+
+function TillVerificationPOS_Wrapper() {
   const router = useRouter();
   const params = useParams();
   const orderId = params.orderId as string
   const { store, store_id }: any = usePageProps();
 
   const [activity, setActivity] = useState("Loading session...")
-  const [fatelError, setFatelError] = useState(null)
+  const [fatelError, setFatelError] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
   // const [openAttempted, setOpenAttempted] = useState(false);
   // const tillVerification = useAppSelector(getTillVerification);
@@ -1049,6 +1051,7 @@ export default function TillVerificationPOS_Wrapper() {
       attemptOpenShift();
     }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shiftSession, shiftLoading]);
 
 
@@ -1109,5 +1112,7 @@ export default function TillVerificationPOS_Wrapper() {
     />
   </>)
 }
+
+export default TillVerificationPOS_Wrapper;
 
 // export default TillVerificationPOS;

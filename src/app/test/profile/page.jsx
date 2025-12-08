@@ -1,8 +1,10 @@
 import React from 'react'
 
 
-export default function ProfileHome() {
+function ProfileHome() {
     return (<div>
         <h1>Profile Home</h1>
     </div>)
 }
+
+export default ProfileHome

@@ -5,11 +5,11 @@ import { __error } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery, gql } from '@apollo/client';
 import { Alert, Card, Col, Divider, Popconfirm, Row, Space, Switch } from 'antd';
 import { Button, DevBlock, GMap, IconButton, Drawer, Loader, StatusTag, Table, usePageProps } from '@_/components';
-import StoreWrapper from '@_/modules/store/storeWrapper';
+// import StoreWrapper from '@_/modules/store/storeWrapper';
 import { VehicleForm } from '@_/modules/vehicles';
-import { Polygon } from '@react-google-maps/api';
-import Link from 'next/link';
-import { adminRoot } from '@_/configs';
+// import { Polygon } from '@react-google-maps/api';
+// import Link from 'next/link';
+// import { adminRoot } from '@_/configs';
 import { PageHeader } from '@_/template';
 import { useParams } from 'next/navigation';
 
@@ -18,13 +18,13 @@ import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 
 // function VehicleDetails({ params: { vehicle_id }, store }) {
-export default function VehicleDetails() {
-    const { store } = usePageProps()
+function VehicleDetails() {
+    const { store } = usePageProps() as unknown as { store: any }
 
     const { vehicle_id } = useParams<{ vehicle_id: string }>()
 
-    const [thisNode, set_thisNode] = useState(null)
-    const [fatelError, set_fatelError] = useState(null)
+    const [thisNode, set_thisNode] = useState<any | null>(null)
+    const [fatelError, set_fatelError] = useState<string | null>(null)
     const [showForm, set_showForm] = useState(false)
 
     const [getVehicle, { loading, data, called }] = useLazyQuery(GET_RECORD, { fetchPolicy: 'network-only' });
@@ -33,11 +33,12 @@ export default function VehicleDetails() {
         if (loading || called) return;
 
         fetchData()
-    }, [vehicle_id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [vehicle_id, loading, called])
 
     const fetchData = async() => {
         let results = await getVehicle({ variables: { _id: vehicle_id } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.vehicle }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.vehicle }))
         .catch(err=>{
             console.log(__error("Error: "), err)
             return { error:{message:"Request Error!"}}
@@ -64,7 +65,7 @@ export default function VehicleDetails() {
         <PageHeader 
             title={thisNode.title}
             sub={<Space split="|">
-                <StatusTag value={thisNode.status} />
+                <StatusTag value={thisNode.status} options={[{ label: thisNode.status, value: thisNode.status }]} onSubmit={async() => thisNode.status} />
                 <IconButton onClick={() => set_showForm(true)} icon="pen" size="small" />
             </Space>}
         >
@@ -76,15 +77,15 @@ export default function VehicleDetails() {
 
         <Row gutter={[10, 10]}>
             <Col span={12}><Card>
-                <Divider placement="left">Zones</Divider>
+                <Divider orientation="left">Zones</Divider>
                 <ul style={{ marginLeft: "50px" }}>
-                    {thisNode?.zones?.map((zone, i) => (<li key={i}>{zone.title}</li>))}
+                    {thisNode?.zones?.map((zone: any, i: number) => (<li key={i}>{zone.title}</li>))}
                 </ul>
             </Card></Col>
             <Col span={12}><Card>
                 <Divider>Drivers</Divider>
                 <ul style={{ marginLeft: "50px" }}>
-                    {thisNode?.drivers?.map((item, i) => (<li key={i}>{item.name}</li>))}
+                    {thisNode?.drivers?.map((item: any, i: number) => (<li key={i}>{item.name}</li>))}
                 </ul>
             </Card></Col>
         </Row>
@@ -97,6 +98,8 @@ export default function VehicleDetails() {
 
     </>)
 }
+
+export default VehicleDetails;
 
 // export default function Wrapper(props) {
 //     return (<StoreWrapper {...props} render={({ store }) => (<VehicleDetails {...props} store={store} />)} />)

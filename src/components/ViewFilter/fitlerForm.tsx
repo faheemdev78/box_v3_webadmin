@@ -16,7 +16,7 @@ interface FilterBuilderProps {
     config: ViewFilterConfig;
 }
 
-export default function FitlerForm({ initialValues = {}, config = {} }: FilterBuilderProps) {
+function FitlerForm({ initialValues = {}, config }: FilterBuilderProps) {
     const isEditing = !!initialValues._id;
 
     async function onFormSubmit(values:any){
@@ -124,10 +124,12 @@ export default function FitlerForm({ initialValues = {}, config = {} }: FilterBu
                                                     {({ fields: conditionFields }) => (
                                                         <Space direction="vertical" style={{ width: '100%' }}>
                                                             {conditionFields.map((conditionName, condIndex) => {
-                                                                const condition = conditionFields.value[condIndex];
-                                                                const fieldConfig = getFieldConfig(condition?.field);
+                                    const condition = conditionFields.value[condIndex];
+                                    const fieldConfig = getFieldConfig(condition?.field);
 
-                                                                return (<div key={conditionName} style={{ borderBottom: `${condIndex !== (conditionFields.length - 1) ? '1' : '0'}px dashed #DDD`, padding: "10px" }}>
+                                    const totalConditions = conditionFields?.length || 0;
+
+                                    return (<div key={conditionName} style={{ borderBottom: `${condIndex !== (totalConditions - 1) ? '1' : '0'}px dashed #DDD`, padding: "10px" }}>
                                                                     {condIndex > 0 && (
                                                                         <Tag color={group.logic === 'AND' ? 'green' : 'orange'} style={{ marginBottom: 8 }}>{group.logic || 'AND'}</Tag>
                                                                     )}
@@ -156,11 +158,11 @@ export default function FitlerForm({ initialValues = {}, config = {} }: FilterBu
                                                                                     disabled={!condition?.field}
                                                                                 />
                                                                             </Col>
-                                                                            <Col span={8} align="right"><IconButton type="danger" icon="trash-alt" onClick={() => conditionFields.remove(condIndex)} /></Col>
+                                                                            <Col span={8} style={{ textAlign: "right" }}><IconButton danger icon="trash-alt" onClick={() => conditionFields.remove(condIndex)} /></Col>
                                                                             <Col span={24}>
                                                                                 {renderValueInput( conditionName, condition?.field, condition?.operator )}
                                                                             </Col>
-                                                                            <Col span={24} align="right"><FormField name={`${conditionName}.isChangeable`} type="checkbox">Mark this as variable value</FormField></Col>                                                                                
+                                                                            <Col span={24} style={{ textAlign: "right" }}><FormField name={`${conditionName}.isChangeable`} type="checkbox">Mark this as variable value</FormField></Col>                                                                                
                                                                         </Row>
                                                                     </Space>
                                                                 </div>);
@@ -188,3 +190,5 @@ export default function FitlerForm({ initialValues = {}, config = {} }: FilterBu
 
     </div>)
 }
+
+export default FitlerForm

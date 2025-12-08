@@ -59,6 +59,69 @@ export const QuickFiltersBar: React.FC<QuickFiltersBarProps> = ({
     return String(filter.value);
   };
 
+  // Component for text/number filter input
+  const TextFilterInput: React.FC<{ filter: FilterCondition; field: FieldDefinition }> = ({ filter, field }) => {
+    const [inputValue, setInputValue] = useState(filter.value || '');
+    const [popoverVisible, setPopoverVisible] = useState(false);
+
+    const handleChange = (value: any) => {
+      if (onFilterChange) {
+        onFilterChange(filter.id, value);
+      }
+    };
+
+    const displayText = filter.value
+      ? `${getFieldLabel(filter.field)}: ${filter.value}`
+      : getFieldLabel(filter.field);
+
+    const handleApply = () => {
+      handleChange(inputValue);
+      setPopoverVisible(false);
+    };
+
+    const content = (
+      <div style={{ width: 250 }}>
+        <Input
+          placeholder={`Enter ${getFieldLabel(filter.field).toLowerCase()}`}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onPressEnter={handleApply}
+          autoFocus
+          suffix={
+            <Button type="link" size="small" onClick={handleApply}>
+              Apply
+            </Button>
+          }
+        />
+      </div>
+    );
+
+    return (
+      <Popover
+        content={content}
+        trigger="click"
+        open={popoverVisible}
+        onOpenChange={setPopoverVisible}
+      >
+        <Button>
+          <Space size={4}>
+            {displayText}
+            {onRemoveFilter && (
+              <CloseOutlined
+                style={{ fontSize: 12 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveFilter(filter.id);
+                }}
+              />
+            )}
+            <SearchOutlined style={{ fontSize: 10 }} />
+          </Space>
+        </Button>
+      </Popover>
+    );
+  };
+
   // Render a changeable filter (with appropriate input control)
   const renderChangeableFilter = (filter: FilterCondition) => {
     const field = getFieldDef(filter.field);
@@ -122,62 +185,9 @@ export const QuickFiltersBar: React.FC<QuickFiltersBarProps> = ({
       );
     }
 
-    // For text/number fields - show as input in popover
+    // For text/number fields - use the TextFilterInput component
     if (field.type === 'text' || field.type === 'number') {
-      const [inputValue, setInputValue] = useState(filter.value || '');
-      const [popoverVisible, setPopoverVisible] = useState(false);
-
-      const displayText = filter.value
-        ? `${getFieldLabel(filter.field)}: ${filter.value}`
-        : getFieldLabel(filter.field);
-
-      const handleApply = () => {
-        handleChange(inputValue);
-        setPopoverVisible(false);
-      };
-
-      const content = (
-        <div style={{ width: 250 }}>
-          <Input
-            placeholder={`Enter ${getFieldLabel(filter.field).toLowerCase()}`}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onPressEnter={handleApply}
-            autoFocus
-            suffix={
-              <Button type="link" size="small" onClick={handleApply}>
-                Apply
-              </Button>
-            }
-          />
-        </div>
-      );
-
-      return (
-        <Popover
-          key={filter.id}
-          content={content}
-          trigger="click"
-          open={popoverVisible}
-          onOpenChange={setPopoverVisible}
-        >
-          <Button>
-            <Space size={4}>
-              {displayText}
-              {onRemoveFilter && (
-                <CloseOutlined
-                  style={{ fontSize: 12 }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemoveFilter(filter.id);
-                  }}
-                />
-              )}
-              <SearchOutlined style={{ fontSize: 10 }} />
-            </Space>
-          </Button>
-        </Popover>
-      );
+      return <TextFilterInput key={filter.id} filter={filter} field={field} />;
     }
 
     // For other changeable filters, show as tag for now

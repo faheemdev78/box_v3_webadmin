@@ -21,10 +21,13 @@ function Cat_r1_c3_4Props({ item: { name, data, values } }) {
 }
 
 
-export default { 
-    type: "cat_r1_c3_4", 
-    label: "R1 / C3", 
+const Cat_r1_c3_4Component = {
+    type: "cat_r1_c3_4",
+    label: "R1 / C3",
     desc: "R1 / C3 (4)",
-    renderer: Cat_r1_c3_4, 
-    propsRender: Cat_r1_c3_4Props
-}
+    renderer: Cat_r1_c3_4,
+    propsRender: Cat_r1_c3_4Props,
+    displayName: "Cat_r1_c3_4Component"
+};
+
+export default Cat_r1_c3_4Component;

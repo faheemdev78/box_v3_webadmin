@@ -12,10 +12,10 @@ import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo'
 import LIST_DATA from '@_/graphql/product_cat/productCats.graphql'
 import RECORD_DELETE from '@_/graphql/product_cat/deleteProductCat.graphql';
 
-const constructCategoryArray = (allCats, parent = null) => {
+const constructCategoryArray = (allCats:any, parent: any = null) => {
     if (!allCats) return []
 
-    let arr = allCats.filter(o => o._id_parent_cat == parent).map(item => ({
+    let arr = allCats.filter((o:any) => o._id_parent_cat == parent).map((item:any) => ({
         ...item,
         children: constructCategoryArray(allCats, item._id),
     }))
@@ -24,9 +24,9 @@ const constructCategoryArray = (allCats, parent = null) => {
 }
 
 
-export default function CategoriesPage (props) {
+function CategoriesPage () {
     // const [productCats, set_productCats] = useState(null)
-    const [showCatForm, set_showCatForm] = useState({ show: false, fields: undefined })
+    const [showCatForm, set_showCatForm] = useState<{ show: boolean; fields: any }>({ show: false, fields: undefined })
 
     const [get_productCats, { data, called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'cache-and-network' });
     const [deleteProductCat, del_details] = useMutation(RECORD_DELETE); // { data, loading, error }
@@ -34,7 +34,8 @@ export default function CategoriesPage (props) {
     useEffect(() => {
         if (called) return;
         fetchData()
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called])
 
     const fetchData = async () => {
         console.log(__yellow("fetchData()"));
@@ -50,7 +51,7 @@ export default function CategoriesPage (props) {
     }
     const onUpdateCallback = () => fetchData()
 
-    const handleDelete = async ({ _id }) => {
+    const handleDelete = async ({ _id }: { _id: string }) => {
         let results = await deleteProductCat({ variables: { _id }})
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.deleteProductCat }))
             .catch(catchApolloError)
@@ -74,16 +75,16 @@ export default function CategoriesPage (props) {
             dataIndex: 'status',
             key: 'status',
             width: 100,
-            align: 'center',
-            render: (txt, __) => (<Tag color={txt === 'online' ? 'green' : 'red'}>{txt}</Tag>)
+            align: 'center' as const,
+            render: (txt: any, __: any) => (<Tag color={txt === 'online' ? 'green' : 'red'}>{txt}</Tag>)
         },
         {
             title: 'Actions',
             dataIndex: 'actions',
             width: 120,
             key: 'actions',
-            align: 'right',
-            render: (text, rec) => {
+            align: 'right' as const,
+            render: (_text: any, rec: any) => {
                 return (<Space>
                     <IconButton onClick={() => set_showCatForm({ show: true, fields: rec })} icon="pen" />
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}>
@@ -103,7 +104,7 @@ export default function CategoriesPage (props) {
             //     { label: "Field 3", value: "val-3" },
             // ]}
         >
-            <Button onClick={() => set_showCatForm({ show: true })} color="orange">Add New Category</Button>
+            <Button onClick={() => set_showCatForm({ show: true, fields: undefined })} color="orange">Add New Category</Button>
         </PageHeader>
 
         <Card styles={{ body:{ padding:0 } }}>
@@ -117,7 +118,7 @@ export default function CategoriesPage (props) {
 
 
         <CategoriesForm 
-            onClose={() => set_showCatForm({ show: false })} 
+            onClose={() => set_showCatForm({ show: false, fields: undefined })} 
             open={showCatForm.show} 
             fields={showCatForm.fields} 
             callback={onUpdateCallback}
@@ -127,3 +128,4 @@ export default function CategoriesPage (props) {
 
 }
 
+export default CategoriesPage;

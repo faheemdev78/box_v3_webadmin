@@ -44,6 +44,7 @@ const FormComponent = ({ onSubmit, ...props }) => {
         return () => {
             set_initialValues(null)
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.initialValues])
 
     const fetchInitialValues = async () => {
@@ -121,6 +122,7 @@ const FormComponent = ({ onSubmit, ...props }) => {
                                     </GMap>
                                     <div style={{ position: "absolute", top: "50%", zIndex: 100, width: "100%", borderBottom: "1px solid rgba(255, 255, 255, 0.2)" }} />
                                     <div style={{ position: "absolute", top: 0, left: "50%", zIndex: 100, height: "100%", borderRight: "1px solid rgba(255, 255, 255, 0.2)" }} />
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <div style={{ position: "absolute", top: "50%", marginTop: "-40px", left: "50%", marginLeft: "-15px", zIndex: 100, }}><img src={icon_location_red} alt="" width="30px" /></div>
                                 </div>
                             </Col>

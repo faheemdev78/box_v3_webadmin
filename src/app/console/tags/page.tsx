@@ -13,11 +13,12 @@ import LIST_DATA from '@_/graphql/product_tags/productTagsQuery.graphql'
 import RECORD_DELETE from '@_/graphql/product_tags/deleteProductTag.graphql';
 import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { __error } from '@_/lib/consoleHelper';
+import { ColumnsType } from 'antd/es/table';
 
 
 const defaultFilter = { status: 'online' }
 
-export default function Tags(props) {
+function Tags(props:any) {
     const [state, setState] = useState({
         pagination: { current: 1 },
         pageView: "list",
@@ -25,7 +26,7 @@ export default function Tags(props) {
         busy: false,
     })
     
-    const [dataArray, set_dataArray] = useState(null)
+    const [dataArray, set_dataArray] = useState<any>(null)
     const [showForm, set_showForm] = useState({ show: false, fields: undefined })
     const [busy, setBusy] = useState(false)
     const [data, setData] = useState(null)
@@ -37,9 +38,10 @@ export default function Tags(props) {
     useEffect(() => {
         if (called) return;
         fetchData()
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called])
 
-    const fetchData = async (args={}) => {
+    const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
         let skip = limit * (current - 1);
@@ -57,7 +59,7 @@ export default function Tags(props) {
             filter: JSON.stringify({}), // JSON.stringify(filter), 
             others: JSON.stringify({})
         } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productTagsQuery }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.productTagsQuery }))
             .catch(catchApolloError)
 
         if (results && results.error) {
@@ -69,9 +71,9 @@ export default function Tags(props) {
     }
     const onUpdateCallback = () => fetchData()
 
-    const handleDelete = async ({ _id }) => {
-        let results = await deleteProductTag(id)
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deleteProductTag }))
+    const handleDelete = async ({ _id }: { _id: string }) => {
+        let results = await deleteProductTag({ variables: { _id }})
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.deleteProductTag }))
             .catch(catchApolloError)
 
         if (!results || results.error) {
@@ -82,7 +84,7 @@ export default function Tags(props) {
         message.success("Record deleted")
     }
 
-    const columns = [
+    const columns: ColumnsType<any> = [
         {
             title: 'Tag',
             dataIndex: 'title',
@@ -93,8 +95,8 @@ export default function Tags(props) {
             dataIndex: 'actions',
             width: 120,
             key: 'actions',
-            align: 'right',
-            render: (text, rec) => {
+            align: 'right' as const,
+            render: (_text: any, rec: any) => {
                 return (<Space>
                     <IconButton onClick={() => set_showForm({ show: true, fields: rec })} icon="pen" />
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}>
@@ -109,20 +111,20 @@ export default function Tags(props) {
         <PageHeader title="Product Tags" sub={<div>
             {(dataArray && dataArray.pagination.totalDocs) || 0} records found
         </div>}>
-            <Button onClick={() => set_showForm({ show: true })} color="orange">Add New Tag</Button>
+            <Button onClick={() => set_showForm({ show: true, fields: undefined })} color="orange">Add New Tag</Button>
         </PageHeader>
 
         <Page>
             <Table
                 loading={loading}
                 columns={columns}
-                dataSource={dataArray && dataArray.edges}
+                dataSource={dataArray?.edges || []}
                 pagination={false}
             />
         </Page>
 
         <ProdTagForm
-            onClose={() => set_showForm({ show: false })}
+            onClose={() => set_showForm({ show: false, fields: undefined })}
             open={showForm.show}
             fields={showForm.fields}
             callback={onUpdateCallback}
@@ -132,3 +134,4 @@ export default function Tags(props) {
 
 }
 
+export default Tags

@@ -563,7 +563,7 @@ export function StaffFilter({ onFilterChange }: { onFilterChange?: (filterGroups
                                                                             </Button>
                                                                         </Space>
                                                                     }
-                                                                    extra={groupFields.length > 1 && (
+                                                extra={(groupFields?.length || 0) > 1 && (
                                                                             <Button size="small" danger icon={<CloseOutlined />} 
                                                                             onClick={() => groupFields.remove(groupIndex)}>Remove Group</Button>
                                                                         )
@@ -614,7 +614,7 @@ export function StaffFilter({ onFilterChange }: { onFilterChange?: (filterGroups
                                                                                             )}
                                                                                         </Col>
                                                                                         <Col>
-                                                                                            <IconButton type="danger" icon="trash-alt" onClick={() => conditionFields.remove(condIndex)} />
+                                                                                            <IconButton type="primary" danger icon="trash-alt" onClick={() => conditionFields.remove(condIndex)} />
                                                                                         </Col>
                                                                                     </Row>
                                                                                 </div>);

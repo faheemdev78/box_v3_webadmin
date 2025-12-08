@@ -7,6 +7,7 @@ import { getSettings } from '@_/rStore/slices/systemSlice';
 import { Icon } from './icon';
 import { message, Popconfirm, Space, Tag, Typography } from 'antd';
 import moment from 'moment';
+import _ from 'lodash';
 // import dayjs from 'dayjs';
 import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 import { useMutation, useLazyQuery } from '@apollo/client';
@@ -19,7 +20,7 @@ import RESET_ORDER from '@_/graphql/order/resetOrderToZero.graphql'
 
 const { Title, Text } = Typography;
 
-const ResetButton = ({ handleResetOrder, size='small' }: { handleResetOrder: Function, size?:string }) => {
+const ResetButton = ({ handleResetOrder, size='small' }: { handleResetOrder: Function, size?: 'small' | 'middle' | 'large' }) => {
     const [busy, setBusy] = useState(false)
 
     async function _handleResetOrder(){
@@ -84,7 +85,7 @@ export function OrderTable({
 
     const [resetOrder, resetOrder_results] = useMutation(RESET_ORDER);
 
-    const tableProps = {}
+    const tableProps: any = {}
     if (handleTableChange) Object.assign(tableProps, {
         onChange: ({ current, pageSize }: { current: number, pageSize: number }) => handleTableChange({ page: current, pageSize })
     })
@@ -257,7 +258,7 @@ export function OrderTable({
             bordered
             loading={busy || loading}
             columns={_columns}
-            dataSource={dataSource || null}
+            dataSource={dataSource || []}
             pagination={pagination || false}
             rowClassName={rowClassName}
             scroll={scroll}

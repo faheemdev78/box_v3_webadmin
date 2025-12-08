@@ -19,6 +19,8 @@ import {
   faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { FontAwesomeIconProps } from '@fortawesome/react-fontawesome';
+import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { __error } from '@_/lib/consoleHelper';
 
 library.add(
@@ -30,30 +32,31 @@ library.add(
  
 
 
-function verifyIconAvailability(icon_name) {
-  let icons = library.definitions.fas;
+function verifyIconAvailability(icon_name: string) {
+  const icons = (library as any)?.definitions?.fas || {};
   return icons[icon_name] ? true : false;
 }
 
 
-interface IconProps {
+interface IconProps extends Omit<FontAwesomeIconProps, 'icon'> {
   icon: string;
   anticon?: boolean;
   skipstyle?: boolean;
-  className?: string | string[];
+  className?: string;
 }
-export const Icon: React.FC<IconProps> = React.forwardRef((_props, ref) => {
-  let props = { ..._props };
+export const Icon = React.forwardRef<HTMLSpanElement, IconProps>((_props, ref) => {
+  const { icon, anticon, skipstyle, className, ...rest } = _props;
+  const mergedClassName = `awsom-icon ${anticon ? "anticon" : ""} ${className || ""}`;
 
-  let className = `awsom-icon ${props.anticon && "anticon"} ${props.className || ""}`;// props.skipstyle ? "" : "anticon" + props.className || "";
-  delete props.skipstyle;
-  delete props.className;
-  delete props.anticon;
-
-  if (!verifyIconAvailability(props.icon)) {
-    console.log(__error(`Icon not found: `), props.icon)
-    return <span ref={ref} {...props} className={`${className}`}>{props.icon}</span>;
+  if (!verifyIconAvailability(icon)) {
+    console.log(__error(`Icon not found: `), icon)
+    return <span ref={ref} className={mergedClassName}>{icon}</span>;
   }
-  return <span ref={ref} className={`${className}`}><FontAwesomeIcon {...props} /></span>
-});
 
+  return (
+    <span ref={ref} className={mergedClassName}>
+      <FontAwesomeIcon icon={icon as IconProp} {...rest} />
+    </span>
+  );
+});
+Icon.displayName = 'Icon';

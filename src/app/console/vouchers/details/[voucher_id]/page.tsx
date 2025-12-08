@@ -4,12 +4,11 @@ import { useEffect } from 'react'
 import { __error } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery, gql } from '@apollo/client';
 import { useRouter, useParams } from 'next/navigation';
-
-
-import GET_DATA from '@_/graphql/vouchers/voucher.graphql'
 import { DevBlock, Loader } from '@_/components';
 
-export default function VoucherDetails() {
+import GET_DATA from '@_/graphql/vouchers/voucher.graphql'
+
+function VoucherDetails() {
     const { voucher_id } = useParams<{ voucher_id: string }>()
     // const { prod_id, ...params } = useParams()
 
@@ -18,6 +17,7 @@ export default function VoucherDetails() {
     useEffect(() => {
         if (called) return;
         getVoucher({ variables: { id: voucher_id } })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [voucher_id])
     
     
@@ -29,3 +29,5 @@ export default function VoucherDetails() {
         <DevBlock obj={data} />
     </div>)
 }
+
+export default VoucherDetails

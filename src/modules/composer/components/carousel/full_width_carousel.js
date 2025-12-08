@@ -21,10 +21,13 @@ function FullWidthCarouselProps({ item: { name, data, values } }) {
 }
 
 
-export default { 
-    type: "full_width_carousel", 
-    label: "Full Width", 
+const FullWidthCarouselComponent = {
+    type: "full_width_carousel",
+    label: "Full Width",
     desc: "full width",
-    renderer: FullWidthCarousel, 
-    propsRender: FullWidthCarouselProps
-}
+    renderer: FullWidthCarousel,
+    propsRender: FullWidthCarouselProps,
+    displayName: "FullWidthCarouselComponent"
+};
+
+export default FullWidthCarouselComponent;

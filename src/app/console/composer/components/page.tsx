@@ -6,7 +6,7 @@ import { PageHeader } from "@_/template";
 import { Button } from "@_/components";
 
 
-function ComponentsHome(props) {
+function ComponentsHome() {
     return (<>
         <PageHeader title="Components">
             <Button color="orange" type="link"><Link href={`${adminRoot}/composer/components/create`}>Create new Component</Link></Button>

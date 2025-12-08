@@ -15,7 +15,7 @@ import RECORD_DELETE from '@_/graphql/brand/deleteBrand.graphql';
 const defaultFilter = { status: 'online' }
 
 
-export default function Brands(props) {
+function Brands(props: any) {
     const [state, setState] = useState({
         pagination: { current: 1 },
         pageView: "list",
@@ -23,8 +23,8 @@ export default function Brands(props) {
         busy: false,
     })
     
-    const [dataArray, set_dataArray] = useState(null)
-    const [showForm, set_showForm] = useState({ show: false, fields: undefined })
+    const [dataArray, set_dataArray] = useState<any | null>(null)
+    const [showForm, set_showForm] = useState<{ show: boolean; fields: any }>({ show: false, fields: undefined })
     const [busy, setBusy] = useState(false)
     const [data, setData] = useState(null)
     
@@ -35,12 +35,13 @@ export default function Brands(props) {
     useEffect(() => {
         if (called) return;
         fetchData()
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called])
 
-    const fetchData = async (args={}) => {
-        let limit:Number = args?.pageSize || defaultPageSize;
-        let current: Number = args?.current || 1;
-        let skip: Number = limit * (current - 1);
+    const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
+        let limit = args?.pageSize || defaultPageSize;
+        let current = args?.current || 1;
+        let skip = limit * (current - 1);
 
         let filter = { ...state.filter };
         if (args.filter) filter = { ...args.filter };
@@ -69,7 +70,7 @@ export default function Brands(props) {
     }
     const onUpdateCallback = () => fetchData()
 
-    const handleDelete = async ({ _id }) => {
+    const handleDelete = async ({ _id }: { _id: any }) => {
         let results = await deleteBrand({ variables: { _id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.deleteBrand }))
             .catch(catchApolloError)
@@ -93,16 +94,16 @@ export default function Brands(props) {
             dataIndex: 'status',
             key: 'status',
             width: 100,
-            align: 'center',
-            render: (txt, __) => (<Tag color={txt === 'online' ? 'green' : 'red'}>{txt}</Tag>)
+            align: 'center' as const,
+            render: (txt: any, __: any) => (<Tag color={txt === 'online' ? 'green' : 'red'}>{txt}</Tag>)
         },
         {
             title: 'Actions',
             dataIndex: 'actions',
             width: 120,
             key: 'actions',
-            align: 'right',
-            render: (text, rec) => {
+            align: 'right' as const,
+            render: (_text: any, rec: any) => {
                 return (<Space>
                     <IconButton onClick={() => set_showForm({ show: true, fields: rec })} icon="pen" />
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}>
@@ -122,20 +123,20 @@ export default function Brands(props) {
             //     { label: "Field 3", value: "val-3" },
             // ]}
         >
-            <Button onClick={() => set_showForm({ show: true })} color="orange">Add New Brands</Button>
+            <Button onClick={() => set_showForm({ show: true, fields: undefined })} color="orange">Add New Brands</Button>
         </PageHeader>
 
             <Card styles={{ body:{ padding:0 } }}>
                 <Table
                     loading={loading}
                     columns={columns}
-                    dataSource={dataArray && dataArray.edges}
+                    dataSource={dataArray?.edges || []}
                     pagination={false}
                 />
             </Card>
 
         <BrandForm
-            onClose={() => set_showForm({ show: false })}
+            onClose={() => set_showForm({ show: false, fields: undefined })}
             open={showForm.show}
             fields={showForm.fields}
             callback={onUpdateCallback}
@@ -145,3 +146,4 @@ export default function Brands(props) {
 
 }
 
+export default Brands;

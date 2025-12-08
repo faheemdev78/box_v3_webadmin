@@ -11,7 +11,7 @@ import update from 'immutability-helper';
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client';
 import FieldFormEditor from '@/modules/settings/FieldFormEditor';
 import { catchApolloError, checkApolloRequestErrors, dateToUtc } from '@/lib/utill';
-import { Button, Heading, Icon, Loader, DeleteButton, IconButton, ListHeader, DevBlock, Table, PopMenu } from '@/components'
+import { Button, Icon, Loader, DeleteButton, IconButton, ListHeader, DevBlock, Table, PopMenu } from '@/components'
 
 import arrayMutators from 'final-form-arrays'
 import { Form as FinalForm, Field as FinalField } from 'react-final-form';
@@ -31,28 +31,28 @@ const languageArray = [
     { _id: "en", title: "English" }
 ]
 
-const SortableTable = ({ fields, onUpdate }) => {
+const SortableTable = ({ fields, onUpdate }: { fields: any[]; onUpdate: (sorted: any[]) => void }) => {
     const [updateValuePairsSort, sort_details] = useMutation(UPDATE_SORT);
 
     const [isDirty, setIsDirty] = useState(false);
     const [busy, setBusy] = useState(false);
     const [data, setData] = useState(fields.slice());
 
-    const DraggableBodyRow = ({ index, moveRow, className, style, ...restProps }) => {
-        const ref = useRef(null);
+    const DraggableBodyRow = ({ index, moveRow, className, style, ...restProps }: { index: number; moveRow: (dragIndex: number, hoverIndex: number) => void; className?: string; style?: React.CSSProperties }) => {
+        const ref = useRef<HTMLTableRowElement | null>(null);
         const type = 'DraggableBodyRow';
 
         const [{ isOver, dropClassName }, drop] = useDrop({
             accept: type,
             collect: (monitor) => {
-                const { index: dragIndex } = monitor.getItem() || {};
+                const { index: dragIndex } = (monitor.getItem() as any) || {};
                 if (dragIndex === index) return {};
                 return {
                     isOver: monitor.isOver(),
                     dropClassName: dragIndex < index ? ' drop-over-downward' : ' drop-over-upward',
                 };
             },
-            drop: (item) => {
+            drop: (item: { index: number }) => {
                 moveRow(item.index, index);
             },
         });
@@ -96,7 +96,7 @@ const SortableTable = ({ fields, onUpdate }) => {
     };
 
     const moveRow = useCallback(
-        (dragIndex, hoverIndex) => {
+        (dragIndex: number, hoverIndex: number) => {
             const dragRow = data[dragIndex];
             if (!isDirty) setIsDirty(true)
             setData(
@@ -108,14 +108,14 @@ const SortableTable = ({ fields, onUpdate }) => {
                 }),
             );
         },
-        [data],
+        [data, isDirty],
     );
 
     const saveSort = async () => {
         // console.log("saveSort()")
         setBusy(true);
 
-        const input = data.map((o, i) => ({ _id: o._id, sort_order: i }))
+        const input = data.map((o: any, i: number) => ({ _id: o._id, sort_order: i }))
 
         let resutls = await updateValuePairsSort({ variables: { input } }).then(({ data }) => (data.updateValuePairsSort))
         if (resutls.error) {
@@ -135,13 +135,12 @@ const SortableTable = ({ fields, onUpdate }) => {
                 dataSource={data}
                 components={components}
                 onRow={(_, index) => {
-                    const attr = { index, moveRow };
-                    return attr;
+                    return { index, moveRow } as any;
                 }}
             />
         </DndProvider>
 
-        <div align="center" style={{ padding: "20px" }}>
+        <div style={{ textAlign: "center", padding: "20px" }}>
             <Button loading={busy} onClick={saveSort} disabled={!isDirty}>Save The Order</Button>
         </div>
 
@@ -154,7 +153,7 @@ const SortableTable = ({ fields, onUpdate }) => {
 
 
 
-export default function SettingsPage (props) {
+function SettingsPage () {
     const [getValuePairs, { called, loading, data }] = useLazyQuery(GET_CONFIGS, {
         fetchPolicy: "network-only"
     });
@@ -163,12 +162,12 @@ export default function SettingsPage (props) {
 
     const dispatch = useAppDispatch();
     // const settings = useAppSelector(getSettings);
-    const session = useSelector((state) => state.session);
+    const session = useSelector((state: any) => state.session);
     
     const [settingsArray, set_settings] = useState(null)
     const [showFieldForm, set_showFieldForm] = useState(false)
     const [busy, setBusy] = useState(false)
-    const [enableSort, set_enableSort] = useState(false)
+    const [enableSort, set_enableSort] = useState<string | false>(false)
     const [error, setError] = useState(null)
 
     useEffect(() => {
@@ -178,7 +177,8 @@ export default function SettingsPage (props) {
         return () => {
             set_settings(null)
         };
-    }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [settingsArray])
 
     const fetchData = async () => {
         set_enableSort(false)
@@ -190,7 +190,7 @@ export default function SettingsPage (props) {
                 })
             }
         })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.valuePairs }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.valuePairs }))
             .catch(catchApolloError)
 
         setBusy(false);
@@ -199,32 +199,30 @@ export default function SettingsPage (props) {
             return false;
         }
 
-        if (resutls && resutls.length > 0) resutls = resutls.slice().sort(function (a, b) { return a.sort_order - b.sort_order });
+        if (resutls && resutls.length > 0) resutls = resutls.slice().sort(function (a: any, b: any) { return a.sort_order - b.sort_order });
         set_settings(resutls)
     }
 
-    const onSubmit = async (values) => {
+    const onSubmit = async (values: any) => {
         console.log(__yellow("onSubmit()"));
 
-        const input = values.settings.map(item => {
-            let _return = {
+        const input = values.settings.map((item: any) => {
+            let _return: any = {
                 _id: item._id,
-                // tooltip: item.tooltip,
-                // title: item.title,
-                value: String(item.value || ""),
-                // code: item.code,
-                // type: item.type,
-                // cat: item.cat,
+                value: item.value,
+                type: item.type,
+                options: item.options
             }
-            if (_return.type == "switch") Object.assign(_return, { value: (_return.value === true) ? "yes" : "no" })
-            if (_return.type == "select") Object.assign(_return, { value: JSON.stringify(_return.options) })
-            if (_return.type == "date" || _return.type == "datetime") Object.assign(_return, { value: dateToUtc(_return.value) })
+            if (item.type == "switch") _return.value = item.value === true || item.value === 'yes' ? "yes" : "no"
+            if (item.type == "select") _return.value = JSON.stringify(item.options || [])
+            if (item.type == "date" || item.type == "datetime") _return.value = dateToUtc(item.value)
+            _return.value = String(_return.value ?? "")
 
             return _return;
         })
 
         let resutls = await updateValuePairArray({ variables: { input } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.updateValuePairArray }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.updateValuePairArray }))
             .catch(catchApolloError)
 
         if (resutls.error) {
@@ -237,7 +235,7 @@ export default function SettingsPage (props) {
         return true;
     }
 
-    const renderField = (theField) => {
+    const renderField = (theField: any) => {
         // console.log("renderField: ", theField)
         if (!theField) return { error: { message: `Invalid field (${theField.title})` } }
 
@@ -252,7 +250,7 @@ export default function SettingsPage (props) {
             return { 
                 showSearch: true,
                 optionFilterProp: "children",
-                filterOption: (input, option) => (option?.value ?? '').toLowerCase().includes(input.toLowerCase()),
+                filterOption: (input: string, option?: { value?: string }) => (option?.value ?? '').toLowerCase().includes(input.toLowerCase()),
                 options: arr.map(o => ({ value: o, label: o })),
                 type: "select", 
                 label, //: `${label} (${theField.department})`, 
@@ -278,7 +276,7 @@ export default function SettingsPage (props) {
         fetchData();
     }
 
-    const onDeletePress = async (_id) => {
+    const onDeletePress = async (_id: string) => {
         let resutls = await deleteValuePairs({ variables: { _id } }).then(({ data }) => (data.deleteValuePairs))
         if (resutls.error) {
             alert(resutls.error.message);
@@ -325,7 +323,7 @@ export default function SettingsPage (props) {
                                                 <Col>
                                                     <Button 
                                                         size="small" shape="round"
-                                                        disabled={enableSort && enableSort !== group} 
+                                                        disabled={!!(enableSort && enableSort !== group)} 
                                                         type={enableSort ? "primary" : "dashed"} 
                                                         onClick={() => {
                                                             console.log("enableSort: ", enableSort)
@@ -363,7 +361,7 @@ export default function SettingsPage (props) {
                                     </Col>)
                                 })}
 
-                                <Col span={24} align="center">
+                                <Col span={24} style={{ textAlign: "center" }}>
                                     <SubmitButton loading={submitting} disabled={invalid} color="orange" label="Save" />
                                 </Col>
                             </Row>
@@ -418,7 +416,7 @@ export default function SettingsPage (props) {
                                         <Card>
                                             <Row align='middle'>
                                                 <Col flex="auto"><b>{group == "null" ? "Others" : group}</b></Col>
-                                                <Col><Button disabled={enableSort && enableSort !== group} size="small" type={enableSort ? "primary" : "dashed"} shape="round"
+                                                <Col><Button disabled={!!(enableSort && enableSort !== group)} size="small" type={enableSort ? "primary" : "dashed"} shape="round"
                                                     onClick={() => set_enableSort(!enableSort ? group : false)}
                                                 >{!enableSort ? "Enable Sort" : "Disable Sort"}</Button></Col>
                                             </Row>
@@ -452,7 +450,7 @@ export default function SettingsPage (props) {
                                     </Col>)
                                 })}
 
-                                <Col span={24} align="center">
+                                <Col span={24} style={{ textAlign: "center" }}>
                                     <SubmitButton loading={submitting} disabled={invalid} color="orange" label="Save" />
                                 </Col>
                             </Row>
@@ -475,3 +473,4 @@ export default function SettingsPage (props) {
     </>)
 }
 
+export default SettingsPage;

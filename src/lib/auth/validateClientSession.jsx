@@ -9,7 +9,7 @@ import { useAppSelector } from '@_/rStore/hooks';
 import { getCurrentUser, getSessionToken, clearSessionToken } from '.';
 import { sleep } from '..';
 
-export default function ValidateClientSession({ children }) {
+function ValidateClientSession({ children }) {
   const [ready, setReady] = useState(false);
   
   const token = getSessionToken();
@@ -60,6 +60,7 @@ export default function ValidateClientSession({ children }) {
     {children}
   </>)
 }
+export default ValidateClientSession
 
 function ValidateClientSession_BK2({ children }) {
   const session = useSelector((state) => state.session);

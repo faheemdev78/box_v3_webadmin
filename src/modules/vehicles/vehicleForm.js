@@ -182,6 +182,7 @@ export function VehicleForm({ store, ...props }) {
     useEffect(() => {
         if (called || loading || !props?.initialValues?._id) return;
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.initialValues])
 
     const fetchData = async () => {

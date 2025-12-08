@@ -387,3 +387,53 @@ export const getCurrentOrder = (state: any): HeldOrder | null => {
 
 export const getHeldOrdersCount = (state: any): number =>
   Object.keys(state.tillVerification?.heldOrders || {}).length;
+
+// ===================================
+// Statistics Selectors
+// ===================================
+
+export interface VerificationStats {
+  total_items: number;
+  verified_count: number;
+  pending_count: number;
+  missing_count: number;
+  mismatch_count: number;
+  completion_percentage: number;
+}
+
+export const getVerificationStats = (state: any): VerificationStats => {
+  const currentOrder = getCurrentOrder(state);
+
+  if (!currentOrder?.current_order?.items) {
+    return {
+      total_items: 0,
+      verified_count: 0,
+      pending_count: 0,
+      missing_count: 0,
+      mismatch_count: 0,
+      completion_percentage: 0,
+    };
+  }
+
+  const items = currentOrder.current_order.items;
+  const total_items = items.length;
+
+  // Count items by status
+  const verified_count = items.filter(item => item.verified_at !== null && item.verified_at !== undefined).length;
+  const missing_count = items.filter(item => item.status === 'out_of_stock').length;
+  const mismatch_count = items.filter(item => item.processed_qty !== item.qty && item.status !== 'out_of_stock').length;
+  const pending_count = total_items - verified_count;
+
+  const completion_percentage = total_items > 0
+    ? Math.round((verified_count / total_items) * 100)
+    : 0;
+
+  return {
+    total_items,
+    verified_count,
+    pending_count,
+    missing_count,
+    mismatch_count,
+    completion_percentage,
+  };
+};

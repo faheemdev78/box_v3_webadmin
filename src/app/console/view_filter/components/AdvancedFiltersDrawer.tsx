@@ -393,7 +393,7 @@ export const AdvancedFiltersDrawer: React.FC<AdvancedFiltersDrawerProps> = ({
 
             {filterGroups.length === 0 && (
               <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>
-                <p>This view doesn't have any advanced filters.</p>
+                <p>This view doesn&apos;t have any advanced filters.</p>
                 <Button type="primary" onClick={handleAddFilterGroup}>Create filter group</Button>
               </div>
             )}

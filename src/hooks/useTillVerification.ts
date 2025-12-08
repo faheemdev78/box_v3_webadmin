@@ -100,6 +100,7 @@ export const useMyActiveTillShift = () => {
       dispatch(setActiveShift(null));
       setReady(true)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, loading, dispatch]);
 
   if (!ready) return { loading:true }

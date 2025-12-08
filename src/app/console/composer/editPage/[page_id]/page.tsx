@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
-import { Button, DeleteButton, DevBlock, Icon, IconButton, Loader, Portal } from '@_/components';
+import React, { useState, useEffect, useRef, ReactNode } from 'react'
+import { Button, DeleteButton, DevBlock, Icon, IconButton, Loader } from '@_/components';
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
-import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton } from '@_/components/form';
+import { submitHandler, ExternalSubmitButton } from '@_/components/form';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import _ from 'lodash'
 import { __error, __yellow } from '@_/lib/consoleHelper';
@@ -33,14 +33,14 @@ import DELETE_ROW from '@_/graphql/app_pages_modules/deleteAppPagesModules.graph
 import PUBLISH_PAGE from '@_/graphql/app_pages/publishAppPage.graphql'
 
 
-function ItemRender({ item, item: { data, value, name } }) {
+function ItemRender({ item, item: { data, value, name } }: { item: any }) {
     let found = components.find(o => o.type == data?.type)
     if (!found) return <Alert type="error" message={`Invalid field (${data?.type})`} />
 
     return found.renderer ? found.renderer({ item }) : <p>NO renderor</p>
 }
 
-const RowRender = ({ item }) => {
+const RowRender = ({ item }: { item: any }) => {
     if (!item.data) return <div style={{ border: "1px dashed blue", padding: "10px", margin: "10px" }}>Empty</div>;
     return (<div className={styles.data_item}>
         <ItemRender item={item} />
@@ -48,9 +48,9 @@ const RowRender = ({ item }) => {
 }
 
 const DataRow = ({ thisNode, row_id, onItemDrop, field_name }: {
-    thisNode: any, 
-    row_id: string | number, 
-    onItemDrop: Function, 
+    thisNode: any,
+    row_id: string | number,
+    onItemDrop: Function,
     field_name: string
 }) => {
     const [isHovering, setIsHovering] = useState(false);
@@ -77,23 +77,29 @@ const DataRow = ({ thisNode, row_id, onItemDrop, field_name }: {
     </div>)
 }
 
-const AddRowButton = ({ fields }) => {
-    return (<div style={{ padding: "20px", textAlign:"center" }}>
+const AddRowButton = ({ fields }: { fields: any }) => {
+    return (<div style={{ padding: "20px", textAlign: "center" }}>
         <IconButton size="large" color="blue" shape="circle" onClick={() => fields.push({ id: timestamp(), val: fields.length })} icon="plus" />
         {/* <Button onClick={() => fields.push({ id: timestamp(), val: fields.length })}>Add Row</Button> */}
     </div>)
 }
 
 // Sortable Field Component
-const SortableField = ({ id, name, remove, index, children, onClick, onEdit, onRemove, selected }) => {
+const SortableField = ({ id, name, remove, index, children, onClick, onEdit, onRemove, selected }: {
+    id: string, name: string, remove: any, index: string | number, children: ReactNode,
+    onClick: React.MouseEventHandler<HTMLDivElement>,
+    onEdit?: (() => Promise<any>) | undefined,
+    onRemove?: (() => Promise<boolean>) | undefined,
+    selected: boolean
+}) => {
     const [busy, setBusy] = useState(false)
     // const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: id });
     const args = useSortable({ id: id });
     const { active, attributes, listeners, setNodeRef, transform, transition } = args;
 
-    const onRemoveClick = async() => {
+    const onRemoveClick = async () => {
         setBusy(true)
-        await onRemove()
+        if (onRemove) await onRemove()
         setBusy(false)
     }
 
@@ -130,12 +136,9 @@ const SortableField = ({ id, name, remove, index, children, onClick, onEdit, onR
     </Loader>)
 };
 
-function PublishButton({ published, disabled, setError, onUpdate }: { 
-    published: boolean, 
-    disabled: boolean, 
-    setError: (val: any) => void, 
-    onUpdate?: (val:any)=>void
-}){
+function PublishButton({ published, disabled, setError, onUpdate }: {
+    published: boolean, disabled: boolean, setError: (val: string | null) => void, onUpdate?: (val: any) => void
+}) {
     const form = useForm()
 
     const [publishAppPage, publishAppPage_details] = useMutation(PUBLISH_PAGE); // { data, loading, error }
@@ -166,7 +169,6 @@ function PublishButton({ published, disabled, setError, onUpdate }: {
         onUpdate?.(result);
     }
 
-
     return (<Button
         onClick={updatePublish}
         color={published ? "green" : 'red'}
@@ -177,15 +179,15 @@ function PublishButton({ published, disabled, setError, onUpdate }: {
 
 
 // export default function EditAppPage({ params }){
-export default function EditAppPage(){
+function EditAppPage() {
     const { page_id } = useParams<{ page_id: string }>()
 
-    const [fatelError, set_fatelError] = useState(false)
-    const [error, setError] = useState(null)
+    const [fatelError, set_fatelError] = useState<string | null>(null)
+    const [error, setError] = useState<string | null>(null)
     const [saving, setSaving] = useState(false);
     const [busy, setBusy] = useState(false);
-    const [pageData, set_pageData] = useState(null)
-    const [showProps, set_showProps] = useState(false)
+    const [pageData, set_pageData] = useState<any>(null); // useState<{ rows: any, _id:string } | null>(null)
+    const [showProps, set_showProps] = useState<any | boolean>(false)
     const [sortDragging, set_sortDragging] = useState(null);
     // const [publishing, set_publishing] = useState(false);
     const [loadingModules, set_loadingModules] = useState(false);
@@ -204,7 +206,8 @@ export default function EditAppPage(){
     useEffect(() => {
         if (called) return;
         fetchData();
-    }, [page_id])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page_id, called])
 
     const fetchData = async () => {
         console.log(__yellow("fetchData()"));
@@ -224,13 +227,13 @@ export default function EditAppPage(){
 
         let modules = await fetchModules(1);
         if (modules === false) console.log("modules: ", modules)
-        if (modules===false) return false;
+        if (modules === false) return false;
 
         parseData({ ...results, rows: (modules && modules.edges) || [] })
         return false;
     }
 
-    const fetchModules = async (_modulesPageNum:number) => {
+    const fetchModules = async (_modulesPageNum: number) => {
         set_loadingModules(true);
         set_modulesPageNum(_modulesPageNum)
 
@@ -242,8 +245,8 @@ export default function EditAppPage(){
                 others: JSON.stringify({ sort: { sort_order: 1 } })
             },
         })
-        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.appPagesModulesQuery }))
-        .catch(catchApolloError)
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.appPagesModulesQuery }))
+            .catch(catchApolloError)
         set_loadingModules(false);
 
         if (!results || results.error) {
@@ -253,13 +256,13 @@ export default function EditAppPage(){
         return results;
     }
 
-    const parseData = (_data) => {
+    const parseData = (_data: any) => {
         let results = { ..._data };
 
         if (results.rows) {
             Object.assign(results,
                 {
-                    rows: results.rows.map(o => {
+                    rows: results.rows.map((o: any) => {
                         let values = parseJson(o.values);
                         return {
                             ...o,
@@ -278,18 +281,18 @@ export default function EditAppPage(){
         return results;
     }
 
-    const onDeleteRow = async (row:any, callback:Function) => {
-        if (row._id){
+    const onDeleteRow = async (row: any, callback: Function) => {
+        if (row._id) {
             let resutls = await deleteAppPagesModules({ variables: { _id: row._id } })
-                .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.deleteAppPagesModules }))
+                .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.deleteAppPagesModules }))
                 .catch(catchApolloError)
-    
+
             if (!resutls || resutls.error) {
                 message.error((resutls && resutls.error.message) || "Invalid Response!")
                 return false;
             }
-    
-            let rows = pageData.rows.filter(o => (o._id !== row._id))
+
+            let rows = pageData && pageData.rows.filter((o: any) => (o._id !== row._id))
             set_pageData((prev: any) => ({ ...prev, rows }))
             message.success("Modules removed!")
         }
@@ -301,7 +304,7 @@ export default function EditAppPage(){
         return false;
     }
 
-    const onSubmit = async ({ rows }) => {
+    const onSubmit = async ({ rows }: { rows: any }) => {
         console.log(__yellow("onSubmit()"), rows)
         setError(null)
 
@@ -313,8 +316,8 @@ export default function EditAppPage(){
         let uploadArray = [];
 
         let input = {
-            _id: pageData._id,
-            rows: rows.map((row, row_index) => {
+            _id: pageData && pageData._id,
+            rows: rows.map((row: any, row_index: number) => {
                 if (!row?.data?.type) return false;
 
                 let _values;// = { ...row.values }
@@ -323,7 +326,7 @@ export default function EditAppPage(){
                 else if (row.data.type == 'prod_list_3_2') {
                     _values = JSON.stringify({
                         ...row.values,
-                        products: row.values.products.map(prod => ({ _id: prod._id }))
+                        products: row.values.products.map((prod: any) => ({ _id: prod._id }))
                     })
                 }
 
@@ -337,7 +340,7 @@ export default function EditAppPage(){
 
                 return ({
                     _id: row._id,
-                    _id_parent: pageData._id,
+                    _id_parent: pageData && pageData._id,
                     schedule_start: row.schedule_start ? dateToUtc(row.schedule_start.startOf('day'), { tz: defaultTZ }) : undefined,
                     schedule_end: row.schedule_end ? dateToUtc(row.schedule_end.endOf('day'), { tz: defaultTZ }) : undefined,
                     linked_to: 'page',
@@ -365,8 +368,8 @@ export default function EditAppPage(){
         }
 
         setSaving(true)
-        let results = await saveAppPagesModules({ variables: { input: input.rows } }).then(r => (r?.data?.saveAppPagesModules))
-            .catch(err => {
+        let results = await saveAppPagesModules({ variables: { input: input.rows } }).then((r: any) => (r?.data?.saveAppPagesModules))
+            .catch((err: Error) => {
                 console.log(__error("Error: "), err)
                 return { error: { message: "Unable to complete your request at the moment." } }
             })
@@ -434,7 +437,7 @@ export default function EditAppPage(){
     const toggleSettings = () => set_showPageEdit(!showPageEdit)
     const toggleSchedule = () => set_showScheduleEdit(!showScheduleEdit)
 
-    const onSettingsUpdate = (values) => {
+    const onSettingsUpdate = (values: any) => {
         set_pageData((prev: any) => ({ ...prev, ...values }))
         if (showPageEdit) toggleSettings()
         if (showScheduleEdit) toggleSchedule()
@@ -450,7 +453,7 @@ export default function EditAppPage(){
             },
         })
     );
-    const handleDragEnd = (fields) => (event) => {
+    const handleDragEnd = (fields: any) => (event: any) => {
         set_sortDragging(null);
 
         const { active, over } = event;
@@ -458,29 +461,29 @@ export default function EditAppPage(){
         if (active.id !== over.id) {
             // const oldIndex = fields.value.indexOf(active.id);
             // const newIndex = fields.value.indexOf(over.id);
-            const oldIndex = fields.value.findIndex(o => o.id == active.id)
-            const newIndex = fields.value.findIndex(o => o.id == over.id)
+            const oldIndex = fields.value.findIndex((o: any) => o.id == active.id)
+            const newIndex = fields.value.findIndex((o: any) => o.id == over.id)
             // console.log(`Move ${oldIndex} to ${newIndex}`)
 
             fields.move(oldIndex, newIndex);
         }
     };
 
-    const onItemClick = (vals) => set_showProps(vals)
-    const handleDragStart = (event) => set_sortDragging(event.active.id);
+    const onItemClick = (vals: any) => set_showProps(vals)
+    const handleDragStart = (event: any) => set_sortDragging(event.active.id);
 
     if (fatelError) return <Alert message={fatelError} type='error' showIcon />
     if (loading && !pageData) return <Loader loading={true} />
     if (!pageData) return <Loader loading={true}>Parsing data...</Loader>
 
-    
+
     return (<>
         <FinalForm onSubmit={onSubmit} initialValues={pageData}
             mutators={{ ...arrayMutators }}
             render={(formargs) => {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed, dirty } = formargs;
 
-                const onItemDrop = ({ item, zone, id }, { field, fields, index }) => {
+                const onItemDrop = ({ item, zone, id }: any, { field, fields, index }: any) => {
                     // alert(`custom: ${item.label} dropped into zone ${zone}`);
                     // let data = field?.data?.slice() || [];
                     //     data.push(item)
@@ -501,24 +504,24 @@ export default function EditAppPage(){
                         <div style={{ borderBottom: "1px solid #D0DAE5", padding: "10px", backgroundColor: "#FFF" }}>
                             <Row gutter={[20, 20]}>
                                 <Col span={8}><Space>
-                                    <Button onClick={toggleSettings} tooltip={{ title: "Settings", placement:"bottom" }} icon={<Icon icon="cog" />} />
-                                    <Button onClick={toggleSchedule} tooltip={{ title: "Schedule", placement:"bottom" }} icon={<Icon icon="clock" />} />
+                                    <Button onClick={toggleSettings} tooltip={{ title: "Settings", placement: "bottom" }} icon={<Icon icon="cog" />} />
+                                    <Button onClick={toggleSchedule} tooltip={{ title: "Schedule", placement: "bottom" }} icon={<Icon icon="clock" />} />
                                 </Space></Col>
-                                <Col span={8} align="center">
+                                <Col span={8} style={{ textAlign: 'center' }}>
                                     {/* <Space split="|"><div>Web</div><div>Mobile</div></Space> */}
                                     <h4>{pageData.title}</h4>
                                 </Col>
-                                <Col span={8} align="right"><Space>
+                                <Col span={8} style={{ textAlign: 'right' }}><Space>
                                     {/* {dirty && <Alert type='warning' showIcon message="Contents updated" />} */}
-                                    <ExternalSubmitButton 
-                                        color="orange" 
-                                        disabled={disableSave} 
-                                        loading={saving} 
-                                        label="Save" 
+                                    <ExternalSubmitButton
+                                        color="orange"
+                                        disabled={disableSave}
+                                        loading={saving}
+                                        label="Save"
                                         form_id="page_composer_form"
                                     />
-                                    <PublishButton 
-                                        published={pageData.published} 
+                                    <PublishButton
+                                        published={pageData.published}
                                         disabled={disablePublish}
                                         setError={setError}
                                         onUpdate={(val) => {
@@ -533,10 +536,10 @@ export default function EditAppPage(){
                         <Row gutter={[0, 0]}>
                             <Col><SideMenu /></Col>
 
-                            <Col flex="auto" style={{ border: "0px solid black" }} align="center">
+                            <Col flex="auto" style={{ border: "0px solid black", textAlign: 'center' }}>
 
                                 <div className={`${styles.mob_view_wrapper} ${styles.custom_scroller}`}>
-                                    <div className={styles.mob_view} align="left">
+                                    <div className={styles.mob_view} style={{ textAlign: 'left' }}>
                                         <FieldArray name="rows">
                                             {({ fields }) => {
                                                 return (<>
@@ -557,15 +560,15 @@ export default function EditAppPage(){
                                                                         selected={showProps && (showProps.id == thisNode.id)}
                                                                         onClick={() => onItemClick({ ...thisNode, name })}
                                                                         // onRemove={fields.length < 2 ? undefined : () => fields.remove(index)}
-                                                                        onRemove={fields.length < 2 ? undefined : async () => onDeleteRow(thisNode, () => fields.remove(index))}
-                                                                        onEdit={() => console.log("EDIT")}
+                                                                        onRemove={(fields?.length ?? 0) < 2 ? undefined : async () => onDeleteRow(thisNode, () => fields.remove(index))}
+                                                                        // onEdit={() => console.log("EDIT")}
                                                                         id={thisNode.id} name={name} index={index} remove={fields.remove}>
                                                                         <DataRow
                                                                             thisNode={thisNode}
                                                                             field_name={name}
                                                                             row_id={index}
                                                                             // onItemClick={onItemClick}
-                                                                            onItemDrop={(args:any) => onItemDrop(args, { field: thisNode, fields, index })}
+                                                                            onItemDrop={(args: any) => onItemDrop(args, { field: thisNode, fields, index })}
                                                                         />
                                                                     </SortableField>
                                                                 </div>)
@@ -627,3 +630,5 @@ export default function EditAppPage(){
         <DevBlock obj={pageData} />
     </>)
 }
+
+export default EditAppPage;

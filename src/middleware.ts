@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtDecode } from "jwt-decode";
+import type { JwtPayload } from "jwt-decode";
 import { getSessionToken } from '@/lib/auth';
 import { __error } from '@/lib/consoleHelper';
 
@@ -14,11 +15,13 @@ export async function middleware(request: NextRequest) {
     // let token = request.cookies.get(COOKIE_ID)?.value;
     // if (!token) token = await getSessionToken();
     
+    type StoreJwtPayload = JwtPayload & { _id_store?: string };
+
     let token = await getSessionToken()
-    var decoded;
+    let decoded: StoreJwtPayload | undefined;
     if (token){
         try {
-            decoded = jwtDecode(token)
+            decoded = jwtDecode<JwtPayload>(token)
             // console.log('User from JWT:', decoded);
 
             // You can set a header to forward to SSR server components:

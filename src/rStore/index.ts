@@ -101,7 +101,7 @@ const rootReducer = combineReducers({
     tillVerification: tillVerificationReducer,
 });
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(persistConfig as any, rootReducer);
 
 
 

@@ -224,7 +224,7 @@ export const EditColumnsModal: React.FC<EditColumnsModalProps> = ({
 
           <Divider />
           <div style={{ fontSize: '12px', color: '#666' }}>
-            Don't see the property you're looking for?{' '}
+            Don&apos;t see the property you&apos;re looking for?{' '}
             <a href="#" onClick={(e) => e.preventDefault()}>Create a property</a>
           </div>
         </div>

@@ -877,7 +877,9 @@ function CreateProductForm ({ initialValues }) {
     </>)
 }
 
-export default function CreateProductFormWrapper (props) {
+function CreateProductFormWrapper () {
     let initialValues = props.initialValues || defaultValues;
     return <CreateProductForm {...props} initialValues={initialValues} />
 }
+
+export default CreateProductFormWrapper;

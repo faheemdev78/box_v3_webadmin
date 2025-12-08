@@ -4,10 +4,12 @@ import { DeliverySlotManager } from '@_/modules/delivery_slot';
 // import StoreWrapper from '@_/modules/store/storeWrapper';
 import { usePageProps } from '@_/components';
 
-export default function Wrapper(props){
-    const { store } = usePageProps()
+function Wrapper(){
+    const { store } = usePageProps() as unknown as { store: any }
 
-    return <DeliverySlotManager store={store} />
+    return <DeliverySlotManager store={store} zone={null as any} />
 
     // return (<StoreWrapper {...props} render={({ store }) => (<DeliverySlotManager store={store} />)} />)
 }
+
+export default Wrapper;

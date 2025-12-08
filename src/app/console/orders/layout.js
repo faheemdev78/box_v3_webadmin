@@ -3,10 +3,10 @@
 import React from 'react'
 import { adminRoot } from '@_/configs'
 import { PageBar } from '@_/template'
-import { Loader } from '@_/components'
+// import { Loader } from '@_/components'
 import { useDispatch, useSelector } from 'react-redux';
 
-export default function Layout({ children }) {
+function Layout({ children }) {
   const session = useSelector((state) => state.session);
 
   return (<>
@@ -28,3 +28,5 @@ export default function Layout({ children }) {
 
   </>)
 }
+
+export default Layout;

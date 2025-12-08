@@ -7,38 +7,38 @@ import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
 import { Alert, Card, message, Popover, Row, Space, Tag, Tooltip, Typography } from "antd";
 import { UserOutlined, ShoppingOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { catchApolloError, checkApolloRequestErrors } from "@_/lib/utill_apollo";
-import OrdersList, { defaultProps } from "@_/modules/orders/ordersList";
+// import OrdersList, { defaultProps } from "@_/modules/orders/ordersList";
 import { Button, DevBlock, Icon, OrderTable, usePageProps } from '@_/components';
-import { ViewFilter, ViewConfig } from '@_/components/ViewFilter';
+// import { ViewFilter, ViewConfig } from '@_/components/ViewFilter';
 import { Page } from "@_/template";
-import { createOrderViewConfig, INITIAL_ORDER_VIEWS } from './components/orderViewConfig';
+// import { createOrderViewConfig, INITIAL_ORDER_VIEWS } from './components/orderViewConfig';
 import { DynamicViewFilter } from "@_/app/console/view_filter/components/DynamicViewFilter";
 import Link from "next/link";
 import { useAppSelector } from "@_/rStore/hooks";
 import { getSettings } from "@_/rStore/slices/systemSlice";
 import { utcToDate } from "@_/lib/utill";
 import { ResetButton } from "./components";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
+import { getSession } from "@_/rStore/slices/sessionSlice";
 
 import LIST_DATA from '@_/graphql/order/ordersQuery.graphql'
 import RESET_ORDER from '@_/graphql/order/resetOrderToZero.graphql'
 import REVERT_ORDER_STAGE from '@_/graphql/order/revertOrderStage.graphql'
-import { getSession } from "@_/rStore/slices/sessionSlice";
 
 const { Title, Text } = Typography;
 
 const defaultFilter = {}; // { status: 'online' }
 
 function OrdersListPage(props:any) {
-    const { store } = usePageProps()
+    const { store } = usePageProps() as unknown as { store: any }
     const settings = useAppSelector(getSettings);
     const userSession = useAppSelector(getSession);
-    const router = useRouter()
+    // const router = useRouter()
     
     const [busy, setBusy] = useState(false)
     const [fatelError, setFatelError] = useState(false)
-    const [savedViews, setSavedViews] = useState<ViewConfig[]>(INITIAL_ORDER_VIEWS)
-    const [activeView, setActiveView] = useState<ViewConfig | null>(null)
+    // const [savedViews, setSavedViews] = useState<ViewConfig[]>(INITIAL_ORDER_VIEWS)
+    // const [activeView, setActiveView] = useState<ViewConfig | null>(null)
 
     const [state, setState] = useState({
         pagination: defaultPagination,
@@ -51,14 +51,14 @@ function OrdersListPage(props:any) {
     const [resetOrder, resetOrder_results] = useMutation(RESET_ORDER);
     const [revertOrderStage, { loading: reverting }] = useMutation(REVERT_ORDER_STAGE);
 
-    const fetchData = async ({ filter = {}, pagination = {} }: { filter?: any; pagination?: any } = {}) => {
+    const fetchData = async ({ filter = {}, pagination = {} }: { filter?: any; pagination?: { pageSize?: number; current?: number } } = {}) => {
         setFatelError(false);
 
         const variables = {
             limit: pagination?.pageSize || state.pagination.pageSize,
             page: pagination?.current || state.pagination.current,
             filter: filter || state.filter || {},
-            others: state.others || {},
+            others: (state as any).others || {},
             _id_store: store._id,
         }
 
@@ -70,7 +70,7 @@ function OrdersListPage(props:any) {
                 others: JSON.stringify(variables.others || {})
             }
          })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.ordersQuery }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.ordersQuery }))
             .catch(catchApolloError)
         // setBusy(false)
 
@@ -99,60 +99,61 @@ function OrdersListPage(props:any) {
 
     }
 
-    useEffect(() => {
-        if (called || loading) return
-        // fetchData({})
-    }, [props])
+    // useEffect(() => {
+    //     if (called || loading) return
+    //     // fetchData({})
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [called, loading])
 
     // Helper function to convert view filter groups to GraphQL filter format
-    const convertViewToGraphQLFilter = (view: ViewConfig) => {
-        // TODO: Implement proper conversion from view.filterGroups to GraphQL filter format
-        // For now, return a basic filter structure
-        const filter: any = {};
+    // const convertViewToGraphQLFilter = (view: ViewConfig) => {
+    //     // TODO: Implement proper conversion from view.filterGroups to GraphQL filter format
+    //     // For now, return a basic filter structure
+    //     const filter: any = {};
 
-        view.filterGroups.forEach(group => {
-            group.conditions.forEach(condition => {
-                // Simple field mapping - in production, you'd want more sophisticated conversion
-                if (condition.value !== null && condition.value !== undefined) {
-                    filter[condition.field] = condition.value;
-                }
-            });
-        });
+    //     view.filterGroups.forEach(group => {
+    //         group.conditions.forEach(condition => {
+    //             // Simple field mapping - in production, you'd want more sophisticated conversion
+    //             if (condition.value !== null && condition.value !== undefined) {
+    //                 filter[condition.field] = condition.value;
+    //             }
+    //         });
+    //     });
 
-        return filter;
-    };
+    //     return filter;
+    // };
 
     // Create view configuration for current user
-    const viewConfig = createOrderViewConfig({
-        id: 'admin_user', // In production, get from auth context
-        role: 'admin',
-        teamId: store._id
-    });
+    // const viewConfig = createOrderViewConfig({
+    //     id: 'admin_user', // In production, get from auth context
+    //     role: 'admin',
+    //     teamId: store._id
+    // });
 
     // View callbacks
-    const viewCallbacks = {
-        onApplyView: (view: ViewConfig) => {
-            setActiveView(view);
-            const graphQLFilter = convertViewToGraphQLFilter(view);
-            fetchData({ filter: graphQLFilter, pagination: {} });
-            message.info(`Applied view: ${view.name}`);
-        },
-        onSaveView: async (view: ViewConfig) => {
-            // TODO: Save to database via GraphQL mutation
-            setSavedViews([...savedViews, view]);
-            console.log('Saving view:', view);
-        },
-        onUpdateView: async (view: ViewConfig) => {
-            // TODO: Update in database via GraphQL mutation
-            setSavedViews(savedViews.map(v => v.id === view.id ? view : v));
-            console.log('Updating view:', view);
-        },
-        onDeleteView: async (viewId: string) => {
-            // TODO: Delete from database via GraphQL mutation
-            setSavedViews(savedViews.filter(v => v.id !== viewId));
-            console.log('Deleting view:', viewId);
-        }
-    };
+    // const viewCallbacks = {
+    //     onApplyView: (view: ViewConfig) => {
+    //         setActiveView(view);
+    //         const graphQLFilter = convertViewToGraphQLFilter(view);
+    //         fetchData({ filter: graphQLFilter, pagination: {} });
+    //         message.info(`Applied view: ${view.name}`);
+    //     },
+    //     onSaveView: async (view: ViewConfig) => {
+    //         // TODO: Save to database via GraphQL mutation
+    //         setSavedViews([...savedViews, view]);
+    //         console.log('Saving view:', view);
+    //     },
+    //     onUpdateView: async (view: ViewConfig) => {
+    //         // TODO: Update in database via GraphQL mutation
+    //         setSavedViews(savedViews.map(v => v.id === view.id ? view : v));
+    //         console.log('Updating view:', view);
+    //     },
+    //     onDeleteView: async (viewId: string) => {
+    //         // TODO: Delete from database via GraphQL mutation
+    //         setSavedViews(savedViews.filter(v => v.id !== viewId));
+    //         console.log('Deleting view:', viewId);
+    //     }
+    // };
 
     const handleResetOrder = async (order:any) => {
         setBusy(true)
@@ -364,15 +365,15 @@ function OrdersListPage(props:any) {
                             </Space>)
                         }
                     },
-                    store: {
-                        render: (___, rec: any) => (<div>
+                   store: {
+                        render: (_: any, rec: any) => (<div>
                             <div>{rec?.store?.title}</div>
                             <div><b>ZONE:</b> {rec?.zone?.title}</div>
                         </div>)
                     },
                     current_order: {
                         width: 130,
-                        render: (___, rec: any) => (<div>
+                        render: (_: any, rec: any) => (<div>
                             <div><ShoppingOutlined /> {rec?.current_order?.totals?.totalQuantity} items</div>
                             <div><b>{settings.currency}</b> {rec?.current_order?.totals?.grandTotal}</div>
                         </div>)
@@ -478,6 +479,7 @@ function OrdersListPage(props:any) {
                             options: { reset: true, till_verification: false }
                         }]}
                         dataSource={state.dataSource}
+                        dataSource={state.dataSource || []}
                         pagination={state.pagination}
                         scroll={{ x: 1200 }}
                     />

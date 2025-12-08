@@ -37,6 +37,7 @@ export function ProductWrapper({ render, store, ...props }) {
     useEffect(() => {
         if (called || loading || !prod_id) return;
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [prod_id])
 
     const fetchData = async () => {

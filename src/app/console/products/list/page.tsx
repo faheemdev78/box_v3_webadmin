@@ -12,8 +12,16 @@ import LIST_DATA from '@_/graphql/product/productsQuery.graphql'
 
 const defaultFilter = {}; // { status: 'online' }
 
-function ProductsListPage(props) {
-    const [state, setState] = useState({
+interface StateType {
+    pagination: typeof defaultPagination;
+    pageView: string;
+    dataSource: any[] | null;
+    filter: any;
+    others?: any;
+}
+
+function ProductsListPage() {
+    const [state, setState] = useState<StateType>({
         pagination: defaultPagination,
         pageView: "list",
         dataSource: null,
@@ -22,8 +30,8 @@ function ProductsListPage(props) {
     const [busy, setBusy] = useState(false)
 
     const [productsQuery, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
-  
-    const fetchData = async ({ filter, pagination={} }) => {
+
+    const fetchData = async ({ filter, pagination = {} }: { filter?: any; pagination?: any }) => {
         const variables = {
             limit: pagination?.pageSize || state.pagination.pageSize,
             page: pagination?.current || state.pagination.current,
@@ -39,7 +47,7 @@ function ProductsListPage(props) {
                 others: JSON.stringify(variables.others || {})
             }
          })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productsQuery }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.productsQuery }))
             .catch(catchApolloError)
         setBusy(false)
 
@@ -58,7 +66,7 @@ function ProductsListPage(props) {
                 pageSize: resutls.pagination.limit,
             },
             filter: variables.filter,
-            dataSource: resutls?.edges?.map(o => ({
+            dataSource: resutls?.edges?.map((o: any) => ({
                 ...o,
                 children: o?.variations?.length > 0 && o.variations,
                 variations: undefined
@@ -69,16 +77,20 @@ function ProductsListPage(props) {
 
     useEffect(() => {
         if (called || loading) return
-        fetchData({})
-    }, [props])
-    
+        fetchData({ filter: defaultFilter })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called, loading])
+
 
     return (<>
         <ProductsList
             {...state}
-            busy={busy} setBusy={setBusy}
+            busy={busy}
+            setBusy={setBusy}
             fetchData={fetchData}
-            searchFilterConfig={props.searchFilterConfig}
+            loading={loading}
+            parseEditLink={(prod: any) => `${adminRoot}/products/${prod._id}/view`}
+            searchFilterConfig={undefined}
             // onEditRecord={(prod) => router.push(`${adminRoot}/product/${prod._id}/view`)}
         />
     </>)

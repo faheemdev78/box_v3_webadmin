@@ -6,7 +6,7 @@ import { sleep } from "@_/lib/utill";
 import { Alert, Row, Col, Space } from 'antd';
 
 
-export default function ComponentCreator() {
+function ComponentCreator() {
   const [error, setError] = useState(null)
 
   const onSubmit = async (values) => {
@@ -61,3 +61,5 @@ export default function ComponentCreator() {
 
   </>)
 }
+
+export default ComponentCreator

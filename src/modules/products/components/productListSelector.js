@@ -45,10 +45,11 @@ export const ProductListSelector = ({ limit, onSubmit, selected_products }) => {
     })
 
     useEffect(() => {
-        setContainers({ 
-            ...containers, 
+        setContainers({
+            ...containers,
             selected: (selected_products && selected_products.filter(o=>(o._id))) || []
         })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selected_products])
 
     const [productsQuery, { data, called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });

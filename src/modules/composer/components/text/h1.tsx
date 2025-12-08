@@ -6,7 +6,7 @@ import { Card, Col, Divider, Row, Space } from 'antd';
 import { Heading } from '../../typography';
 import { ComponentStyling, parseStylesOutput } from '../../lib';
 
-function H1_Render({ item: { data, values, styles, name } }) {
+function H1_Render({ item: { data, values, styles, name } }: { item: any }) {
     let style = parseStylesOutput(styles)
 
     return (<>
@@ -16,11 +16,11 @@ function H1_Render({ item: { data, values, styles, name } }) {
     </>)
 }
 
-function H1_Props({ item: { name, data, values } }){
+function H1_Props({ item: { name, data, values } }: { item: any }){
     return (<>
         <Space direction='vertical'>
             <Card styles={{ body: { padding: "10px" } }}>
-                <Heading>Value</Heading>
+                <Heading style={{}}>Value</Heading>
                 <FormField name={`${name}.values.value`} type="text" />
             </Card>
 
@@ -30,10 +30,13 @@ function H1_Props({ item: { name, data, values } }){
     </>)
 }
 
-export default { 
-    type: "h1", 
-    label: "Heading 1", 
+const H1Component = {
+    type: "h1",
+    label: "Heading 1",
     desc: "Heading one",
-    renderer: H1_Render, 
-    propsRender: H1_Props
-}
+    renderer: H1_Render,
+    propsRender: H1_Props,
+    displayName: "H1Component"
+};
+
+export default H1Component;

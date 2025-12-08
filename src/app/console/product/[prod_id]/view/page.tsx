@@ -14,7 +14,7 @@ import { Alert, Card } from 'antd';
 // }
 
 
-function ViewProductFormWrapper({ product, session, refresh, store }) {
+function ViewProductFormWrapper({ product, session, refresh, store }: { product: any; session: any; refresh: any; store: any }) {
     if (!session || !session?.user?._id) return <Alert message="Invalid user session" showIcon type='error' />
 
     return (<>
@@ -22,12 +22,12 @@ function ViewProductFormWrapper({ product, session, refresh, store }) {
     </>)
 }
 
-export default function Wrapper(props){
+function Wrapper(props: any){
     // const store = useAppSelector(({ session }) => session.store);
 
     return (<ProductWrapper 
         {...props} 
-        render={({ product, session, refresh, store }) => (<ViewProductFormWrapper 
+        render={({ product, session, refresh, store }: { product: any; session: any; refresh: any; store: any }) => (<ViewProductFormWrapper 
             store={store}
             product={product} 
             session={session} 
@@ -36,3 +36,5 @@ export default function Wrapper(props){
         />)}
     />)
 }
+
+export default Wrapper;

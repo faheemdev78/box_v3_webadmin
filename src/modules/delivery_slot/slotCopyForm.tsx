@@ -25,17 +25,17 @@ interface SlotCopyFormProps {
 }
 
 const SlotCopyFormComp = ({ onSuccess, day, deliverySlots, store }: SlotCopyFormProps) => {
-    const [error, setError] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     // const settings = useSelector(getSettings);
 
     const [copyDelierySlotsTo, copy_details] = useMutation(COPY_SLOTS); // { data, loading, error }
 
-    const onSubmit = async (values) => {
+    const onSubmit = async (values: any) => {
         setError(null);
         // return console.log("onSubmit(): ", values);
-        
-        let input = { 
-            _ids: values.deliverySlots.filter(o => !!o.checked).map(o => o._id), 
+
+        let input = {
+            _ids: values.deliverySlots.filter((o: any) => !!o.checked).map((o: any) => o._id),
             targetDay: values.targetDay,
             store: {
                 _id: store._id,
@@ -46,7 +46,7 @@ const SlotCopyFormComp = ({ onSuccess, day, deliverySlots, store }: SlotCopyForm
 
 
         let resutls = await copyDelierySlotsTo({ variables: { input } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.copyDelierySlotsTo }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.copyDelierySlotsTo }))
             .catch(catchApolloError)
             
         if (resutls.error) {
@@ -87,8 +87,8 @@ const SlotCopyFormComp = ({ onSuccess, day, deliverySlots, store }: SlotCopyForm
                                             {fields.map((name, index) => {
                                                 const thisNode = fields.value[index];
 
-                                                let start_time = timeStr2Date(thisNode.start_time)
-                                                let end_time = timeStr2Date(thisNode.end_time)
+                                                let start_time: any = timeStr2Date(thisNode.start_time)
+                                                let end_time: any = timeStr2Date(thisNode.end_time)
 
                                                 return (<Space key={index}>
                                                     <FormField type="checkbox" name={`${name}.checked`}>
@@ -113,7 +113,7 @@ const SlotCopyFormComp = ({ onSuccess, day, deliverySlots, store }: SlotCopyForm
     )
 }
 export const SlotCopyForm: React.FC<SlotCopyFormProps> = (props: SlotCopyFormProps) => {
-    let deliverySlots = props?.deliverySlots?.filter(o => (o.day.toLocaleLowerCase() === props.day.toLocaleLowerCase()));
+    let deliverySlots = props?.deliverySlots?.filter((o: any) => (o.day.toLocaleLowerCase() === props.day.toLocaleLowerCase()));
 
     if (!deliverySlots || deliverySlots.length < 1) return (<Alert type="error" message="No slots found for the selected day" showIcon />)
 

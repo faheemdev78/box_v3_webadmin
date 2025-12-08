@@ -72,7 +72,7 @@ function ProductList({ onProductsLoad, item: { data, schedule_start, schedule_en
 
 const Product = ({ node, name, index }) => (<div style={{ border: "1px solid #999", height: "100px", overflow:"hidden", position:"relative", textAlign:"center" }}>
     <div style={{ position: "relative", width:"100%", height:"80px" }}>
-        {node?.picture?.thumbnails && <Image src={node.picture.thumbnails[0]} _width={116} _height={100} fill={true} style={{ objectFit: 'contain' }} />}
+        {node?.picture?.thumbnails && <Image src={node.picture.thumbnails[0]} _width={116} _height={100} fill={true} style={{ objectFit: 'contain' }} alt={node.title || ""} />}
     </div>
     <div>{node.title}</div>
 </div>)
@@ -241,10 +241,13 @@ function ProductProps({ item: { name, data, values } }) {
     </>)
 }
 
-export default { 
-    type: "prod_list_3_2", 
-    label: "Product List (3 / 2)", 
+const ProductListComponent = {
+    type: "prod_list_3_2",
+    label: "Product List (3 / 2)",
     desc: "list 2 by 3",
-    renderer: ProductList, 
-    propsRender: ProductProps
-}
+    renderer: ProductList,
+    propsRender: ProductProps,
+    displayName: "ProductListComponent"
+};
+
+export default ProductListComponent;

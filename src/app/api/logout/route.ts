@@ -12,7 +12,11 @@ export async function GET(request: NextRequest) {
     cookieStore.delete(COOKIE_ID)
 
     try {
-        cookieStore.clear()
+        // cookieStore.clear()
+        let all = cookieStore.getAll()
+        Object.keys(all).forEach(key => {
+            cookieStore.delete(key);
+        });
     } catch (error) {
     }
 

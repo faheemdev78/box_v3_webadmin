@@ -12,9 +12,9 @@ import LIST_DATA from '@_/graphql/product_type/prodTypes.graphql'
 import RECORD_DELETE from '@_/graphql/product_type/deleteProductType.graphql';
 
 
-export default function ProductTypesPage (props) {
-    const [prodTypes, set_prodTypes] = useState(null)
-    const [showForm, set_showForm] = useState({ show: false, fields: undefined })
+function ProductTypesPage () {
+    const [prodTypes, set_prodTypes] = useState<any[] | null>(null)
+    const [showForm, set_showForm] = useState<{ show: boolean; fields: any }>({ show: false, fields: undefined })
 
     const [get_prodTypes, { data, called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'cache-and-network' });
     const [deleteProductType, del_details] = useMutation(RECORD_DELETE); // { data, loading, error }
@@ -22,7 +22,8 @@ export default function ProductTypesPage (props) {
     useEffect(() => {
         if (called) return;
         fetchData()
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called])
 
     const fetchData = async () => {
         let results = await get_prodTypes({})
@@ -37,11 +38,11 @@ export default function ProductTypesPage (props) {
         set_prodTypes(results)
     }
 
-    const handleDelete = async ({ _id }) => {
-        let results = await deleteProductType(id)
+    const handleDelete = async ({ _id }: { _id: string }) => {
+        let results = await deleteProductType({ variables: { _id } })
             .then(r => (r?.data?.deleteProductType))
             .catch(error => {
-                console.log(__error("ERROR"), error);
+                console.log("ERROR", error);
                 message.error("Invalid Response!")
             })
 
@@ -55,10 +56,10 @@ export default function ProductTypesPage (props) {
 
     const columns = [
         { title: 'Title', dataIndex: 'title', key: 'title' },
-        { title: 'Tax', width: '80px', align: 'center', render: (text, record) => !record.tax ? null : `${record?.tax?.value} ${record?.tax?.unit}` },
-        { title: 'Attributes', render: (text, record) => {
+        { title: 'Tax', width: '80px', align: 'center' as const, render: (_text: any, record: any) => !record.tax ? null : `${record?.tax?.value} ${record?.tax?.unit}` },
+        { title: 'Attributes', render: (_text: any, record: any) => {
             return (<Space wrap>
-                {record?.attributes?.map((o, i) => (<span key={i}>{o.title}, </span>))}
+                {record?.attributes?.map((o: any, i: number) => (<span key={i}>{o.title}, </span>))}
             </Space>)
         } },
         {
@@ -66,8 +67,8 @@ export default function ProductTypesPage (props) {
             dataIndex: 'actions',
             width: 120,
             key: 'actions',
-            align: 'right',
-            render: (text, rec) => {
+            align: 'right' as const,
+            render: (_text: any, rec: any) => {
                 return (<Space>
                     <IconButton onClick={() => set_showForm({ show: true, fields: rec })} icon="pen" />
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}>
@@ -80,20 +81,20 @@ export default function ProductTypesPage (props) {
     
     return (<>
         <PageHeader title="Product Types">
-            <Button onClick={() => set_showForm({ show: true })} color="orange">Add New Type</Button>
+            <Button onClick={() => set_showForm({ show: true, fields: undefined })} color="orange">Add New Type</Button>
         </PageHeader>
 
         <Card styles={{ body:{ padding:0 } }}>
             <Table
                 loading={loading}
                 columns={columns}
-                dataSource={prodTypes}
+                dataSource={prodTypes || []}
                 pagination={false}
             />
         </Card>
         
         <ProductTypesForm
-            onClose={() => set_showForm({ show: false })}
+            onClose={() => set_showForm({ show: false, fields: undefined })}
             open={showForm.show}
             fields={showForm.fields}
             callback={() => fetchData()}
@@ -102,3 +103,4 @@ export default function ProductTypesPage (props) {
 
 }
 
+export default ProductTypesPage;

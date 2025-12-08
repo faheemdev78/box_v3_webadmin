@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types';
-import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, Icopn, DevBlock, Loader, FileUploader, IconButton, Icon } from '@_/components';
+import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, DevBlock, Loader, FileUploader, IconButton, Icon } from '@_/components';
 import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@_/components/dropdowns';
 import { message, Row, Col, Drawer, Card, Divider, Alert, Space, Steps, Popconfirm, Tag, Input, Flex, Tooltip, theme, Layout } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined, UploadOutlined, UserOutlined, VideoCameraOutlined, } from '@ant-design/icons';
@@ -32,8 +32,8 @@ import DELETE_PROD_GALL_IMG from '@_/graphql/product/deleteGalleryItem.graphql'
 import { Page } from '@_/template/page';
 import { PageHeader } from '@_/template';
 
-const filterSlug = (e, onChange) => onChange(string_to_slug(e.target.value));
-const Label = ({ children, style }) => (<FormLabel style={{ marginTop: "7px", ...style }}>{children}</FormLabel>)
+const filterSlug = (e: any, onChange: any) => onChange(string_to_slug(e.target.value));
+const Label = ({ children, style = {} }: { children: React.ReactNode; style?: React.CSSProperties }) => (<FormLabel isRequired={false} htmlFor="" style={{ marginTop: "7px", ...style }}>{children}</FormLabel>)
 
 // const imagePreset = [
 //     // { type: "image", cat:"main" },
@@ -74,19 +74,19 @@ const defaultValues = {
 
 const { Header, Sider, Content } = Layout;
 
-function CreateProductForm ({ initialValues }) {
+function CreateProductForm ({ initialValues }: { initialValues: any }) {
     const [fetalError, setFetalError] = useState(null)
     const [error, setError] = useState(null)
     const [activeStep, set_activeStep] = useState(0)
     const [collapsed, setCollapsed] = useState(true);
 
-    const formRef = useRef();
+    const formRef = useRef<any>(null);
     const router = useRouter()
     const [messageApi, contextHolder] = message.useMessage();
 
     const [addProduct, add_details] = useMutation(RECORD_ADD); // { data, loading, error }
 
-    const onSubmit = async (values) => {
+    const onSubmit = async (values: any) => {
         const { picture, video, gallery } = values;
         // console.log(__yellow("onSubmit()"), values)
         setError(null)
@@ -97,7 +97,7 @@ function CreateProductForm ({ initialValues }) {
         }
 
         let _input = {
-            categories: values?.categories?.map(o=>({ _id: o._id, title: o.title })),
+            categories: values?.categories?.map((o: any)=>({ _id: o._id, title: o.title })),
             title: values.title,
             slug: values.slug,
             have_variations: (values.have_variations ===true),
@@ -108,7 +108,7 @@ function CreateProductForm ({ initialValues }) {
             barcode: values.barcode,
             is_expirable: (values.is_expirable===true),
             origon: values.origon,
-            attributes: !values.attributes ? undefined : values.attributes.map(item => ({
+            attributes: !values.attributes ? undefined : values.attributes.map((item: any) => ({
                 _id: item._id,
                 val: item.val,
                 title: item.title,
@@ -131,13 +131,13 @@ function CreateProductForm ({ initialValues }) {
             description: values.description,
             bullits: values.bullits,
 
-            extra_fields: values?.extra_fields?.map(field => ({
+            extra_fields: values?.extra_fields?.map((field: any) => ({
                 _id: field._id,
                 label: field.label,
                 name: field.name,
                 type: field.type,
                 required: field.required,
-                attributes: field.attributes.map(o=>({
+                attributes: field.attributes.map((o: any)=>({
                     _id: o._id,
                     label: o.label,
                     name: o.name,
@@ -145,7 +145,7 @@ function CreateProductForm ({ initialValues }) {
                 })),
                 category: field.category,
                 sort_order: Number(field.sort_order || 0),
-                options: field?.options?.map(o=>({
+                options: field?.options?.map((o: any)=>({
                     label: o.label,
                     value: o.value,
                 })),
@@ -186,10 +186,10 @@ function CreateProductForm ({ initialValues }) {
 
     const onSuccess = () => router.push(`${adminRoot}/products/list`);
 
-    const _addProduct = async (input) => {
+    const _addProduct = async (input: any) => {
         let results = await addProduct({ variables: { input } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.addProduct }))
-            .catch(err => {
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.addProduct }))
+            .catch((err: any) => {
                 console.log(__error("Error: "), err)
                 return { error: { message: "Request Error!" } }
             })
@@ -197,41 +197,12 @@ function CreateProductForm ({ initialValues }) {
         return results;
     }
 
-    const uploadProdImage = async (files) => {
+    const uploadProdImage = async (_files: any) => {
+        // Legacy stub kept for compatibility; actual uploads handled by updateMainFile/updateGalleryFiles
         return true;
-        const file = files[0]
-
-        const formData = new FormData();
-        const data = {
-            uploadPath: "prod",
-            uploadType: "prod-img",
-            _id: editNode._id,
-        }
-        Object.keys(data).forEach(key => {
-            formData.append(key, data[key]);
-        });
-
-        // Append files, ensuring each is a File object
-        if (!(file.originFileObj instanceof File)) {
-            message.error("File object not found!")
-            return false;
-        }
-        formData.append('files', file.originFileObj); // Append each file
-
-        try {
-            const results = await axios.post(`${process.env.NEXT_PUBLIC_ADMIN_API_URI}/upload_files`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            })
-                .then(r => ((r.data.error) ? r.data : r?.data?.files));
-            // .then(r=>(r.data))
-            return results.error ? results : [{ ...results, _id: data._id }]
-        } catch (error) {
-            console.error('Upload failed:', error.response?.data || error.message);
-            return { error: { message: (error.response?.data || error.message) } }
-        }
     }
 
-    const updateMainFile = async (files, _id) => {
+    const updateMainFile = async (files: any, _id: any) => {
         console.log(__yellow("updateMainFile()"), files)
 
         const file = files
@@ -241,7 +212,7 @@ function CreateProductForm ({ initialValues }) {
         }
 
         const formData = new FormData();
-        const data = { uploadPath: "prod", uploadType: "prod-img", _id }
+        const data: Record<string, any> = { uploadPath: "prod", uploadType: "prod-img", _id }
         Object.keys(data).forEach(key => {
             formData.append(key, data[key]);
         });
@@ -262,13 +233,13 @@ function CreateProductForm ({ initialValues }) {
                 .then(r => ((r.data.error) ? r.data : r?.data?.files));
             
             return results.error ? results : [{ ...results, _id: data._id }]
-        } catch (error) {
+        } catch (error: any) {
             console.error('Upload failed:', error.response?.data || error.message);
             return { error: { message: (error.response?.data || error.message) } }
         }
 
     }
-    const updateVideoFile = async (files, _id) => {
+    const updateVideoFile = async (files: any, _id: any) => {
         console.log(__yellow("updateVideoFile()"), files)
 
         const file = files
@@ -278,7 +249,7 @@ function CreateProductForm ({ initialValues }) {
         }
 
         const formData = new FormData();
-        const data = { uploadPath: "prod", uploadType: "prod-video", _id }
+        const data: Record<string, any> = { uploadPath: "prod", uploadType: "prod-video", _id }
         Object.keys(data).forEach(key => {
             formData.append(key, data[key]);
         });
@@ -299,18 +270,18 @@ function CreateProductForm ({ initialValues }) {
                 .then(r => ((r.data.error) ? r.data : r?.data?.files));
 
             return results.error ? results : [{ ...results, _id: data._id }]
-        } catch (error) {
+        } catch (error: any) {
             console.error('Upload failed:', error.response?.data || error.message);
             return { error: { message: (error.response?.data || error.message) } }
         }
 
     }
-    const updateGalleryFiles = async (_files, _id) => {
+    const updateGalleryFiles = async (_files: any, _id: any) => {
         console.log(__yellow("updateGalleryFiles()"), _files)
 
         const files = _files
-            .filter(o => (o.originFileObj instanceof File))
-            .map(o => (o.originFileObj))
+            .filter((o: any) => (o.originFileObj instanceof File))
+            .map((o: any) => (o.originFileObj))
 
         if (!files || files.length < 1) {
             console.log(__yellow("No gallery pictures file found to uplaod"))
@@ -364,20 +335,21 @@ function CreateProductForm ({ initialValues }) {
 
     }
 
-    const onProdImageDelete = async (file) => {
+    const onProdImageDelete = async (file: any) => {
         return;
-        let resutls = await deleteProductImg({ variables: { _id_product: editNode._id } })
-            .then(r => (r?.data?.deleteProductImg))
-            .catch(err => {
-                console.log(__error("Error: "), err)
-                return { error: { message: "Unable to delete Image" } }
-            })
-        return resutls.error ? resutls : [];
+        // Disabled function - unreachable code
+        // let resutls = await deleteProductImg({ variables: { _id_product: editNode._id } })
+        //     .then((r: any) => (r?.data?.deleteProductImg))
+        //     .catch((err: any) => {
+        //         console.log(__error("Error: "), err)
+        //         return { error: { message: "Unable to delete Image" } }
+        //     })
+        // return resutls.error ? resutls : [];
     }
 
 
 
-    const handleUpload = async (files, { destination, thumbnailSizes }) => {
+    const handleUpload = async (files: any, { destination, thumbnailSizes }: { destination: any; thumbnailSizes: any }) => {
         // thumbnailSizes = [{width:200,height:200}]
         // destination = products / 123
         if (!files) return;
@@ -385,7 +357,7 @@ function CreateProductForm ({ initialValues }) {
         const formData = new FormData();
         formData.append('files', files);
         formData.append('folder', destination); // e.g., 'products/123'
-        if (thumbnailSizes) formData.append('thumbnails', JSON.stringify(thumbnailSizes)); 
+        if (thumbnailSizes) formData.append('thumbnails', JSON.stringify(thumbnailSizes));
 
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_ASSETS_URI}/upload`, {
@@ -395,9 +367,10 @@ function CreateProductForm ({ initialValues }) {
             const data = await res.json(); // {url, thumbnails}
             console.log("data: ", data)
 
-        } catch (err) {
+        } catch (err: unknown) {
             console.error(err)
-            message.error('Upload failed: ' + err.message)
+            const messageText = err instanceof Error ? err.message : 'Upload failed';
+            message.error('Upload failed: ' + messageText)
         } finally {
             console.log(__success("Upload complete"))
         }
@@ -485,8 +458,8 @@ function CreateProductForm ({ initialValues }) {
                                 let file = newValueArray[0][0]
                                 let action = newValueArray[1]
 
-                                let gallery = state?.formState?.values?.gallery?.slice() || []
-                                gallery = gallery.filter(o => !!(o.uid))
+                                let gallery = (state?.formState?.values as any)?.gallery?.slice() || []
+                                gallery = gallery.filter((o: any) => !!(o.uid))
 
 
                                 if (action == 'add') {
@@ -495,7 +468,7 @@ function CreateProductForm ({ initialValues }) {
                                     tools.changeValue(state, 'gallery', () => gallery)
                                 }
                                 if (action == 'remove') {
-                                    gallery = gallery.filter(o => !(o.uid == file.uid))
+                                    gallery = gallery.filter((o: any) => !(o.uid == file.uid))
                                     gallery = ensureArrayLength(gallery, PROD_GAL_SIZE)
                                     tools.changeValue(state, 'gallery', () => gallery)
                                 }
@@ -538,30 +511,30 @@ function CreateProductForm ({ initialValues }) {
 
                                             <div style={{ padding: "0 20px 20px 20px" }}>
                                                 <Row gutter={[10, 20]} align="top">
-                                                    <Col span={8} align="right"><Label style={{ margin: 0 }}>This product have Variations?</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label style={{ margin: 0 }}>This product have Variations?</Label></Col>
                                                     <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="have_variations" /></Col>
 
-                                                    <Col span={8} align="right"><Label>Product Name</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Product Name</Label></Col>
                                                     <Col span={16}><FormField type="text" name="title" validate={rules.required} /></Col>
-                                                    <Col span={8} align="right"><Label>Slug</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Slug</Label></Col>
                                                     <Col span={16}><FormField prefix={`/`} type="text" name="slug" onChange={filterSlug} validate={rules.required} /></Col>
 
-                                                    <Col span={8} align="right"><Label>Brand Name</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Brand Name</Label></Col>
                                                     <Col span={16}>
                                                         <BrandsDD name="brand._id" preload disabled={values.no_brand} allowClear required={!values.no_brand}
-                                                            validate={(value, allValues) => !allValues.no_brand ? rules.required(value) : undefined}
-                                                            onChange={(val1, val2) => form.mutators.onBrandChange(val2)}
+                                                            validate={(value: any, allValues: any) => !allValues.no_brand ? rules.required(value) : undefined}
+                                                            onChange={(val1: any, val2: any) => form.mutators.onBrandChange(val2)}
                                                         />
-                                                        <FormField onChange={(val) => {
+                                                        <FormField onChange={(val: any) => {
                                                             if (val) form.mutators.onBrandChange(false)
                                                         }}
                                                             wrapperStyle={{ marginTop: "5px" }} type="checkbox" name="no_brand">This product does not have a brand name</FormField>
                                                     </Col>
 
-                                                    <Col span={8} align="right"><Label>Barcode</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Barcode</Label></Col>
                                                     <Col span={16}>
                                                         <FormField type="text" name="barcode" disabled={values.no_barcode} required={!values.no_barcode}
-                                                            validate={(value, allValues) => !allValues.no_barcode ? rules.required(value) : undefined}
+                                                            validate={(value: any, allValues: any) => !allValues.no_barcode ? rules.required(value) : undefined}
                                                         />
                                                         <FormField wrapperStyle={{ marginTop: "5px" }} type="checkbox" name="no_barcode">{escapeText("I don't have a product barcode")}</FormField>
                                                     </Col>
@@ -576,13 +549,13 @@ function CreateProductForm ({ initialValues }) {
 
                                             <div style={{ padding: "0 20px 20px 20px" }}>
                                                 <Row gutter={[10, 20]} align="top">
-                                                    <Col span={8} align="right"><Label style={{ margin: 0 }}>Is product expirable?</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label style={{ margin: 0 }}>Is product expirable?</Label></Col>
                                                     <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_expirable" /></Col>
 
-                                                    <Col span={8} align="right"><Label>Country/Regin or Origin</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Country/Region of Origin</Label></Col>
                                                     <Col span={16}><FormField type="text" name="origon" validate={rules.required} /></Col>
 
-                                                    <Col span={8} align="right"><Label style={{ marginTop: "22px" }}>Attributes</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop: "22px" }}>Attributes</Label></Col>
                                                     <Col span={16}>
                                                         <FieldArray name="attributes">
                                                             {({ fields }) => {
@@ -593,27 +566,27 @@ function CreateProductForm ({ initialValues }) {
 
                                                                             return (<Space key={index}>
                                                                                 <ProdAttributeDD label="Attributes" name={`${name}._id`} preload validate={rules.required} wrapperStyle={{ minWidth: "200px" }}
-                                                                                    onChange={(val, raw) => {
+                                                                                    onChange={(val: any, raw: any) => {
                                                                                         form.mutators.onAttributeTypeChange(raw, values.attributes, index)
                                                                                     }}
                                                                                 />
                                                                                 <FormField label="Value" type="text" name={`${name}.val`} validate={rules.required} />
-                                                                                <div style={{ paddingTop: "15px" }}><IconButton onClick={() => fields.remove(index)} type="danger" icon="trash-alt" /></div>
+                                                                                <div style={{ paddingTop: "15px" }}><IconButton onClick={() => fields.remove(index)} danger icon="trash-alt" /></div>
                                                                             </Space>)
                                                                         })}
-                                                                        <div align="center" style={{ padding: "10px" }}><Button type="dashed" onClick={() => fields.push({})} icon={<Icon icon="plus" />}>Add Attribute</Button></div>
+                                                                        <div style={{ textAlign: "center", padding: "10px" }}><Button type="dashed" onClick={() => fields.push({})} icon={<Icon icon="plus" />}>Add Attribute</Button></div>
                                                                     </Space>
                                                                 </>)
                                                             }}
                                                         </FieldArray>
                                                     </Col>
 
-                                                    <Col span={8} align="right"><Label style={{ margin: 0 }}>Is this item temperature sensitive?</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label style={{ margin: 0 }}>Is this item temperature sensitive?</Label></Col>
                                                     <Col span={16}>
                                                         <FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_temp_sensitive" />
                                                     </Col>
 
-                                                    <Col span={8} align="right"><Label>Product Type</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Product Type</Label></Col>
                                                     <Col span={16}><ProdTypeDD name="type._id" validate={rules.required} preload onChange={form.mutators.onTypeChange} /></Col>
                                                 </Row>
                                             </div>
@@ -627,7 +600,7 @@ function CreateProductForm ({ initialValues }) {
                                                     <Col span={24}><Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Limits</Divider></Col>
                                                     <Col span={6}><FormField label="Cart limit" type="number" name="cart_limit" validate={rules.required} /></Col>
 
-                                                    <Col span={6} align="right"><Label>Stock level</Label></Col>
+                                                    <Col span={6} style={{ textAlign: "right" }}><Label>Stock level</Label></Col>
                                                     <Col span={6}><FormField label="Min" type="number" name="stock_level.min" validate={rules.required} /></Col>
                                                     <Col span={6}><FormField label="Max" type="number" name="stock_level.max" validate={rules.required} /></Col>
 
@@ -635,20 +608,20 @@ function CreateProductForm ({ initialValues }) {
                                                     <Col span={8}><FormField label="Cost" type="number" name="cost" validate={rules.required} /></Col>
 
                                                     <Col span={24}><Divider>Tax Settings</Divider></Col>
-                                                    <Col span={8} align="right"><Label style={{ marginTop: "0px" }}>This product is taxable</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop: "0px" }}>This product is taxable</Label></Col>
                                                     <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="tax.taxable" /></Col>
 
                                                     {values?.tax?.taxable && <>
-                                                        <Col span={8} align="right" />
+                                                        <Col span={8} style={{ textAlign: "right" }} />
                                                         <Col span={9}><FormField type="text" label="HS Code" name="tax.hs_code" validate={rules.required} /></Col>
                                                         <Col span={7}><FormField options={tax_applition_on} type="select" label="Tax amount to be applied at" name="tax.applied_at" validate={rules.required} /></Col>
                                                     </>}
 
                                                     {values?.tax?.taxable && <>
-                                                        <Col span={8} align="right" />
+                                                        <Col span={8} style={{ textAlign: "right" }} />
                                                         <Col span={16}><Space size={5}>
-                                                            <FormField wrapperStyle={{ width: '80px' }} options={tax_formula_types} type="select" label="Tax Formula" compact name="tax.formula" onChange={(e) => form.mutators.calculateTotalTax({ formula: e, amount: values?.tax?.amount, price: values?.price })} />
-                                                            <FormField wrapperStyle={{ width: '80px' }} type="number" label="Amount" name="tax.amount" compact min={0} onChange={(e) => form.mutators.calculateTotalTax({ formula: values?.tax?.formula, amount: e, price: values?.price })} />
+                                                            <FormField wrapperStyle={{ width: '80px' }} options={tax_formula_types} type="select" label="Tax Formula" compact name="tax.formula" onChange={(e: any) => form.mutators.calculateTotalTax({ formula: e, amount: values?.tax?.amount, price: values?.price })} />
+                                                            <FormField wrapperStyle={{ width: '80px' }} type="number" label="Amount" name="tax.amount" compact min={0} onChange={(e: any) => form.mutators.calculateTotalTax({ formula: values?.tax?.formula, amount: e, price: values?.price })} />
                                                             <FormField prefix={<span>= </span>} wrapperStyle={{ width: '80px', marginLeft: "10px" }} type="text" name="suffix_tax_total" disabled label="&nbsp;" />
                                                         </Space></Col>
                                                     </>}
@@ -663,7 +636,7 @@ function CreateProductForm ({ initialValues }) {
 
                                             <div style={{ padding: "0 20px 20px 20px" }}>
                                                 <Row gutter={[10, 20]} align="top">
-                                                    <Col span={8} align="right"><Label>Product description</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Description</Label></Col>
                                                     <Col span={16}>
                                                         <FieldArray name="description">
                                                             {({ fields }) => {
@@ -674,12 +647,12 @@ function CreateProductForm ({ initialValues }) {
                                                                         return (<div key={index} style={{ marginBottom: "10px" }}>
                                                                             <Row>
                                                                                 <Col flex="auto"><FormField type="textarea" rows={2} name={name} validate={rules.required} /></Col>
-                                                                                <Col><IconButton onClick={() => fields.remove(index)} type="danger" icon="trash-alt" /></Col>
+                                                                                <Col><IconButton onClick={() => fields.remove(index)} danger icon="trash-alt" /></Col>
                                                                             </Row>
                                                                         </div>)
 
                                                                     })}
-                                                                    <div align="center" style={{ padding: "10px" }}>
+                                                                    <div style={{ textAlign: "center", padding: "10px" }}>
                                                                         <Button type="dashed" onClick={() => fields.push("")} icon={<Icon icon="plus" />}>Add {values?.description?.length > 0 ? "More" : "Description"}</Button>
                                                                     </div>
                                                                 </>)
@@ -687,7 +660,7 @@ function CreateProductForm ({ initialValues }) {
                                                         </FieldArray>
                                                     </Col>
 
-                                                    <Col span={8} align="right"><Label>Bullit points</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Bullit points</Label></Col>
                                                     <Col span={16}>
                                                         <FieldArray name="bullits">
                                                             {({ fields }) => {
@@ -698,12 +671,12 @@ function CreateProductForm ({ initialValues }) {
                                                                         return (<div key={index} style={{ marginBottom: "10px" }}>
                                                                             <Row>
                                                                                 <Col flex="auto"><FormField type="text" name={name} validate={rules.required} /></Col>
-                                                                                <Col><IconButton onClick={() => fields.remove(index)} type="danger" icon="trash-alt" /></Col>
+                                                                                <Col><IconButton onClick={() => fields.remove(index)} danger icon="trash-alt" /></Col>
                                                                             </Row>
                                                                         </div>)
 
                                                                     })}
-                                                                    <div align="center" style={{ padding: "10px" }}>
+                                                                    <div style={{ textAlign: "center", padding: "10px" }}>
                                                                         <Button type="dashed" onClick={() => fields.push("")} icon={<Icon icon="plus" />}>Add {values?.bullits?.length > 0 ? "More" : "Bullit"}</Button>
                                                                     </div>
                                                                 </>)
@@ -720,8 +693,9 @@ function CreateProductForm ({ initialValues }) {
 
                                             <div style={{ padding: "0 20px 20px 20px" }}>
                                                 <Row gutter={[10, 10]}>
-                                                    <Col span={6} align="center">
+                                                    <Col span={6} style={{ textAlign: "center" }}>
                                                         <FileUploader //name="picture"
+                                                            type="image"
                                                             // thumbnail={{ displaySize: { width: 190, height: 190 } }}
                                                             maxCount={1}
                                                             multiple={false}
@@ -732,10 +706,11 @@ function CreateProductForm ({ initialValues }) {
                                                             // deleteFile={onProdImageDelete}
                                                             onUpdateFiles={form.mutators.onUpdateMainFile}
                                                         />
-                                                        <div align="center">MAIN</div>
+                                                        <div style={{ textAlign: "center" }}>MAIN</div>
                                                     </Col>
-                                                    <Col span={6} align="center">
+                                                    <Col span={6} style={{ textAlign: "center" }}>
                                                         <FileUploader //name="video"
+                                                            type="video"
                                                             icon="video"
                                                             accept=".mp4"
                                                             // thumbnail={{ displaySize: { width: 190, height: 190 } }}
@@ -748,7 +723,7 @@ function CreateProductForm ({ initialValues }) {
                                                             // deleteFile={onProdImageDelete}
                                                             onUpdateFiles={form.mutators.onUpdateVideoFile}
                                                         />
-                                                        <div align="center">VIDEO</div>
+                                                        <div style={{ textAlign: "center" }}>VIDEO</div>
                                                     </Col>
 
                                                     <FieldArray name="gallery">
@@ -757,8 +732,9 @@ function CreateProductForm ({ initialValues }) {
                                                                 {fields.map((name, index) => {
                                                                     const thisNode = fields.value[index];
 
-                                                                    return (<Col key={index} span={6} align="center">
+                                                                    return (<Col key={index} span={6} style={{ textAlign: "center" }}>
                                                                         <FileUploader
+                                                                            type="image"
                                                                             name={name}
                                                                             // thumbnail={{ displaySize: { width: 190, height: 190 } }}
                                                                             maxCount={1}
@@ -787,7 +763,7 @@ function CreateProductForm ({ initialValues }) {
 
                                             <div style={{ padding: "0 20px 20px 20px" }}>
                                                 <Row gutter={[10, 20]} align="top">
-                                                    <Col span={8} align="right"><Label style={{ marginTop: 0 }}>Is this unfit for dispatch box?</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop: 0 }}>Is this unfit for dispatch box?</Label></Col>
                                                     <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="fit_for_dispatch" /></Col>
                                                 </Row>
                                             </div>
@@ -799,14 +775,14 @@ function CreateProductForm ({ initialValues }) {
 
                                             <div style={{ padding: "0 20px 20px 20px" }}>
                                                 <Row gutter={[10, 20]} align="top">
-                                                    <Col span={8} align="right"><Label style={{ marginTop: "3px" }}>Tags for local search</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop: "3px" }}>Tags for local search</Label></Col>
                                                     <Col span={16}><TagsManager name="tags" /></Col>
                                                     <Col span={24}><Divider>SEO Data</Divider></Col>
-                                                    <Col span={8} align="right"><Label>Keywords</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Meta Keywords</Label></Col>
                                                     <Col span={16}><FormField type="text" name="meta.keywords" /></Col>
-                                                    <Col span={8} align="right"><Label>Title</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Meta Title</Label></Col>
                                                     <Col span={16}><FormField type="text" name="meta.title" /></Col>
-                                                    <Col span={8} align="right"><Label>Description</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Meta Description</Label></Col>
                                                     <Col span={16}><FormField type="text" name="meta.description" /></Col>
                                                 </Row>
                                             </div>
@@ -825,35 +801,35 @@ function CreateProductForm ({ initialValues }) {
 
                                                                 return (<Row gutter={[10, 20]} align="top" key={index}>
                                                                     {['text', 'email', 'number'].includes(thisNode.type) && <>
-                                                                        <Col span={8} align="right"><Label>{thisNode.label}</Label></Col>
+                                                                        <Col span={8} style={{ textAlign: "right" }}><Label>{thisNode.label}</Label></Col>
                                                                         <Col span={16}><FormField type={thisNode.type} name={`${name}.value`} validate={thisNode.required && rules.required} /></Col>
                                                                     </>}
                                                                     {['textarea'].includes(thisNode.type) && <>
-                                                                        <Col span={8} align="right"><Label>{thisNode.label}</Label></Col>
-                                                                        <Col span={16}><FormField type={thisNode.type} name={`${name}.value`} rows={2} validate={field.required && rules.required} /></Col>
+                                                                        <Col span={8} style={{ textAlign: "right" }}><Label>{thisNode.label}</Label></Col>
+                                                                        <Col span={16}><FormField type={thisNode.type} name={`${name}.value`} rows={2} validate={thisNode.required && rules.required} /></Col>
                                                                     </>}
                                                                     {['switch'].includes(thisNode.type) && <>
-                                                                        <Col span={8} align="right"><Label>{thisNode.label}</Label></Col>
+                                                                        <Col span={8} style={{ textAlign: "right" }}><Label>{thisNode.label}</Label></Col>
                                                                         <Col span={16}><FormField type={thisNode.type} name={`${name}.value`} /></Col>
                                                                     </>}
                                                                     {['checkbox'].includes(thisNode.type) && <>
-                                                                        <Col span={8} align="right"><Label></Label></Col>
+                                                                        <Col span={8} style={{ textAlign: "right" }}><Label>{thisNode.label}</Label></Col>
                                                                         <Col span={16}><FormField type="checkbox" name={`${name}.value`} validate={thisNode.required && rules.required}>{thisNode.label}</FormField></Col>
                                                                     </>}
                                                                     {['select'].includes(thisNode.type) && <>
-                                                                        <Col span={8} align="right"><Label>{thisNode.label}</Label></Col>
+                                                                        <Col span={8} style={{ textAlign: "right" }}><Label>{thisNode.label}</Label></Col>
                                                                         <Col span={16}><FormField type={thisNode.type} options={thisNode.options} name={`${name}.value`} validate={thisNode.required && rules.required} allowClear /></Col>
                                                                     </>}
                                                                     {['date'].includes(thisNode.type) && <>
-                                                                        <Col span={8} align="right"><Label>{thisNode.label}</Label></Col>
+                                                                        <Col span={8} style={{ textAlign: "right" }}><Label>{thisNode.label}</Label></Col>
                                                                         <Col span={16}><FormField type={thisNode.type} name={`${name}.value`} validate={thisNode.required && rules.required} allowClear /></Col>
                                                                     </>}
                                                                     {['date-time'].includes(thisNode.type) && <>
-                                                                        <Col span={8} align="right"><Label>{thisNode.label}</Label></Col>
+                                                                        <Col span={8} style={{ textAlign: "right" }}><Label>{thisNode.label}</Label></Col>
                                                                         <Col span={16}><FormField type={thisNode.type} name={`${name}.value`} validate={thisNode.required && rules.required} allowClear showTime format={defaultDateTimeFormat} /></Col>
                                                                     </>}
                                                                     {['radio-group'].includes(thisNode.type) && <>
-                                                                        <Col span={8} align="right"><Label>{thisNode.label}</Label></Col>
+                                                                        <Col span={8} style={{ textAlign: "right" }}><Label>{thisNode.label}</Label></Col>
                                                                         <Col span={16}><FormField type={thisNode.type} options={thisNode.options} name={`${name}.value`} validate={thisNode.required && rules.required} /></Col>
                                                                     </>}
                                                                 </Row>)
@@ -871,7 +847,7 @@ function CreateProductForm ({ initialValues }) {
 
                                             <div style={{ padding: "0 20px 20px 20px" }}>
                                                 <Row gutter={[10, 20]} align="top">
-                                                    <Col span={8} align="right"><Label>Product Status</Label></Col>
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Product Status</Label></Col>
                                                     <Col span={16}><FormField options={publishStatus} type="select" name="status" validate={rules.required} /></Col>
                                                 </Row>
                                             </div>
@@ -880,9 +856,9 @@ function CreateProductForm ({ initialValues }) {
 
                                     </div>
 
-                                    <div style={{ borderTop: "1px solid #DDD", position: "absolute", bottom: 0, left: 0, width: "calc(100vw - 15px)", position: "fixed", padding: "10px", backgroundColor: "#EEEE" }}>
+                                    <div style={{ borderTop: "1px solid #DDD", position: "fixed", bottom: 0, left: 0, width: "calc(100vw - 15px)", padding: "10px", backgroundColor: "#EEEE" }}>
                                         <Row gutter={[10, 10]}>
-                                            <Col span={12} align="left">
+                                            <Col span={12} style={{ textAlign: "left" }}>
                                                 <Popconfirm
                                                     title="Exit product"
                                                     description="Are you sure to exit without saving your progress?"
@@ -894,7 +870,7 @@ function CreateProductForm ({ initialValues }) {
                                                     <Button color="red">Exit</Button>
                                                 </Popconfirm>
                                             </Col>
-                                            <Col span={12} align="right">
+                                            <Col span={12} style={{ textAlign: "right" }}>
                                                 <Space size={50}>
                                                     <Button onClick={() => set_activeStep(activeStep - 1)} disabled={activeStep == 0}>Back</Button>
                                                     <SubmitButton label={activeStep == 7 ? "Save" : "Next"} loading={submitting} />
@@ -922,7 +898,7 @@ function CreateProductForm ({ initialValues }) {
 
 }
 
-export default function CreateProductFormWrapper (props) {
+function CreateProductFormWrapper (props: any) {
     const [fetalError, setFetalError] = useState(null)
 
     const [fieldsDefinations, { called, loading, data }] = useLazyQuery(GET_EXTRA_FIELDS, { fetchPolicy: 'network-only' });
@@ -930,7 +906,8 @@ export default function CreateProductFormWrapper (props) {
     useEffect(() => {
         if (called) return;
         fetchExtraFields()
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called])
 
     async function fetchExtraFields() {
         let results = await fieldsDefinations({
@@ -957,8 +934,8 @@ export default function CreateProductFormWrapper (props) {
     if (data && data.fieldsDefinations){
         let extra_fields = initialValues?.extra_fields?.slice() || [];
 
-        data.fieldsDefinations.forEach(field => {
-            if (!extra_fields.find(o => (o._id == field._id))){
+        data.fieldsDefinations.forEach((field: any) => {
+            if (!extra_fields.find((o: any) => (o._id == field._id))){
                 extra_fields.push(field)
             }
         });
@@ -975,3 +952,5 @@ export default function CreateProductFormWrapper (props) {
 
     </>)
 }
+
+export default CreateProductFormWrapper;

@@ -6,8 +6,8 @@ import BasketsList from './components/baskets_list';
 import { usePageProps } from '@_/components';
 // import BasketForm from './components/basket_form';
 
-export default function Baskets () {
-    const { store } = usePageProps()
+function Baskets () {
+    const { store } = usePageProps() as unknown as { store: any }
     // console.log("pageProps: ", pageProps)
     
 
@@ -21,6 +21,8 @@ export default function Baskets () {
         {/* <BasketForm onClose={() => set_showForm(false)} open={showForm !== false} store={store} initialValues={(showForm && showForm._id) ? showForm : undefined} /> */}
     </>)
 }
+
+export default Baskets;
 
 // export default function Wrapper(props){
 //     return (<StoreWrapper {...props} render={({ store }) => (<Baskets store={store} {...props} />)} />)

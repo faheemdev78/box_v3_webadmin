@@ -165,7 +165,7 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
               {selectedBaskets.map((id) => {
                 const basket = baskets.find((b) => b._id === id);
                 if (!basket) return null;
-                return (<Tag key={id} closable onClose={() => toggleBasket(id)} _color={basket.color} style={{ margin: 4, fontSize: 13, padding: '4px 8px' }}>
+                return (<Tag key={id} closable onClose={() => toggleBasket(id)} color={basket.color} style={{ margin: 4, fontSize: 13, padding: '4px 8px' }}>
                   {basket.title} ({basket.barcode})
                 </Tag>);
               })}

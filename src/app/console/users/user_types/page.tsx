@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Button, DeleteButton, DevBlock, Icon, IconButton, PageHeading, Table } from '@_/components'
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { Col, Row, Space, Alert, Modal, Popconfirm, Card, Divider, Tag } from 'antd'
+import { ColumnsType } from 'antd/es/table';
 import { useSession } from 'next-auth/react'
 import { security } from '@_/lib/security';
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
@@ -20,15 +21,22 @@ import DEL_REC from '@_/graphql/user_role/deleteUserRole.graphql'
 import EDIT_ROLE from '@_/graphql/user_role/editUserRole.graphql'
 import ADD_ROLE from '@_/graphql/user_role/addUserRole.graphql'
 
-const filterSlug = (e, onChange) => onChange(string_to_slug(e.target.value));
+const filterSlug = (e: any, onChange: (val: string) => void) => onChange(string_to_slug(e.target.value));
 
-function TypeForm({ onSuccess, onCancel, show, initialValues }: { onSuccess: () => void, onCancel: () => void, show: boolean, initialValues: object }) {
+type UserRoleValues = {
+  _id?: string;
+  title?: string;
+  acc_type?: string;
+  allowed_apps?: string[];
+};
+
+function TypeForm({ onSuccess, onCancel, show, initialValues }: { onSuccess: () => void, onCancel: () => void, show: boolean, initialValues: UserRoleValues }) {
   const [error, setError] = useState(false);
 
   const [addUserRole, add_details] = useMutation(ADD_ROLE); // { data, loading, error }
   const [editUserRole, edit_details] = useMutation(EDIT_ROLE); // { data, loading, error }
 
-  const onSubmit = async (values) => {
+  const onSubmit = async (values: any) => {
     let input = {
       title: values.title,
       acc_type: values.acc_type,
@@ -40,11 +48,11 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }: { onSuccess: () 
     if (initialValues && initialValues._id) {
       Object.assign(input, { _id: initialValues._id })
       results = await editUserRole({ variables: { input } })
-        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.editUserRole }))
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.editUserRole }))
         .catch(catchApolloError)
     } else {
       results = await addUserRole({ variables: { input } })
-        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.addUserRole }))
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.addUserRole }))
         .catch(catchApolloError)
     }
 
@@ -53,7 +61,7 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }: { onSuccess: () 
       return false;
     }
 
-    onSuccess(results);
+    onSuccess();
     return false;
   }
 
@@ -124,8 +132,8 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }: { onSuccess: () 
 
 
 /* eslint-disable react-hooks/exhaustive-deps */
-export default function UserTypes() {
-  const [showForm, set_showForm] = useState(false);
+function UserTypes() {
+  const [showForm, set_showForm] = useState<Record<string, any> | false>(false);
   const [busy, setBusy] = useState(false);
   const [dataArray, set_dataArray] = useState(null);
   const [error, setError] = useState(null);
@@ -144,7 +152,7 @@ export default function UserTypes() {
     setBusy(true);
 
     let resutls = await getRoles()
-      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.userRoles }))
+      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.userRoles }))
       .catch(catchApolloError)
       
 
@@ -154,7 +162,7 @@ export default function UserTypes() {
     setBusy(false);
   }
 
-  const onDelete = async (rec) => {
+  const onDelete = async (rec: any) => {
     await deleteUserRole({ variables: { _id: rec._id } });
     fetchData();
   }
@@ -166,12 +174,12 @@ export default function UserTypes() {
 
   const onEditClick = () => {}
 
-  const columns = [
+  const columns: ColumnsType<any> = [
     { title: 'Store Name', dataIndex: 'title', key: 'title' },
     { title: 'Key', dataIndex: 'acc_type', key: 'acc_type' },
-    { title: 'Allowed Apps', dataIndex: 'allowed_apps', key: 'allowed_apps', render:(txt, rec) => txt.map((item, i) => (<Tag key={i}>{item}</Tag>)) },
-    { title: 'Actions', dataIndex: 'actions', key: 'actions', align: 'right', width: 120,
-        render: (text, rec) => {
+    { title: 'Allowed Apps', dataIndex: 'allowed_apps', key: 'allowed_apps', render:(txt: string[] = []) => txt.map((item: string, i: number) => (<Tag key={i}>{item}</Tag>)) },
+    { title: 'Actions', dataIndex: 'actions', key: 'actions', align: 'right' as const, width: 120,
+        render: (_text, rec: any) => {
             return (<Space>
               <IconButton onClick={() => set_showForm(rec)} icon="pen" />
               <Popconfirm title="Sure to delete?" onConfirm={() => onDelete(rec)}>
@@ -186,17 +194,19 @@ export default function UserTypes() {
 
   return (<>
     <PageHeader title="Users Types">
-      <Button onClick={() => set_showForm(true)} color="orange">Add new Type</Button>
+      <Button onClick={() => set_showForm({})} color="orange">Add new Type</Button>
     </PageHeader>
 
     <Page>
       <Table columns={columns} loading={busy}
-        dataSource={dataArray}
+        dataSource={dataArray || []}
         pagination={false}
         bordered />
     </Page>
 
-      
-    <TypeForm onSuccess={onSuccess} onCancel={() => set_showForm(false)} show={showForm !== false} initialValues={showForm} />
+
+    <TypeForm onSuccess={onSuccess} onCancel={() => set_showForm(false)} show={showForm !== false} initialValues={showForm || {}} />
   </>)
 }
+
+export default UserTypes

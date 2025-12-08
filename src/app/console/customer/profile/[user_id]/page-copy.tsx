@@ -8,7 +8,7 @@ import { Alert, Card, Col, Divider, Row } from 'antd';
 import { Avatar, DevBlock } from '@_/components';
 import { PasswordUpdateButton } from '@_/modules/user/components';
 
-function CustomerDashboard({ user, session, refresh }) {
+function CustomerDashboard({ user, session, refresh }: { user: any; session: any; refresh: () => void }) {
     if (!session || !session?.user?._id) return <Alert message="Invalid user session" showIcon type='error' />
 
     return (<>
@@ -31,6 +31,8 @@ function CustomerDashboard({ user, session, refresh }) {
     </>)
 }
 
-export default function Wrapper(props){
-    return (<CustomerWrapper {...props} render={({ user, session, refresh }) => (<CustomerDashboard user={user} session={session} refresh={refresh} {...props} />)} />)
+function Wrapper(props: any){
+    return (<CustomerWrapper {...props} render={({ user, session, refresh }: { user:any, session:any, refresh: any }) => (<CustomerDashboard user={user} session={session} refresh={refresh} {...props} />)} />)
 }
+
+export default Wrapper;

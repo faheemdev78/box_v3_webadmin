@@ -14,12 +14,12 @@ import { PageHeader } from "@_/template";
 import QUERY_DATA from '@_/graphql/app_pages/appPagesQuery.graphql'
 import DEL_PAGE from '@_/graphql/app_pages/deleteAppPage.graphql'
 
-function PagesHome(props) {
+function PagesHome() {
     const [busy, setBusy] = useState(false);
     const [pagination, setPagination] = useState(defaultPagination);
     const [filter, setFilter] = useState({  });
-    const [dataArray, set_dataArray] = useState(null)
-    const [error, setError] = useState(null)
+    const [dataArray, set_dataArray] = useState<any>(null)
+    const [error, setError] = useState<string | null>(null)
     const [showCreateForm, set_showCreateForm] = useState(false)
 
     const [appPagesQuery, { called, loading, data }] = useLazyQuery(QUERY_DATA, {
@@ -30,15 +30,16 @@ function PagesHome(props) {
 
     useEffect(() => {
         if (called || loading) return;
-        fetchData(filter);
-    }, [called, loading])
+        fetchData(filter, { page: 0, pageSize: 0 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called, loading, filter])
 
-    const fetchData = async (__filter={}, __pagination) => {
+    const fetchData = async (__filter = {}, __pagination: { page?: number, pageSize?: number } = {}) => {
         let _filter = { ...__filter, draft:true }
         setBusy(true);
         setFilter(_filter);
 
-        const { page, pageSize } = __pagination || {};
+        const { page, pageSize } = __pagination;
 
         let _pagination = {
             ...pagination,
@@ -74,7 +75,7 @@ function PagesHome(props) {
 
     // const doSearch = (vars) => fetchData(vars, { current: 1, pageSize: pagination.pageSize })
 
-    const onDeletePage = async (_id) => {
+    const onDeletePage = async (_id:string) => {
         setBusy(true)
         let results = await deleteAppPage({ variables: { _id } }).then(r => (r?.data?.deleteAppPage))
         .catch(err=>{
@@ -96,30 +97,30 @@ function PagesHome(props) {
         return false;
     }
 
-    const columns = [
-        { title: "Page Name", dataIndex: 'title', render: (text, rec) => {
-                return (<Row align="middle" gutter={[5]}>
+    const columns: any = [
+        { title: "Page Name", dataIndex: 'title', render: (text: string, rec: any) => {
+                return (<Row align="middle" gutter={[5, 5]}>
                     <Col><Link href={`./editPage/${rec._id}`} className='a'>{rec.title}</Link></Col>
                     <Col><DeleteButton size="small" onClick={() => onDeletePage(rec._id)} /></Col>
                 </Row>)
             }
         },
-        { title: 'Description', dataIndex: 'description', align: "left", render:(___:string, rec:any) => {
+        { title: 'Description', dataIndex: 'description', align: "left" as const, render:(___:string, rec:any) => {
             return (<>
                 <div>{rec.slug.replace(/\/draft$/, "")}</div>
             </>)
         } },
-        { title: 'Status', dataIndex: 'published', align: 'center', width: 80, render: (published: boolean) => (<Tag color={published ? 'green' : 'red'}>{published ? "YES" : "NO"}</Tag>) },
-        { title: 'Schedule', dataIndex: 'scheduled_from', align: "left", width: 160, render:(___:string, rec:any) => {
+        { title: 'Status', dataIndex: 'published', align: 'center' as const, width: 80, render: (published: boolean) => (<Tag color={published ? 'green' : 'red'}>{published ? "YES" : "NO"}</Tag>) },
+        { title: 'Schedule', dataIndex: 'scheduled_from', align: "left" as const, width: 160, render:(___:string, rec:any) => {
             if (!rec.scheduled_from) return null;
             return (<>
                 <div><b>From:</b> {utcToDate(rec.scheduled_from).format(defaultDateFormat)}</div>
                 <div><b>To:</b> {utcToDate(rec.scheduled_to).format(defaultDateFormat)}</div>
             </>)
         } },
-        { title: 'Type', dataIndex: ['page_type', 'title'], align: "left", width: 150 },
-        { title: 'Created by', dataIndex: 'created_by', align: "left", width: 180, render: (created_by: string) => utcToDate(created_by).format(defaultDateTimeFormat) },
-        { title: 'Last Updated', dataIndex: 'updatedAt', align: "left", width: 180, render: (updatedAt: string) => utcToDate(updatedAt).format(defaultDateTimeFormat)},
+        { title: 'Type', dataIndex: ['page_type', 'title'], align: "left" as const, width: 150 },
+        { title: 'Created by', dataIndex: 'created_by', align: "left" as const, width: 180, render: (created_by: string) => utcToDate(created_by).format(defaultDateTimeFormat) },
+        { title: 'Last Updated', dataIndex: 'updatedAt', align: "left" as const, width: 180, render: (updatedAt: string) => utcToDate(updatedAt).format(defaultDateTimeFormat)},
     ];
 
 
@@ -136,6 +137,7 @@ function PagesHome(props) {
             dataSource={dataArray && dataArray.edges}
             pagination={{
                 ...pagination,
+                size: 'default',
                 onChange: (page, pageSize) => fetchData(filter, { page, pageSize })
             }}
         />

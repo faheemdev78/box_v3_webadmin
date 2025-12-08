@@ -106,6 +106,7 @@ export const StaffEditForm = ({ user_id, onSuccess, ...props }) => {
     useEffect(() => {
         if (called || loading || !user_id || initialValues) return;
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user_id])
 
     const fetchData = async () => {

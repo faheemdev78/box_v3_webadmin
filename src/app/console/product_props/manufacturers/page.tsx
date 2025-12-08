@@ -15,7 +15,7 @@ import RECORD_DELETE from '@_/graphql/manufacturer/deleteManufacturer.graphql';
 
 const defaultFilter = { status: 'online' }
 
-export default function Manufacturer(props) {
+function Manufacturer(props:any) {
     const [state, setState] = useState({
         pagination: { current: 1 },
         pageView: "list",
@@ -23,8 +23,8 @@ export default function Manufacturer(props) {
         busy: false,
     })
     
-    const [dataArray, set_dataArray] = useState(null)
-    const [showForm, set_showForm] = useState({ show: false, fields: undefined })
+    const [dataArray, set_dataArray] = useState<any | null>(null)
+    const [showForm, set_showForm] = useState<{ show: boolean; fields: any }>({ show: false, fields: undefined })
     const [busy, setBusy] = useState(false)
     const [data, setData] = useState(null)
     
@@ -35,9 +35,10 @@ export default function Manufacturer(props) {
     useEffect(() => {
         if (called) return;
         fetchData()
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called])
 
-    const fetchData = async (args={}) => {
+    const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
         let skip = limit * (current - 1);
@@ -69,8 +70,8 @@ export default function Manufacturer(props) {
     }
     const onUpdateCallback = () => fetchData()
 
-    const handleDelete = async ({ _id }) => {
-        let results = await deleteManufacturer(id)
+    const handleDelete = async ({ _id }: { _id: string }) => {
+        let results = await deleteManufacturer({ variables: { _id } })
             .then(r => (r?.data?.deleteManufacturer))
             .catch(error => {
                 console.log(__error("ERROR"), error);
@@ -96,16 +97,16 @@ export default function Manufacturer(props) {
             dataIndex: 'status',
             key: 'status',
             width: 100,
-            align: 'center',
-            render: (txt, __) => (<Tag color={txt === 'online' ? 'green' : 'red'}>{txt}</Tag>)
+            align: 'center' as const,
+            render: (txt: any, __: any) => (<Tag color={txt === 'online' ? 'green' : 'red'}>{txt}</Tag>)
         },
         {
             title: 'Actions',
             dataIndex: 'actions',
             width: 120,
             key: 'actions',
-            align: 'right',
-            render: (text, rec) => {
+            align: 'right' as const,
+            render: (_text: any, rec: any) => {
                 return (<Space>
                     <IconButton onClick={() => set_showForm({ show: true, fields: rec })} icon="pen" />
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}>
@@ -121,20 +122,20 @@ export default function Manufacturer(props) {
             // onSearch={console.log}
             // searchFields={[ { label: "Field 3", value: "val-3" } ]}
         >
-            <Button onClick={() => set_showForm({ show: true })} color="orange">Add New Manufacture</Button>
+            <Button onClick={() => set_showForm({ show: true, fields: undefined })} color="orange">Add New Manufacture</Button>
         </PageHeader>
 
         <Card styles={{ body:{ padding:0 } }}>
             <Table
                 loading={loading}
                 columns={columns}
-                dataSource={dataArray && dataArray.edges}
+                dataSource={dataArray?.edges || []}
                 pagination={false}
             />
         </Card>
     
         <ManufacturerForm
-            onClose={() => set_showForm({ show: false })}
+            onClose={() => set_showForm({ show: false, fields: undefined })}
             open={showForm.show}
             fields={showForm.fields}
             callback={onUpdateCallback}
@@ -144,3 +145,4 @@ export default function Manufacturer(props) {
 
 }
 
+export default Manufacturer;

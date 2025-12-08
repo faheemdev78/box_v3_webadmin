@@ -11,7 +11,13 @@ import { initSettings } from './slices/systemSlice';
 //     return <Provider store={store}>{children}</Provider>;
 // }
 
-export default function ReduxProvider({ children, settings }: { children: React.ReactNode, settings: object }) {
+interface SettingsState {
+    firstRun: Boolean | null;
+    timezone: String | null;
+    currency: String | 'Rs';
+}
+
+function ReduxProvider({ children, settings }: { children: React.ReactNode, settings: SettingsState }) {
     store.dispatch(initSettings(settings));
 
     return (
@@ -21,5 +27,6 @@ export default function ReduxProvider({ children, settings }: { children: React.
             </PersistGate>
         </Provider>
     );
-  }
+}
 
+export default ReduxProvider

@@ -141,7 +141,7 @@ const AVAILABLE_FILTERS = [
   { label: 'Phone number', value: 'phone_number', group: 'Contact information' },
 ];
 
-export default function ViewFilterPage() {
+function ViewFilterPage() {
   const [views, setViews] = useState<SavedView[]>(DUMMY_VIEWS);
   const [activeViewId, setActiveViewId] = useState<string>('view1');
   const [showAllViews, setShowAllViews] = useState(false);
@@ -374,7 +374,7 @@ export default function ViewFilterPage() {
               <h4>Advanced Filters</h4>
               {activeView?.filters.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: 40, color: '#999' }}>
-                  This view doesn't have any advanced filters. Select a filter to begin.
+                  This view doesn&apos;t have any advanced filters. Select a filter to begin.
                 </div>
               ) : (
                 <div>
@@ -462,7 +462,7 @@ export default function ViewFilterPage() {
               placeholder="Enter view name"
             />
             {!newViewName.trim() && newViewName.length > 0 && (
-              <span style={{ color: 'red', fontSize: 12 }}>View name can't be blank</span>
+              <span style={{ color: 'red', fontSize: 12 }}>View name can&apos;t be blank</span>
             )}
           </div>
 
@@ -491,3 +491,5 @@ export default function ViewFilterPage() {
     </Page>
   );
 }
+
+export default ViewFilterPage

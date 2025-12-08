@@ -3,8 +3,8 @@
 // import StoreWrapper from '@/modules/store/storeWrapper';
 import { DevBlock, usePageProps } from '@_/components';
 
-export default function BannersPage() {
-    const { store } = usePageProps()
+function BannersPage() {
+    const { store } = usePageProps() as unknown as { store: any }
 
     return (<>
         <h1>Incomplete page</h1>
@@ -12,6 +12,9 @@ export default function BannersPage() {
         <DevBlock obj={store} />
     </>)
 }
+
+
+export default BannersPage;
 
 // export default function Wrapper(props){
 //     return (<StoreWrapper {...props} render={({ store }) => (<BannersPage store={store} {...props} />)} />)

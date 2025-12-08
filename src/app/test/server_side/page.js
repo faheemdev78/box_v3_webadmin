@@ -5,8 +5,8 @@ import client from "@_/aClient/client";
 import TEST_QUERY from "@_/graphql/test/testQuery.graphql";
 
 
-export default async function ServerSide(props) {
-    console.log("Loading ServerSide page")
+export default async function ServerSide() {
+    // console.log("Loading ServerSide page")
 
     const { data, loading, error } = await client.query({
         query: TEST_QUERY,

@@ -2,17 +2,18 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { Card, Col, Dropdown, message, Popconfirm, Row, Space, Tag } from 'antd';
+import type { AlignType } from 'rc-table/lib/interface';
 import { Button, IconButton, Loader, Table } from '@_/components';
 import { ProductAttributesForm } from '@_/modules/product_attributes';
 import { PageHeader } from '@_/template';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import LIST_DATA from '@_/graphql/product_attributes/productAttributes.graphql'
 import RECORD_DELETE from '@_/graphql/product_type/deleteProductType.graphql';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
-export default function ProductAttributesPage (props) {
-    const [productAttributes, set_productAttributes] = useState(null)
-    const [showForm, set_showForm] = useState({ show: false, fields: undefined })
+function ProductAttributesPage () {
+    const [productAttributes, set_productAttributes] = useState<any[] | null>(null)
+    const [showForm, set_showForm] = useState<{ show: boolean; fields?: any }>({ show: false, fields: undefined })
 
     const [get_productAttributes, { data, called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'cache-and-network' });
     const [deleteProductType, del_details] = useMutation(RECORD_DELETE); // { data, loading, error }
@@ -20,7 +21,8 @@ export default function ProductAttributesPage (props) {
     useEffect(() => {
         if (called) return;
         fetchData()
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called])
 
     const fetchData = async () => {
         let results = await get_productAttributes({})
@@ -36,8 +38,8 @@ export default function ProductAttributesPage (props) {
     }
     const onUpdateCallback = () => fetchData()
 
-    const handleDelete = async ({ _id }) => {
-        let results = await deleteProductType(id)
+    const handleDelete = async ({ _id }: { _id: any }) => {
+        let results = await deleteProductType({ variables: { _id } })
             .then(r => (r?.data?.deleteProductType))
             .catch(error => {
                 console.error(error);
@@ -55,14 +57,14 @@ export default function ProductAttributesPage (props) {
     const columns = [
         { title: 'Title', dataIndex: 'title', key: 'title' },
         { title: 'Code', dataIndex: 'code', key: 'code' },
-        // { title: 'Visible', dataIndex: 'show_in_store', render: (text) => text > 0 ? <Tag color="green">Yes</Tag> : <Tag color="red">No</Tag>, width: 120, align: "center" },
+        // { title: 'Visible', dataIndex: 'show_in_store', render: (text: any) => text > 0 ? <Tag color="green">Yes</Tag> : <Tag color="red">No</Tag>, width: 120, align: "center" as AlignType },
         {
             title: 'Actions',
             dataIndex: 'actions',
             width: 120,
             key: 'actions',
-            align: 'right',
-            render: (text, rec) => {
+            align: 'right' as AlignType,
+            render: (text: any, rec: any) => {
                 return (<Space>
                     <IconButton onClick={() => set_showForm({ show: true, fields: rec })} icon="pen" />
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}>
@@ -82,20 +84,20 @@ export default function ProductAttributesPage (props) {
             //     { label: "Field 3", value: "val-3" },
             // ]}
         >
-            <Button onClick={() => set_showForm({ show: true })} color="orange">Add New Attribute</Button>
+            <Button onClick={() => set_showForm({ show: true, fields: undefined })} color="orange">Add New Attribute</Button>
         </PageHeader>
 
         <Card styles={{ body:{ padding:0 } }}>
             <Table
                 loading={loading}
                 columns={columns}
-                dataSource={productAttributes}
+                dataSource={productAttributes || []}
                 pagination={false}
             />
         </Card>
 
         <ProductAttributesForm
-            onClose={() => set_showForm({ show: false })}
+            onClose={() => set_showForm({ show: false, fields: undefined })}
             open={showForm.show}
             fields={showForm.fields}
             callback={onUpdateCallback}
@@ -105,3 +107,4 @@ export default function ProductAttributesPage (props) {
 
 }
 
+export default ProductAttributesPage;

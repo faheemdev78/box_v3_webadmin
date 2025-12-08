@@ -10,7 +10,6 @@ import { FormField, SubmitButton, rules, composeValidators, submitHandler } from
 import _ from 'lodash'
 import { publishStatus } from '@_/configs';
 
-/* eslint-disable react-hooks/exhaustive-deps */
 export const StatusTag: React.FC<StatusTagProps> = ({ size=14, value, editable, options, onSubmit, type="tag" }) => {
     const [busy, setbusy] = useState(false);
     const [val, setVal] = useState(value);
@@ -65,7 +64,7 @@ export const StatusTag: React.FC<StatusTagProps> = ({ size=14, value, editable, 
                             <form id="statusUpdater" {...submitHandler(formargs)}><Row gutter={[10, 10]}>
                                 <Col span={24}><FormField name="status" options={options || publishStatus} placeholder={`${val}`} type="select" validate={rules.required} /></Col>
                                 <Col span={24}><FormField name="status_notes" label="Notes" type="textarea" /></Col>
-                                <Col span={24} align="center"><SubmitButton loading={submitting} disabled={invalid} color="orange" label="Update" /></Col>
+                                <Col span={24} style={{ textAlign: "center" }}><SubmitButton loading={submitting} disabled={invalid} color="orange" label="Update" /></Col>
                             </Row></form>
                         </>)
 

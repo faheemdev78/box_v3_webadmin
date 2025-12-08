@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import PropTypes from 'prop-types';
 import { Alert, Col, Row, Space, message } from 'antd';
 // import Image from 'next/image';
 import { Image } from '@_/components'
@@ -49,7 +48,7 @@ const LoginForm = () => {
         }
 
         const response = await loginMutation({ variables: input })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.login }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.login }))
             .catch(catchApolloError)
 
         if (response.error){
@@ -95,12 +94,10 @@ const LoginForm = () => {
                     const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                     return (<>
-                        {(router?.query?.error) && <Alert message={router?.query?.error} showIcon type='error' />}
-
                         <form id="login_form" {...submitHandler(formargs)}><Row gutter={[10, 10]}>
                             <Col span={24}><FormField name="username" label="Email / Login ID" type="text" validate={rules.required} /></Col>
                             <Col span={24}><FormField name="pwd" label="Password" type="password" validate={rules.required} /></Col>
-                            <Col span={24} align="center"><SubmitButton loading={submitting} disabled={invalid} color="orange" label="Log-In" /></Col>
+                            <Col span={24} style={{ textAlign: "center" }}><SubmitButton loading={submitting} disabled={invalid} color="orange" label="Log-In" /></Col>
                         </Row></form>
                     </>)
 

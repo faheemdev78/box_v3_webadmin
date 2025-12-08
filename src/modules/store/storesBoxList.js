@@ -5,17 +5,16 @@ import { Alert, Col, message, Popconfirm, Row, Space, Card } from 'antd';
 import { EditOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
 import { Button, IconButton, Loader, PageHeading, StatusTag, Table } from '@_/components';
 import { adminRoot, defaultPageSize } from '@_/configs';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-
-import LIST_DATA from '@_/graphql/stores/stores.graphql'
 import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
+import LIST_DATA from '@_/graphql/stores/stores.graphql'
 
 const { Meta } = Card;
 
 
-export default function StoresBoxList(props) {
+function StoresBoxList(props) {
     const [error, setError] = useState(false)
 
     const [get_stores, { called, loading, data }] = useLazyQuery(LIST_DATA, { fetchPolicy: "no-cache" });
@@ -23,6 +22,7 @@ export default function StoresBoxList(props) {
     useEffect(() => {
         if (called || loading) return;
         fetchData()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props])
 
     const fetchData = async (args = {}) => {
@@ -88,3 +88,4 @@ export default function StoresBoxList(props) {
 
 }
 
+export default StoresBoxList

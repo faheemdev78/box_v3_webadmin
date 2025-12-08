@@ -14,12 +14,12 @@ import EDIT_USER_ROLE from '@_/graphql/user_role/editUserRole.graphql'
 import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 /* eslint-disable react-hooks/exhaustive-deps */
-export default function UserPermissions(props) {
-  const [userRoles, set_userRoles] = useState(null)
-  const [selectedType, set_selectedType] = useState(null)
+function UserPermissions(props:any) {
+  const [userRoles, set_userRoles] = useState<any[] | null>(null)
+  const [selectedType, set_selectedType] = useState<string | null>(null)
   const [error, set_error] = useState(false)
   const [loading, set_loading] = useState(false)
-  const [selected_rights, set_selected_rights] = useState([])
+  const [selected_rights, set_selected_rights] = useState<string[]>([])
   
   const [get_userRoles, roles_details] = useLazyQuery(LIST_ROLES, { fetchPolicy: 'network-only' });
   
@@ -30,10 +30,10 @@ export default function UserPermissions(props) {
     fetchRoles();
   }, [props])
 
-  const fetchRoles = async (selected_account_type) => {
+  const fetchRoles = async (selected_account_type?: string | null) => {
     set_loading(true)
     let resutls = await get_userRoles()
-      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.userRoles }))
+      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.userRoles }))
       .catch(catchApolloError)
       
     set_loading(false)
@@ -43,23 +43,24 @@ export default function UserPermissions(props) {
       return;
     }
 
-    let _selectedType = selectedType || resutls[0]._id
+    let _selectedType = selected_account_type || selectedType || resutls[0]._id
     if (!selectedType) set_selectedType(_selectedType)
 
-    set_selected_rights(resutls.find(o => o._id == _selectedType)?.permissions?.split(",") || [])
+    set_selected_rights(resutls.find((o: any) => o._id == _selectedType)?.permissions?.split(",") || [])
     set_userRoles(resutls);
 
     return false;
   }
 
-  const onUserTypeSelect = (id) => {
-    let thisRole = userRoles.find(o=>o._id==id)
+  const onUserTypeSelect = (id: string) => {
+    if (!userRoles) return;
+    let thisRole = userRoles?.find((o:any)=>o._id==id)
     let permissions = thisRole?.permissions?.split(",") || [];
     set_selected_rights(permissions)
     set_selectedType(id)
   }
 
-  const onCheckboxChange = ({ rec, checked }) => {
+  const onCheckboxChange = ({ rec, checked }: { rec: { key: string; title?: string }; checked: boolean }) => {
     let selection = selected_rights.slice();
 
     if (checked) selection.push(rec.key)
@@ -68,7 +69,7 @@ export default function UserPermissions(props) {
     set_selected_rights(selection)
   }
 
-  const expandedRowRender = (row, index, indent, expanded) => {
+  const expandedRowRender = (row: any, index: number, indent: number, expanded: boolean) => {
     if (!expanded) return null;
 
     let _rules = UserRightsArray[index].rules;
@@ -77,7 +78,7 @@ export default function UserPermissions(props) {
     const inner_columns = [
       {
         title: '', width: '30px',
-        render: (txt, rec, i) => {
+        render: (_txt: any, rec: { heading?: string; key: string; title?: string }, i: number) => {
           if (rec.heading) return <Divider orientation="left">{rec.heading}</Divider>
           return <Checkbox checked={selected_rights.indexOf(rec.key) > -1} onChange={(e) => onCheckboxChange({ checked: e.target.checked, rec })}>{rec.title} <small>({rec.key})</small></Checkbox>
         }, 
@@ -96,9 +97,9 @@ export default function UserPermissions(props) {
     set_error(false);
 
     // re-verify all permissions key, to remove any orphen records
-    let _selected_rights = []; //selected_rights.slice();
-    UserRightsArray.forEach(cat => {
-      cat.rules.forEach(rule => {
+    let _selected_rights: string[] = []; //selected_rights.slice();
+    UserRightsArray.forEach((cat: any) => {
+      cat.rules.forEach((rule: any) => {
         if (selected_rights.includes(rule.key)) _selected_rights.push(rule.key);
       });
     });
@@ -111,7 +112,7 @@ export default function UserPermissions(props) {
         }
       }
     })
-      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.editUserRole }))
+      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.editUserRole }))
       .catch(catchApolloError)
 
 
@@ -122,7 +123,7 @@ export default function UserPermissions(props) {
     }
 
     message.success("Saved")
-    await fetchRoles();
+    await fetchRoles(selectedType);
     set_loading(false);
   }
 
@@ -147,7 +148,7 @@ export default function UserPermissions(props) {
         }]}
         dataSource={UserRightsArray}
         title={() => (<Select onChange={onUserTypeSelect} value={selectedType} style={{ width: '200px' }}>
-            {userRoles && userRoles.map((item, i) => {
+            {(userRoles || []).map((item, i) => {
               return <Select.Option key={i} value={item._id}>{item.title}</Select.Option>
             })}
           </Select>)
@@ -158,7 +159,7 @@ export default function UserPermissions(props) {
       />
     </Page>
 
-    <Space align='top'>
+    <Space align='start'>
       <DevBlock obj={UserRightsArray} title="UserRightsArray" />
       <DevBlock obj={selected_rights} title="selected_rights" />
     </Space>
@@ -166,3 +167,5 @@ export default function UserPermissions(props) {
   </>)
 
 }
+
+export default UserPermissions

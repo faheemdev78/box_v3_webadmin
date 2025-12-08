@@ -66,8 +66,8 @@ interface DriverSettlement {
   }>;
 }
 
-export default function DriverSettlements() {
-  const { store } = usePageProps()
+function DriverSettlements() {
+  const { store } = usePageProps() as unknown as { store: any }
 
   const [drivers, setDrivers] = useState<DriverSettlement[]>([]);
   const [loading, setLoading] = useState(false);
@@ -89,7 +89,7 @@ export default function DriverSettlements() {
       .then(r => checkApolloRequestErrors({
         results: r,
         allowEmpty: true,
-        parseReturn: (rr) => rr?.data?.getDriversWithPendingSettlement
+        parseReturn: (rr:any) => rr?.data?.getDriversWithPendingSettlement
       }))
       .catch(catchApolloError);
 
@@ -125,7 +125,7 @@ export default function DriverSettlements() {
       .then(r => checkApolloRequestErrors({
         results: r,
         allowEmpty: false,
-        parseReturn: (rr) => rr?.data?.settleDriverWallet
+        parseReturn: (rr:any) => rr?.data?.settleDriverWallet
       }))
       .catch(catchApolloError);
 
@@ -149,7 +149,7 @@ export default function DriverSettlements() {
       .then(r => checkApolloRequestErrors({
         results: r,
         allowEmpty: false,
-        parseReturn: (rr) => rr?.data?.releaseDriverOrders
+        parseReturn: (rr:any) => rr?.data?.releaseDriverOrders
       }))
       .catch(catchApolloError);
 
@@ -312,12 +312,9 @@ export default function DriverSettlements() {
     <>
       <PageHeader
         title="Driver Settlements"
-        extra={[
-          <Button key="refresh" onClick={fetchDrivers} loading={loading}>
-            Refresh
-          </Button>
-        ]}
-      />
+      >
+        <Button onClick={fetchDrivers} loading={loading}>Refresh</Button>
+      </PageHeader>
 
       <Page>
         {drivers.length === 0 && !loading ? (
@@ -407,3 +404,5 @@ export default function DriverSettlements() {
     </>
   )
 }
+
+export default DriverSettlements;

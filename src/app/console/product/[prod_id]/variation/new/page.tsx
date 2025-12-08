@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types';
-import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, Icopn, DevBlock, Loader, FileUploader, IconButton, Icon } from '@_/components';
+import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, DevBlock, Loader, FileUploader, IconButton, Icon } from '@_/components';
 import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@_/components/dropdowns';
 import { message, Row, Col, Drawer, Card, Divider, Alert, Space, Steps, Popconfirm, Tag, Input, Flex, Tooltip, theme } from 'antd';
 import { adminRoot, publishStatus, tax_applition_on, tax_formula_types } from '@_/configs';
@@ -22,8 +22,8 @@ import { debounce } from 'lodash'; // Import debounce from lodash
 import RECORD_ADD from '@_/graphql/product/addProductVarient.graphql'
 import RECORD_EDIT from '@_/graphql/product/editProductVarient.graphql'
 
-const filterSlug = (e, onChange) => onChange(string_to_slug(e.target.value));
-const Label = ({ children, style }) => (<FormLabel style={{ marginTop: "7px", ...style }}>{children}</FormLabel>)
+const filterSlug = (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: string) => void) => onChange(string_to_slug(e.target.value));
+const Label = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (<FormLabel isRequired={false} htmlFor="" style={{ marginTop: "7px", ...style }}>{children}</FormLabel>)
 
 const imagePreset = [
     // { type: "image", cat:"main" },
@@ -59,20 +59,20 @@ const defaultValues = {
     price_was: 0,
 }
 
-const SpyWrapper = ({ values, debouncedSetFormValues }) => {
+const SpyWrapper = ({ values, debouncedSetFormValues }: { values: any; debouncedSetFormValues: any }) => {
     useEffect(() => {
         debouncedSetFormValues(values);
-    }, [values])
+    }, [values, debouncedSetFormValues])
 
     return null;
 }
 
-function ProdVariationForm({ initialValues }) {
+function ProdVariationForm({ initialValues }: { initialValues: any }) {
     // console.log(__blue("ProdVariationForm()"), initialValues)
     const [formValues, setFormValues] = useState(initialValues);
-    const [error, setError] = useState(null)
+    const [error, setError] = useState<string | null>(null)
     const [activeStep, set_activeStep] = useState(0)
-    const formRef = useRef();
+    const formRef = useRef<any>(null);
     const router = useRouter()
 
     // Create a debounced function using useRef
@@ -93,7 +93,7 @@ function ProdVariationForm({ initialValues }) {
     const [addProductVarient, add_details] = useMutation(RECORD_ADD); // { data, loading, error }
     const [editProductVarient, edit_details] = useMutation(RECORD_EDIT); // { data, loading, error }
 
-    const onSubmit = async (values) => {
+    const onSubmit = async (values: any) => {
         setError(null)
 
         if (activeStep < stepsArray.length) {
@@ -108,7 +108,7 @@ function ProdVariationForm({ initialValues }) {
             no_barcode: (values.no_barcode === true),
             barcode: values.barcode,
             is_expirable: (values.is_expirable === true),
-            attributes: !values.attributes ? undefined : values.attributes.map(item => ({
+            attributes: !values.attributes ? undefined : values.attributes.map((item: any) => ({
                 _id: item._id,
                 val: item.val,
                 title: item.title,
@@ -139,8 +139,8 @@ function ProdVariationForm({ initialValues }) {
             // ],
         }
 
-        let meta = [];
-        Object.keys(values?.meta).forEach(key => meta.push({ name: key, val: values?.meta && values?.meta[key] }));
+        let meta: any[] = [];
+        Object.keys(values?.meta).forEach((key: string) => meta.push({ name: key, val: values?.meta && values?.meta[key] }));
         Object.assign(input, { meta })
 
         var results;
@@ -164,11 +164,11 @@ function ProdVariationForm({ initialValues }) {
         return false;
     }
 
-    const onSuccess = (results) => router.push(`${adminRoot}/product/${results._id_parent}/view`);
+    const onSuccess = (results: any) => router.push(`${adminRoot}/product/${results._id_parent}/view`);
 
-    const _addProductVarient = async (input) => {
+    const _addProductVarient = async (input: any) => {
         let results = await addProductVarient({ variables: { input } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.addProductVarient }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.addProductVarient }))
             .catch(err => {
                 console.log(__error("Error: "), err)
                 return { error: { message: "Request Error!" } }
@@ -177,9 +177,9 @@ function ProdVariationForm({ initialValues }) {
         return results;
     }
 
-    const _editProductVarient = async (input) => {
+    const _editProductVarient = async (input: any) => {
         let results = await editProductVarient({ variables: { input } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.editProductVarient }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.editProductVarient }))
             .catch(err => {
                 console.log(__error("Error: "), err)
                 return { error: { message: "Request Error!" } }
@@ -253,7 +253,7 @@ function ProdVariationForm({ initialValues }) {
 
                                 <div style={{ padding: "20px 100px 50px 100px" }}><Steps progressDot current={activeStep} items={stepsArray} /></div>
 
-                                <div align="center">
+                                <div style={{ textAlign: "center" }}>
                                     <div style={{ width: "800px", textAlign: "left", padding: "0 0 50px 0" }}>
 
                                         {activeStep == 0 && <div style={{ border: "0px solid red" }}>
@@ -271,27 +271,27 @@ function ProdVariationForm({ initialValues }) {
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Product Identity</Divider>
 
                                             <Row gutter={[10, 20]} align="top">
-                                                <Col span={8} align="right"><Label>Product Name</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Product Name</Label></Col>
                                                 <Col span={16}><FormField type="text" name="title" validate={rules.required} /></Col>
-                                                <Col span={8} align="right"><Label>Slug</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Slug</Label></Col>
                                                 <Col span={16}><FormField prefix={`/`} type="text" name="slug" onChange={filterSlug} validate={rules.required} /></Col>
 
-                                                <Col span={8} align="right"><Label>Brand Name</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Brand Name</Label></Col>
                                                 <Col span={16}>
                                                     <BrandsDD name="brand._id" preload disabled={values.no_brand} allowClear required={!values.no_brand}
-                                                        validate={(value, allValues) => !allValues.no_brand ? rules.required(value) : undefined}
-                                                        onChange={(val1, val2) => form.mutators.onBrandChange(val2)}
+                                                        validate={(value: any, allValues: any) => !allValues.no_brand ? rules.required(value) : undefined}
+                                                        onChange={(val1: any, val2: any) => form.mutators.onBrandChange(val2)}
                                                     />
-                                                    <FormField onChange={(val) => {
+                                                    <FormField onChange={(val: any) => {
                                                         if (val) form.mutators.onBrandChange(false)
                                                     }}
                                                         wrapperStyle={{ marginTop: "5px" }} type="checkbox" name="no_brand">This product does not have a brand name</FormField>
                                                 </Col>
 
-                                                <Col span={8} align="right"><Label>Barcode</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Barcode</Label></Col>
                                                 <Col span={16}>
                                                     <FormField type="text" name="barcode" disabled={values.no_barcode} required={!values.no_barcode}
-                                                        validate={(value, allValues) => !allValues.no_barcode ? rules.required(value) : undefined}
+                                                        validate={(value: any, allValues: any) => !allValues.no_barcode ? rules.required(value) : undefined}
                                                     />
                                                     <FormField wrapperStyle={{ marginTop: "5px" }} type="checkbox" name="no_barcode">{escapeText("I don't have a product barcode")}</FormField>
                                                 </Col>
@@ -303,13 +303,13 @@ function ProdVariationForm({ initialValues }) {
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Vital Info</Divider>
 
                                             <Row gutter={[10, 20]} align="top">
-                                                <Col span={8} align="right"><Label style={{ margin: 0 }}>Is product expirable?</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label style={{ margin: 0 }}>Is product expirable?</Label></Col>
                                                 <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_expirable" /></Col>
 
-                                                <Col span={8} align="right"><Label>Country/Regin or Origin</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Country/Regin or Origin</Label></Col>
                                                 <Col span={16}><FormField type="text" name="origon" validate={rules.required} /></Col>
 
-                                                <Col span={8} align="right"><Label style={{ marginTop:"22px" }}>Attributes</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop:"22px" }}>Attributes</Label></Col>
                                                 <Col span={16}>
                                                     <FieldArray name="attributes">
                                                         {({ fields }) => {
@@ -320,31 +320,31 @@ function ProdVariationForm({ initialValues }) {
 
                                                                         return (<Space key={index}>
                                                                             <ProdAttributeDD label="Attributes" name={`${name}._id`} preload validate={rules.required} wrapperStyle={{ minWidth: "200px" }}
-                                                                                onChange={(val, raw) => {
+                                                                                onChange={(val: any, raw: any) => {
                                                                                     form.mutators.onAttributeTypeChange(raw, values.attributes, index)
                                                                                 }}
                                                                             />
                                                                             <FormField label="Value" type="text" name={`${name}.val`} validate={rules.required} />
 
                                                                             {/* <div style={{ paddingTop:"15px" }}><DeleteButton onClick={() => fields.remove(index)} size="small" /></div> */}
-                                                                            <div style={{ paddingTop:"15px" }}><IconButton onClick={() => fields.remove(index)} type="danger" icon="trash-alt" /></div>
+                                                                            <div style={{ paddingTop:"15px" }}><IconButton onClick={() => fields.remove(index)} danger icon="trash-alt" /></div>
                                                                         </Space>)
 
                                                                     })}
                                                                     
-                                                                    <div align="center" style={{ padding:"10px" }}><Button type="dashed" onClick={() => fields.push({})} icon={<Icon icon="plus" />}>Add Attribute</Button></div>
+                                                                    <div style={{ textAlign: "center", padding:"10px" }}><Button type="dashed" onClick={() => fields.push({})} icon={<Icon icon="plus" />}>Add Attribute</Button></div>
                                                                 </Space>
                                                             </>)
                                                         }}
                                                     </FieldArray>
                                                 </Col>
 
-                                                <Col span={8} align="right"><Label style={{ margin: 0 }}>Is this item temperature sensitive?</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label style={{ margin: 0 }}>Is this item temperature sensitive?</Label></Col>
                                                 <Col span={16}>
                                                     <FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_temp_sensitive" />
                                                 </Col>
 
-                                                <Col span={8} align="right"><Label>Product Type</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Product Type</Label></Col>
                                                 <Col span={16}><ProdTypeDD name="type._id" validate={rules.required} preload onChange={form.mutators.onTypeChange} /></Col>
                                             </Row>
                                         </div>}
@@ -352,33 +352,33 @@ function ProdVariationForm({ initialValues }) {
                                         {activeStep == 3 && <div style={{ border: "0px solid red" }}>
                                             <Row gutter={[10, 20]} align="top">
                                                 <Col span={24}><Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Limits</Divider></Col>
-                                                <Col span={6} align="right"><Label>Cart limit</Label></Col>
+                                                <Col span={6} style={{ textAlign: "right" }}><Label>Cart limit</Label></Col>
                                                 <Col span={6}><FormField type="number" name="cart_limit" validate={rules.required} /></Col>
                                                 
-                                                <Col span={6} align="right"><Label>Cart limit</Label></Col>
+                                                <Col span={6} style={{ textAlign: "right" }}><Label>Cart limit</Label></Col>
                                                 <Col span={6}><Space>
                                                     <FormField prefix={<Label style={{margin:0}}>Min</Label>} type="number" name="stock_level.min" validate={rules.required} />
                                                     <FormField prefix={<Label style={{ margin: 0 }}>Max</Label>} type="number" name="stock_level.max" validate={rules.required} />
                                                 </Space></Col>
 
                                                 <Col span={24}><Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Cost</Divider></Col>
-                                                <Col span={8} align="center"><FormField label="Cost" direction="horizontal" type="number" name="cost" validate={rules.required} /></Col>
+                                                <Col span={8} style={{ textAlign: "center" }}><FormField label="Cost" direction="horizontal" type="number" name="cost" validate={rules.required} /></Col>
 
                                                 <Col span={24}><Divider>Tax Settings</Divider></Col>
-                                                <Col span={8} align="right"><Label style={{ marginTop: "0px" }}>This product is taxable</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop: "0px" }}>This product is taxable</Label></Col>
                                                 <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="tax.taxable" /></Col>
 
                                                 {values?.tax?.taxable && <>
-                                                    <Col span={8} align="right" />
+                                                    <Col span={8} style={{ textAlign: "right" }} />
                                                     <Col span={10}><FormField type="text" label="HS Code" name="tax.hs_code" validate={rules.required} /></Col>
                                                     <Col span={6}><FormField options={tax_applition_on} type="select" label="Tax amount to be applied at" name="tax.applied_at" validate={rules.required} /></Col>
                                                 </>}
 
                                                 {values?.tax?.taxable && <>
-                                                    <Col span={8} align="right" />
+                                                    <Col span={8} style={{ textAlign: "right" }} />
                                                     <Col span={16}><Space size={5}>
-                                                        <FormField wrapperStyle={{ width: '80px' }} options={tax_formula_types} type="select" label="Tax Formula" compact name="tax.formula" onChange={(e) => form.mutators.calculateTotalTax({ formula: e, amount: values?.tax?.amount, price: values?.price })} />
-                                                        <FormField wrapperStyle={{ width: '80px' }} type="number" label="Amount" name="tax.amount" compact min={0} onChange={(e) => form.mutators.calculateTotalTax({ formula: values?.tax?.formula, amount: e, price: values?.price })} />
+                                                        <FormField wrapperStyle={{ width: '80px' }} options={tax_formula_types} type="select" label="Tax Formula" compact name="tax.formula" onChange={(e: any) => form.mutators.calculateTotalTax({ formula: e, amount: values?.tax?.amount, price: values?.price })} />
+                                                        <FormField wrapperStyle={{ width: '80px' }} type="number" label="Amount" name="tax.amount" compact min={0} onChange={(e: any) => form.mutators.calculateTotalTax({ formula: values?.tax?.formula, amount: e, price: values?.price })} />
                                                         {/* <FormField prefix={<span>= </span>} wrapperStyle={{ width: '80px', marginLeft: "10px" }} type="text" name="suffix_tax_total" disabled label="&nbsp;" /> */}
                                                     </Space></Col>
                                                 </>}
@@ -390,7 +390,7 @@ function ProdVariationForm({ initialValues }) {
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Product Details</Divider>
 
                                             <Row gutter={[10, 20]} align="top">
-                                                <Col span={8} align="right"><Label>Product description</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Product description</Label></Col>
                                                 <Col span={16}>
                                                     <FieldArray name="description">
                                                         {({ fields }) => {
@@ -401,13 +401,13 @@ function ProdVariationForm({ initialValues }) {
                                                                     return (<div key={index} style={{ marginBottom: "10px" }}>
                                                                         <Row>
                                                                             <Col flex="auto"><FormField type="textarea" rows={2} name={name} validate={rules.required} /></Col>
-                                                                            <Col><IconButton onClick={() => fields.remove(index)} type="danger" icon="trash-alt" /></Col>
+                                                                            <Col><IconButton onClick={() => fields.remove(index)} danger icon="trash-alt" /></Col>
                                                                         </Row>
                                                                     </div>)
 
                                                                 })}
                                                                 {/* {values?.description?.length > 0 ? <span className='a' onClick={() => fields.push("")}>Add more</span> : <Button onClick={() => fields.push("")}>Add Description</Button>} */}
-                                                                <div align="center" style={{ padding: "10px" }}>
+                                                                    <div style={{ textAlign: "center", padding: "10px" }}>
                                                                     <Button type="dashed" onClick={() => fields.push("")} icon={<Icon icon="plus" />}>Add {values?.description?.length > 0 ? "More" : "Description"}</Button>
                                                                 </div>
                                                             </>)
@@ -415,7 +415,7 @@ function ProdVariationForm({ initialValues }) {
                                                     </FieldArray>
                                                 </Col>
 
-                                                <Col span={8} align="right"><Label>Bullit points</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Bullit points</Label></Col>
                                                 <Col span={16}>
                                                     <FieldArray name="bullits">
                                                         {({ fields }) => {
@@ -426,13 +426,13 @@ function ProdVariationForm({ initialValues }) {
                                                                     return (<div key={index} style={{ marginBottom: "10px" }}>
                                                                         <Row>
                                                                             <Col flex="auto"><FormField type="text" name={name} validate={rules.required} /></Col>
-                                                                            <Col><IconButton onClick={() => fields.remove(index)} type="danger" icon="trash-alt" /></Col>
+                                                                            <Col><IconButton onClick={() => fields.remove(index)} danger icon="trash-alt" /></Col>
                                                                         </Row>
                                                                     </div>)
 
                                                                 })}
                                                                 {/* {values?.bullits?.length > 0 ? <span className='a' onClick={() => fields.push("")}>Add more</span> : <Button onClick={() => fields.push("")}>Add Bullit</Button>} */}
-                                                                <div align="center" style={{ padding: "10px" }}>
+                                                                    <div style={{ textAlign: "center", padding: "10px" }}>
                                                                     <Button type="dashed" onClick={() => fields.push("")} icon={<Icon icon="plus" />}>Add {values?.bullits?.length > 0 ? "More" : "Bullit"}</Button>
                                                                 </div>
                                                             </>)
@@ -446,7 +446,7 @@ function ProdVariationForm({ initialValues }) {
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Shopping</Divider>
 
                                             <Row gutter={[10, 20]} align="top">
-                                                <Col span={8} align="right"><Label style={{ marginTop: 0 }}>Is this unfit for dispatch box?</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop: 0 }}>Is this unfit for dispatch box?</Label></Col>
                                                 <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="fit_for_dispatch" /></Col>
                                             </Row>
                                         </div>}
@@ -455,18 +455,18 @@ function ProdVariationForm({ initialValues }) {
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Keywords</Divider>
 
                                             <Row gutter={[10, 20]} align="top">
-                                                <Col span={8} align="right"><Label style={{ marginTop: "3px" }}>Tags for local search</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop: "3px" }}>Tags for local search</Label></Col>
                                                 <Col span={16}><TagsManager name="tags" /></Col>
 
                                                 <Col span={24}><Divider>SEO Data</Divider></Col>
 
-                                                <Col span={8} align="right"><Label>Keywords</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Keywords</Label></Col>
                                                 <Col span={16}><FormField type="text" name="meta.keywords" /></Col>
 
-                                                <Col span={8} align="right"><Label>Title</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Title</Label></Col>
                                                 <Col span={16}><FormField type="text" name="meta.title" /></Col>
 
-                                                <Col span={8} align="right"><Label>Description</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Description</Label></Col>
                                                 <Col span={16}><FormField type="text" name="meta.description" /></Col>
                                             </Row>
                                         </div>}
@@ -475,7 +475,7 @@ function ProdVariationForm({ initialValues }) {
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Status</Divider>
 
                                             <Row gutter={[10, 20]} align="top">
-                                                <Col span={8} align="right"><Label>Product Status</Label></Col>
+                                                <Col span={8} style={{ textAlign: "right" }}><Label>Product Status</Label></Col>
                                                 <Col span={16}><FormField options={publishStatus} type="select" name="status" validate={rules.required} /></Col>
                                             </Row>
                                         </div>}
@@ -484,9 +484,9 @@ function ProdVariationForm({ initialValues }) {
                                 </div>
 
 
-                                <div style={{ borderTop: "1px solid #DDD", position: "absolute", bottom: 0, left: 0, width: "calc(100vw - 15px)", position: "fixed", padding: "10px", backgroundColor: "#EEEE" }}>
+                                <div style={{ borderTop: "1px solid #DDD", bottom: 0, left: 0, width: "calc(100vw - 15px)", position: "fixed", padding: "10px", backgroundColor: "#EEEE" }}>
                                     <Row gutter={[10, 10]}>
-                                        <Col span={12} align="left">
+                                        <Col span={12} style={{ textAlign: "left" }}>
                                             <Popconfirm
                                                 title="Exit product"
                                                 description="Are you sure to exit without saving your progress?"
@@ -498,7 +498,7 @@ function ProdVariationForm({ initialValues }) {
                                                 <Button color="red">Exit</Button>
                                             </Popconfirm>
                                         </Col>
-                                        <Col span={12} align="right">
+                                        <Col span={12} style={{ textAlign: "right" }}>
                                             <Space size={50}>
                                                 <Button onClick={() => set_activeStep(activeStep - 1)} disabled={activeStep == 0}>Back</Button>
                                                 <SubmitButton label={activeStep == 7 ? "Save" : "Next"} loading={submitting} />
@@ -523,8 +523,8 @@ function ProdVariationForm({ initialValues }) {
     </>)
 }
 
-export default function ProdVariationFormWrapper(props){
-    return (<ProductWrapper {...props} render={({ product }) => {
+function ProdVariationFormWrapper(props:any){
+    return (<ProductWrapper {...props} render={({ product }: { product: any }) => {
         let initialValues = {
             ...product,
             _id_parent: product._id,
@@ -541,8 +541,8 @@ export default function ProdVariationFormWrapper(props){
         }
 
         let meta = product.meta ? product.meta.slice() : [];
-        let _meta = {};
-        meta.forEach(key => {
+        let _meta: Record<string, any> = {};
+        meta.forEach((key: any) => {
             Object.assign(_meta, {
                 [key.name]: key.val
             })
@@ -552,3 +552,5 @@ export default function ProdVariationFormWrapper(props){
         return (<ProdVariationForm initialValues={initialValues} {...props} />)
     }} />)
 }
+
+export default ProdVariationFormWrapper;

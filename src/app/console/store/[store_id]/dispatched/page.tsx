@@ -20,27 +20,28 @@ const defaultFilter = {};
 
 
 function DispatchedList(props:any) {
-    const { store } = usePageProps()
+    const { store } = usePageProps() as unknown as { store: any }
   
     const [state, setState] = useState({
         pagination: defaultPagination,
         pageView: "list",
         dataSource: null,
         filter: { ...defaultFilter },
+        others: {},
         _id_store: store._id,
     })
 
     const [getDispatchedQueue, { called, loading }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'network-only' });
   
-    const fetchData = async ({ filter, pagination = {} }: { 
-        filter:any, 
-        pagination:any
-    }) => {
+    const fetchData = async ({ filter = {}, pagination = {} }: { 
+        filter?: any, 
+        pagination?: { pageSize?: number; current?: number }
+    } = {}) => {
       const variables = {
           limit: pagination?.pageSize || state.pagination.pageSize,
           page: pagination?.current || state.pagination.current,
           filter: filter || state.filter || {},
-          others: state.others || {},
+          others: (state as any).others || {},
           _id_store: store._id,
       }
 
@@ -51,7 +52,7 @@ function DispatchedList(props:any) {
               others: JSON.stringify(variables.others || {})
           }
         })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.getDispatchedQueue }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.getDispatchedQueue }))
           .catch(catchApolloError)
 
         if (resutls && resutls.error) {
@@ -68,7 +69,7 @@ function DispatchedList(props:any) {
                 pageSize: resutls.pagination.limit,
             },
             filter: variables.filter,
-            dataSource: resutls?.edges,
+            dataSource: resutls?.edges || [],
         })
 
     }
@@ -76,7 +77,8 @@ function DispatchedList(props:any) {
     useEffect(() => {
         if (called || loading) return
         fetchData({})
-    }, [props])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called, loading])
     
 
     return (<>

@@ -8,17 +8,17 @@ import { redirect } from "next/navigation";
 
 
 
-export default async function Logout() {
+function Logout() {
 
     // clear cookies
-    await clearSessionToken()
+    clearSessionToken()
     // clear redux
     cleanStore();
 
-    await sleep(100)
+    sleep(100)
     redirect('/login')
-    
+
     return <Loader loading={true} />;
 }
 
-
+export default Logout

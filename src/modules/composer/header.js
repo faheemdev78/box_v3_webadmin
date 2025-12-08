@@ -6,7 +6,7 @@ import { signOut } from 'next-auth/react'
 
 
 
-export default function ComposerHeader({ title = null, onBackPress, right }) {
+function ComposerHeader({ title = null, onBackPress, right }) {
   return (<>
       <div style={{ backgroundColor: "#2D3E51", height: "45px", overflow: "hidden", display: "block", padding:"5px" }}>
           <Row align="middle">
@@ -24,3 +24,5 @@ export default function ComposerHeader({ title = null, onBackPress, right }) {
 
   </>)
 }
+
+export default ComposerHeader

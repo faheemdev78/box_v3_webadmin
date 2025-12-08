@@ -73,7 +73,7 @@ export const renderStatus = (value: any) => {
  */
 export const renderImage = (value: any) => {
   if (!value) return '--';
-  return <Image src={value} width={50} height={50} style={{ objectFit: 'cover' }} />;
+  return <Image src={value} width={50} height={50} style={{ objectFit: 'cover' }} alt="Image" />;
 };
 
 /**
@@ -87,16 +87,20 @@ export const renderAvatar = (value: any, record: any) => {
 /**
  * Render a truncated text with tooltip
  */
-export const renderTruncatedText = (maxLength: number) => (value: any) => {
-  if (!value) return '--';
-  const text = String(value);
-  if (text.length <= maxLength) return text;
+export const renderTruncatedText = (maxLength: number) => {
+  const TruncatedText = (value: any) => {
+    if (!value) return '--';
+    const text = String(value);
+    if (text.length <= maxLength) return text;
 
-  return (
-    <Tooltip title={text}>
-      <span>{text.substring(0, maxLength)}...</span>
-    </Tooltip>
-  );
+    return (
+      <Tooltip title={text}>
+        <span>{text.substring(0, maxLength)}...</span>
+      </Tooltip>
+    );
+  };
+  TruncatedText.displayName = 'TruncatedText';
+  return TruncatedText;
 };
 
 /**
@@ -125,7 +129,7 @@ export const productRenderers = {
   'image': (value: any, record: any) => {
     const imageUrl = value || record.images?.[0] || record.thumbnail;
     if (!imageUrl) return '--';
-    return <Image src={imageUrl} width={50} height={50} style={{ objectFit: 'cover', borderRadius: 4 }} />;
+    return <Image src={imageUrl} width={50} height={50} style={{ objectFit: 'cover', borderRadius: 4 }} alt="Product" />;
   },
 
   // Product status
@@ -291,7 +295,7 @@ export const productColumnConfigs = {
     render: (value: any, record: any) => {
       const imageUrl = value || record.images?.[0] || record.thumbnail;
       if (!imageUrl) return '--';
-      return <Image src={imageUrl} width={50} height={50} style={{ objectFit: 'cover', borderRadius: 4 }} />;
+      return <Image src={imageUrl} width={50} height={50} style={{ objectFit: 'cover', borderRadius: 4 }} alt="Product" />;
     }
   },
   'title': {

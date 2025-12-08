@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { __error } from '@_/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client';
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
-import { FieldArray } from 'react-final-form-arrays';
+// import { FieldArray } from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@_/components/form';
 import { useRouter } from 'next/navigation';
@@ -18,18 +18,18 @@ import { PageHeader } from '@_/template';
 import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import RECORD_ADD from '@_/graphql/users/addStoreStaff.graphql'
-import EDIT_ADD from '@_/graphql/users/editStoreStaff.graphql'
+// import EDIT_ADD from '@_/graphql/users/editStoreStaff.graphql'
 
 
-export default function StaffForm () {
-    const { store } = usePageProps()
+function StaffForm () {
+    const { store } = usePageProps() as unknown as { store: any }
 
-    const [error, setError] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const router = useRouter()
 
     const [addStoreStaff, add_details] = useMutation(RECORD_ADD); // { data, loading, error }
 
-    const onSubmit = async (values) => {
+    const onSubmit = async (values: any) => {
         setError(null)
 
         let input = {
@@ -50,7 +50,7 @@ export default function StaffForm () {
         else if (values.password && (values.password == values.confirm_pwd)) Object.assign(input, { password: values.password });
 
         const resutls = await addStoreStaff({ variables: { input } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.addStoreStaff }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.addStoreStaff }))
             .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
@@ -88,7 +88,7 @@ export default function StaffForm () {
                                     <AccTypesDD
                                         // resultParser={(options) => options.filter(o=>!(o.acc_type=='admin'))}
                                         filter={{ acc_type: { $ne: "admin" } }}
-                                        onChange={(___, raw) => form.mutators.onTypeChanged(raw)}
+                                        onChange={(___: any, raw: any) => form.mutators.onTypeChanged(raw)}
                                         label="Account Type" preload name="acc_type._id" validate={rules.required}
                                     />
                                     <FormField type="select" name="status" label="Status" className={values.status == 'active' ? "active" : "inactive"} options={userStatus} validate={rules.required} />
@@ -108,7 +108,7 @@ export default function StaffForm () {
                                     </Space></div>
 
                                     <FormField type="textarea" name="note" label="Note" placeholder="Notes" />
-                                    <div style={{ padding: "20px" }} align="right"><SubmitButton loading={submitting} label={'Save'} /></div>
+                                    <div style={{ padding: "20px", textAlign: "right" }}><SubmitButton loading={submitting} label={'Save'} /></div>
                                 </>}
                             </Space>
 
@@ -125,7 +125,8 @@ export default function StaffForm () {
     </>)
 }
 
+export default StaffForm;
+
 // export default function Wrapper(props){
 //     return (<StoreWrapper {...props} render={({ store }) => (<StaffForm store={store} {...props} />)} />)
 // }
-

@@ -1,6 +1,6 @@
 'use client'
 import React, { Component, useEffect, useRef, useState } from 'react'
-import PropTypes from 'prop-types';
+// import PropTypes from 'prop-types';
 import { Drawer, message, Row, Col, Divider, Alert, Space, Card } from 'antd';
 import { Button, DevBlock, FileUploader, GMap, Loader } from '@_/components';
 import { catchApolloError, checkApolloRequestErrors, string_to_slug } from '@_/lib/utill';
@@ -214,7 +214,7 @@ function FormComp({ onSuccess, initialValues, store, ...props }) {
     </>)
 }
 
-export default function GeoZoneForm({ zone_id, store, ...props }) {
+function GeoZoneForm({ zone_id, store, ...props }) {
     const [initialValues, set_initialValues] = useState(null)
     const [error, setError] = useState(null)
     const router = useRouter()
@@ -226,6 +226,7 @@ export default function GeoZoneForm({ zone_id, store, ...props }) {
     useEffect(() => {
         if (called || loading || !zone_id) return;
         fetchZone();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [zone_id])
 
     const fetchZone = async () => {
@@ -266,10 +267,11 @@ export default function GeoZoneForm({ zone_id, store, ...props }) {
         <FormComp onSuccess={onSuccess} initialValues={initialValues} store={store} {...props} />
     </>)
 }
-GeoZoneForm.propTypes = {
-    zone_id: PropTypes.string,
-    store: PropTypes.object.isRequired,
-    onCancel: PropTypes.func.isRequired,
-    staticZones: PropTypes.array,
-}
+export default GeoZoneForm
+// GeoZoneForm.propTypes = {
+//     zone_id: PropTypes.string,
+//     store: PropTypes.object.isRequired,
+//     onCancel: PropTypes.func.isRequired,
+//     staticZones: PropTypes.array,
+// }
 

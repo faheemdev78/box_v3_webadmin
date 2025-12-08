@@ -17,13 +17,13 @@ import ADD_DATA from '@_/graphql/app_pages/addAppPage.graphql'
 
 
 
-export default function AppPageCreatorForm({ onClose }) {
-    const [data, setData] = useState({})
+function AppPageCreatorForm({ onClose }: { onClose:Function }) {
+    const [data, setData] = useState<{ page_type?: any }>({})
     const router = useRouter()
 
     const [addAppPage, add_details] = useMutation(ADD_DATA); // { data, loading, error }
 
-    const onPageTypeUpdate = (page_type) => setData({ ...data, page_type });
+    const onPageTypeUpdate = (page_type: any) => setData({ ...data, page_type });
 
     const onPageSettingsUpdate = async (values:any) => {
         const input = {
@@ -96,7 +96,9 @@ export default function AppPageCreatorForm({ onClose }) {
     }
 
 
-    if (!data.page_type) return <PageTypeSelection data={data} onUpdate={onPageTypeUpdate} />
+    if (!data.page_type) return <PageTypeSelection onUpdate={onPageTypeUpdate} />
 
     return <PageSettings initialValues={data} onUpdate={onPageSettingsUpdate} />
 }
+
+export default AppPageCreatorForm

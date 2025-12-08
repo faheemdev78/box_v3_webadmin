@@ -10,8 +10,10 @@ import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities';
 import { Button, DeleteButton, IconButton } from './button';
 
-interface MyTableProps extends TableProps {
+interface MyTableProps extends TableProps<any> {
     tooltip?: string | object,
+    isSortable?: boolean;
+    onSortSave?: (order: { _id: string; priority_order: number }[]) => Promise<any>;
 }
 
 export const Table: React.FC<MyTableProps> = (_props) => {
@@ -19,11 +21,11 @@ export const Table: React.FC<MyTableProps> = (_props) => {
     delete props.isSortable;
     delete props.onSortSave;
 
-    // const [dataSource, setDataSource] = useState(props?.dataSource?.map((o, i) => ({ key: (o._id || i+1), ...o })));
-    const [dataSource, setDataSource] = useState(null);
+    const [dataSource, setDataSource] = useState<any[] | null>(null);
 
     useEffect(() => {
         if (!props?.dataSource) return;
+        if (!Array.isArray(props.dataSource)) return;
         let _dataSource = props?.dataSource?.map((o, i) => ({ key: (o._id || i + 1), ...o }));
         setDataSource(_dataSource)
 
@@ -35,14 +37,14 @@ export const Table: React.FC<MyTableProps> = (_props) => {
     
     if (_props.isSortable){
         // let columns = [{ key: 'sort' }, { title: 'Name', dataIndex: 'name' }, { title: 'Age', dataIndex: 'age' }, { title: 'Address', dataIndex: 'address' } ];
-        let columns = [{ key: 'sort', width:50 } ];
-        columns = columns.concat(props.columns);
+        const columns = [{ key: 'sort', width:50 } ];
+        const sortableColumns = props.columns ? columns.concat(props.columns as any) : columns;
 
 
-        const Row = ({ children, ...props }) => {
-            const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging, } = useSortable({ id: props['data-row-key'] });
+        const Row = ({ children, ...rowProps }: { children: React.ReactNode; [key: string]: any }) => {
+            const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging, } = useSortable({ id: rowProps['data-row-key'] });
             const style = {
-                ...props.style,
+                ...rowProps.style,
                 transform: CSS.Transform.toString(
                     transform && { ...transform, scaleY: 1 },
                 ),
@@ -51,12 +53,13 @@ export const Table: React.FC<MyTableProps> = (_props) => {
             };
 
             return (
-                <tr {...props} ref={setNodeRef} style={style} {...attributes}>
+                <tr {...rowProps} ref={setNodeRef} style={style} {...attributes}>
                     {React.Children.map(children, (child) => {
+                        if (!React.isValidElement(child)) return child;
                         if (child.key === 'sort') {
-                            return React.cloneElement(child, {
+                            return React.cloneElement(child as React.ReactElement, {
                                 children: (<MenuOutlined ref={setActivatorNodeRef} style={{ touchAction: 'none', cursor: 'move', }} {...listeners} />),
-                            });
+                            } as any);
                         }
                         return child;
                     })}
@@ -64,11 +67,13 @@ export const Table: React.FC<MyTableProps> = (_props) => {
             );
         };
 
-        const onDragEnd = ({ active, over }) => {
+        const onDragEnd = ({ active, over }: { active: any; over: any }) => {
             if (active.id !== over?.id) {
                 setDataSource((previous) => {
+                    if (!previous || !over) return previous;
                     const activeIndex = previous.findIndex((i) => i.key === active.id);
                     const overIndex = previous.findIndex((i) => i.key === over?.id);
+                    if (activeIndex < 0 || overIndex < 0) return previous;
                     set_dirty(true)
                     return arrayMove(previous, activeIndex, overIndex);
                 });
@@ -76,6 +81,7 @@ export const Table: React.FC<MyTableProps> = (_props) => {
         };
 
         const saveSortOrder = async() => {
+            if (!dataSource) return;
             let newOrder = dataSource.map((o, i) => ({ _id: o._id, priority_order: (i+1) }))
 
             if (_props.onSortSave) {
@@ -90,7 +96,7 @@ export const Table: React.FC<MyTableProps> = (_props) => {
         return (<>
             <DndContext modifiers={[restrictToVerticalAxis]} onDragEnd={onDragEnd}>
                 <SortableContext
-                    items={dataSource.map((i) => i.key)}
+                    items={dataSource?.map((i) => i.key) || []}
                     strategy={verticalListSortingStrategy}
                 >
                     <AntTable
@@ -99,13 +105,13 @@ export const Table: React.FC<MyTableProps> = (_props) => {
                         components={{ body: { row: Row, } }}
                         // rowKey="key"
                         // rowKey={(r, i) => (r._id || i)}
-                        columns={columns}
-                        dataSource={dataSource}
+                        columns={sortableColumns}
+                        dataSource={dataSource || []}
                     />
                 </SortableContext>
             </DndContext>
 
-            {dirty && <div style={{ paddingTop:"20px"}} align="right"><Button onClick={saveSortOrder} color="orange">Save sort order</Button></div>}
+            {dirty && <div style={{ paddingTop:"20px", textAlign: "right" }}><Button onClick={saveSortOrder} color="orange">Save sort order</Button></div>}
         </>)
     }
 
@@ -113,13 +119,13 @@ export const Table: React.FC<MyTableProps> = (_props) => {
         <AntTable
             rowClassName={(record, index) => (`table_row ${index % 2 ? "even_row" : "odd_row"}`)}
             {...props}
-            dataSource={dataSource}
+            dataSource={dataSource || []}
             // rowKey={(r, i) => (r._id || i)}
         />
     </>)
 }
 
-export const CellTitle = ({ children, menu }) => {
+export const CellTitle = ({ children, menu }: { children: React.ReactNode; menu?: any }) => {
     return (<>
         {children}
         {menu && Object.keys(menu).length > 0 && <Space className={`hover_menu`}>

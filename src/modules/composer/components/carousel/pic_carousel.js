@@ -21,10 +21,13 @@ function PicCarouselProps({ item: { name, data, values } }) {
 }
 
 
-export default { 
-    type: "pic_carousel_1", 
-    label: "Carousel", 
+const PicCarouselComponent = {
+    type: "pic_carousel_1",
+    label: "Carousel",
     desc: "carousel",
-    renderer: PicCarousel, 
-    propsRender: PicCarouselProps
-}
+    renderer: PicCarousel,
+    propsRender: PicCarouselProps,
+    displayName: "PicCarouselComponent"
+};
+
+export default PicCarouselComponent;

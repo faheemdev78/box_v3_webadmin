@@ -21,10 +21,13 @@ function Carousel_r1_c3_1Props({ item: { name, data, values } }) {
 }
 
 
-export default { 
-    type: "carousel_r1_c3_1", 
-    label: "R1 / C3", 
+const Carousel_r1_c3_1Component = {
+    type: "carousel_r1_c3_1",
+    label: "R1 / C3",
     desc: "R1 / C3",
-    renderer: Carousel_r1_c3_1, 
-    propsRender: Carousel_r1_c3_1Props
-}
+    renderer: Carousel_r1_c3_1,
+    propsRender: Carousel_r1_c3_1Props,
+    displayName: "Carousel_r1_c3_1Component"
+};
+
+export default Carousel_r1_c3_1Component;

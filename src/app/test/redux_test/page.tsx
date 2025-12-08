@@ -11,13 +11,23 @@ import { getSessionToken } from '@_/lib/auth';
 import { Space } from 'antd';
 
 
-export default function ReduxTest() {
+function ReduxTest() {
     const count = useSelector((state: RootState) => state.counter.value);
     const session = useSelector((state: RootState) => state.session);
     const dispatch = useDispatch();
     const token = getSessionToken();
 
-    const login = () => dispatch(setSession({ user: { _id: '123' }, token: 'abc123' }));
+    const login = () => dispatch(setSession({ 
+        user: { 
+            _id: '123',
+            name: 'Test User',
+            email: 'test@example.com',
+            acc_type: 'tester',
+            permissions: 'all',
+            store: null,
+        }, 
+        token: 'abc123' 
+    }));
     const logout = () => {
         dispatch(clearSession());
     }
@@ -39,7 +49,7 @@ export default function ReduxTest() {
             <button onClick={logout}>Log-out</button>
             <button onClick={() => cleanStore()}>Clear Store</button>
         </Space>
-        <pre>{JSON.stringify(session, 0, 2)}</pre>
+        <pre>{JSON.stringify(session, null, 2)}</pre>
 
         <hr />
         <h2>Cookies</h2>
@@ -47,3 +57,5 @@ export default function ReduxTest() {
 
     </div>)
 }
+
+export default ReduxTest

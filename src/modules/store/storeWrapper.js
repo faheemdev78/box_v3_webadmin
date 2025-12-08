@@ -3,17 +3,17 @@ import React, { useState, useEffect } from 'react'
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { Alert, Col, message, Row, Space } from 'antd';
 import { Loader, StatusTag, usePageProps } from '@_/components';
-import { adminRoot, publishStatus } from '@_/configs';
-import Link from 'next/link';
+// import { adminRoot, publishStatus } from '@_/configs';
+// import Link from 'next/link';
 import { __error } from '@_/lib/consoleHelper';
 import { useParams } from 'next/navigation';
-import { PageBar, PageHeader } from '@_/template';
+// import { PageBar, PageHeader } from '@_/template';
 import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
 import GET_STORE from '@_/graphql/stores/store.graphql';
 import UPDATE_STATUS from '@_/graphql/stores/editStore.graphql'
 
-export default function StoreWrapper({ render, ...props }) {
+function StoreWrapper({ render, ...props }) {
     const { store_id } = useParams()
     // const { store } = usePageProps()
     // const baseUrl = `${adminRoot}/store/${store_id}`
@@ -26,6 +26,7 @@ export default function StoreWrapper({ render, ...props }) {
     useEffect(() => {
         if (called || loading || !store_id) return;
         fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [store_id])
 
     const fetchData = async () => {
@@ -88,3 +89,5 @@ export default function StoreWrapper({ render, ...props }) {
     </>)
 
 }
+
+export default StoreWrapper

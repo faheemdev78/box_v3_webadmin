@@ -12,10 +12,12 @@ import { Icon } from './icon';
 import { __warning, __error, __success, __yellow } from '@_/lib/consoleHelper';
 import { Image } from '@_/components'
 import { getSrcFromFile, mergeObjects, sleep } from '@_/lib/utill';
+import type { UploadFile, UploadChangeParam, UploadProps } from 'antd/es/upload/interface';
 // import { NOIMAGE } from '@_/configs';
 // import styles from './UploadField.modules.scss'
 
 const { Dragger } = Upload;
+const path_prefix = process.env.NEXT_PUBLIC_CDN_ASSETS || '';
 
 const allowedExtensations = {
     image: ['.jpeg', '.jpg', '.png', '.webp'],
@@ -29,10 +31,24 @@ const defaultProps = {
     className: 'thumb_img',
 }
 
-export const Thumbnail = ({ disabled, placeholder, prefix="", width = defaultProps.width, height = defaultProps.height, handlePreview, file, actions={}, onEdit, loading, style={} }) => {
-    const { download, preview, remove } = actions;
+interface ThumbnailComponentProps {
+    prefix?: string;
+    placeholder?: string;
+    disabled?: boolean;
+    width?: number;
+    height?: number;
+    handlePreview?: (file: any) => any;
+    file: any;
+    actions?: { remove?: () => any; preview?: any; download?: any };
+    onEdit?: (file: any) => any;
+    loading?: boolean;
+    style?: React.CSSProperties;
+}
+
+export const Thumbnail = ({ disabled=false, placeholder, prefix="", width = defaultProps.width, height = defaultProps.height, handlePreview, file, actions={}, onEdit, loading, style={} }: ThumbnailComponentProps) => {
+    const { download, preview, remove } = actions || {};
     const [showPreview, set_showPreview] = useState(false)
-    const [thumb_url, set_thumb_url] = useState(file)
+    const [thumb_url, set_thumb_url] = useState<any>(file)
     const [busy, setBusy] = useState(false)
     const thumbProps = mergeObjects(defaultProps, { width, height })
     const previewProps = mergeObjects(defaultProps, { width: 500, height: 500, className:"none" })
@@ -50,6 +66,7 @@ export const Thumbnail = ({ disabled, placeholder, prefix="", width = defaultPro
 
         if (!file || !file.originFileObj) return;
         fetchSourceFile()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [file])
 
     const fetchSourceFile = async() => {
@@ -63,15 +80,14 @@ export const Thumbnail = ({ disabled, placeholder, prefix="", width = defaultPro
     }
 
     const onDelClick = () => {
+        if (!remove) return;
         setBusy(true)
-        remove().then(r=>{
-            setBusy(false)
-        })
+        Promise.resolve(remove()).then(() => setBusy(false))
     }
 
-    const onPreviewClick = () => {
-        if (handlePreview) handlePreview(file)
-        else set_showPreview(file)
+    const onPreviewClick = (targetFile: any = file) => {
+        if (handlePreview) handlePreview(targetFile)
+        else set_showPreview(targetFile)
     }
 
     // let thumbStyle = style;
@@ -81,24 +97,24 @@ export const Thumbnail = ({ disabled, placeholder, prefix="", width = defaultPro
     let _thumb = thumb_url && thumb_url.thumb;
 
     return (<>
-        <Loader loading={busy || loading}>
+        <Loader loading={busy || !!loading}>
             <div className={"gal_thumb_holder"} style={{ ...style, width: thumbProps.width, height: thumbProps.height }}>
                 {/* {(thumb_url && thumb_url.thumb) && <img src={thumb_url.thumb} className='thumb_img' alt="" />} */}
-                {(_thumb) && <Image src={_thumb} {...thumbProps} />}
-                {(!_thumb && placeholder) && <Image src={placeholder} {...thumbProps} />}
+                {(_thumb) && <Image src={_thumb} {...thumbProps} alt="" />}
+                {(!_thumb && placeholder) && <Image src={placeholder} {...thumbProps} alt="" />}
 
                 <div className='hover_layer'>
                     {Object.keys(file).length > 1 && <Space wrap>
                         {(onEdit && !disabled) && <IconButton onClick={() => onEdit(file)} icon="pen" />}
                         {(remove && !disabled) && <IconButton onClick={onDelClick} icon="trash-alt" color="red" />}
-                        {(handlePreview || file.url) && <IconButton onClick={() => onPreviewClick(file)} icon="eye" />}
+                        {(handlePreview || file?.url) && <IconButton onClick={() => onPreviewClick(file)} icon="eye" />}
                     </Space>}
                 </div>
             </div>
         </Loader>
 
         <Modal open={showPreview !== false} onCancel={() => set_showPreview(false)} width={'1000px'} style={{ textAlign: "center" }} title={false} footer={false} destroyOnHidden>
-            {(showPreview) && <Image src={`${prefix}${showPreview.url}`} {...previewProps} />}
+            {(showPreview && (showPreview as any).url) && <Image src={`${prefix}${(showPreview as any).url}`} {...previewProps} alt="" />}
         </Modal>
 
     </>)
@@ -134,7 +150,7 @@ interface FileUploaderProps {
     debounceTime?: number;
 }
 
-export const FileUploader: React.FC<FileUploaderProps> = (props) => {
+export const FileUploader: React.FC<FileUploaderProps> = (props:any) => {
     const defaultProps = {
         // name,
         thumbnail: [{ width:200, height: 200}],
@@ -162,8 +178,8 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
         debounceTime,
     } = { ...defaultProps, ...props }
         
-    const accept = allowedExtensations[type] // ".jpg,.jpeg,.png";
-    const [previewImg, setPreviewImg] = useState(null)
+    const accept = allowedExtensations[type as 'image' | 'video'] // ".jpg,.jpeg,.png";
+    const [previewImg, setPreviewImg] = useState<string | null>(null)
     const [busy, setBusy] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [fileList, setFileList] = useState(defaultValues || [])
@@ -175,9 +191,10 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
 
     useEffect(() => {
         set_maxCount(_maxCount - ((fileList && fileList.length) || 0))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fileList])
 
-    const handlePreview = async(file) => {
+    const handlePreview = async(file: any) => {
         if(!file) return;
 
         if (file.originFileObj){
@@ -209,7 +226,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
     //     })
     // }
 
-    const handelUploadRequest = async(files) => {
+    const handelUploadRequest = async(files: UploadFile<any>[]) => {
         // let existingCount = (fileList && fileList.length) || 0;
         // let incommingLength = files.length;
         // let newLength = files.length;
@@ -243,7 +260,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
         messageApi.open({ key: "on_uploadMainImage", type: 'loading', content: "Preparing files to upload...." })
 
         let fileErrors:any = false;
-        files.forEach(file => {
+        files.forEach((file: any) => {
             if (!(file.originFileObj instanceof File)) {
                 fileErrors = "File object not found!";
                 return false;
@@ -266,7 +283,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
         const results = await axios.post(`${process.env.NEXT_PUBLIC_CDN_API}/${uri}`, formData,
                 { headers: { 'Content-Type': 'multipart/form-data' } }
             )
-            .then(r => (r?.error || r?.data?.error || r.data))
+            .then((r: any) => (r?.error || r?.data?.error || r.data))
             .catch(err=>{
                 console.error(err);
                 return { error: { message:"upload Failed!" } }
@@ -312,6 +329,12 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
     }
     const _handelUploadRequest = debounce(handelUploadRequest, debounceTime)
 
+    const removeFile = async(file: any) => {
+        const _list = fileList.filter((o: any) => !((o as any)._id && (o as any)._id === file._id) && !((o as any).uid && (o as any).uid === file.uid));
+        setFileList(_list);
+        return false;
+    };
+
     // const removeFile = async(file) => {
     //     if (deleteFile && file.__typename){
     //         await deleteFile(file).then(r => {
@@ -329,34 +352,34 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
     //     return false;
     // }
 
-    const uploadProps = {
+    const uploadProps: UploadProps = {
         name: 'file',
         multiple,
-        accept,
+        accept: Array.isArray(accept) ? accept.join(',') : (accept as any),
         disabled: fileList.length == maxCount || uploading || disabled,
         showUploadList: false,
         maxCount: _maxCount,
-        previewFile: false,
+        previewFile: undefined,
         fileList: [],
 
-        beforeUpload(file, fileList){
+        beforeUpload(file: UploadFile, fileList: UploadFile[]){
             return false;
         },
 
-        itemRender(originNode, file, fileList, actions){
-            return <Thumbnail file={file} actions={actions} handlePreview={handlePreview} />
+        itemRender(originNode: React.ReactNode, file: UploadFile, fileList: UploadFile[], actions){
+            return <Thumbnail file={file} actions={actions} handlePreview={handlePreview} prefix={path_prefix} />
         },
 
         // previewFile(file){ },
         // action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-        onChange(info) {
+        onChange(info: UploadChangeParam<UploadFile<any>>) {
             _handelUploadRequest(info.fileList)
             // const { status } = info.file;
             // if (status !== 'uploading') console.log(info.file, info.fileList);
             // if (status === 'done') message.success(`${info.file.name} file uploaded successfully.`);
             // else if (status === 'error') message.error(`${info.file.name} file upload failed.`);
         },
-        onDrop(e) {
+        onDrop(e: React.DragEvent<HTMLDivElement>) {
             // console.log('Dropped files', e.dataTransfer.files);
         },
     };
@@ -366,7 +389,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
 
         <Space wrap size={7}>
 
-            {showUploadList && fileList.map((file, i) => {
+            {showUploadList && fileList.map((file: any, i: number) => {
                 return (<Thumbnail file={file}
                     disabled={disabled}
                     prefix={path_prefix}
@@ -377,6 +400,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
                     actions={{
                         remove: () => removeFile(file)
                     }}
+                    placeholder={thumbnail?.placeholder}
                     handlePreview={handlePreview} key={i} />)
             })}
 
@@ -396,44 +420,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
 
         <Modal open={previewImg !== null} onCancel={() => setPreviewImg(null)} width={'1000px'} title={false} footer={false} destroyOnHidden style={{ textAlign: "center" }}>
             {/* {(previewImg && !busy) && <Image src={previewImg} style={{ width: "100%" }} width={0} height={0} alt="" />} */}
-            {(previewImg && !busy) && <Image src={previewImg} {...previewProps} />}
-            {busy && <Loader loading={true} />}
-        </Modal>
-
-    </>)
-
-
-    return (<>
-        <Space wrap size={7}>
-            {showUploadList && fileList.map((file, i) => {
-                return (<Thumbnail file={file}
-                    disabled={disabled}
-                    prefix={path_prefix}
-                    width={thumbnail && thumbnail?.displaySize?.width}
-                    height={thumbnail && thumbnail?.displaySize?.height}
-                    // size={thumbnail && thumbnail.displaySize}
-                    loading={file.loading}
-                    actions={{
-                        remove: () => removeFile(file)
-                    }}
-                    handlePreview={handlePreview} key={i} />)
-            })}
-
-            {(fileList.length < maxCount && !uploading) && <>
-                {/* <div className="__gal_thumb_holder" style={{ padding: "0", width: thumbnail?.displaySize?.width || "190px", height: thumbnail?.displaySize?.height || "190px" }}> */}
-                <div style={{ padding: "0", width: 190, height: 190, border:"0px solid blue" }}>
-                    <Dragger {...uploadProps} style={{ opacity: uploadProps.disabled ? 0.5 : 1 }}>
-                        {(type == 'video') ? <PlaySquareOutlined style={{ fontSize: "52px", color: "#1877FF" }} /> : <PictureOutlined style={{ fontSize: "52px", color: "#1877FF" }} />}
-                    </Dragger>
-                </div>
-            </>}
-
-        </Space>
-        {/* {maxCount > 1 && <div align="center">{fileList.length} / {maxCount}</div>} */}
-
-        <Modal open={previewImg !== null} onCancel={() => setPreviewImg(null)} width={'1000px'} title={false} footer={false} destroyOnHidden style={{ textAlign: "center" }}>
-            {/* {(previewImg && !busy) && <Image src={previewImg} style={{ width: "100%" }} width={0} height={0} alt="" />} */}
-            {(previewImg && !busy) && <Image src={previewImg} {...previewProps} />}
+            {(previewImg && !busy) && <Image src={previewImg} {...previewProps} alt="" />}
             {busy && <Loader loading={true} />}
         </Modal>
 

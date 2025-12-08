@@ -8,7 +8,7 @@ export function usePageProps() {
     return useContext(PageContext);
 }
 
-export default function PageProvider({ pageProps, children }: PageProvider_Props) {
+function PageProvider({ pageProps, children }: PageProvider_Props) {
     return (
         <PageContext.Provider value={pageProps}>
             {children}
@@ -16,6 +16,7 @@ export default function PageProvider({ pageProps, children }: PageProvider_Props
     );
 }
 
+export default PageProvider
 
 interface PageProvider_Props {
     children: React.ReactNode;

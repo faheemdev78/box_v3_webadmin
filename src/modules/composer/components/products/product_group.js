@@ -21,10 +21,13 @@ function ProductGroupProps({ item: { name, data, values } }) {
 }
 
 
-export default { 
+const ProductGroupComponent = {
     type: "prod_group_3_2",
     label: "Product Group (3 / 2)",
     desc: "group 2 by 3",
-    renderer: ProductGroup, 
-    propsRender: ProductGroupProps
-}
+    renderer: ProductGroup,
+    propsRender: ProductGroupProps,
+    displayName: "ProductGroupComponent"
+};
+
+export default ProductGroupComponent;

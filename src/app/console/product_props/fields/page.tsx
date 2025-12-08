@@ -2,26 +2,34 @@
 import React, { useState, useEffect } from 'react'
 import { Button, DevBlock, IconButton, DeleteButton, Loader, Table } from '@_/components';
 import { Alert, Col, Drawer, message, Row, Space } from 'antd';
-import { useSession } from 'next-auth/react'
+import type { AlignType } from 'rc-table/lib/interface';
+// import { useSession } from 'next-auth/react'
 import security from '@_/lib/security';
 import { defaultPagination } from '@_/configs';
 import { useLazyQuery, useMutation } from '@apollo/client';
 import { FieldsDefinationForm } from '@_/modules/fieldsDefinations';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppSelector } from '@_/rStore/hooks';
+import type { RootState } from '@_/rStore';
 import { __error } from '@_/lib/consoleHelper';
-
-import GET_QUERY_RECORDS from '@_/graphql/fields_definations/fieldsDefinationsQuery.graphql'
-import DELETE_RECORD from '@_/graphql/fields_definations/deleteFieldsDefination.graphql'
 import { PageHeader } from '@_/template';
 import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
 
+import GET_QUERY_RECORDS from '@_/graphql/fields_definations/fieldsDefinationsQuery.graphql'
+import DELETE_RECORD from '@_/graphql/fields_definations/deleteFieldsDefination.graphql'
 
-export default function ProductFields(props) {
-    const session = useSelector((state) => state.session);
+interface StateType {
+    pagination: typeof defaultPagination;
+    dataSource: any[] | null;
+    filter: any;
+    others?: any;
+}
+
+function ProductFields() {
+    const session = useAppSelector((state: RootState) => state.session);
 
     const canManage = security.verifyRole('104.8', session.user.permissions); // Manage Product Fields
 
-    const [state, setState] = useState({
+    const [state, setState] = useState<StateType>({
         pagination: defaultPagination,
         dataSource: null,
         filter: { },
@@ -33,7 +41,7 @@ export default function ProductFields(props) {
 
     const [deleteFieldsDefination, dell_details] = useMutation(DELETE_RECORD); // { data, loading, error }
 
-    async function fetchData ({ filter, pagination = {} }) {
+    async function fetchData ({ filter, pagination = {} }: { filter?: any; pagination?: any }) {
         const variables = {
             limit: pagination?.pageSize || state.pagination.pageSize,
             page: pagination?.current || state.pagination.current,
@@ -69,7 +77,7 @@ export default function ProductFields(props) {
                 pageSize: resutls.pagination.limit,
             },
             filter: variables.filter,
-            dataSource: resutls?.edges?.map(o => ({
+            dataSource: resutls?.edges?.map((o: any) => ({
                 ...o,
                 children: o?.variations?.length > 0 && o.variations,
                 variations: undefined
@@ -78,8 +86,9 @@ export default function ProductFields(props) {
 
     }
 
-    const handleTableChange = (pagination, filters=null) => {
+    const handleTableChange = (pagination: any) => {
         fetchData({
+            filter: state.filter,
             pagination: {
                 pageSize: pagination.pageSize,
                 current: pagination.page,
@@ -88,28 +97,29 @@ export default function ProductFields(props) {
     };
 
 
-    async function deleteField(values){}
+    async function deleteField(values: any) {}
 
-    function onSuccess(val){
+    function onSuccess(val: any) {
         set_showForm(false)
-        fetchData({})
+        fetchData({ filter: state.filter })
     }
 
-    
+
     useEffect(() => {
         if (called || loading) return
-        fetchData({})
-    }, [props])
-    
+        fetchData({ filter: state.filter })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [called, loading])
+
 
     const columns = [
-        // { title: 'ID', dataIndex: '_id', key:'_id', width: 80, align: 'left' },
+        // { title: 'ID', dataIndex: '_id', key:'_id', width: 80, align: 'left' as AlignType },
         { title: 'Label', dataIndex: 'label', key: 'label' },
         { title: 'Type', dataIndex: 'type', key: 'type' },
-        { title: 'Required', dataIndex: 'required', key: 'required', render: (val) => (val ? "YES" : "NO") },
+        { title: 'Required', dataIndex: 'required', key: 'required', render: (val: any) => (val ? "YES" : "NO") },
         { title: 'Category', dataIndex: 'category', key: 'category' },
-        { title: 'Actions', dataIndex: 'actions', key: 'actions', align: 'right', width: 100,
-            render: (text, record) => {
+        { title: 'Actions', dataIndex: 'actions', key: 'actions', align: 'right' as AlignType, width: 100,
+            render: (text: any, record: any) => {
                 return (<Space>
                     <IconButton onClick={() => set_showForm(record)} icon="pen" />
                     <DeleteButton onClick={() => deleteField(record._id)} />
@@ -133,11 +143,8 @@ export default function ProductFields(props) {
         <Table
             loading={loading || busy}
             columns={columns}
-            dataSource={state.dataSource || null}
-            total={(state?.pagination?.total) || 0}
-            pagination={state.pagination || false}
-            pageSize={(state?.pagination?.pageSize)}
-            current={(state?.pagination?.current) || 1}
+            dataSource={state.dataSource || []}
+            pagination={state.pagination ? { ...state.pagination, size: undefined } : false}
             rowClassName={(record => (record.status == 'offline' ? 'disabled-table-row' : ""))}
             onChange={({ current, pageSize }) => handleTableChange({page: current, pageSize })}
         />
@@ -154,3 +161,5 @@ export default function ProductFields(props) {
     </>
     )
 }
+
+export default ProductFields;
