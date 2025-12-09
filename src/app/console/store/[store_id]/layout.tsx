@@ -2,6 +2,7 @@ import PageProvider from '@_/components/pageProps';
 import { adminRoot } from '@_/configs'
 import { PageBar } from '@_/template'
 import { createApolloClient } from '@_/aClient/client';
+import { getServerSessionToken } from '@_/lib/auth/server';
 
 import GET_STORE from '@_/graphql/stores/store.graphql';
 
@@ -13,7 +14,12 @@ export default async function ConsoleLayout({ children, params }: {
     const baseUrl = `${adminRoot}/store/${store_id}`;
 
     const client = createApolloClient();
-    const { data: { store } } = await client.query({ query: GET_STORE, variables: { _id: store_id } });
+    const token = getServerSessionToken();
+    const { data: { store } } = await client.query({
+        query: GET_STORE,
+        variables: { _id: store_id },
+        context: { authToken: token },
+    });
     // console.log("store: ", store)
 
     return (<>

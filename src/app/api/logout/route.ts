@@ -1,4 +1,5 @@
 // https://nextjs.org/docs/app/api-reference/file-conventions/route
+// export const runtime = 'nodejs'
 
 import type { NextRequest } from 'next/server'
 // import { type NextRequest } from 'next/server'

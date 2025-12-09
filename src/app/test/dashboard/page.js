@@ -1,11 +1,11 @@
 "use server";
 
-import { getSessionToken } from "@_/lib/auth";
+import { getServerSessionToken } from "@_/lib/auth/server";
 import { getCurrentUser } from "@_/lib/auth";
 
 async function Dashboard() {
-    const session = await getSessionToken();
-    const user = await getCurrentUser();
+    const session = getServerSessionToken();
+    const user = await getCurrentUser(session);
     
     if (!user || !user._id) return <p>User not found!</p>
     
@@ -30,5 +30,3 @@ async function Dashboard() {
 
 export default Dashboard;
 // export default withAuth(Dashboard);
-
-

@@ -1,12 +1,12 @@
 'use server'
 
-import { getSessionToken } from "@_/lib/auth";
+import { getServerSessionToken } from "@_/lib/auth/server";
 import LoginForm from "@/modules/login/LoginForm";
 import { redirect } from "next/navigation";
 
 
 export default async function Login() {
-    let token = await getSessionToken()
+    let token = await getServerSessionToken()
 
     if (token){
         redirect('/logout')
@@ -25,5 +25,4 @@ export default async function Login() {
     </div>)
 
 }
-
 

@@ -3,6 +3,10 @@ import path from 'path';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // experimental: {
+  //   nodeMiddleware: true,
+  // },
+
   allowedDevOrigins: [
     'local-origin.dev', '*.local-origin.dev',
     

@@ -1,25 +1,23 @@
 import { gql } from "@apollo/client";
-import { getSessionToken } from "@_/lib/auth";
+import { getServerSessionToken } from "@_/lib/auth/server";
 import client from "@_/aClient/client";
 
 import TEST_QUERY from "@_/graphql/test/testQuery.graphql";
 
 
 export default async function ServerSide() {
-    // console.log("Loading ServerSide page")
+    const token = getServerSessionToken();
 
     const { data, loading, error } = await client.query({
         query: TEST_QUERY,
-        fetchPolicy: "network-only"
-        // fetchPolicy: 'cache-and-network',
+        fetchPolicy: "network-only",
+        context: { authToken: token },
     });
-
-    const session = await getSessionToken()
 
     return (<div>
         <h1>Server Side</h1>
 
-        <p>session: {session}</p>
+        <p>session: {token}</p>
 
         {loading && <p>Loading....</p>}
         {error && <p>{error}</p>}

@@ -1,4 +1,5 @@
-import { ApolloClient, InMemoryCache, HttpLink, ApolloLink } from "@apollo/client";
+import { isServer } from "@_/lib";
+import { ApolloClient, InMemoryCache, HttpLink, ApolloLink, from } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 import { clearSessionToken, getSessionToken } from "@_/lib/auth";
@@ -15,7 +16,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 
                 // Clear token (cookie/localStorage)
                 // document.cookie = "your_token_cookie=; Max-Age=0; path=/";
-                clearSessionToken().then(r=>{
+                clearSessionToken().then(r => {
                     // Redirect to login
                     handleRedirectLogin
                 });
@@ -33,10 +34,21 @@ const httpLink = new HttpLink({
     credentials: "include",
 });
 
-const authLink = setContext((_, previousContext) => {
-    const contextToken = previousContext?.authToken;
-    const headers = previousContext?.headers ?? {};
-    const token = contextToken ?? (typeof window !== "undefined" ? getSessionToken() : "");
+const authLink = setContext(async (_, { headers }) => {
+    // console.log("headers: ", headers)
+
+    // On server-side, you might need to pass cookies from the request
+    // if (isServer && typeof window === "undefined") {
+    //     const { headers: nextHeaders } = require("next/headers");
+    //     const _headers = await nextHeaders()
+    //     console.log("_headers: ", _headers)
+    //     const cookie = await _headers.get("cookie") || "";
+    //     console.log("cookie: ", cookie)
+
+    //     return { headers: { ...headers, cookie } };
+    // }
+
+    const token = await getSessionToken(); // Await here
     return {
         headers: {
             ...headers,
@@ -66,7 +78,7 @@ const authLink = setContext((_, previousContext) => {
 
 export const createApolloClient = () => {
     return new ApolloClient({
-        ssrMode: typeof window === "undefined",
+        ssrMode: isServer,
         link: ApolloLink.from([errorLink, authLink, httpLink]),
         cache: new InMemoryCache(),
     });

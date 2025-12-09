@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtDecode } from "jwt-decode";
 import type { JwtPayload } from "jwt-decode";
-import { getSessionToken } from '@/lib/auth';
-import { __error } from '@/lib/consoleHelper';
+import { getSessionToken } from '@/lib/auth/index.edge';
+import { __error } from '@/lib/consoleHelper.edge';
 
 const protectedRoutes = ['/console'];
 const authRoutes = ['/login'];
@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
         let requriedStorePath = `/console/store/${decoded._id_store}`;
 
         if (pathname !== requriedStorePath && !pathname.startsWith(`/console/store/${decoded._id_store}/`)){
-            console.log(__error("Invalid store access"))
+            console.error("Invalid store access")
             return NextResponse.redirect(new URL(`/console/store/${decoded._id_store}`, request.url));
         }
     }
