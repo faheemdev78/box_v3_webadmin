@@ -1,0 +1,32 @@
+.comp_prod_list{
+    // border: 5px solid blue !important;
+
+    .feature_icons {
+        position: absolute;
+        top: 0;
+        left: -25px;
+        // background-color: #1E6091;
+        // border: 1px solid black;
+        color: #1E6091;
+        font-size: 22px;
+    }
+}
+
+.dragable_item_list{
+    border: 1px solid #89A3BE;
+    cursor: grab;
+    &:active {
+        cursor: grabbing;
+    }
+}
+
+.thumb{
+    width: 100%;
+    height: 142px;
+    background-color: #EEE;
+    border: 1px solid #EEEFF0;
+    align-items:  center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}

@@ -1,0 +1,104 @@
+#import "../_fragment/error.graphql"
+#import "./_fragment/OrderTotals.graphql"
+#import "./_fragment/OrderDeliverySlot.graphql"
+
+query orderDetails($filter: String!) {
+    orderDetails(filter: $filter) {
+        _id
+        serial
+        store { _id title code }
+        zone {
+            _id_zone
+            title
+            category
+        }
+        customer { _id name }
+
+        original_order {
+            totals { ...OrderTotalsInfo }
+            items {
+                _id_product
+                title
+                barcode
+                qty
+                price
+                total
+                status
+            }
+        }
+
+        current_order {
+            handled_by { _id name }
+            baskets {
+                _id
+                title
+                barcode
+                color
+            }
+            notes
+            items {
+                _id_product
+                title
+                barcode
+                qty
+                price
+                total
+                status
+                processed_qty
+                issue_reason
+                is_substitute
+                substitute_for {
+                    _id_product
+                    title
+                    barcode
+                }
+                customer_approved_substitution
+            }
+            totals { ...OrderTotalsInfo }
+            _id_session
+            created_at
+            updated_at
+            total_time
+        }
+
+        processing_stages {
+            picking {
+                handled_by { _id name }
+                _id_session
+                created_at
+                updated_at
+                total_time
+            }
+            till_verification {
+                handled_by { _id name }
+                _id_session
+                created_at
+                updated_at
+                total_time
+            }
+            delivery {
+                handled_by { _id name }
+                _id_session
+                created_at
+                updated_at
+                total_time
+            }
+        }
+
+        delivery_slot { ...OrderDeliverySlotInfo }
+        delivery_note
+
+        status { order payment fulfillment }
+        current_stage
+
+        locked_by
+        locked_at
+        lock_expires_at
+        lock_type
+
+        createdAt
+        updatedAt
+
+        error { ...ErrorInfo }
+    }
+}

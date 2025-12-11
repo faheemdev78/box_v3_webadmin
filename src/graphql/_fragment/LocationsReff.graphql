@@ -1,0 +1,11 @@
+#import "./GeoPointReff.graphql"
+
+fragment LocationsReffInfo on LocationsReff {
+  _id
+  title
+  code
+  child_of
+  center { ...GeoPointReffInfo }
+  type
+  status
+}

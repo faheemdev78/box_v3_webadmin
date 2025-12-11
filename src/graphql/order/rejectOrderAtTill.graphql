@@ -1,0 +1,15 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+
+mutation rejectOrderAtTill($input: RejectOrderAtTillInput!) {
+    rejectOrderAtTill(input: $input) {
+        success { ...SuccessInfo }
+        error { ...ErrorInfo }
+        data {
+            _id_order
+            orderSerial
+            rejectionReason
+            resetToStage
+        }
+    }
+}

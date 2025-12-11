@@ -25,8 +25,30 @@ const nextConfig: NextConfig = {
     "http://172.21.0.7:3000"
   ],
 
+  webpack: (config, options) => {
+    config.module.rules.push({
+      test: /\.(graphql|gql)$/,
+      exclude: /node_modules/,
+      loader: "graphql-tag/loader",
+    });
+    return config;
+  },
+  
+  turbopack: {},
+
+  // webpack: (config, { isServer }) => {
+  //   config.module.rules.push({
+  //     test: /\.(graphql|gql)$/,
+  //     exclude: /node_modules/,
+  //     use: [
+  //       {
+  //         loader: 'graphql-tag/loader',
+  //       },
+  //     ],
+  //   });
+  //   return config;
+  // },
 
 };
-
 
 export default nextConfig;

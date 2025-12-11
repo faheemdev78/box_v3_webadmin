@@ -1,0 +1,7 @@
+#import "./_fragment/formsData.graphql"
+
+mutation addFormsData($input: ADD_FormsData!) {
+    addFormsData(input: $input) {
+        ...FormsDataInfo
+    }
+}

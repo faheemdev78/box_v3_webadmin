@@ -1,0 +1,7 @@
+#import "./_fragment/product_cat.graphql"
+
+mutation addProductCat($input: Add_ProductCatInput!) {
+    addProductCat(input: $input) {
+        ... ProductCatInfo
+    }
+}

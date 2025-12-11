@@ -1,0 +1,10 @@
+fragment OrderTotalsInfo on OrderTotals {
+  saved
+  totalQuantity
+  subtotal
+  discountTotal
+  shipping
+  taxRate
+  taxAmount
+  grandTotal
+}

@@ -1,0 +1,7 @@
+#import "../_fragment/response.graphql"
+
+mutation userLogOut($app: String!) {
+    userLogOut(app: $app) {
+        ...ResponseInfo
+    }
+}

@@ -1,0 +1,6 @@
+mutation deleteFieldsDefination($_id: ID!) {
+    deleteFieldsDefination(_id: $_id) {
+        _id
+        error{ message }
+    }
+}

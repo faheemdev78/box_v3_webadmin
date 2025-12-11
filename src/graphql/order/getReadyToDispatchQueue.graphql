@@ -1,0 +1,51 @@
+
+#import "./_fragment/OrderDeliverySlot.graphql"
+# import "./_fragment/OriginalOrder.graphql"
+#import "../_fragment/error.graphql"
+#import "../_fragment/GeoZoneReff.graphql"
+#import "../_fragment/paginationResults.graphql"
+#import "../_fragment/UserAddressesRef.graphql"
+
+
+
+query getReadyToDispatchQueue($limit: Int, $page: Int, $filter: String, $others:String, $_id_store: ID!) {
+    getReadyToDispatchQueue(limit: $limit, page: $page, filter: $filter, others: $others, _id_store: $_id_store) {
+        pagination {
+            ...PaginationResultsInfo
+        }
+        edges {
+            _id
+            serial
+            store { _id title }
+            zone { ...GeoZoneReffInfo }
+            customer { _id name }
+
+            delivery_slot { ...OrderDeliverySlotInfo }
+            current_order { 
+                totals {
+                    saved
+                    totalQuantity
+                    subtotal
+                    discountTotal
+                    shipping
+                    taxRate
+                    taxAmount
+                    grandTotal
+                }
+                baskets {
+                    _id title
+                }
+            }
+
+            status { order }
+
+            shippingAddress { ...UserAddressesRefInfo }
+
+            # locked_by locked_at lock_expires_at lock_type
+
+            createdAt
+            updatedAt
+        }
+        error { ...ErrorInfo }
+    }
+}

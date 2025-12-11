@@ -1,0 +1,6 @@
+mutation deleteManufacturer($id: ID!) {
+    deleteManufacturer(id: $id) {
+        _id
+        error{ message }
+    }
+}

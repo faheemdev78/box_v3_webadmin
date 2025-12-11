@@ -1,0 +1,6 @@
+fragment ResponseInfo on Response {
+  error { code message details }
+  success { message details code  }
+  warning { code message details } 
+  action
+}

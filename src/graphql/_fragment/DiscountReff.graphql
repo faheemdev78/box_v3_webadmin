@@ -1,0 +1,8 @@
+fragment DiscountReffInfo on DiscountReff {
+    _id
+    title
+    code
+    type
+    discountValue
+    #   meta: JSON  
+}

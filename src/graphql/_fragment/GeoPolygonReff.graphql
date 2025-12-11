@@ -1,0 +1,4 @@
+fragment GeoPolygonReffInfo on GeoPolygonReff {
+  type
+  coordinates
+}

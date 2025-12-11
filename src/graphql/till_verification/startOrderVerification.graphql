@@ -1,0 +1,58 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+#import "../_fragment/UserAddressesRef.graphql"
+#import "../_fragment/GeoZoneReff.graphql"
+#import "../_fragment/StoreReff.graphql"
+#import "../order/_fragment/OrderDeliverySlot.graphql"
+#import "../order/_fragment/ProcessingData.graphql"
+
+mutation StartOrderVerification($_id_order: ID!) {
+  startOrderVerification(_id_order: $_id_order) {
+    order {
+      _id
+      serial
+      store { ...StoreReffInfo }
+      zone { ...GeoZoneReffInfo }
+      customer { _id name phone email }
+
+      # original_order: OriginalOrder
+
+      current_order { ...ProcessingDataInfo }
+      # processing_stages: Order_ProcessingStages
+
+      delivery_slot { ...OrderDeliverySlotInfo }
+      delivery_note
+
+      status { order payment fulfillment }
+      current_stage
+
+      # payment: OrderPayment
+
+      shippingAddress { ...UserAddressesRefInfo }
+      # billingAddress { ...UserAddressesRefInfo }
+
+      locked_by
+      locked_at
+      lock_expires_at
+      lock_type
+      is_locked_by_me
+
+      # createdAt updatedAt
+
+      success { ...SuccessInfo }
+      error { ...ErrorInfo }
+      # warning: Warning 
+    }
+
+    session {
+      _id
+      till_verification_orders {
+        _id_order
+        order_serial
+        order_status
+        started_at
+      }
+    }
+
+  }
+}

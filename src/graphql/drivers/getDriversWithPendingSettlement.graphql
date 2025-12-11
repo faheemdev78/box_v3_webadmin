@@ -1,0 +1,30 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/UserReff.graphql"
+
+query getDriversWithPendingSettlement($_id_store: ID!) {
+  getDriversWithPendingSettlement(_id_store: $_id_store) {
+    driver { ...UserReffInfo }
+    session {
+      _id
+      session_started_at
+      driver_wallet {
+        total_cod_collected
+        deposited_amount
+        pending_deposit
+        is_settled
+      }
+      baskets_assigned
+      baskets_returned
+      all_baskets_returned
+    }
+    total_cod_collected
+    deposited_amount
+    pending_deposit
+    delivered_orders_count
+    pending_orders {
+      _id
+      serial
+      current_stage
+    }
+  }
+}

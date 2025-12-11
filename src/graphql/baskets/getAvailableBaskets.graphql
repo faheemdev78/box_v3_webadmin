@@ -1,0 +1,15 @@
+query GetAvailableBaskets($_id_store: ID!, $category: String!, $limit: Int) {
+  getAvailableBaskets(_id_store: $_id_store, category: $category, limit: $limit) {
+    baskets {
+      _id
+      title
+      barcode
+      color
+      status
+    }
+    total_available
+    error {
+      message
+    }
+  }
+}

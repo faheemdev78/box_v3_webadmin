@@ -1,0 +1,14 @@
+fragment SettingsInfo on Settings {
+  _id
+  tooltip
+  title
+  value
+  code
+  type
+  cat
+  sort_order
+  sub_cat
+  validator_function
+
+  error{ message }
+}

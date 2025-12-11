@@ -1,0 +1,6 @@
+mutation editUserAvatar($avatar: String!, $id:ID!) {
+    editUserAvatar(avatar: $avatar, id:$id) {
+        _id avatarUrl
+        error{ message }
+    }
+}

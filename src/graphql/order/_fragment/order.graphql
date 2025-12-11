@@ -1,0 +1,61 @@
+#import "../../_fragment/error.graphql"
+#import "../../_fragment/success.graphql"
+#import "../../_fragment/warning.graphql"
+#import "../../_fragment/StoreReff.graphql"
+#import "../../_fragment/GeoZoneReff.graphql"
+#import "../../_fragment/UserReff.graphql"
+#import "../../_fragment/UserAddressesRef.graphql"
+
+#import "./OriginalOrder.graphql"
+#import "./ProcessingData.graphql"
+#import "./OrderDeliverySlot.graphql"
+#import "./OrderPayment.graphql"
+
+
+
+
+fragment OrderInfo on Order {
+    _id
+    serial
+    store { ...StoreReffInfo }
+    zone { ...GeoZoneReffInfo }
+    customer { ...UserReffInfo }
+
+    original_order { ...OriginalOrderInfo }
+
+    current_order { ...ProcessingDataInfo }
+
+    processing_stages { 
+        picking { ...ProcessingDataInfo }
+        till_verification { ...ProcessingDataInfo }
+        delivery { ...ProcessingDataInfo }
+    }
+
+    delivery_slot { ...OrderDeliverySlotInfo }
+    delivery_note
+
+    viewed
+    status { order payment fulfillment }
+    current_stage
+
+    payment { ...OrderPaymentInfo }
+
+    shippingAddress { ...UserAddressesRefInfo }
+    billingAddress { ...UserAddressesRefInfo }
+
+    # pickup_allow
+
+    locked_by
+    locked_at
+    lock_expires_at
+    lock_type
+
+    # customer_feedback
+
+    createdAt
+    updatedAt
+
+    error { ...ErrorInfo }
+    success { ...SuccessInfo } 
+    warning{ ...WarningInfo }
+}

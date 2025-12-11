@@ -1,0 +1,6 @@
+mutation deleteProduct($_id: ID!) {
+    deleteProduct(_id: $_id) {
+        _id
+        error{ message }
+    }
+}

@@ -1,0 +1,62 @@
+#import "../order/_fragment/OrderItems.graphql"
+#import "../order/_fragment/OrderTotals.graphql"
+#import "../order/_fragment/OrderDeliverySlot.graphql"
+#import "../_fragment/error.graphql"
+
+query getTillVerificationQueue($_id_store: ID!, $limit: Int, $page: Int) {
+    getTillVerificationQueue(_id_store: $_id_store, limit: $limit, page: $page) {
+        orders {
+            _id
+            serial
+            store { _id title }
+            customer {
+                _id
+                name
+            }
+            current_order {
+                handled_by {
+                    _id
+                    name
+                }
+                baskets {
+                    _id
+                    title
+                    barcode
+                    color
+                }
+                items {
+                    ...OrderItemsInfo
+                }
+                totals {
+                    ...OrderTotalsInfo
+                }
+            }
+            delivery_slot {
+                ...OrderDeliverySlotInfo
+            }
+            current_stage
+            status {
+                order
+                payment
+                fulfillment
+            }
+            processing_stages {
+                picking {
+                    handled_by {
+                        _id
+                        name
+                    }
+                    updated_at
+                }
+            }
+            createdAt
+            is_locked_by_me
+            locked_by
+            lock_expires_at
+        }
+        total
+        error {
+            ...ErrorInfo
+        }
+    }
+}

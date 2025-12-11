@@ -1,0 +1,7 @@
+#import "./_fragment/forms.graphql"
+
+mutation addForms($input: ADD_Forms!) {
+    addForms(input: $input) {
+        ...FormsInfo
+    }
+}

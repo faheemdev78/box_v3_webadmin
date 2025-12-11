@@ -1,0 +1,18 @@
+mutation Login($username: String!, $pwd: String!) {
+    login(username: $username, pwd: $pwd) {
+        token
+        user{
+            _id
+            email
+            name
+            avatarUrl
+            acc_type
+            permissions
+            custom_permissions
+            status
+        }
+        isNewUser
+        error { message }
+    }
+  }
+  

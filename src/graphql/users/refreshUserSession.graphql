@@ -1,0 +1,17 @@
+query refreshUserSession($app: String!, $fmc_token: String) {
+    refreshUserSession(app: $app, fmc_token: $fmc_token) {
+        user {
+            _id
+            acc_type
+            acc_group
+            name
+            email
+            avatarUrl
+            status
+            permissions
+            # updatedAt
+        }
+        access_token
+        error { code message details }
+    }
+}

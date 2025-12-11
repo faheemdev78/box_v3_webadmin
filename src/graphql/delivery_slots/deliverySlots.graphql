@@ -1,0 +1,7 @@
+#import "./_fragment/delivery_slots.graphql"
+
+query deliverySlots($filter: String, $others:String) {
+    deliverySlots(filter: $filter, others:$others) {
+        ... DeliverySlotsInfo
+    }
+}

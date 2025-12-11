@@ -1,0 +1,60 @@
+fragment TestFormScore_Info on TestFormScore {
+  total
+  correct
+  passing_percent
+  passed
+}
+
+fragment ParticipantsReff_Info on ParticipantsReff {
+  attampts_count
+  identifier
+  name
+  email
+  _id_user
+  pin
+  status
+} 
+
+fragment FormFieldsReff_Info on FormFieldsReff {
+  _id
+  identifier
+  type
+  name
+  label
+  options { label value }
+  defaultValue
+  value
+  # correct_value
+  attributes { name value }
+  isCorrect
+
+  participant{ ...ParticipantsReff_Info }
+}
+
+fragment FormStepsReff_Info on FormStepsReff {
+  _id
+  identifier
+  title
+  type
+  mode
+  background{
+    image src
+    width height
+    style
+  }
+  fields { ...FormFieldsReff_Info }
+  score{ ...TestFormScore_Info }
+}
+
+# fragment ReattemptConfigsReff_Info on ReattemptConfigsReff {
+    # allow
+    # num_reattempts
+    # show_mistakes
+# } 
+
+# fragment ReattemptHistory_Info on ReattemptHistory {
+#   participant {...ParticipantsReff_Info}
+#   json_value
+#   createdAt
+# } 
+

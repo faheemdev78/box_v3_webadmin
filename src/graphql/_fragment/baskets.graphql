@@ -1,0 +1,21 @@
+fragment BasketInfo on Basket {
+  _id
+  # _id_store: ID
+  # _id_order: ID
+
+  title
+  barcode
+  color
+  category
+  
+  # locked_by: ID
+  locked_at
+  lock_expires_at
+  
+  # _id_session: String
+  status
+  
+  taken_by { _id name }
+  
+  error{ message }
+}

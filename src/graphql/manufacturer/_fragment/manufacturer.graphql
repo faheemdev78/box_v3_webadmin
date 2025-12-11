@@ -1,0 +1,17 @@
+fragment ManufacturerInfo on Manufacturer {
+  _id
+  title
+  code
+  slug
+  description
+  status
+  seo_title
+  seo_desc
+  img
+  img_thumb
+  
+  # createdAt
+  # updatedAt
+  
+  error{ message }
+}

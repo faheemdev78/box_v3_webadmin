@@ -1,0 +1,25 @@
+
+fragment ProductTypeInfo on ProductType {
+  _id
+  title
+  slug
+  tax{ value unit }
+
+  attributes{
+    _id
+    title
+    slug
+    code
+    required
+    show_in_store
+    # values
+    displayAs
+    seo_title
+    seo_desc
+  }
+
+  seo_title
+  seo_desc
+
+  error{ message }
+}

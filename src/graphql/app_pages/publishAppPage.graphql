@@ -1,0 +1,8 @@
+#import "./_fragment/app_pages.graphql"
+
+
+mutation publishAppPage($input: AppPages_Publish!) {
+    publishAppPage(input: $input) {
+        ... AppPagesInfo
+    }
+}

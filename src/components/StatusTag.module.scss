@@ -1,0 +1,29 @@
+.status_tag{
+  border-radius: 10px;
+  padding: 0 5px;
+  font-size: 12px;
+  display: inline-flex;
+
+  background-color: white;
+  color: #3d3d3d;
+  border: 1px solid #EEE;
+
+  &.editable{
+    cursor: pointer;
+
+    &:hover{
+      opacity: 0.8;
+    }
+  }
+
+  &.status_offline {
+    background-color: red;
+    color: white;
+  }
+
+  &.status_online {
+    background-color: green;
+    color: white;
+  }
+
+}

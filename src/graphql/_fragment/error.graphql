@@ -1,0 +1,5 @@
+fragment ErrorInfo on Error {
+  code
+  message
+  details
+}

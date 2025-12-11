@@ -1,0 +1,138 @@
+/*************
+* Upload Gallery 
+*******************/
+.upload_gallery {
+
+    .gallery_item {
+        display: flex;
+        flex-direction: column;
+        margin: 5px;
+        padding: 5px;
+        border: 1px solid #EEE;
+        border-radius: 3px;
+        justify-content: space-between;
+
+        .loader_bar {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+
+            .progress_bar {
+                margin-top: 3px;
+            }
+
+            .loader {
+                margin: 5px;
+            }
+        }
+
+        .icon_holder {
+            .delete_button {}
+        }
+
+    }
+
+    // .picture_card {
+    //     .gallery-item {
+    //         text-align: center;
+    //     }
+    // }
+}
+
+.gal_thumb_holder {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #EEE;
+    border-radius: 3px;
+    width: 120px;
+    height: 120px;
+    
+    .thumb_img {
+        width: 100%;
+        height: 100%;
+    }
+
+    .hover_layer{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        opacity: 0;
+        background-color: rgba(000, 000, 000, 0.5);
+        align-items: center;
+        justify-content: center;
+        transition: 500ms;
+
+        &:hover{
+            opacity: 1;
+        }
+    }
+
+
+    .hoverLayer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: 3px;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(000, 000, 000, 0.5);
+        visibility: hidden;
+        cursor: pointer;
+
+        .preview-icon {
+            position: absolute;
+        }
+
+        // .anticon{ display: none; size: 3em;}
+        .anticon {
+            display: inline;
+            size: 5em;
+            color: #FFF;
+        }
+    }
+
+    &:hover {
+        .hoverLayer {
+            visibility: visible;
+            // .anticon{ display: inline; }
+        }
+    }
+}
+
+
+// .upload-gallery.list {
+//     .gallery-item {
+//         text-align: center;
+//         flex-direction: row;
+//         align-items: center;
+
+//         .thumbnail-holder {
+//             width: 70px;
+//         }
+//     }
+// }
+
+
+// .upload-gallery.picture-grid {
+//     display: flex;
+//     flex-wrap: wrap;
+
+//     .gallery-item {
+//         text-align: center;
+
+//         .thumbnail-holder {
+//             width: 100px;
+//             height: 100px;
+//         }
+
+//     }
+// }

@@ -1,0 +1,7 @@
+query getSystemConfigs {
+    getSystemConfigs{
+        field_name
+        value
+        value_type
+    } 
+}

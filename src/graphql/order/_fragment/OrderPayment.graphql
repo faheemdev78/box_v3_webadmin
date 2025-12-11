@@ -1,0 +1,8 @@
+fragment OrderPaymentInfo on OrderPayment {
+    method
+    transactionId
+    amount_charged
+    amount_refunded
+    final_amount
+    createdAt
+}

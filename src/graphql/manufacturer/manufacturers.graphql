@@ -1,0 +1,7 @@
+#import "./_fragment/manufacturer.graphql"
+
+query manufacturers($filter: String, $others:String) {
+    manufacturers(filter: $filter, others:$others) {
+        ... ManufacturerInfo
+    }
+}

@@ -1,0 +1,13 @@
+query currentUser {
+    currentUser {
+        _id
+        email
+        name
+        avatarUrl
+        acc_type
+        permissions
+        custom_permissions
+        status
+        store { _id title }
+    }
+}

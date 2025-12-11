@@ -1,0 +1,7 @@
+#import "../_fragment/response.graphql"
+
+mutation deleteVoucher($id: ID!) {
+    deleteVoucher(id: $id) {
+        ...ResponseInfo
+    }
+}
