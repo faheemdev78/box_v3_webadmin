@@ -1,7 +1,0 @@
-#import "./_fragment/product_cat.graphql"
-
-query productCats($filter: String, $others:String) {
-    productCats(filter: $filter, others:$others) {
-        ... ProductCatInfo
-    }
-}

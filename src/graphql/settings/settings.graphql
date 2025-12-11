@@ -1,7 +1,0 @@
-#import "./_fragment/settings.graphql"
-
-query settings {
-    settings {
-        ... SettingsInfo
-    }
-}

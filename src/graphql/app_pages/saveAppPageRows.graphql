@@ -1,7 +1,0 @@
-#import "./_fragment/app_pages.graphql"
-
-mutation saveAppPageRows($input: Update_AppPage_Rows!) {
-    saveAppPageRows(input: $input) {
-        ... AppPagesInfo
-    }
-}

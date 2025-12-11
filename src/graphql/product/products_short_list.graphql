@@ -1,8 +1,0 @@
-
-query products($filter: String) {
-    products(filter: $filter) {
-        _id
-        title
-        picture_thumb
-    }
-}

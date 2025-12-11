@@ -1,6 +1,0 @@
-mutation deleteProductType($id: ID!) {
-    deleteProductType(id: $id) {
-        _id
-        error{ message }
-    }
-}

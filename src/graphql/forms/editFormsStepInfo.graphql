@@ -1,7 +1,0 @@
-#import "./_fragment/forms.graphql"
-
-mutation editFormsStepInfo($input: Edit_FormsStepInfo!) {
-    editFormsStepInfo(input: $input) {
-        ...FormsInfo
-    }
-}

@@ -1,4 +1,0 @@
-fragment GeoPointInfo on GeoPoint {
-  type
-  coordinates
-}

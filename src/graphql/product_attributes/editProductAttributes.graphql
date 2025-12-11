@@ -1,7 +1,0 @@
-#import "./_fragment/ProductAttributes.graphql"
-
-mutation editProductAttributes($input: Edit_ProductAttributesInput!) {
-    editProductAttributes(input: $input) {
-        ... ProductAttributesInfo
-    }
-}

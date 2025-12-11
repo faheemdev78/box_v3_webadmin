@@ -1,8 +1,0 @@
-#import "../_fragment/error.graphql"
-
-mutation deleteVehicle($_id: ID!) {
-    deleteVehicle(_id: $_id) {
-        _id
-        error{ ...ErrorInfo }
-    }
-}

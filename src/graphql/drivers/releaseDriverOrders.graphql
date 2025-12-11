@@ -1,7 +1,0 @@
-#import "../_fragment/response.graphql"
-
-mutation releaseDriverOrders($_id_driver: ID!, $_id_session: ID!) {
-  releaseDriverOrders(_id_driver: $_id_driver, _id_session: $_id_session) {
-    ...ResponseInfo
-  }
-}

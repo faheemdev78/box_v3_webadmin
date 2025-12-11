@@ -1,7 +1,0 @@
-#import "../_fragment/response.graphql"
-
-mutation deleteProductVideo($_id_product: ID!) {
-    deleteProductVideo(_id_product: $_id_product) {
-        ...ResponseInfo
-    }
-}

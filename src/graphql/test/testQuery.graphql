@@ -1,7 +1,0 @@
-query testQuery($args: String){
-    testQuery(args: $args){
-        message
-        error { message }
-    }
-}
-

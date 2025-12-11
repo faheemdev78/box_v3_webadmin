@@ -1,7 +1,0 @@
-#import "./_fragment/user_role.graphql"
-
-query userRoles($filter: String) {
-    userRoles(filter:$filter) {
-      ... UserRoleInfo
-    }
-}

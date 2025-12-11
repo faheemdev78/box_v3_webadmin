@@ -1,7 +1,0 @@
-#import "./_fragment/product.graphql"
-
-query products($filter: String, $others: String) {
-    products(filter: $filter, others:$others) {
-        ... ProductInfo
-    }
-}

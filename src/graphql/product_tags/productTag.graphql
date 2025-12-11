@@ -1,7 +1,0 @@
-#import "./_fragment/product_tags.graphql"
-
-query productTag($id: ID!) {
-    productTag(id: $id) {
-        ... ProductTagInfo
-    }
-}

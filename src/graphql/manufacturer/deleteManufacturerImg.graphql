@@ -1,6 +1,0 @@
-mutation deleteManufacturerImg($id: ID!) {
-    deleteManufacturerImg(id: $id) {
-        _id
-        error{ message }
-    }
-}

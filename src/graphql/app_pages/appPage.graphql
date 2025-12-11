@@ -1,7 +1,0 @@
-#import "./_fragment/app_pages.graphql"
-
-query appPage($filter:String!) {
-    appPage(filter: $filter) {
-      ...AppPagesInfo
-    }
-}

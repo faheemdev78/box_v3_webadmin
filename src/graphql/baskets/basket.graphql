@@ -1,7 +1,0 @@
-#import "../_fragment/baskets.graphql"
-
-query basket($id: ID!) {
-    basket(id: $id) {
-        ... BasketInfo
-    }
-}

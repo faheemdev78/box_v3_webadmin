@@ -1,8 +1,0 @@
-#import "../_fragment/error.graphql"
-#import "./_fragment/user.graphql"
-
-query user($_id: ID!) {
-    user(_id: $_id) {
-        ...UserInfo
-    }
-}

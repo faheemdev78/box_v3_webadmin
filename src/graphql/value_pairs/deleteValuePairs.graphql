@@ -1,5 +1,0 @@
-mutation deleteValuePairs($_id: ID!) {
-    deleteValuePairs(_id: $_id) {
-        _id    
-    }
-}

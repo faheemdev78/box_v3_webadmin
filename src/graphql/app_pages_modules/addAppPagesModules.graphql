@@ -1,7 +1,0 @@
-#import "../app_pages/_fragment/app_pages_modules.graphql"
-
-mutation addAppPagesModules($input: Add_AppPagesModules!) {
-    addAppPagesModules(input: $input) {
-        ... AppPagesModulesInfo
-    }
-}

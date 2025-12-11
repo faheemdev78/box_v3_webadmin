@@ -1,3 +1,0 @@
-fragment WarningInfo on Warning {
-  code message details
-}

@@ -1,4 +1,0 @@
-fragment SuccessInfo on Success {
-  message
-  details
-}

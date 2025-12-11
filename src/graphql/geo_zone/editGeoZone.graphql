@@ -1,7 +1,0 @@
-#import "./_fragment/geoZone.graphql"
-
-mutation editGeoZone($input: Edit_GeoZoneInput!) {
-    editGeoZone(input: $input) {
-        ... GeoZoneInfo
-    }
-}

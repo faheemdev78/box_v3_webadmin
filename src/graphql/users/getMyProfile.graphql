@@ -1,9 +1,0 @@
-#import "../_fragment/error.graphql"
-#import "./_fragment/user.graphql"
-
-query getMyProfile {
-    getMyProfile {
-        user {...UserInfo}
-        error{ ...ErrorInfo }
-    }
-}

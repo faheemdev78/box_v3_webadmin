@@ -1,7 +1,0 @@
-#import "./_fragment/manufacturer.graphql"
-
-mutation editBrand($input: Add_ManufacturerInput!) {
-    editManufacturer(input: $input) {
-        ... ManufacturerInfo
-    }
-}

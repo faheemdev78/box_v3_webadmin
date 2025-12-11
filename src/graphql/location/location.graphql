@@ -1,7 +1,0 @@
-#import "./_fragment/location.graphql"
-
-query location($_id: ID!) {
-    location(_id: $_id) {
-        ... LocationInfo
-    }
-}

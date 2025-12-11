@@ -1,7 +1,0 @@
-#import "./_fragment/value_pairs.graphql"
-
-query getSystemConfigs{
-    getSystemConfigs{
-        ...ValuePairsInfo
-    }
-}

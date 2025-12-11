@@ -1,7 +1,0 @@
-#import "./_fragment/user_role.graphql"
-
-query userRoleByType($acc_type: String!) {
-    userRoleByType(acc_type:$acc_type) {
-      ... UserRoleInfo
-    }
-}

@@ -1,6 +1,0 @@
-query productCounts($filter: String) {
-    productCounts(filter: $filter) {
-        counts
-        key
-    }
-}

@@ -1,6 +1,0 @@
-mutation deleteBasket($id: ID!) {
-    deleteBasket(id: $id) {
-        _id
-        error{ message }
-    }
-}

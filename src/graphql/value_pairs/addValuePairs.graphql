@@ -1,7 +1,0 @@
-#import "./_fragment/value_pairs.graphql"
-
-mutation addValuePairs($input: Add_ValuePairs!) {
-    addValuePairs(input: $input) {
-        ...ValuePairsInfo
-    }
-}

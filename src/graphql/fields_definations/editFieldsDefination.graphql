@@ -1,7 +1,0 @@
-#import "./_fragment/fieldsDefination.graphql"
-
-mutation editFieldsDefination($input: Edit_FieldsDefinations!) {
-    editFieldsDefination(input: $input) {
-        ... FieldsDefinationsInfo
-    }
-}

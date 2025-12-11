@@ -1,7 +1,0 @@
-#import "./_fragment/geoZone.graphql"
-
-query geoZones($filter: String, $others:String) {
-    geoZones(filter: $filter, others:$others) {
-        ... GeoZoneInfo
-    }
-}

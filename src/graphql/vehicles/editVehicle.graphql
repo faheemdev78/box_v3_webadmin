@@ -1,7 +1,0 @@
-#import "./_fragment/vehicles.graphql"
-
-mutation editVehicle($input: Edit_VehiclesInput!) {
-    editVehicle(input: $input) {
-        ... VehiclesInfo
-    }
-}

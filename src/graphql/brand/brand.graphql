@@ -1,7 +1,0 @@
-#import "../_fragment/brand.graphql"
-
-query brand($id: ID!) {
-    brand(id: $id) {
-        ... BrandInfo
-    }
-}

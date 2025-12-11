@@ -1,6 +1,0 @@
-
-fragment ProductTagInfo on ProductTag {
-  _id
-  title
-  error{ message }
-}

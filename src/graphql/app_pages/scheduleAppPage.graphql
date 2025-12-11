@@ -1,8 +1,0 @@
-#import "./_fragment/app_pages.graphql"
-
-
-mutation scheduleAppPage($input: AppPages_Schedule!) {
-    scheduleAppPage(input: $input) {
-        ... AppPagesInfo
-    }
-}
