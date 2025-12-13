@@ -7,10 +7,9 @@ import _ from 'lodash'
  * DevBlock
  **** this will print anything only in dev environment
  */
-export const DevBlock = props => { // eslint-disable-line react/prefer-stateless-function
-  if(process.env.NODE_ENV !== 'development') return null;
-  
-  const {obj, title} = props;
+export const DevBlock = ({ force = false, obj={}, title=null, ...props }) => { // eslint-disable-line react/prefer-stateless-function
+  if (process.env.NODE_ENV !== 'development' && !props.force) return null;
+  // const {obj, title} = props;
 
   return (<div style={{ overflowX:"auto" }}>
     <pre className={styles.dev_block}>

@@ -14,6 +14,7 @@ import { Header } from "@/template";
 import NextTopLoader from 'nextjs-toploader';
 import { Footer } from '@_/template/footer';
 import { fetchSettings } from '@_/lib/fetchSettings';
+import { DevBlock } from '@_/components';
 
 function StartupError({ error }: { error: Error }) {
   return (
@@ -30,6 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const settings = await fetchSettings();
   if (settings.error) return <StartupError error={settings.error} />
   
+  console.log("process.env: ", JSON.stringify(process.env))
 
   return (
     <html lang="en">
@@ -43,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <NextTopLoader />
                   {children}
                   <Footer />
+                  <DevBlock obj={process.env} force={false} />
                 </ValidateClientSession>
               </ReduxProvider>
             </AntdRegistry>
