@@ -26,7 +26,7 @@ const SlotCopyFormComp = ({ onSuccess, day, deliverySlots, store }: SlotCopyForm
     const [error, setError] = useState<string | null>(null);
     // const settings = useSelector(getSettings);
 
-    const [copyDelierySlotsTo, copy_details] = useMutation(COPY_SLOTS); // { data, loading, error }
+    const [copyDelierySlotsTo, copy_details] = useMutation<any>(COPY_SLOTS); // { data, loading, error }
 
     const onSubmit = async (values: any) => {
         setError(null);

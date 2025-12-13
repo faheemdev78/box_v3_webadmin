@@ -21,7 +21,7 @@ function AppPageCreatorForm({ onClose }: { onClose:Function }) {
     const [data, setData] = useState<{ page_type?: any }>({})
     const router = useRouter()
 
-    const [addAppPage, add_details] = useMutation(ADD_DATA); // { data, loading, error }
+    const [addAppPage, add_details] = useMutation<any>(ADD_DATA); // { data, loading, error }
 
     const onPageTypeUpdate = (page_type: any) => setData({ ...data, page_type });
 

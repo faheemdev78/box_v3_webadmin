@@ -45,7 +45,7 @@ const OrdersList: React.FC<OrdersListProps> = ({
   const settings = useAppSelector(getSettings)
   const isStoreUser = !!(session?.user?.store?._id);
 
-  const [resetOrder, resetOrder_results] = useMutation(RESET_ORDER);
+  const [resetOrder, resetOrder_results] = useMutation<any>(RESET_ORDER);
   const canResetOrder = security.verifyRole('106.9', session.user.permissions); // Order reset permission
 
   const handleTableChange = (pagination: any, filters: any, sorter: any) => {

@@ -36,6 +36,22 @@ import MARK_ORDER_ITEM_DAMAGED from '@/graphql/till_verification/markOrderItemDa
 import MARK_ORDER_ITEM_MISMATCH from '@/graphql/till_verification/markOrderItemMismatch.graphql';
 import PRINT_TILL_RECEIPT from '@/graphql/till_verification/printTillReceipt.graphql';
 
+interface GetTillVerificationQueueData {
+  getTillVerificationQueue?: {
+    orders?: any[];
+    total?: number;
+    error?: {
+      message?: string;
+    };
+  };
+}
+
+interface GetTillVerificationQueueVars {
+  _id_store: string;
+  limit?: number;
+  page?: number;
+}
+
 // ===================================
 // Shift Management Hooks
 // ===================================
@@ -44,8 +60,15 @@ import PRINT_TILL_RECEIPT from '@/graphql/till_verification/printTillReceipt.gra
  * Hook for getting till verification queue
  */
 // TODO: REMOVE this
-export const useTillVerificationQueue = (_id_store: string, limit = 50, page = 1) => {
-  const { data, loading, error, refetch } = useQuery(GET_TILL_QUEUE, {
+export const useTillVerificationQueue = (
+  _id_store: string,
+  limit = 50,
+  page = 1
+) => {
+  const { data, loading, error, refetch } = useQuery<
+    GetTillVerificationQueueData,
+    GetTillVerificationQueueVars
+  >(GET_TILL_QUEUE, {
     variables: { _id_store, limit, page },
     skip: !_id_store,
   });
@@ -67,7 +90,7 @@ export const useMyActiveTillShift = () => {
   const activeShift = useAppSelector(getActiveShift);
   const [ready, setReady] = useState(false)
 
-  const { data, loading, error, refetch } = useQuery(GET_MY_ACTIVE_SHIFT, {
+  const { data, loading, error, refetch } = useQuery<any>(GET_MY_ACTIVE_SHIFT, {
     fetchPolicy: "network-only", // 'cache-and-network',
   });
 
@@ -144,7 +167,7 @@ export const useMyActiveTillShift = () => {
  */
 export const useOpenTillShift = () => {
   const dispatch = useAppDispatch();
-  const [openShiftMutation, { loading }] = useMutation(OPEN_TILL_SHIFT);
+  const [openShiftMutation, { loading }] = useMutation<any>(OPEN_TILL_SHIFT);
 
   const openShift = async (_id_store?: string) => {
     
@@ -190,7 +213,7 @@ export const useOpenTillShift = () => {
  */
 export const useCloseTillShift = () => {
   const dispatch = useAppDispatch();
-  const [closeShiftMutation, { loading }] = useMutation(CLOSE_TILL_SHIFT);
+  const [closeShiftMutation, { loading }] = useMutation<any>(CLOSE_TILL_SHIFT);
 
   const closeShift = async (notes?: string) => {
     dispatch(setLoading(true));
@@ -230,7 +253,7 @@ export const useCloseTillShift = () => {
 export const useStartOrderVerification = () => {
   const dispatch = useAppDispatch();
 
-  const [startOrderMutation, { loading, called }] = useMutation(START_ORDER_VERIFICATION, {
+  const [startOrderMutation, { loading, called }] = useMutation<any>(START_ORDER_VERIFICATION, {
     refetchQueries: [GET_TILL_QUEUE],
   });
 
@@ -270,7 +293,7 @@ export const useStartOrderVerification = () => {
  */
 export const useCompleteOrderVerification = () => {
   const dispatch = useAppDispatch();
-  const [completeOrderMutation, { loading }] = useMutation(COMPLETE_ORDER_VERIFICATION, {
+  const [completeOrderMutation, { loading }] = useMutation<any>(COMPLETE_ORDER_VERIFICATION, {
     refetchQueries: [GET_TILL_QUEUE, GET_MY_ACTIVE_SHIFT],
   });
 
@@ -316,7 +339,7 @@ export const useCompleteOrderVerification = () => {
  */
 export const useVerifyOrderItem = () => {
   const dispatch = useAppDispatch();
-  const [verifyItemMutation, { loading }] = useMutation(VERIFY_ORDER_ITEM);
+  const [verifyItemMutation, { loading }] = useMutation<any>(VERIFY_ORDER_ITEM);
 
   const verifyItem = async (_id_order: string, _id_product: string, qty_verified: number) => {
     // Optimistic update - backend will set status to 'confirmed'
@@ -376,7 +399,7 @@ export const useMarkOrderItemMissing = () => {
   console.log(__yellow("useMarkOrderItemMissing()"))
   
   const dispatch = useAppDispatch();
-  const [markMissingMutation, { loading }] = useMutation(MARK_ORDER_ITEM_MISSING);
+  const [markMissingMutation, { loading }] = useMutation<any>(MARK_ORDER_ITEM_MISSING);
 
   const markMissing = async (_id_order: string, _id_product: string, reason: string) => {
     // Optimistic update - backend will set status to 'out_of_stock'
@@ -435,7 +458,7 @@ export const useMarkOrderItemMissing = () => {
  * Hook for marking item as damaged
  */
 export const useMarkOrderItemDamaged = () => {
-  const [markDamagedMutation, { loading }] = useMutation(MARK_ORDER_ITEM_DAMAGED, {
+  const [markDamagedMutation, { loading }] = useMutation<any>(MARK_ORDER_ITEM_DAMAGED, {
     // refetchQueries: [GET_MY_LOCKED_ORDERS],
   });
 
@@ -466,7 +489,7 @@ export const useMarkOrderItemDamaged = () => {
  */
 export const useMarkOrderItemMismatch = () => {
   const dispatch = useAppDispatch();
-  const [markMismatchMutation, { loading }] = useMutation(MARK_ORDER_ITEM_MISMATCH);
+  const [markMismatchMutation, { loading }] = useMutation<any>(MARK_ORDER_ITEM_MISMATCH);
 
   const markMismatch = async (
     _id_order: string,
@@ -556,7 +579,7 @@ export const useItemVerificationActions = () => {
  * Hook for printing till receipt
  */
 export const usePrintTillReceipt = () => {
-  const [printReceiptMutation, { loading }] = useMutation(PRINT_TILL_RECEIPT);
+  const [printReceiptMutation, { loading }] = useMutation<any>(PRINT_TILL_RECEIPT);
 
   const printReceipt = async (_id_order: string) => {
     try {

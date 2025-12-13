@@ -33,8 +33,6 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
-  
-  turbopack: {},
 
   // webpack: (config, { isServer }) => {
   //   config.module.rules.push({
@@ -48,6 +46,9 @@ const nextConfig: NextConfig = {
   //   });
   //   return config;
   // },
+
+  // Disable Turbopack to use webpack with graphql-tag/loader
+  // turbopack: {},
 
 };
 

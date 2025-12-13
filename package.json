@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^2.0.1",
@@ -69,12 +70,18 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@graphql-tools/webpack-loader": "^7.0.0",
     "@tailwindcss/postcss": "^4",
+    "@types/lodash": "^4.17.21",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.0.8",
+    "graphql-loader": "^1.2.1",
+    "graphql-tag": "^2.12.6",
+    "sass": "^1.96.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

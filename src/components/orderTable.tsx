@@ -83,7 +83,7 @@ export function OrderTable({
 
     const router = useRouter()
 
-    const [resetOrder, resetOrder_results] = useMutation(RESET_ORDER);
+    const [resetOrder, resetOrder_results] = useMutation<any>(RESET_ORDER);
 
     const tableProps: any = {}
     if (handleTableChange) Object.assign(tableProps, {

@@ -3,7 +3,7 @@
  * Wraps GraphQL queries and mutations with Redux state management
  */
 
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client/react';
 import { useAppDispatch, useAppSelector } from '@_/rStore/hooks';
 import {
   startSession,

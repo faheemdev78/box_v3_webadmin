@@ -1,0 +1,127 @@
+// /**
+//  * Till Verification Queue Page
+//  * Route: /console/store/[store_id]/till-verification
+//  */
+
+// // 'use client';
+
+// // import React from 'react';
+// import { OrdersList } from './components/ordersList.tsx';
+
+// export default async function OrdersReadyToDispatchPage({ params }) {
+//   const { store_id } = await params;
+
+//   return <OrdersList _id_store={store_id} />;
+// }
+
+
+
+'use client';
+
+import { useEffect, useState } from "react";
+import { useMutation, useLazyQuery } from '@apollo/client/react';
+import { __error } from '@_/lib/consoleHelper';
+import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
+import { Card, message, Row, Space, Tag, Typography } from "antd";
+import { catchApolloError, checkApolloRequestErrors } from "@_/lib/utill_apollo";
+import OrdersList, { defaultProps } from "@_/modules/orders/ordersList";
+import { Button, DevBlock, OrderTable, usePageProps } from '@_/components';
+import { Page } from "@_/template";
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+// import LIST_DATA from '@_/graphql/order/ordersQuery.graphql'
+import LIST_DATA from '@_/graphql/order/getReadyToDispatchQueue.graphql';
+
+dayjs.extend(relativeTime);
+
+const { Title, Text } = Typography;
+const defaultFilter = {};
+
+
+function ReadytoDispatchList(props:any) {
+  const { store } = usePageProps() as unknown as { store: any }
+  
+  const [state, setState] = useState({
+      pagination: defaultPagination,
+      pageView: "list",
+      dataSource: null,
+      filter: { ...defaultFilter },
+      _id_store: store._id,
+  })
+
+  const [getReadyToDispatchQueue, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
+  
+  const fetchData = async ({ filter = {}, pagination={} }: { filter?: any; pagination?: { pageSize?: number; current?: number } }) => {
+      const variables = {
+          limit: pagination?.pageSize || state.pagination.pageSize,
+          page: pagination?.current || state.pagination.current,
+          filter: filter || state.filter || {},
+          others: (state as any).others || {},
+          _id_store: store._id,
+      }
+
+    const resutls = await getReadyToDispatchQueue({ 
+          variables: {
+              ...variables,
+              filter: JSON.stringify({ ...variables.filter, 'store._id': store._id }),
+              others: JSON.stringify(variables.others || {})
+          }
+        })
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.getReadyToDispatchQueue }))
+          .catch(catchApolloError)
+
+      if (resutls && resutls.error) {
+          message.error(resutls.error.message);
+          return;
+      }
+
+      setState({
+          ...state,
+          pagination: { 
+              ...state.pagination,
+              current: resutls.pagination.page,
+              total: resutls.pagination.totalDocs,
+              // resutls.pagination.totalPages,
+              pageSize: resutls.pagination.limit,
+          },
+          filter: variables.filter,
+          dataSource: resutls?.edges,
+      })
+
+  }
+
+  useEffect(() => {
+      if (called || loading) return
+      fetchData({})
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [called, loading])
+    
+
+  return (<>
+    <Page>
+      <Card
+          title={<Space>
+              <Title level={3} style={{ margin: 0 }}>Ready To Dispatch</Title>
+              {!loading && <Tag color="green">{state?.pagination?.total || 0} orders found</Tag>}
+          </Space>}
+          extra={<Button onClick={() => fetchData({ filter: state.filter, pagination: state.pagination })} loading={loading}>Refresh</Button>}
+          styles={{ body: { padding: 0 } }}
+      >
+          <OrderTable
+              busy={false} 
+              columns={['serial', 'customer', 'picker', 'order', 'delivery_slot', 'status', 'createdAt', {
+                key: 'actions',
+                options: { reset: true, till_verification: false }
+              }]} 
+              dataSource={state.dataSource || []}
+              pagination={state.pagination}
+              scroll={{ x: 1200 }}
+          />
+      </Card>
+    </Page>
+
+  </>)
+}
+
+export default ReadytoDispatchList;

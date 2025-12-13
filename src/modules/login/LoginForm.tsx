@@ -19,7 +19,7 @@ import LOGIN_MUTATION from '@/graphql/users/login.graphql'
 const APP_VER = process.env.APP_VER;
 
 const LoginForm = () => {
-    const [loginMutation, { loading, error }] = useMutation(LOGIN_MUTATION);
+    const [loginMutation, { loading, error }] = useMutation<any>(LOGIN_MUTATION);
 
     // const [error, setError] = useState(false)
     const [messageApi, contextHolder] = message.useMessage();

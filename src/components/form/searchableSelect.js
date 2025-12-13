@@ -5,7 +5,7 @@ import { FormField } from './FormField';
 import debounce from 'lodash/debounce';
 import { Spin, Select, message } from 'antd';
 import { __error } from '@/lib/consoleHelper';
-import { useMutation, useLazyQuery, gql } from '@apollo/client/react';
+import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
 

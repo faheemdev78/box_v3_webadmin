@@ -1,0 +1,157 @@
+'use client'
+
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { useMutation, useLazyQuery } from '@apollo/client/react';
+import { Alert, Breadcrumb, Col, message, Popconfirm, Row, Space } from 'antd';
+import { Button, DeleteButton, IconButton, Loader, MapComponent, Table, usePageProps } from '@_/components';
+import { ColumnsType } from 'antd/es/table';
+import { adminRoot, defaultPageSize } from '@_/configs';
+import Link from 'next/link';
+// import { useRouter } from 'next/navigation';
+// import StoreWrapper from '@_/modules/store/storeWrapper';
+import { ZonesFilter } from '@_/modules/geo_zones';
+import { Page } from '@_/template/page';
+import { PageHeader } from '@_/template';
+import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { __error } from '@_/lib/consoleHelper';
+
+import LIST_DATA from '@_/graphql/geo_zone/geoZoneQuery.graphql'
+import RECORD_DELETE from '@_/graphql/geo_zone/deleteGeoZone.graphql';
+
+const defaultFilter = {}; // { status: 'online' }
+
+function StoreZones() {
+    const map = useRef(null);
+    const maps = useRef(null);
+
+    const { store } = usePageProps() as { store: any }
+
+    const [state, setState] = useState({
+        pagination: { current: 1 },
+        pageView: "list",
+        filter: { ...defaultFilter, "store._id": store._id },
+        busy: false,
+    })
+    const [dataArray, set_dataArray] = useState<any | null>(null)
+
+    const [deleteGeoZone, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
+    const [geoZoneQuery, { called, loading }] = useLazyQuery( LIST_DATA,
+        // { variables: { filter: JSON.stringify({}) } }
+    );
+
+    useEffect(() => {
+        if (called || loading) return
+        fetchData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [store._id, called, loading])
+
+    const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
+        let limit = args?.pageSize || defaultPageSize;
+        let current = args?.current || 1;
+        let skip = limit * (current - 1);
+
+        let filter = { ...state.filter };
+        if (args.filter) filter = { ...args.filter };
+        Object.assign(filter, { "store._id": store._id })
+
+        setState({ ...state, filter, pagination: { current } })
+
+        const results = await geoZoneQuery({
+            variables: {
+                limit,
+                page: skip,
+                filter: JSON.stringify(filter), // JSON.stringify(filter), 
+                others: JSON.stringify({})
+            }
+        })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.geoZoneQuery }))
+            .catch(catchApolloError)
+
+        if (results && results.error) {
+            message.error((results && results?.error?.message) || "No records found!")
+            return false;
+        }
+
+        set_dataArray(results)
+    }
+
+    const handleDelete = async ({ _id }: {_id:string}) => {
+        let results = await deleteGeoZone({ variables: { _id } })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.deleteGeoZone }))
+            .catch(catchApolloError)
+
+        if (!results || results.error) {
+            message.error((results && results?.error?.message) || "Unable to delete record")
+            return false;
+        }
+
+        message.success("Record deleted")
+        fetchData()
+    }
+
+    async function onFilterUpdate(values: any){
+        await fetchData({ filter: values })
+        return false;
+    }
+  
+
+    const columns: ColumnsType<any> = [
+        { title: 'Zone Name', dataIndex: 'title', key: 'title', render:(__: any, rec: any) => {
+            return <Link href={`${adminRoot}/store/${store._id}/zone/${rec._id}`}>{rec.title}</Link>
+        } },
+        { title: 'Store', dataIndex: ['store', 'title'], key: 'store' },
+        { title: 'Type', dataIndex: 'type', width: '20%',
+            filters: [
+                { text: 'Service Area', value: 'service' },
+                { text: 'Delivery Zones', value: 'delivery' },
+            ],
+            onFilter: (value: string | number | boolean, record: any) => record.type.indexOf(value) === 0,
+            sorter: (a: any, b: any) => a.type.length - b.type.length,
+            // defaultSortOrder: 'descend',
+        },
+        {
+            title: 'city', dataIndex: ['city', 'title'], width: '20%',
+            sorter: (a: any, b: any) => a.city.length - b.city.length,
+            defaultSortOrder: 'descend' as const,
+        },
+        { title: 'Status', dataIndex: 'status', key: 'status', width: 100, align: 'center' as const },
+        {
+            title: 'Actions', dataIndex: 'actions', width: 120, key: 'actions', align: 'right',
+            render: (_text: any, rec: any) => {
+                return (<Space>
+                    <DeleteButton onClick={() => handleDelete(rec)} />
+                    {/* <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}><IconButton icon="trash-alt" /></Popconfirm> */}
+                </Space>)
+            }
+        },
+    ];
+
+    return (<>
+        <PageHeader title={`Geo Zones`}
+            sub={<div><Breadcrumb items={[
+                { title: <Link href={`${adminRoot}/store/${store._id}`}>{store.title}</Link> },
+            ]} /></div>}
+        >
+            <Button color="orange" type="link"><Link href={`${adminRoot}/store/${store._id}/zone/new`}>Add New Geo Zone</Link></Button>
+        </PageHeader>
+
+        <Page>
+            <Table
+                title={() => (<ZonesFilter onUpdate={onFilterUpdate} />)}
+                loading={loading}
+                columns={columns}
+                dataSource={dataArray?.edges || []}
+                pagination={false}
+            />
+        </Page>
+
+    </>)
+
+}
+
+export default StoreZones
+
+
+// export default function Wrapper(props){
+//     return (<StoreWrapper {...props} render={({ store }) => (<StoreZones store={store} />)} />)
+// }

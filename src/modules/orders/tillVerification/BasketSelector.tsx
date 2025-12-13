@@ -40,7 +40,7 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
   const [selectedBaskets, setSelectedBaskets] = useState<string[]>([]);
 
   // Query available delivery baskets
-  const { data, loading, error, refetch } = useQuery(GET_AVAILABLE_BASKETS, {
+  const { data, loading, error, refetch } = useQuery<any>(GET_AVAILABLE_BASKETS, {
     variables: { _id_store: storeId, category, limit: 50 },
     skip: !storeId,
   });

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import { useMutation, useLazyQuery, gql } from '@apollo/client/react';
+import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { __error } from '@/lib/consoleHelper';
 // import DevBlock from './devBlock';
 import { Loader } from './loader';

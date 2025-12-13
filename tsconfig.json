@@ -18,29 +18,33 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+    "typeRoots": [
+      "@types",
+      "src/@types",
+      "node_modules/@types"
+    ],
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@_/*": ["./src/*"],
+      "@/*": ["./src/*"]
     }
   },
   "include": [
+    "src/**/*",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
+    "**/*.d.ts",
     ".next/dev/dev/types/**/*.ts"
   ],
-  "files": [
-    "@types/graphql.d.ts"
-  ],
+  "files": ["@types/graphql.d.ts"],
   "exclude": [
     "node_modules",
     "**/*.spec.ts"

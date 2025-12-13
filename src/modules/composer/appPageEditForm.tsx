@@ -12,16 +12,22 @@ import { Button } from '@/components';
 import EDIT_DATA from '@/graphql/app_pages/editAppPage.graphql'
 
 function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel: Function }) {
-    const [error, setError] = useState(null)
+    const [error, setError] = useState<string | null>(null)
     const [busy, setBusy] = useState(false)
     const form = useForm()
 
-    const [editAppPage, update_details] = useMutation(EDIT_DATA); // { data, loading, error }
+    const [editAppPage, update_details] = useMutation<any>(EDIT_DATA); // { data, loading, error }
 
     const saveSettings = async() => {
         setBusy(true)
         setError(null)
         let values = form.getState().values
+
+        if (!values) {
+            setError('Form values are empty');
+            setBusy(false);
+            return false;
+        }
 
         const input = {
             _id: values._id,

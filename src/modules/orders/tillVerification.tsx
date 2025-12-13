@@ -29,9 +29,9 @@ function TillVerification({ serial }: { serial:string }) {
     const [busy, setBusy] = useState(false);
     const [verificationStatus, setVerificationStatus] = useState('pending'); // pending, verified, rejected
 
-    const [getOrderDetails, { loading }] = useLazyQuery(ORDER_DETAILS_QUERY, { fetchPolicy: "network-only" });
-    const [verifyOrder] = useMutation(VERIFY_ORDER_AT_TILL);
-    const [rejectOrder] = useMutation(REJECT_ORDER_AT_TILL);
+    const [getOrderDetails, { loading }] = useLazyQuery<any>(ORDER_DETAILS_QUERY, { fetchPolicy: "network-only" });
+    const [verifyOrder] = useMutation<any>(VERIFY_ORDER_AT_TILL);
+    const [rejectOrder] = useMutation<any>(REJECT_ORDER_AT_TILL);
 
     const fetchOrderDetails = async () => {
         setBusy(true);

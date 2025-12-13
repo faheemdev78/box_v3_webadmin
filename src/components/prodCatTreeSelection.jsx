@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { __error, __yellow } from '@/lib/consoleHelper';
 import _ from 'lodash'
 import { Col, message, Row, Space, Switch, Tree, TreeSelect, Select as AntSelect, Button } from 'antd';
-import { useLazyQuery, gql } from '@apollo/client/react';
+import { useLazyQuery } from '@apollo/client/react';
+import { gql } from '@apollo/client';
 import { Field } from 'react-final-form'
 import { Icon } from './icon';
 import { Loader } from './loader';

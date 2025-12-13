@@ -34,8 +34,9 @@ export function TopBar({ menuArray, session }: {
                     return (<Popover
                         color="#2D3E51"
                         placement="bottom"
-                        // classNames={{ body: "menu-bar-item-children" }}
-                        styles={{ body: { padding: 0, margin: 0, border: "0px solid red" } }}
+                        styles={{
+                            container: { padding: 0, margin: 0, border: "0px solid red" }
+                        }}
                         title={false}
                         content={filterPermissions(item.children, session)?.map((ch: any, ii: number) => (<LinkComp className={`${matchUrl(ch.href) ? 'active' : ''}`} href={ch.href || '#'} key={ii}>{ch.title}</LinkComp>))}
                         arrow={true}
@@ -94,8 +95,13 @@ export function PageBar({ menuArray, _session, pop_item_style }: {
 
                     return (<Popover
                         placement="bottom"
-                        classNames={{ body: "menu-bar-dd-children" }}
-                        styles={{ body: { padding: 0, margin: 0, border: "0px solid red" } }}
+                        classNames={{
+                            // body: "menu-bar-dd-children",
+                            container: "menu-bar-dd-children"
+                        }}
+                        styles={{
+                            container: { padding: 0, margin: 0, border: "0px solid red" }
+                        }}
                         title={false}
                         content={filterPermissions(item.children, session)?.map((ch: any, ii: number) => (<LinkComp style={pop_item_style} className={`${matchUrl(ch.href) ? 'active' : ''}`} href={ch.href} key={ii}>{ch.title}</LinkComp>))}
                         arrow={true}
