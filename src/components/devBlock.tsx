@@ -1,4 +1,4 @@
-// 'use client'
+'use client'
 import styles from './DevBlock.module.scss'
 import { jsonStringify } from '@/lib/utill';
 import _ from 'lodash'
