@@ -14,9 +14,11 @@ function ConsoleHome() {
 
     useEffect(() => {
         if (!session || !session.token) {
+            console.log("Redirecting to /login")
             redirect('/login', RedirectType.replace);
             // router.replace('/login');
         } else {
+            console.log("Redirecting to admin: ", adminRoot)
             redirect(adminRoot, RedirectType.replace);
             // router.replace(adminRoot);
         }

@@ -8,6 +8,7 @@ import GET_CONFIGS from '@/graphql/settings/getSystemConfigs.graphql';
 
 
 export async function fetchSettings() {
+    console.log("fetchSettings()")
     const client = createApolloClient();
 
     const results = await client.query({ 

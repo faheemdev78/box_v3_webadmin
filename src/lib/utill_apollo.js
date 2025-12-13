@@ -4,7 +4,12 @@ import { __error } from "./consoleHelper";
     .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.user }))
 */
 export function checkApolloRequestErrors({ results, allowEmpty = false, parseReturn }){
-    console.log("results: ", results)
+    
+    try {
+        console.log("results: ", JSON.stringify(results, 0, 2))
+    } catch (error) {
+        console.log("results: ", results)        
+    }
     
     if (!results && allowEmpty) return results;
     if (!results) return { error: { message:"Invalid or empty results!" } }
