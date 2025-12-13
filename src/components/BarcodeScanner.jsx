@@ -1,3 +1,4 @@
+'use client'
 import React, { Component } from 'react'
 import BarcodeReader from 'react-barcode-reader'
 import { __error } from '@/lib/consoleHelper';

@@ -2,13 +2,19 @@
 import styles from './DevBlock.module.scss'
 import { jsonStringify } from '@/lib/utill';
 import _ from 'lodash'
+import { ReactElement } from 'react';
 
 /**
  * DevBlock
  **** this will print anything only in dev environment
  */
-export const DevBlock = ({ force = false, obj={}, title=null, ...props }) => { // eslint-disable-line react/prefer-stateless-function
-  if (process.env.NODE_ENV !== 'development' && !props.force) return null;
+export const DevBlock = ({ force=false, obj, title, ...props }:{
+  force?: boolean;
+  obj: any;
+  title?: string | null;
+  children?: ReactElement
+}) => { // eslint-disable-line react/prefer-stateless-function
+  if (process.env.NODE_ENV !== 'development' && !force) return null;
   // const {obj, title} = props;
 
   return (<div style={{ overflowX:"auto" }}>

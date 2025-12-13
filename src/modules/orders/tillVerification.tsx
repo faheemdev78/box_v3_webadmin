@@ -304,7 +304,7 @@ function TillVerification({ serial }: { serial:string }) {
                 </Col>
             </Row>
 
-            <DevBlock data={{ order }} />
+            <DevBlock obj={{ order }} />
         </div>
     );
 }

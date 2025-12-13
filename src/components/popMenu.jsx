@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react'
 import { Popover, Space } from 'antd'
 import { Button, DeleteButton } from './button'

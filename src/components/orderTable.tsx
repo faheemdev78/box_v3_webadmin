@@ -1,3 +1,4 @@
+'use client'
 import React, { useState } from 'react'
 import { Table } from './table';
 import Link from 'next/link';
