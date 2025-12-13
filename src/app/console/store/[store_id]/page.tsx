@@ -256,7 +256,9 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                                   {Math.abs(DASHBOARD_DATA.comparison.revenue)}%
                               </span>
                           }
-                          valueStyle={{ color: '#3f8600' }}
+                          styles={{
+                              content: { color: '#3f8600' }
+                          }}
                       />
                       <div style={{ marginTop: 8, fontSize: 12, color: '#999' }}>vs yesterday</div>
                   </Card>
@@ -327,7 +329,12 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                   {Math.abs(DASHBOARD_DATA.comparison.revenue)}%
                 </span>
               }
-              valueStyle={{ color: '#3f8600' }}
+                styles={{
+                    content: {
+                        color: '#3f8600'
+                    }
+                }}
+
             />
             <div style={{ marginTop: 8, fontSize: 12, color: '#999' }}>vs yesterday</div>
           </Card>
@@ -392,7 +399,12 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                               title="Pending"
                               value={DASHBOARD_DATA.ordersByStatus.pending}
                               prefix={<ClockCircleOutlined style={{ color: '#faad14' }} />}
-                              valueStyle={{ color: '#faad14' }}
+                                styles={{
+                                    content: {
+                                        color: '#faad14'
+                                    }
+                                }}
+
                           />
                       </Col>
                       <Col xs={12} sm={8} md={6}>
@@ -400,7 +412,12 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                               title="Processing"
                               value={DASHBOARD_DATA.ordersByStatus.processing}
                               prefix={<SyncOutlined spin style={{ color: '#1890ff' }} />}
-                              valueStyle={{ color: '#1890ff' }}
+                                styles={{
+                                    content: {
+                                        color: '#1890ff'
+                                    }
+                                }}
+
                           />
                       </Col>
                       <Col xs={12} sm={8} md={6}>
@@ -408,7 +425,12 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                               title="Out for Delivery"
                               value={DASHBOARD_DATA.ordersByStatus.out_for_delivery}
                               prefix={<ShoppingCartOutlined style={{ color: '#13c2c2' }} />}
-                              valueStyle={{ color: '#13c2c2' }}
+                                styles={{
+                                    content: {
+                                        color: '#13c2c2'
+                                    }
+                                }}
+
                           />
                       </Col>
                       <Col xs={12} sm={8} md={6}>
@@ -416,14 +438,24 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                               title="Delivered"
                               value={DASHBOARD_DATA.ordersByStatus.delivered}
                               prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
-                              valueStyle={{ color: '#52c41a' }}
+                                styles={{
+                                    content: {
+                                        color: '#52c41a'
+                                    }
+                                }}
+
                           />
                       </Col>
                       <Col xs={12} sm={8} md={6}>
                           <Statistic
                               title="Ready for Pickup"
                               value={DASHBOARD_DATA.ordersByStatus.ready_for_pickup}
-                              valueStyle={{ color: '#722ed1' }}
+                                styles={{
+                                    content: {
+                                        color: '#722ed1'
+                                    }
+                                }}
+
                           />
                       </Col>
                       <Col xs={12} sm={8} md={6}>
@@ -431,7 +463,12 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                               title="Cancelled"
                               value={DASHBOARD_DATA.ordersByStatus.cancelled}
                               prefix={<CloseCircleOutlined style={{ color: '#8c8c8c' }} />}
-                              valueStyle={{ color: '#8c8c8c' }}
+                                styles={{
+                                    content: {
+                                        color: '#8c8c8c'
+                                    }
+                                }}
+
                           />
                       </Col>
                       <Col xs={12} sm={8} md={6}>
@@ -439,7 +476,12 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                               title="Declined"
                               value={DASHBOARD_DATA.ordersByStatus.declined}
                               prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
-                              valueStyle={{ color: '#ff4d4f' }}
+                                styles={{
+                                    content: {
+                                        color: '#ff4d4f'
+                                    }
+                                }}
+
                           />
                       </Col>
                   </Row>
@@ -473,7 +515,12 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                           value={DASHBOARD_DATA.revenueChart.reduce((sum, item) => sum + item.revenue, 0)}
                           precision={2}
                           prefix={currency}
-                          valueStyle={{ fontSize: 24 }}
+                            styles={{
+                                content: {
+                                    fontSize: 24
+                                }
+                            }}
+
                       />
                   </div>
               </Card>
@@ -510,7 +557,12 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                       value={DASHBOARD_DATA.monthStats.revenue}
                       precision={2}
                       prefix={<CurrencyIcon style={{ top: "-4px" }} />}
-                      valueStyle={{ color: '#3f8600', fontSize: 28 }}
+                        styles={{
+                            content: {
+                                color: '#3f8600', fontSize: 28
+                            }
+                        }}
+
                   />
                   <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                       <Col span={12}>
@@ -532,14 +584,24 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                           <Statistic
                               title="New Customers"
                               value={DASHBOARD_DATA.monthStats.newCustomers}
-                              valueStyle={{ color: '#1890ff' }}
+                                styles={{
+                                    content: {
+                                        color: '#1890ff'
+                                    }
+                                }}
+
                           />
                       </Col>
                       <Col span={12}>
                           <Statistic
                               title="Returning"
                               value={DASHBOARD_DATA.monthStats.returningCustomers}
-                              valueStyle={{ color: '#52c41a' }}
+                                styles={{
+                                    content: {
+                                        color: '#52c41a'
+                                    }
+                                }}
+
                           />
                       </Col>
                   </Row>
@@ -611,21 +673,27 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                       title="Total Customers"
                       value={DASHBOARD_DATA.customerStats.total}
                       prefix={<TeamOutlined />}
-                      valueStyle={{ fontSize: 28 }}
+                      styles={{
+                          content: { fontSize: 28 }
+                      }}
                   />
                   <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                       <Col span={12}>
                           <Statistic
                               title="New This Month"
                               value={DASHBOARD_DATA.customerStats.new_this_month}
-                              valueStyle={{ color: '#1890ff' }}
+                              styles={{
+                                  content: { color: '#1890ff' }
+                              }}
                           />
                       </Col>
                       <Col span={12}>
                           <Statistic
                               title="Active"
                               value={DASHBOARD_DATA.customerStats.active}
-                              valueStyle={{ color: '#52c41a' }}
+                              styles={{
+                                  content: { color: '#52c41a' }
+                              }}
                           />
                       </Col>
                       <Col span={24}>

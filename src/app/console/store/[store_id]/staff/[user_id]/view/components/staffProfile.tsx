@@ -303,7 +303,9 @@ export function StaffProfile() {
                                     value={PERFORMANCE_METRICS.customer_satisfaction}
                                     suffix="/ 5.0"
                                     prefix={<TrophyOutlined />}
-                                    valueStyle={{ color: '#3f8600' }}
+                                    styles={{
+                                        content: { color: '#3f8600' }
+                                    }}
                                 />
                             </Col>
                             <Col xs={12} sm={8} md={6}>
@@ -379,7 +381,9 @@ export function StaffProfile() {
                                             title="Compliments"
                                             value={PERFORMANCE_METRICS.customer_compliments}
                                             prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
-                                            valueStyle={{ color: '#52c41a' }}
+                                            styles={{
+                                                content: { color: '#52c41a' }
+                                            }}
                                         />
                                     </Card>
                                 </Col>
@@ -389,7 +393,9 @@ export function StaffProfile() {
                                             title="Complaints"
                                             value={PERFORMANCE_METRICS.customer_complaints}
                                             prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
-                                            valueStyle={{ color: '#ff4d4f' }}
+                                            styles={{
+                                                content: { color: '#ff4d4f' }
+                                            }}
                                         />
                                     </Card>
                                 </Col>
@@ -400,7 +406,9 @@ export function StaffProfile() {
                                             value={PERFORMANCE_METRICS.training_completed}
                                             suffix={`/ ${PERFORMANCE_METRICS.training_completed + PERFORMANCE_METRICS.training_pending}`}
                                             prefix={<TrophyOutlined style={{ color: '#1890ff' }} />}
-                                            valueStyle={{ color: '#1890ff' }}
+                                            styles={{
+                                                content: { color: '#1890ff' }
+                                            }}
                                         />
                                     </Card>
                                 </Col>
@@ -426,7 +434,9 @@ export function StaffProfile() {
                                 <Statistic
                                     title="Present"
                                     value={ATTENDANCE_SUMMARY.present_days}
-                                    valueStyle={{ color: '#3f8600' }}
+                                    styles={{
+                                        content: { color: '#3f8600' }
+                                    }}
                                     prefix={<CheckCircleOutlined />}
                                 />
                             </Col>
@@ -434,7 +444,9 @@ export function StaffProfile() {
                                 <Statistic
                                     title="Absent"
                                     value={ATTENDANCE_SUMMARY.absent_days}
-                                    valueStyle={{ color: '#cf1322' }}
+                                    styles={{
+                                        content: { color: '#cf1322' }
+                                    }}
                                     prefix={<CloseCircleOutlined />}
                                 />
                             </Col>
@@ -442,7 +454,9 @@ export function StaffProfile() {
                                 <Statistic
                                     title="Late"
                                     value={ATTENDANCE_SUMMARY.late_days}
-                                    valueStyle={{ color: '#d46b08' }}
+                                    styles={{
+                                        content: { color: '#d46b08' }
+                                    }}
                                 />
                             </Col>
                             <Col xs={12} sm={8} md={4}>

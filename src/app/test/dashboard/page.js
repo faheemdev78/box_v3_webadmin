@@ -4,7 +4,7 @@ import { getServerSessionToken } from "@_/lib/auth/server";
 import { getCurrentUser } from "@_/lib/auth";
 
 async function Dashboard() {
-    const session = getServerSessionToken();
+    const session = await getServerSessionToken();
     const user = await getCurrentUser(session);
     
     if (!user || !user._id) return <p>User not found!</p>

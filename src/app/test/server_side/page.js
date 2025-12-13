@@ -6,7 +6,7 @@ import TEST_QUERY from "@_/graphql/test/testQuery.graphql";
 
 
 export default async function ServerSide() {
-    const token = getServerSessionToken();
+    const token = await getServerSessionToken();
 
     const { data, loading, error } = await client.query({
         query: TEST_QUERY,

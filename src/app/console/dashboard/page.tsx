@@ -348,7 +348,11 @@ function ConsoleHome() {
                             value={DASHBOARD_DATA.overallStats.totalRevenue}
                             precision={2}
                             prefix={<CurrencyIcon />}
-                            valueStyle={{ color: '#3f8600', fontSize: 24 }}
+                            styles={{
+                                content: {
+                                    color: '#3f8600', fontSize: 24
+                                }
+                            }}
                             suffix={
                                 <span style={{ fontSize: 12, color: '#3f8600' }}>
                                     <RiseOutlined /> {DASHBOARD_DATA.comparison.revenue}%
@@ -363,7 +367,12 @@ function ConsoleHome() {
                             title="Total Orders"
                             value={DASHBOARD_DATA.overallStats.totalOrders}
                             prefix={<ShoppingCartOutlined />}
-                            valueStyle={{ fontSize: 24 }}
+                            styles={{
+                                content: {
+                                    fontSize: 24
+                                }
+                            }}
+
                             suffix={
                                 <span style={{ fontSize: 12, color: '#3f8600' }}>
                                     <RiseOutlined /> {DASHBOARD_DATA.comparison.orders}%
@@ -378,7 +387,12 @@ function ConsoleHome() {
                             title="Total Customers"
                             value={DASHBOARD_DATA.overallStats.totalCustomers}
                             prefix={<TeamOutlined />}
-                            valueStyle={{ fontSize: 24 }}
+                            styles={{
+                                content: {
+                                    fontSize: 24
+                                }
+                            }}
+
                             suffix={
                                 <span style={{ fontSize: 12, color: '#3f8600' }}>
                                     <RiseOutlined /> {DASHBOARD_DATA.comparison.customers}%
@@ -394,7 +408,13 @@ function ConsoleHome() {
                             value={DASHBOARD_DATA.overallStats.activeStores}
                             suffix={`/ ${DASHBOARD_DATA.overallStats.totalStores}`}
                             prefix={<ShopOutlined />}
-                            valueStyle={{ fontSize: 24, color: '#1890ff' }}
+                            styles={{
+                                content: {
+                                    fontSize: 24,
+                                    color: '#1890ff'
+                                }
+                            }}
+
                         />
                     </Card>
                 </Col>
@@ -405,7 +425,12 @@ function ConsoleHome() {
                             value={DASHBOARD_DATA.overallStats.avgOrderValue}
                             precision={2}
                             prefix={currency}
-                            valueStyle={{ fontSize: 24 }}
+                            styles={{
+                                content: {
+                                    fontSize: 24,
+                                }
+                            }}
+
                         />
                     </Card>
                 </Col>
@@ -416,7 +441,13 @@ function ConsoleHome() {
                             value={DASHBOARD_DATA.driverStats.active_today}
                             suffix={`/ ${DASHBOARD_DATA.driverStats.total}`}
                             prefix={<CarOutlined />}
-                            valueStyle={{ fontSize: 24, color: '#722ed1' }}
+                            styles={{
+                                content: {
+                                    fontSize: 24,
+                                    color: '#722ed1'
+                                }
+                            }}
+
                         />
                     </Card>
                 </Col>
@@ -453,42 +484,73 @@ function ConsoleHome() {
                                 <Statistic
                                     title="Pending"
                                     value={DASHBOARD_DATA.ordersByStatus.pending}
-                                    valueStyle={{ color: '#faad14' }}
+                                    styles={{
+                                        content: {
+                                            fontSize: 24,
+                                            color: '#faad14'
+                                        }
+                                    }}
+
                                 />
                             </Col>
                             <Col xs={12} sm={8} md={6}>
                                 <Statistic
                                     title="Processing"
                                     value={DASHBOARD_DATA.ordersByStatus.processing}
-                                    valueStyle={{ color: '#1890ff' }}
+                                    styles={{
+                                        content: {
+                                            fontSize: 24,
+                                            color: '#1890ff'
+                                        }
+                                    }}
                                 />
                             </Col>
                             <Col xs={12} sm={8} md={6}>
                                 <Statistic
                                     title="Out for Delivery"
                                     value={DASHBOARD_DATA.ordersByStatus.out_for_delivery}
-                                    valueStyle={{ color: '#13c2c2' }}
+                                    styles={{
+                                        content: {
+                                            fontSize: 24,
+                                            color: '#13c2c2'
+                                        }
+                                    }}
                                 />
                             </Col>
                             <Col xs={12} sm={8} md={6}>
                                 <Statistic
                                     title="Delivered"
                                     value={DASHBOARD_DATA.ordersByStatus.delivered}
-                                    valueStyle={{ color: '#52c41a' }}
+                                    styles={{
+                                        content: {
+                                            fontSize: 24,
+                                            color: '#52c41a'
+                                        }
+                                    }}
                                 />
                             </Col>
                             <Col xs={12} sm={8} md={6}>
                                 <Statistic
                                     title="Ready for Pickup"
                                     value={DASHBOARD_DATA.ordersByStatus.ready_for_pickup}
-                                    valueStyle={{ color: '#722ed1' }}
+                                    styles={{
+                                        content: {
+                                            fontSize: 24,
+                                            color: '#722ed1'
+                                        }
+                                    }}
                                 />
                             </Col>
                             <Col xs={12} sm={8} md={6}>
                                 <Statistic
                                     title="Cancelled"
                                     value={DASHBOARD_DATA.ordersByStatus.cancelled}
-                                    valueStyle={{ color: '#8c8c8c' }}
+                                    styles={{
+                                        content: {
+                                            fontSize: 24,
+                                            color: '#8c8c8c'
+                                        }
+                                    }}
                                 />
                             </Col>
                         </Row>
@@ -529,7 +591,12 @@ function ConsoleHome() {
                                     value={DASHBOARD_DATA.todayStats.revenue}
                                     precision={2}
                                     prefix={currency}
-                                    valueStyle={{ color: '#3f8600' }}
+                                    styles={{
+                                        content: {
+                                            color: '#3f8600'
+                                        }
+                                    }}
+
                                 />
                             </Col>
                             <Col span={12}>
@@ -543,7 +610,12 @@ function ConsoleHome() {
                                     title="New Customers"
                                     value={DASHBOARD_DATA.todayStats.newCustomers}
                                     prefix={<UserAddOutlined />}
-                                    valueStyle={{ color: '#1890ff' }}
+                                    styles={{
+                                        content: {
+                                            color: '#1890ff'
+                                        }
+                                    }}
+
                                 />
                             </Col>
                             <Col span={12}>
@@ -551,7 +623,11 @@ function ConsoleHome() {
                                     title="Active Drivers"
                                     value={DASHBOARD_DATA.todayStats.activeDrivers}
                                     prefix={<CarOutlined />}
-                                    valueStyle={{ color: '#722ed1' }}
+                                    styles={{
+                                        content: {
+                                            color: '#722ed1'
+                                        }
+                                    }}
                                 />
                             </Col>
                         </Row>
@@ -563,35 +639,59 @@ function ConsoleHome() {
                             title="Total Customers"
                             value={DASHBOARD_DATA.customerStats.total}
                             prefix={<TeamOutlined />}
-                            valueStyle={{ fontSize: 28 }}
+                            styles={{
+                                content: {
+                                    fontSize: 28,
+                                }
+                            }}
+
                         />
                         <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                             <Col span={12}>
                                 <Statistic
                                     title="New This Month"
                                     value={DASHBOARD_DATA.customerStats.new_this_month}
-                                    valueStyle={{ color: '#1890ff', fontSize: 20 }}
+                                    styles={{
+                                        content: {
+                                            color: '#1890ff', fontSize: 20
+                                        }
+                                    }}
                                 />
                             </Col>
                             <Col span={12}>
                                 <Statistic
                                     title="Active"
                                     value={DASHBOARD_DATA.customerStats.active}
-                                    valueStyle={{ color: '#52c41a', fontSize: 20 }}
+                                    styles={{
+                                        content: {
+                                            color: '#52c41a', fontSize: 20
+                                        }
+                                    }}
+
                                 />
                             </Col>
                             <Col span={12}>
                                 <Statistic
                                     title="Premium"
                                     value={DASHBOARD_DATA.customerStats.premium}
-                                    valueStyle={{ color: '#faad14', fontSize: 20 }}
+                                    styles={{
+                                        content: {
+                                            color: '#faad14', fontSize: 20
+                                        }
+                                    }}
+
                                 />
                             </Col>
                             <Col span={12}>
                                 <Statistic
                                     title="Inactive"
                                     value={DASHBOARD_DATA.customerStats.inactive}
-                                    valueStyle={{ color: '#8c8c8c', fontSize: 20 }}
+                                    styles={{
+                                        content: {
+                                            color: '#8c8c8c', fontSize: 20
+                                        }
+                                    }}
+
                                 />
                             </Col>
                             <Col span={24}>
@@ -618,14 +718,24 @@ function ConsoleHome() {
                                 <Statistic
                                     title="Present Today"
                                     value={DASHBOARD_DATA.staffStats.present_today}
-                                    valueStyle={{ color: '#52c41a' }}
+                                    styles={{
+                                        content: {
+                                            color: '#52c41a'
+                                        }
+                                    }}
+
                                 />
                             </Col>
                             <Col span={12}>
                                 <Statistic
                                     title="On Leave"
                                     value={DASHBOARD_DATA.staffStats.on_leave}
-                                    valueStyle={{ color: '#faad14' }}
+                                    styles={{
+                                        content: {
+                                            color: '#faad14'
+                                        }
+                                    }}
+
                                 />
                             </Col>
                             <Col span={12}>

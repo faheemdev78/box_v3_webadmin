@@ -25,7 +25,7 @@ export default async function Layout({
     const baseUrl = `${adminRoot}/store/${store_id}`;
 
     const client = createApolloClient();
-    const token = getServerSessionToken();
+    const token = await getServerSessionToken();
     const { data } = await client.query<any>({
         query: GET_STORE,
         variables: { _id: store_id },

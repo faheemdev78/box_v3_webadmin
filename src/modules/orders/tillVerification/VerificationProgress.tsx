@@ -76,7 +76,9 @@ export const VerificationProgress: React.FC<VerificationProgressProps> = ({ comp
                 title="Verified"
                 value={stats.verified_count}
                 prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
-                valueStyle={{ color: '#52c41a', fontSize: 24 }}
+                styles={{
+                  content: { color: '#52c41a', fontSize: 24 }
+                }}
               />
             </Card>
           </Col>
@@ -87,7 +89,9 @@ export const VerificationProgress: React.FC<VerificationProgressProps> = ({ comp
                 title="Pending"
                 value={stats.pending_count}
                 prefix={<ClockCircleOutlined style={{ color: '#1890ff' }} />}
-                valueStyle={{ color: '#1890ff', fontSize: 24 }}
+                styles={{
+                  content: { color: '#1890ff', fontSize: 24 }
+                }}
               />
             </Card>
           </Col>
@@ -99,7 +103,9 @@ export const VerificationProgress: React.FC<VerificationProgressProps> = ({ comp
                   title="Missing"
                   value={stats.missing_count}
                   prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
-                  valueStyle={{ color: '#ff4d4f', fontSize: 24 }}
+                  styles={{
+                    content: { color: '#ff4d4f', fontSize: 24 }
+                  }}
                 />
               </Card>
             </Col>
@@ -112,7 +118,9 @@ export const VerificationProgress: React.FC<VerificationProgressProps> = ({ comp
                   title="Mismatch"
                   value={stats.mismatch_count}
                   prefix={<WarningOutlined style={{ color: '#faad14' }} />}
-                  valueStyle={{ color: '#faad14', fontSize: 24 }}
+                  styles={{
+                    content: { color: '#faad14', fontSize: 24 }
+                  }}
                 />
               </Card>
             </Col>

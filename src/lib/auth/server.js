@@ -3,13 +3,13 @@ import { COOKIE_ID } from "@/configs";
 
 const cookieAge = 60 * 60 * 24; // 1 day
 
-export function getServerSessionToken() {
-    const cookieStore = cookies();
+export async function getServerSessionToken() {
+    const cookieStore = await cookies();
     return cookieStore.get(COOKIE_ID)?.value || "";
 }
 
-export function setServerSessionToken(token) {
-    const cookieStore = cookies();
+export async function setServerSessionToken(token) {
+    const cookieStore = await cookies();
     cookieStore.set(COOKIE_ID, token, {
         httpOnly: true,
         path: "/",
@@ -18,7 +18,7 @@ export function setServerSessionToken(token) {
     });
 }
 
-export function deleteServerSessionToken() {
-    const cookieStore = cookies();
+export async function deleteServerSessionToken() {
+    const cookieStore = await cookies();
     cookieStore.delete(COOKIE_ID);
 }

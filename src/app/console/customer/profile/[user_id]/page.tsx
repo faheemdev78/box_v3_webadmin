@@ -278,7 +278,11 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                                 value={DUMMY_STATS.total_savings}
                                 precision={2}
                                 prefix="$"
-                                valueStyle={{ color: '#3f8600' }}
+                                styles={{
+                                    content:{
+                                        color: '#3f8600'
+                                    }
+                                }}
                             />
                         </Col>
                         <Col xs={12} sm={8} md={6}>
@@ -294,7 +298,12 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                                 title="Successful"
                                 value={DUMMY_STATS.successful_orders}
                                 prefix={<CheckCircleOutlined />}
-                                valueStyle={{ color: '#3f8600' }}
+                                styles={{
+                                    content: {
+                                        color: '#3f8600'
+                                    }
+                                }}
+
                             />
                         </Col>
                         <Col xs={12} sm={8} md={6}>
@@ -302,7 +311,11 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                                 title="Cancelled"
                                 value={DUMMY_STATS.cancelled_orders}
                                 prefix={<StopOutlined />}
-                                valueStyle={{ color: '#cf1322' }}
+                                styles={{
+                                    content: {
+                                        color: '#cf1322'
+                                    }
+                                }}
                             />
                         </Col>
                         <Col xs={12} sm={8} md={6}>
@@ -310,7 +323,11 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                                 title="Declined"
                                 value={DUMMY_STATS.declined_orders}
                                 prefix={<CloseCircleOutlined />}
-                                valueStyle={{ color: '#d46b08' }}
+                                styles={{
+                                    content: {
+                                        color: '#d46b08'
+                                    }
+                                }}
                             />
                         </Col>
                         <Col xs={12} sm={8} md={6}>
