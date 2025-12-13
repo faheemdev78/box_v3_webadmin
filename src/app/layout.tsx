@@ -14,7 +14,7 @@ import { Header } from "@/template";
 import NextTopLoader from 'nextjs-toploader';
 import { Footer } from '@_/template/footer';
 import { fetchSettings } from '@_/lib/fetchSettings';
-import { DevBlock } from '@_/components';
+import { DevBlock } from '@_/components/devBlock';
 
 function StartupError({ error }: { error: Error }) {
   return (
