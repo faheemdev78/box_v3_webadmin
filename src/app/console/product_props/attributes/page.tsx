@@ -3,13 +3,13 @@ import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react'
 import { Card, Col, Dropdown, message, Popconfirm, Row, Space, Tag, TableProps, TableColumnProps } from 'antd';
 import type { ColumnType } from 'antd/es/table';
-import { Button, IconButton, Loader, Table } from '@_/components';
-import { ProductAttributesForm } from '@_/modules/product_attributes';
-import { PageHeader } from '@_/template';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { Button, IconButton, Loader, Table } from '@/components';
+import { ProductAttributesForm } from '@/modules/product_attributes';
+import { PageHeader } from '@/template';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import LIST_DATA from '@_/graphql/product_attributes/productAttributes.graphql'
-import RECORD_DELETE from '@_/graphql/product_type/deleteProductType.graphql';
+import LIST_DATA from '@/graphql/product_attributes/productAttributes.graphql'
+import RECORD_DELETE from '@/graphql/product_type/deleteProductType.graphql';
 
 function ProductAttributesPage () {
     const [productAttributes, set_productAttributes] = useState<any[] | null>(null)

@@ -1,10 +1,9 @@
 'use client'
-import React, { Component } from 'react'
 import { Popconfirm, Alert, message, Row, Col, Space } from 'antd';
-import { Avatar, IconButton, Table } from '@_/components';
+import { Avatar, IconButton, Table } from '@/components';
 import { ColumnsType } from 'antd/es/table';
-import { __error } from '@_/lib/consoleHelper';
-import { adminRoot } from '@_/configs';
+import { __error } from '@/lib/consoleHelper';
+import { adminRoot } from '@/configs';
 import Link from 'next/link';
 
 

@@ -1,8 +1,6 @@
 'use client'
-// import React from 'react'
-import { DeliverySlotManager } from '@_/modules/delivery_slot';
-// import StoreWrapper from '@_/modules/store/storeWrapper';
-import { usePageProps } from '@_/components';
+import { DeliverySlotManager } from '@/modules/delivery_slot';
+import { usePageProps } from '@/components';
 
 function Wrapper(){
     const { store } = usePageProps() as unknown as { store: any }

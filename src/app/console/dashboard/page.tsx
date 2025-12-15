@@ -14,10 +14,10 @@ import {
     CarOutlined,
     EnvironmentOutlined
 } from '@ant-design/icons';
-import { Page } from '@_/template/page';
-import { PageHeader } from '@_/template';
-import { useAppSelector } from '@_/rStore/hooks';
-import { getSettings } from '@_/rStore/slices/systemSlice';
+import { Page } from '@/template/page';
+import { PageHeader } from '@/template';
+import { useAppSelector } from '@/rStore/hooks';
+import { getSettings } from '@/rStore/slices/systemSlice';
 
 
 // Dummy Data for Application-Wide Dashboard

@@ -1,8 +1,7 @@
-import { gql } from "@apollo/client";
-import { getServerSessionToken } from "@_/lib/auth/server";
-import client from "@_/aClient/client";
+import { getServerSessionToken } from "@/lib/auth/server";
+import client from "@/aClient/client";
 
-import TEST_QUERY from "@_/graphql/test/testQuery.graphql";
+import TEST_QUERY from "@/graphql/test/testQuery.graphql";
 
 
 export default async function ServerSide() {

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { useMutation } from '@apollo/client/react';
-import { __error } from '@_/lib/consoleHelper';
-import { FormField, rules } from '@_/components/form';
+import { __error } from '@/lib/consoleHelper';
+import { FormField, rules } from '@/components/form';
 import { Alert, Col, Divider, message, Row, Space } from 'antd';
-import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@_/lib/utill';
-import { Button, DevBlock } from '@_/components';
+import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@/lib/utill';
+import { Button, DevBlock } from '@/components';
 
-import EDIT_DATA from '@_/graphql/app_pages/scheduleAppPage.graphql'
+import EDIT_DATA from '@/graphql/app_pages/scheduleAppPage.graphql'
 
 function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpdate: (args:any)=>void }) {
     const [error, setError] = useState(null)

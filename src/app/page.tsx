@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
-import { __error } from "@_/lib/consoleHelper";
+import { __error } from "@/lib/consoleHelper";
 // import { useRouter } from "next/navigation";
-import { adminRoot } from "@_/configs";
+import { adminRoot } from "@/configs";
 import { redirect, RedirectType } from 'next/navigation';
 
 

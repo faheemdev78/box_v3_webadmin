@@ -1,4 +1,5 @@
-import { IconButton } from "@_/components"
+'use client'
+import { IconButton } from "@/components"
 import { Popconfirm } from "antd"
 import { useState } from "react"
 

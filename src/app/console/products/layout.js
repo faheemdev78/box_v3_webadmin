@@ -1,9 +1,7 @@
 'use client'
 
-import React from 'react'
-import { adminRoot } from '@_/configs'
-import { PageBar } from '@_/template'
-// import { Loader } from '@_/components'
+import { adminRoot } from '@/configs'
+import { PageBar } from '@/template'
 import { useDispatch, useSelector } from 'react-redux';
 
 function Layout({ children }) {

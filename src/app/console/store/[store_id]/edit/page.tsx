@@ -1,17 +1,17 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { StoreForm } from '@_/modules/store/storeForm'
+import { StoreForm } from '@/modules/store/storeForm'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
-import { adminRoot } from "@_/configs";
+import { adminRoot } from "@/configs";
 import Link from 'next/link';
 import { Alert, Col, Row, Space } from 'antd';
-import { Loader } from '@_/components';
+import { Loader } from '@/components';
 import { useParams } from 'next/navigation';
-import { __error } from '@_/lib/consoleHelper';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { __error } from '@/lib/consoleHelper';
+import { checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import GET_STORE from '@_/graphql/stores/store.graphql';
+import GET_STORE from '@/graphql/stores/store.graphql';
 
 // function AddStorePage(props) {
 //   return (<>

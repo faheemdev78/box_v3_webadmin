@@ -1,5 +1,5 @@
 // app/console/page.tsx
-import { Page } from '@_/template';
+import { Page } from '@/template';
 import { redirect, RedirectType } from 'next/navigation';
 
 function ConsoleHome() {

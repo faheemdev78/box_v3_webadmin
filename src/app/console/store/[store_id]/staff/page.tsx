@@ -3,19 +3,19 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Alert, Card, Col, message, Popconfirm, Row, Space } from 'antd';
-import { adminRoot, defaultPageSize } from '@_/configs';
+import { adminRoot, defaultPageSize } from '@/configs';
 import Link from 'next/link';
-// import StoreWrapper from '@_/modules/store/storeWrapper';
-import { UsersList } from '@_/modules/users';
-import { Page, PageHeader } from '@_/template';
-import { Button, usePageProps } from '@_/components';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
-import { __error } from '@_/lib/consoleHelper';
-import { ViewFilter, ViewConfig } from '@_/components/ViewFilter';
+// import StoreWrapper from '@/modules/store/storeWrapper';
+import { UsersList } from '@/modules/users';
+import { Page, PageHeader } from '@/template';
+import { Button, usePageProps } from '@/components';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { __error } from '@/lib/consoleHelper';
+import { ViewFilter, ViewConfig } from '@/components/ViewFilter';
 import { createStaffViewConfig, INITIAL_STAFF_VIEWS } from './components/staffViewConfig';
 
-import LIST_DATA from '@_/graphql/users/staffQuery.graphql'
-import RECORD_DELETE from '@_/graphql/geo_zone/deleteGeoZone.graphql';
+import LIST_DATA from '@/graphql/users/staffQuery.graphql'
+import RECORD_DELETE from '@/graphql/geo_zone/deleteGeoZone.graphql';
 
 const defaultFilter = {}; // { status: 'online' }
 

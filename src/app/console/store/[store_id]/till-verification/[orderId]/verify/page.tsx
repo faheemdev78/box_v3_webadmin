@@ -11,21 +11,21 @@ import {
   CloseCircleOutlined, WarningOutlined, ClockCircleOutlined, EditOutlined,
   CheckCircleOutlined, LeftOutlined, ExclamationCircleOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useParams, useRouter } from 'next/navigation';
-import { useAppSelector, useAppDispatch } from '@_/rStore/hooks';
+import { useAppSelector, useAppDispatch } from '@/rStore/hooks';
 import { getActiveShift, getCurrentOrder, getTillVerification, setCurrentOrder
-} from '@_/rStore/slices/tillVerificationSlice';
-import { getSettings } from '@_/rStore/slices/systemSlice';
+} from '@/rStore/slices/tillVerificationSlice';
+import { getSettings } from '@/rStore/slices/systemSlice';
 import { useStartOrderVerification, useCompleteOrderVerification,
   useMyActiveTillShift, usePrintTillReceipt, useOpenTillShift
-} from '@_/hooks/useTillVerification';
-import { adminRoot } from '@_/configs';
-import { Avatar, DevBlock, Loader, Table, usePageProps } from '@_/components';
-import { Page } from '@_/template';
-import { ItemVerificationRow } from '@_/modules/orders/tillVerification/ItemVerificationRow';
-import { BasketSelector } from '@_/modules/orders/tillVerification/BasketSelector';
+} from '@/hooks/useTillVerification';
+import { adminRoot } from '@/configs';
+import { Avatar, DevBlock, Loader, Table, usePageProps } from '@/components';
+import { Page } from '@/template';
+// import { ItemVerificationRow } from '@/modules/orders/tillVerification/ItemVerificationRow';
+import { BasketSelector } from '@/modules/orders/tillVerification/BasketSelector';
 import dayjs from 'dayjs';
-import { useVerifyOrderItem, useMarkOrderItemMissing, useMarkOrderItemDamaged, useMarkOrderItemMismatch } from '@_/hooks/useTillVerification';
-import { __success, __yellow } from '@_/lib/consoleHelper';
+import { useVerifyOrderItem, useMarkOrderItemMissing, useMarkOrderItemDamaged, useMarkOrderItemMismatch } from '@/hooks/useTillVerification';
+import { __success, __yellow } from '@/lib/consoleHelper';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;

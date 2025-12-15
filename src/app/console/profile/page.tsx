@@ -1,12 +1,10 @@
 'use client'
 
-import React from 'react'
-// import { useSession } from 'next-auth/react'
-import { DataRow, DevBlock, Loader } from '@_/components';
-import { PageHeader } from '@_/template';
+import { DataRow, DevBlock, Loader } from '@/components';
+import { PageHeader } from '@/template';
 import { Card } from 'antd';
-import { useAppSelector } from '@_/rStore/hooks';
-import type { RootState } from '@_/rStore';
+import { useAppSelector } from '@/rStore/hooks';
+import type { RootState } from '@/rStore';
 
 function Profile() {
     // const { data: session, status, update } = useSession();

@@ -1,6 +1,4 @@
 'use client'
-// import { adminRoot } from "@_/configs"
-// import { PageBar } from "@_/template"
 
 function Layout({ children }) {
     return (<>

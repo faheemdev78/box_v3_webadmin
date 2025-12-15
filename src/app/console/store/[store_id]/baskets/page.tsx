@@ -1,10 +1,7 @@
 'use client'
 
-// import { useState } from 'react';
-// import StoreWrapper from '@/modules/store/storeWrapper';
 import BasketsList from './components/baskets_list';
-import { usePageProps } from '@_/components';
-// import BasketForm from './components/basket_form';
+import { usePageProps } from '@/components';
 
 function Baskets () {
     const { store } = usePageProps() as unknown as { store: any }

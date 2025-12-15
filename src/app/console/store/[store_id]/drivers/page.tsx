@@ -24,14 +24,14 @@ import {
   ClockCircleOutlined,
   WarningOutlined
 } from '@ant-design/icons';
-import { PageHeader } from '@_/template';
-import { Button, usePageProps } from '@_/components';
-import { Page } from '@_/template/page';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { PageHeader } from '@/template';
+import { Button, usePageProps } from '@/components';
+import { Page } from '@/template/page';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import GET_DRIVERS_WITH_PENDING_SETTLEMENT from '@_/graphql/drivers/getDriversWithPendingSettlement.graphql'
-import SETTLE_DRIVER_WALLET from '@_/graphql/drivers/settleDriverWallet.graphql'
-import RELEASE_DRIVER_ORDERS from '@_/graphql/drivers/releaseDriverOrders.graphql'
+import GET_DRIVERS_WITH_PENDING_SETTLEMENT from '@/graphql/drivers/getDriversWithPendingSettlement.graphql'
+import SETTLE_DRIVER_WALLET from '@/graphql/drivers/settleDriverWallet.graphql'
+import RELEASE_DRIVER_ORDERS from '@/graphql/drivers/releaseDriverOrders.graphql'
 
 const { Title, Text } = Typography;
 

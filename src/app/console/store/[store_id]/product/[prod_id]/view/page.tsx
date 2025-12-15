@@ -1,14 +1,9 @@
 'use client'
 
-import React from 'react'
-import { __error, __yellow } from '@_/lib/consoleHelper';
-import { ProductWrapper } from "@_/modules/products";
-import { ProductView } from '@_/modules/products';
-// import StoreWrapper from '@_/modules/store/storeWrapper';
-// import { useParams } from 'next/navigation';
-// import { useAppSelector } from '@_/rStore/hooks';
-// import { getSession } from '@_/rStore/slices/sessionSlice';
-import { usePageProps } from '@_/components';
+import { __error, __yellow } from '@/lib/consoleHelper';
+import { ProductWrapper } from "@/modules/products";
+import { ProductView } from '@/modules/products';
+import { usePageProps } from '@/components';
 
 // function ViewProductFormWrapper({ product, store, session }: { 
 //     product: any;

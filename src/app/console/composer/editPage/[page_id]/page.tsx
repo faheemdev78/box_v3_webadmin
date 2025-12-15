@@ -1,36 +1,36 @@
 'use client'
 
 import React, { useState, useEffect, useRef, ReactNode } from 'react'
-import { Button, DeleteButton, DevBlock, Icon, IconButton, Loader } from '@_/components';
+import { Button, DeleteButton, DevBlock, Icon, IconButton, Loader } from '@/components';
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
-import { submitHandler, ExternalSubmitButton } from '@_/components/form';
+import { submitHandler, ExternalSubmitButton } from '@/components/form';
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import _ from 'lodash'
-import { __error, __yellow } from '@_/lib/consoleHelper';
+import { __error, __yellow } from '@/lib/consoleHelper';
 import { DndContext, closestCenter, useSensor, useSensors, PointerSensor, DragOverlay } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { Alert, Row, Col, Space, Card, message, Dropdown, Modal } from 'antd';
 import { CSS } from '@dnd-kit/utilities';
 import { useDrop, useDrag } from 'ahooks';
-import { catchApolloError, checkApolloRequestErrors, dateToUtc, parseJson, sleep, timestamp, uploadFile, utcToDate, utcToDateField } from "@_/lib/utill";
-import { PageTypeSelection, PageSettings, SideMenu, PropsWindow } from '@_/modules/composer';
-import { components } from '@_/modules/composer/components';
+import { catchApolloError, checkApolloRequestErrors, dateToUtc, parseJson, sleep, timestamp, uploadFile, utcToDate, utcToDateField } from "@/lib/utill";
+import { PageTypeSelection, PageSettings, SideMenu, PropsWindow } from '@/modules/composer';
+import { components } from '@/modules/composer/components';
 import { useRouter, useParams } from 'next/navigation';
-import { adminRoot, defaultPageSize, defaultTZ } from '@_/configs';
-import styles from '@_/modules/composer/Composer.module.scss';
-import { parseStylesInput } from '@_/modules/composer/lib';
-import AppPageEditForm from '@_/modules/composer/appPageEditForm';
+import { adminRoot, defaultPageSize, defaultTZ } from '@/configs';
+import styles from '@/modules/composer/Composer.module.scss';
+import { parseStylesInput } from '@/modules/composer/lib';
+import AppPageEditForm from '@/modules/composer/appPageEditForm';
 
 import AppScheduleEditForm from '../../components/appScheduleEditForm';
 
-import FETCH_MODULES from '@_/graphql/app_pages_modules/appPagesModulesQuery.graphql'
-import FETCH_DATA from '@_/graphql/app_pages/appPage.graphql'
-import SAVE_ROWS from '@_/graphql/app_pages_modules/saveAppPagesModules.graphql'
-import DELETE_ROW from '@_/graphql/app_pages_modules/deleteAppPagesModules.graphql'
-import PUBLISH_PAGE from '@_/graphql/app_pages/publishAppPage.graphql'
+import FETCH_MODULES from '@/graphql/app_pages_modules/appPagesModulesQuery.graphql'
+import FETCH_DATA from '@/graphql/app_pages/appPage.graphql'
+import SAVE_ROWS from '@/graphql/app_pages_modules/saveAppPagesModules.graphql'
+import DELETE_ROW from '@/graphql/app_pages_modules/deleteAppPagesModules.graphql'
+import PUBLISH_PAGE from '@/graphql/app_pages/publishAppPage.graphql'
 
 
 function ItemRender({ item, item: { data, value, name } }: { item: any }) {

@@ -1,12 +1,11 @@
 'use client'
 
-import React from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@_/rStore';
-import { increment, decrement } from '@_/rStore/slices/counterSlice'
-import { setSession, clearSession } from '@_/rStore/slices/sessionSlice';
-import { cleanStore } from '@_/rStore';
-import { getSessionToken } from '@_/lib/auth';
+import { RootState } from '@/rStore';
+import { increment, decrement } from '@/rStore/slices/counterSlice'
+import { setSession, clearSession } from '@/rStore/slices/sessionSlice';
+import { cleanStore } from '@/rStore';
+import { getSessionToken } from '@/lib/auth';
 
 import { Space } from 'antd';
 

@@ -1,20 +1,16 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { __error } from '@_/lib/consoleHelper';
+import { __error } from '@/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Alert, Card, Col, Divider, Popconfirm, Row, Space, Switch } from 'antd';
-import { Button, DevBlock, GMap, IconButton, Drawer, Loader, StatusTag, Table, usePageProps } from '@_/components';
-// import StoreWrapper from '@_/modules/store/storeWrapper';
-import { VehicleForm } from '@_/modules/vehicles';
-// import { Polygon } from '@react-google-maps/api';
-// import Link from 'next/link';
-// import { adminRoot } from '@_/configs';
-import { PageHeader } from '@_/template';
+import { Button, DevBlock, GMap, IconButton, Drawer, Loader, StatusTag, Table, usePageProps } from '@/components';
+import { VehicleForm } from '@/modules/vehicles';
+import { PageHeader } from '@/template';
 import { useParams } from 'next/navigation';
+import { checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import GET_RECORD from '@_/graphql/vehicles/vehicle.graphql';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import GET_RECORD from '@/graphql/vehicles/vehicle.graphql';
 
 
 // function VehicleDetails({ params: { vehicle_id }, store }) {

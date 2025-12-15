@@ -1,14 +1,14 @@
 // 'use client'
 // import "@/styles/global.scss";
 // import { use, useEffect, useState } from "react";
-// import { getSessionToken } from "@_/lib/auth";
-// import { DevBlock } from "@_/components";
+// import { getSessionToken } from "@/lib/auth";
+// import { DevBlock } from "@/components";
 // import { useDispatch, useSelector } from 'react-redux';
-// import { RootState } from '@_/rStore';
-// import { setSession, clearSession } from '@_/rStore/slices/sessionSlice';
-// import { cleanStore } from '@_/rStore';
+// import { RootState } from '@/rStore';
+// import { setSession, clearSession } from '@/rStore/slices/sessionSlice';
+// import { cleanStore } from '@/rStore';
 
-import PageProvider from "@_/components/pageProps";
+import PageProvider from "@/components/pageProps";
 
 
 

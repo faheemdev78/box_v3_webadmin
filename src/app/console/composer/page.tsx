@@ -1,7 +1,7 @@
 'use client'
 
-import { adminRoot } from "@_/configs";
-import { PageBar, PageHeader } from "@_/template";
+import { adminRoot } from "@/configs";
+import { PageBar, PageHeader } from "@/template";
 
 function ComposerHome() {
 

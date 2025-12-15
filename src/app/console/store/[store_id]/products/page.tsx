@@ -2,19 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useMutation, useLazyQuery } from '@apollo/client/react';
-import { __error, __yellow } from '@_/lib/consoleHelper';
-import { ProductsList } from "@_/modules/products";
-import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
+import { __error, __yellow } from '@/lib/consoleHelper';
+import { ProductsList } from "@/modules/products";
+import { adminRoot, defaultPageSize, defaultPagination } from "@/configs";
 import { Alert, Card, message, Row } from "antd";
-// import StoreWrapper from "@_/modules/store/storeWrapper";
-// import { useSession } from "next-auth/react";
-import { Loader, usePageProps } from "@_/components";
-// import { useDispatch, useSelector } from 'react-redux';
-import { checkApolloRequestErrors, catchApolloError } from "@_/lib/utill_apollo";
-import { useAppSelector } from "@_/rStore/hooks";
-import { getSession } from "@_/rStore/slices/sessionSlice";
+import { Loader, usePageProps } from "@/components";
+import { checkApolloRequestErrors, catchApolloError } from "@/lib/utill_apollo";
+import { useAppSelector } from "@/rStore/hooks";
+import { getSession } from "@/rStore/slices/sessionSlice";
 
-import LIST_DATA from '@_/graphql/product/productsQuery.graphql'
+import LIST_DATA from '@/graphql/product/productsQuery.graphql'
 
 const defaultFilter = {}; // { status: 'online' }
 

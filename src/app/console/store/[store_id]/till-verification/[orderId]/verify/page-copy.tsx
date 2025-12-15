@@ -7,7 +7,7 @@
 
 // import React from 'react';
 // import { useParams } from 'next/navigation';
-// import { TillVerificationPOS } from '@_/modules/orders/tillVerification/TillVerificationPOS';
+// import { TillVerificationPOS } from '@/modules/orders/tillVerification/TillVerificationPOS';
 
 export default async function TillVerificationPOSPage({ params }: { params: { store_id: string; orderId: string } }) {
   // const params = useParams();

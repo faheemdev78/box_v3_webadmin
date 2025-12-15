@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Card, Tabs, Button, Space, Dropdown, Drawer, Modal, Input, Radio, Table, Tag, message } from 'antd';
 import { PlusOutlined, FilterOutlined, CloseOutlined, MoreOutlined, DownOutlined } from '@ant-design/icons';
-import { Page } from '@_/template';
+import { Page } from '@/template';
 import { productsConfig } from '../configs/productsConfig';
 import { products } from '../products';
 import { SavedView, FilterCondition, FilterGroup } from '../types';

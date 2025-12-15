@@ -1,25 +1,22 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import PropTypes from 'prop-types';
-import { Button, DeleteButton, DevBlock, Icon, IconButton, PageHeading, Table } from '@_/components'
+import { Button, DeleteButton, DevBlock, Icon, IconButton, PageHeading, Table } from '@/components'
 import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { Col, Row, Space, Alert, Modal, Popconfirm, Card, Divider, Tag } from 'antd'
 import { ColumnsType } from 'antd/es/table';
-import { useSession } from 'next-auth/react'
-import { security } from '@_/lib/security';
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays'
-import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@_/components/form';
-import { catchApolloError, checkApolloRequestErrors, string_to_slug } from '@_/lib/utill';
-import { PageHeader } from '@_/template';
-import { Page } from '@_/template/page';
-import { __error } from '@_/lib/consoleHelper';
+import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@/components/form';
+import { catchApolloError, checkApolloRequestErrors, string_to_slug } from '@/lib/utill';
+import { PageHeader } from '@/template';
+import { Page } from '@/template/page';
+import { __error } from '@/lib/consoleHelper';
 
-import GET_LIST from '@_/graphql/user_role/userRoles.graphql'
-import DEL_REC from '@_/graphql/user_role/deleteUserRole.graphql'
-import EDIT_ROLE from '@_/graphql/user_role/editUserRole.graphql'
-import ADD_ROLE from '@_/graphql/user_role/addUserRole.graphql'
+import GET_LIST from '@/graphql/user_role/userRoles.graphql'
+import DEL_REC from '@/graphql/user_role/deleteUserRole.graphql'
+import EDIT_ROLE from '@/graphql/user_role/editUserRole.graphql'
+import ADD_ROLE from '@/graphql/user_role/addUserRole.graphql'
 
 const filterSlug = (e: any, onChange: (val: string) => void) => onChange(string_to_slug(e.target.value));
 

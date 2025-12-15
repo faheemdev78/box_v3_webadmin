@@ -2,12 +2,12 @@
 // import { useLazyQuery, useMutation, useSubscription } from '@apollo/client/react';
 // import { Popconfirm, Alert, message, Row, Col } from 'antd';
 // import { Loader, Icon, Button, IconButton, Table, Avatar } from '@/components';
-// import { __error } from '@_/lib/consoleHelper';
+// import { __error } from '@/lib/consoleHelper';
 
 // // import SubscriptionHandler from 'Common/scripts/SubscriptionHandler';
 
-// import LIST_DATA from '@_/graphqls/tags/tags.graphql';
-// import RECORD_DELETE from '@_/graphqls/tags/delete.graphql';
+// import LIST_DATA from '@/graphqls/tags/tags.graphql';
+// import RECORD_DELETE from '@/graphqls/tags/delete.graphql';
 // // const QUERY_SUBSCRIPTION = loader('graphqls/tags/subscription.graphql');
 
 

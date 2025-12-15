@@ -3,17 +3,17 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Card, Col, message, Popconfirm, Row, Space } from 'antd';
-import { adminRoot, defaultPageSize } from '@_/configs';
+import { adminRoot, defaultPageSize } from '@/configs';
 import Link from 'next/link';
-import { UsersList } from '@_/modules/users';
-import { Button, PageHeading } from '@_/components';
-import { Page } from '@_/template/page';
-import { PageBar, PageHeader } from '@_/template';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
-import { __error } from '@_/lib/consoleHelper';
+import { UsersList } from '@/modules/users';
+import { Button, PageHeading } from '@/components';
+import { Page } from '@/template/page';
+import { PageBar, PageHeader } from '@/template';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { __error } from '@/lib/consoleHelper';
 
-import LIST_DATA from '@_/graphql/users/staffQuery.graphql'
-import RECORD_DELETE from '@_/graphql/stores/deleteStore.graphql';
+import LIST_DATA from '@/graphql/users/staffQuery.graphql'
+import RECORD_DELETE from '@/graphql/stores/deleteStore.graphql';
 
 const defaultFilter = { status: 'online' }
 

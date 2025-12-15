@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useMutation, useLazyQuery } from '@apollo/client/react';
-import { __error } from '@_/lib/consoleHelper';
-import { ProductsList } from "@_/modules/products";
-import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
+import { __error } from '@/lib/consoleHelper';
+import { ProductsList } from "@/modules/products";
+import { adminRoot, defaultPageSize, defaultPagination } from "@/configs";
 import { Card, message, Row } from "antd";
-import { catchApolloError, checkApolloRequestErrors } from "@_/lib/utill_apollo";
+import { catchApolloError, checkApolloRequestErrors } from "@/lib/utill_apollo";
 
-import LIST_DATA from '@_/graphql/product/productsQuery.graphql'
+import LIST_DATA from '@/graphql/product/productsQuery.graphql'
 
 const defaultFilter = {}; // { status: 'online' }
 

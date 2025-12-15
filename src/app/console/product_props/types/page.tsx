@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Card, Col, message, Popconfirm, Row, Space } from 'antd';
-import { Button, DevBlock, IconButton, Loader, Table } from '@_/components';
-import { ProductTypesForm } from '@_/modules/product_types';
-import { PageHeader } from '@_/template';
-import { checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { Button, DevBlock, IconButton, Loader, Table } from '@/components';
+import { ProductTypesForm } from '@/modules/product_types';
+import { PageHeader } from '@/template';
+import { checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import LIST_DATA from '@_/graphql/product_type/prodTypes.graphql'
-import RECORD_DELETE from '@_/graphql/product_type/deleteProductType.graphql';
+import LIST_DATA from '@/graphql/product_type/prodTypes.graphql'
+import RECORD_DELETE from '@/graphql/product_type/deleteProductType.graphql';
 
 
 function ProductTypesPage () {

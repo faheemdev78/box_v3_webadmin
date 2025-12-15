@@ -1,11 +1,10 @@
 'use client'
 
-import React from 'react'
-import { __error, __yellow } from '@_/lib/consoleHelper';
-import { CustomerWrapper } from '@_/modules/customers';
+import { __error, __yellow } from '@/lib/consoleHelper';
+import { CustomerWrapper } from '@/modules/customers';
 import { Alert, Card, Col, Divider, Row, Table, Tag, Statistic, List, Timeline, Descriptions, Space, Button } from 'antd';
-import { Avatar, DevBlock } from '@_/components';
-import { PasswordUpdateButton } from '@_/modules/user/components';
+import { Avatar, DevBlock } from '@/components';
+import { PasswordUpdateButton } from '@/modules/user/components';
 import {
     PhoneOutlined,
     MailOutlined,

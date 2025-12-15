@@ -3,18 +3,18 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Card, Col, message, Popconfirm, Row, Space } from 'antd';
-import { adminRoot, defaultDateTimeFormat, defaultPageSize, defaultPagination } from '@_/configs';
+import { adminRoot, defaultDateTimeFormat, defaultPageSize, defaultPagination } from '@/configs';
 import Link from 'next/link';
-import { Button, IconButton, PageHeading, Table } from '@_/components';
-import { Page } from '@_/template/page';
-import { PageBar, PageHeader } from '@_/template';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
-import { __error } from '@_/lib/consoleHelper';
-
-import LIST_DATA from '@_/graphql/vouchers/vouchersQuery.graphql'
-import RECORD_DELETE from '@_/graphql/vouchers/deleteVoucher.graphql';
-import { utcToDate } from '@_/lib/utill';
+import { Button, IconButton, PageHeading, Table } from '@/components';
+import { Page } from '@/template/page';
+import { PageBar, PageHeader } from '@/template';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { __error } from '@/lib/consoleHelper';
 import { ColumnsType } from 'antd/es/table';
+import { utcToDate } from '@/lib/utill';
+
+import LIST_DATA from '@/graphql/vouchers/vouchersQuery.graphql'
+import RECORD_DELETE from '@/graphql/vouchers/deleteVoucher.graphql';
 
 const defaultFilter = { status: 'online' }
 

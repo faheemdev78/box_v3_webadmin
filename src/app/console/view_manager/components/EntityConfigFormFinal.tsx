@@ -3,12 +3,12 @@
 import React, { useState } from 'react';
 import { Card, Space, message, Tabs, Divider, Row, Col, Alert, Tooltip } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined, InfoCircleFilled } from '@ant-design/icons';
-import { Button } from '@_/components';
+import { Button } from '@/components';
 import { useMutation } from '@apollo/client/react';
 import { CREATE_ENTITY_CONFIG, UPDATE_ENTITY_CONFIG } from '../graphql/mutations';
 import { Form as FinalForm } from 'react-final-form';
 import arrayMutators from 'final-form-arrays';
-import { FormField, SubmitButton, rules, submitHandler } from '@_/components/form';
+import { FormField, SubmitButton, rules, submitHandler } from '@/components/form';
 import { FieldDefinitionsEditorFinal } from './FieldDefinitionsEditorFinal';
 import { ColumnDefinitionsEditorFinal } from './ColumnDefinitionsEditorFinal';
 

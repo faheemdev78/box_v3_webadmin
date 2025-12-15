@@ -3,17 +3,17 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Card, Col, message, Popconfirm, Row, Space } from 'antd';
-import { Button, IconButton, Loader, Table } from '@_/components';
-import { ProdTagForm } from '@_/modules/product_tags/tagForm';
-import { defaultPageSize } from '@_/configs';
-import { PageHeader } from '@_/template';
-import { Page } from '@_/template/page';
-
-import LIST_DATA from '@_/graphql/product_tags/productTagsQuery.graphql'
-import RECORD_DELETE from '@_/graphql/product_tags/deleteProductTag.graphql';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
-import { __error } from '@_/lib/consoleHelper';
+import { Button, IconButton, Loader, Table } from '@/components';
+import { ProdTagForm } from '@/modules/product_tags/tagForm';
+import { defaultPageSize } from '@/configs';
+import { PageHeader } from '@/template';
+import { Page } from '@/template/page';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { __error } from '@/lib/consoleHelper';
 import { ColumnsType } from 'antd/es/table';
+
+import LIST_DATA from '@/graphql/product_tags/productTagsQuery.graphql'
+import RECORD_DELETE from '@/graphql/product_tags/deleteProductTag.graphql';
 
 
 const defaultFilter = { status: 'online' }

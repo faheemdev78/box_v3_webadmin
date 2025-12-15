@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Tabs, Button, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { Page } from '@_/template';
+import { Page } from '@/template';
 import { useQuery } from '@apollo/client/react';
 import { GET_ENTITY_CONFIGS } from './graphql/queries';
 import { EntityConfigList } from './components/EntityConfigList';

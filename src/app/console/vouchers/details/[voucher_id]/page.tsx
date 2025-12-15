@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect } from 'react'
-import { __error } from '@_/lib/consoleHelper';
+import { __error } from '@/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { useRouter, useParams } from 'next/navigation';
-import { DevBlock, Loader } from '@_/components';
+import { DevBlock, Loader } from '@/components';
 
-import GET_DATA from '@_/graphql/vouchers/voucher.graphql'
+import GET_DATA from '@/graphql/vouchers/voucher.graphql'
 
 function VoucherDetails() {
     const { voucher_id } = useParams<{ voucher_id: string }>()

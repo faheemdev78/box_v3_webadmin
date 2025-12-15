@@ -2,16 +2,14 @@
 import React, { useEffect, useState } from 'react'
 import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { Alert, Select, Checkbox, Row, Col, message, Divider, Space } from 'antd';
-import { DevBlock, Table, Button, Loader, PageHeading } from '@_/components';
-import { UserRightsArray } from '@_/configs';
-// import { security } from '@_/lib/security';
-// import Card from 'antd/es/card/Card';
-import { PageHeader } from '@_/template';
-import { Page } from '@_/template/page';
+import { DevBlock, Table, Button, Loader, PageHeading } from '@/components';
+import { UserRightsArray } from '@/configs';
+import { PageHeader } from '@/template';
+import { Page } from '@/template/page';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import LIST_ROLES from '@_/graphql/user_role/userRoles.graphql'
-import EDIT_USER_ROLE from '@_/graphql/user_role/editUserRole.graphql'
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import LIST_ROLES from '@/graphql/user_role/userRoles.graphql'
+import EDIT_USER_ROLE from '@/graphql/user_role/editUserRole.graphql'
 
 /* eslint-disable react-hooks/exhaustive-deps */
 function UserPermissions(props:any) {

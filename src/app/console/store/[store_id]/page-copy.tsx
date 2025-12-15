@@ -1,14 +1,13 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import { __error } from '@_/lib/consoleHelper';
+import { __error } from '@/lib/consoleHelper';
 import { Alert, Col, Divider, Row, Space } from 'antd';
-import { Button, DevBlock, Loader, StatusTag, usePageProps } from '@_/components';
-import StoreWrapper from '@_/modules/store/storeWrapper';
-import { Page } from '@_/template/page';
+import { Button, DevBlock, Loader, StatusTag, usePageProps } from '@/components';
+import StoreWrapper from '@/modules/store/storeWrapper';
+import { Page } from '@/template/page';
 import Card from 'antd/es/card/Card';
-import { PageHeader } from '@_/template';
-import { publishStatus } from '@_/configs';
+import { PageHeader } from '@/template';
+import { publishStatus } from '@/configs';
 
 
 interface StoreHome_Props {

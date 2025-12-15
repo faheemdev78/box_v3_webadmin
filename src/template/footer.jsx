@@ -2,7 +2,7 @@
 
 import { useAppSelector } from '@/rStore/hooks';
 import { getSession } from '@/rStore/slices/sessionSlice';
-import { DevBlock } from '@/components';
+import { DevBlock } from '@/components/devBlock';
 import { getSettings } from '@/rStore/slices/systemSlice';
 
 

@@ -14,8 +14,8 @@ import {
 import { Form as FinalForm } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays';
-import { FormField, submitHandler } from '@_/components/form';
-import { IconButton } from '@_/components';
+import { FormField, submitHandler } from '@/components/form';
+import { IconButton } from '@/components';
 
 // Define filter field types and their operators
 interface FilterField {

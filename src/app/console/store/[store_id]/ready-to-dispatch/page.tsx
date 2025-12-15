@@ -20,18 +20,16 @@
 
 import { useEffect, useState } from "react";
 import { useMutation, useLazyQuery } from '@apollo/client/react';
-import { __error } from '@_/lib/consoleHelper';
-import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
+import { __error } from '@/lib/consoleHelper';
+import { adminRoot, defaultPageSize, defaultPagination } from "@/configs";
 import { Card, message, Row, Space, Tag, Typography } from "antd";
-import { catchApolloError, checkApolloRequestErrors } from "@_/lib/utill_apollo";
-import OrdersList, { defaultProps } from "@_/modules/orders/ordersList";
-import { Button, DevBlock, OrderTable, usePageProps } from '@_/components';
-import { Page } from "@_/template";
+import { catchApolloError, checkApolloRequestErrors } from "@/lib/utill_apollo";
+import { Button, DevBlock, OrderTable, usePageProps } from '@/components';
+import { Page } from "@/template";
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
-// import LIST_DATA from '@_/graphql/order/ordersQuery.graphql'
-import LIST_DATA from '@_/graphql/order/getReadyToDispatchQueue.graphql';
+import LIST_DATA from '@/graphql/order/getReadyToDispatchQueue.graphql';
 
 dayjs.extend(relativeTime);
 

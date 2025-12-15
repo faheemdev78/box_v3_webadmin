@@ -3,22 +3,21 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Alert, Breadcrumb, Col, message, Popconfirm, Row, Space, Switch } from 'antd';
-import { Button, DeleteButton, DevBlock, IconButton, Loader, MapComponent, Table, usePageProps, GMap } from '@_/components';
+import { Button, DeleteButton, DevBlock, IconButton, Loader, MapComponent, Table, usePageProps, GMap } from '@/components';
 import { ColumnsType } from 'antd/es/table';
-import { adminRoot, defaultPageSize } from '@_/configs';
+import { adminRoot, defaultPageSize } from '@/configs';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-// import StoreWrapper from '@_/modules/store/storeWrapper';
-import { ZonesFilter } from '@_/modules/geo_zones';
-import { Page } from '@_/template/page';
-import { PageHeader } from '@_/template';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
-import { __error } from '@_/lib/consoleHelper';
+import { ZonesFilter } from '@/modules/geo_zones';
+import { Page } from '@/template/page';
+import { PageHeader } from '@/template';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { __error } from '@/lib/consoleHelper';
 import { Polygon, InfoWindow } from '@react-google-maps/api';
 
+import LIST_DATA from '@/graphql/geo_zone/geoZoneQuery.graphql'
+import RECORD_DELETE from '@/graphql/geo_zone/deleteGeoZone.graphql';
 
-import LIST_DATA from '@_/graphql/geo_zone/geoZoneQuery.graphql'
-import RECORD_DELETE from '@_/graphql/geo_zone/deleteGeoZone.graphql';
 
 const defaultFilter = {}; // { status: 'online' }
 

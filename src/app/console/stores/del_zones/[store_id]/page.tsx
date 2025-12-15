@@ -1,19 +1,19 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { __error } from '@_/lib/consoleHelper';
+import { __error } from '@/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { gql } from '@apollo/client';
 import { Alert, Col, Divider, message, Popconfirm, Row, Space } from 'antd';
-import { Button, DevBlock, IconButton, Loader, StatusTag, Table } from '@_/components';
+import { Button, DevBlock, IconButton, Loader, StatusTag, Table } from '@/components';
 import { ColumnsType } from 'antd/es/table';
-import { adminRoot, defaultPageSize } from '@_/configs';
+import { adminRoot, defaultPageSize } from '@/configs';
 import Link from 'next/link';
-import { PageHeader } from '@_/template';
+import { PageHeader } from '@/template';
 import { useParams } from 'next/navigation';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import LIST_DATA from '@_/graphql/geo_zone/geoZoneQuery.graphql';
-import RECORD_DELETE from '@_/graphql/geo_zone/deleteGeoZone.graphql';
+import LIST_DATA from '@/graphql/geo_zone/geoZoneQuery.graphql';
+import RECORD_DELETE from '@/graphql/geo_zone/deleteGeoZone.graphql';
 
 const GET_STORE = gql`query store($_id: ID!) {
     store(_id: $_id) {

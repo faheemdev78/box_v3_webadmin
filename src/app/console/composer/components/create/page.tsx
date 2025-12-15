@@ -1,4 +1,4 @@
-import ComponentCreator from "@_/modules/composer/component_creator";
+import ComponentCreator from "@/modules/composer/component_creator";
 
 
 function ComponentsCreatorHome(props: any) {

@@ -3,15 +3,15 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Card, Col, message, Popconfirm, Row, Space, Tag } from 'antd';
-import { Button, IconButton, Loader, Table } from '@_/components';
-import { ManufacturerForm } from '@_/modules/manufacturers/manufacturerForm';
-import { defaultPageSize } from '@_/configs';
-import { PageHeader } from '@_/template';
-import { __error, __yellow } from '@_/lib';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { Button, IconButton, Loader, Table } from '@/components';
+import { ManufacturerForm } from '@/modules/manufacturers/manufacturerForm';
+import { defaultPageSize } from '@/configs';
+import { PageHeader } from '@/template';
+import { __error, __yellow } from '@/lib';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import LIST_DATA from '@_/graphql/manufacturer/manufacturersQuery.graphql'
-import RECORD_DELETE from '@_/graphql/manufacturer/deleteManufacturer.graphql';
+import LIST_DATA from '@/graphql/manufacturer/manufacturersQuery.graphql'
+import RECORD_DELETE from '@/graphql/manufacturer/deleteManufacturer.graphql';
 
 const defaultFilter = { status: 'online' }
 

@@ -1,9 +1,9 @@
 'use client'
 
-import { Loader } from "@_/components";
-import { sleep } from "@_/lib";
-import { clearSessionToken } from "@_/lib/auth";
-import { cleanStore } from "@_/rStore";
+import { Loader } from "@/components";
+import { sleep } from "@/lib";
+import { clearSessionToken } from "@/lib/auth";
+import { cleanStore } from "@/rStore";
 import { redirect } from "next/navigation";
 
 

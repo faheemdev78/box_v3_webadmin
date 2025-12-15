@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server'
 // import { type NextRequest } from 'next/server'
 // import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { COOKIE_ID } from '@_/configs'
+import { COOKIE_ID } from '@/configs'
 
 
 export async function GET(request: NextRequest) {

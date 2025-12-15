@@ -1,9 +1,8 @@
 'use client'
 
-import React from 'react'
 import { StoreForm } from '@/modules/store/storeForm'
-import { Page } from '@_/template/page'
-import { PageHeader } from '@_/template'
+import { Page } from '@/template/page'
+import { PageHeader } from '@/template'
 import { Card } from 'antd'
 
 function AddStorePage() {

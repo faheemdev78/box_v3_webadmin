@@ -6,7 +6,7 @@
 // // // 'use client';
 
 // // // import React from 'react';
-// // import { TillOrdersQueue } from '@_/modules/orders/tillVerification/TillOrdersQueue';
+// // import { TillOrdersQueue } from '@/modules/orders/tillVerification/TillOrdersQueue';
 
 // // export default async function TillVerificationQueuePage({ params }) {
 // //   const { store_id } = await params;
@@ -30,24 +30,24 @@
 // import { useRouter } from 'next/navigation';
 // import { useTillVerificationQueue, useMyActiveTillShift, useMyLockedOrders,
 //   useOpenTillShift, useCloseTillShift, useStartOrderVerification
-// } from '@_/hooks/useTillVerification';
-// import { useAppSelector } from '@_/rStore/hooks';
-// import { getSettings } from '@_/rStore/slices/systemSlice';
-// import { getActiveShift } from '@_/rStore/slices/tillVerificationSlice';
+// } from '@/hooks/useTillVerification';
+// import { useAppSelector } from '@/rStore/hooks';
+// import { getSettings } from '@/rStore/slices/systemSlice';
+// import { getActiveShift } from '@/rStore/slices/tillVerificationSlice';
 // import dayjs from 'dayjs';
 // import relativeTime from 'dayjs/plugin/relativeTime';
 // import duration from 'dayjs/plugin/duration';
-// import { Loader, OrderTable, Button, usePageProps, DevBlock } from '@_/components';
-// import { adminRoot, defaultPageSize, defaultPagination } from '@_/configs';
+// import { Loader, OrderTable, Button, usePageProps, DevBlock } from '@/components';
+// import { adminRoot, defaultPageSize, defaultPagination } from '@/configs';
 // import Link from 'next/link';
-// import { Page } from '@_/template';
+// import { Page } from '@/template';
 // import { useLazyQuery } from '@apollo/client/react';
-// import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+// import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 // import moment from 'moment';
-// import { utcToDate } from '@_/lib/utill';
-// import { __yellow } from '@_/lib/consoleHelper';
+// import { utcToDate } from '@/lib/utill';
+// import { __yellow } from '@/lib/consoleHelper';
 
-// import LIST_DATA from '@_/graphql/order/ordersOnTillQuery.graphql'
+// import LIST_DATA from '@/graphql/order/ordersOnTillQuery.graphql'
 
 // const { Title, Text } = Typography;
 

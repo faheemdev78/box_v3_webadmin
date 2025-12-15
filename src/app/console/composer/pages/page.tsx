@@ -3,16 +3,16 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Alert, Card, Col, message, Modal, Row, Space, Tag } from "antd";
-import { adminRoot, defaultPagination, defaultPageSize, defaultDateTimeFormat, defaultDateFormat } from "@_/configs";
-import { Button, DeleteButton, DevBlock, Table } from "@_/components";
+import { adminRoot, defaultPagination, defaultPageSize, defaultDateTimeFormat, defaultDateFormat } from "@/configs";
+import { Button, DeleteButton, DevBlock, Table } from "@/components";
 import { useLazyQuery, useMutation } from '@apollo/client/react'
-import AppPageCreatorForm from "@_/modules/composer/appPageCreatorForm";
-import { catchApolloError, checkApolloRequestErrors, utcToDate } from "@_/lib/utill";
-import { __error } from "@_/lib/consoleHelper";
-import { PageHeader } from "@_/template";
+import AppPageCreatorForm from "@/modules/composer/appPageCreatorForm";
+import { catchApolloError, checkApolloRequestErrors, utcToDate } from "@/lib/utill";
+import { __error } from "@/lib/consoleHelper";
+import { PageHeader } from "@/template";
 
-import QUERY_DATA from '@_/graphql/app_pages/appPagesQuery.graphql'
-import DEL_PAGE from '@_/graphql/app_pages/deleteAppPage.graphql'
+import QUERY_DATA from '@/graphql/app_pages/appPagesQuery.graphql'
+import DEL_PAGE from '@/graphql/app_pages/deleteAppPage.graphql'
 
 function PagesHome() {
     const [busy, setBusy] = useState(false);

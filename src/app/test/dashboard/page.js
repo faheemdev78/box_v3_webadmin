@@ -1,7 +1,7 @@
 "use server";
 
-import { getServerSessionToken } from "@_/lib/auth/server";
-import { getCurrentUser } from "@_/lib/auth";
+import { getServerSessionToken } from "@/lib/auth/server";
+import { getCurrentUser } from "@/lib/auth";
 
 async function Dashboard() {
     const session = await getServerSessionToken();

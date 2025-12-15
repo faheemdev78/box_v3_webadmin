@@ -1,30 +1,26 @@
 'use client'
 import React, { useState, useEffect, useRef } from 'react'
-import PropTypes from 'prop-types';
-import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, Icopn, DevBlock, Loader, FileUploader, IconButton, Icon } from '@_/components';
-import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@_/components/dropdowns';
+import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, Icopn, DevBlock, Loader, FileUploader, IconButton, Icon } from '@/components';
+import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@/components/dropdowns';
 import { message, Row, Col, Drawer, Card, Divider, Alert, Space, Steps, Popconfirm, Tag, Input, Flex, Tooltip, theme } from 'antd';
-import { adminRoot, publishStatus, tax_applition_on, tax_formula_types } from '@_/configs';
-import { escapeText, sleep, string_to_slug, uploadFile, uploadFiles } from '@_/lib/utill';
-import { __error, __yellow } from '@_/lib/consoleHelper';
-import security from '@_/lib/security';
+import { adminRoot, publishStatus, tax_applition_on, tax_formula_types } from '@/configs';
+import { escapeText, sleep, string_to_slug, uploadFile, uploadFiles } from '@/lib/utill';
+import { __error, __yellow } from '@/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client/react'
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
-import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, FormFieldGroup, UploadField, Label as FormLabel, TagsManager } from '@_/components/form';
-import Image from 'next/image';
+import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, FormFieldGroup, UploadField, Label as FormLabel, TagsManager } from '@/components/form';
 import axios from 'axios';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 
 
-import RECORD from '@_/graphql/product/product.graphql'
-import RECORD_EDIT from '@_/graphql/product/editProduct.graphql'
-import RECORD_ADD from '@_/graphql/product/addProduct.graphql'
-import DELETE_PROD_IMG from '@_/graphql/product/deleteProductImg.graphql'
-import DELETE_PROD_GALL_IMG from '@_/graphql/product/deleteGalleryItem.graphql'
+// import RECORD from '@/graphql/product/product.graphql'
+// import RECORD_EDIT from '@/graphql/product/editProduct.graphql'
+import RECORD_ADD from '@/graphql/product/addProduct.graphql'
+// import DELETE_PROD_IMG from '@/graphql/product/deleteProductImg.graphql'
+import DELETE_PROD_GALL_IMG from '@/graphql/product/deleteGalleryItem.graphql'
 
 const filterSlug = (e, onChange) => onChange(string_to_slug(e.target.value));
 const Label = ({ children, style }) => (<FormLabel style={{ marginTop: "7px", ...style }}>{children}</FormLabel>)

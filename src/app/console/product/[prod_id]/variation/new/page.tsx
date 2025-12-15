@@ -2,25 +2,25 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types';
-import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, DevBlock, Loader, FileUploader, IconButton, Icon } from '@_/components';
-import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@_/components/dropdowns';
-import { message, Row, Col, Drawer, Card, Divider, Alert, Space, Steps, Popconfirm, Tag, Input, Flex, Tooltip, theme } from 'antd';
-import { adminRoot, publishStatus, tax_applition_on, tax_formula_types } from '@_/configs';
-import { checkApolloRequestErrors, escapeText, sleep, string_to_slug, uploadFile, uploadFiles } from '@_/lib/utill';
-import { __blue, __error, __yellow } from '@_/lib/consoleHelper';
+import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, DevBlock, Loader, FileUploader, IconButton, Icon } from '@/components';
+import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@/components/dropdowns';
+import { message, Row, Col, Divider, Alert, Space, Steps, Popconfirm } from 'antd';
+import { adminRoot, publishStatus, tax_applition_on, tax_formula_types } from '@/configs';
+import { checkApolloRequestErrors, escapeText, sleep, string_to_slug, uploadFile, uploadFiles } from '@/lib/utill';
+import { __blue, __error, __yellow } from '@/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client/react'
 import { Form as FinalForm, Field as FinalField, useForm, FormSpy } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
-import { FormField, SubmitButton, rules, submitHandler, Label as FormLabel, TagsManager } from '@_/components/form';
+import { FormField, SubmitButton, rules, submitHandler, Label as FormLabel, TagsManager } from '@/components/form';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import ProductWrapper from '@_/modules/products/productWrapper';
+import ProductWrapper from '@/modules/products/productWrapper';
 import { debounce } from 'lodash'; // Import debounce from lodash
 
 
-import RECORD_ADD from '@_/graphql/product/addProductVarient.graphql'
-import RECORD_EDIT from '@_/graphql/product/editProductVarient.graphql'
+import RECORD_ADD from '@/graphql/product/addProductVarient.graphql'
+import RECORD_EDIT from '@/graphql/product/editProductVarient.graphql'
 
 const filterSlug = (e: React.ChangeEvent<HTMLInputElement>, onChange: (val: string) => void) => onChange(string_to_slug(e.target.value));
 const Label = ({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) => (<FormLabel isRequired={false} htmlFor="" style={{ marginTop: "7px", ...style }}>{children}</FormLabel>)

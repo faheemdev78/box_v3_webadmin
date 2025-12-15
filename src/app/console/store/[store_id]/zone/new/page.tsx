@@ -1,7 +1,6 @@
 'use client'
-import { usePageProps } from "@_/components";
-import GeoZoneForm from "@_/modules/geo_zones/zoneForm";
-// import StoreWrapper from "@_/modules/store/storeWrapper";
+import { usePageProps } from "@/components";
+import GeoZoneForm from "@/modules/geo_zones/zoneForm";
 
 function NewZoneForm() {
     const { store } = usePageProps() as unknown as { store: any }

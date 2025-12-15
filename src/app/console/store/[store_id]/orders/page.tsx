@@ -2,28 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { useMutation, useLazyQuery } from '@apollo/client/react';
-import { __error } from '@_/lib/consoleHelper';
-import { adminRoot, defaultPageSize, defaultPagination } from "@_/configs";
+import { __error } from '@/lib/consoleHelper';
+import { adminRoot, defaultPageSize, defaultPagination } from "@/configs";
 import { Alert, Card, message, Popover, Row, Space, Tag, Tooltip, Typography } from "antd";
 import { UserOutlined, ShoppingOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
-import { catchApolloError, checkApolloRequestErrors } from "@_/lib/utill_apollo";
-// import OrdersList, { defaultProps } from "@_/modules/orders/ordersList";
-import { Button, DevBlock, Icon, OrderTable, usePageProps } from '@_/components';
-// import { ViewFilter, ViewConfig } from '@_/components/ViewFilter';
-import { Page } from "@_/template";
-// import { createOrderViewConfig, INITIAL_ORDER_VIEWS } from './components/orderViewConfig';
-import { DynamicViewFilter } from "@_/app/console/view_filter/components/DynamicViewFilter";
+import { catchApolloError, checkApolloRequestErrors } from "@/lib/utill_apollo";
+import { Button, DevBlock, Icon, OrderTable, usePageProps } from '@/components';
+import { Page } from "@/template";
+import { DynamicViewFilter } from "@/app/console/view_filter/components/DynamicViewFilter";
 import Link from "next/link";
-import { useAppSelector } from "@_/rStore/hooks";
-import { getSettings } from "@_/rStore/slices/systemSlice";
-import { utcToDate } from "@_/lib/utill";
+import { useAppSelector } from "@/rStore/hooks";
+import { getSettings } from "@/rStore/slices/systemSlice";
+import { utcToDate } from "@/lib/utill";
 import { ResetButton } from "./components";
-// import { useRouter } from "next/navigation";
-import { getSession } from "@_/rStore/slices/sessionSlice";
+import { getSession } from "@/rStore/slices/sessionSlice";
 
-import LIST_DATA from '@_/graphql/order/ordersQuery.graphql'
-import RESET_ORDER from '@_/graphql/order/resetOrderToZero.graphql'
-import REVERT_ORDER_STAGE from '@_/graphql/order/revertOrderStage.graphql'
+import LIST_DATA from '@/graphql/order/ordersQuery.graphql'
+import RESET_ORDER from '@/graphql/order/resetOrderToZero.graphql'
+import REVERT_ORDER_STAGE from '@/graphql/order/revertOrderStage.graphql'
 
 const { Title, Text } = Typography;
 

@@ -1,11 +1,11 @@
-import React from 'react'
-import { basketCategories } from '@_/configs'
+'use client'
+import { basketCategories } from '@/configs'
 import { Row, Col, Divider, message } from 'antd';
 import { FormField, submitHandler, SubmitButton } from '@/components/form'
 import { Form as FinalForm, useForm } from 'react-final-form';
 import { Icon } from '@/components'
-import { __error } from '@_/lib/consoleHelper';
-import { formToFilter } from '@_/lib/utill';
+import { __error } from '@/lib/consoleHelper';
+import { formToFilter } from '@/lib/utill';
 
 
 const BasketFilter = props => {

@@ -7,18 +7,17 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Table, Button, Tag, Space, Typography, Empty, Spin, message, Modal, Alert } from 'antd';
 import { PlayCircleOutlined, UserOutlined, ShoppingOutlined, ClockCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { useAppSelector, useAppDispatch } from '@_/rStore/hooks';
-import { getSettings } from '@_/rStore/slices/systemSlice';
+import { useAppSelector, useAppDispatch } from '@/rStore/hooks';
+import { getSettings } from '@/rStore/slices/systemSlice';
 import { useLazyQuery } from '@apollo/client/react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { DevBlock, Icon, Loader, OrderTable, usePageProps } from '@_/components';
-import { adminRoot, defaultPageSize, defaultPagination } from '@_/configs';
-import Link from 'next/link';
-import { checkApolloRequestErrors, catchApolloError } from '@_/lib/utill_apollo';
-import { Page } from '@_/template';
+import { DevBlock, Icon, Loader, OrderTable, usePageProps } from '@/components';
+import { adminRoot, defaultPageSize, defaultPagination } from '@/configs';
+import { checkApolloRequestErrors, catchApolloError } from '@/lib/utill_apollo';
+import { Page } from '@/template';
 
-import GET_ORDER_QUEUE from '@_/graphql/order/getReadyToDispatchQueue.graphql';
+import GET_ORDER_QUEUE from '@/graphql/order/getReadyToDispatchQueue.graphql';
 
 dayjs.extend(relativeTime);
 

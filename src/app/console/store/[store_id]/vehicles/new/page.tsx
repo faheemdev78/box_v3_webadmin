@@ -1,14 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
-import PropTypes from 'prop-types';
-import { __error } from '@_/lib/consoleHelper';
-// import StoreWrapper from '@_/modules/store/storeWrapper';
-import { VehicleForm } from '@_/modules/vehicles';
+import { __error } from '@/lib/consoleHelper';
+import { VehicleForm } from '@/modules/vehicles';
 import { Card } from 'antd';
-import { Page } from '@_/template/page';
-import { PageHeader } from '@_/template';
-import { usePageProps } from '@_/components';
+import { Page } from '@/template/page';
+import { PageHeader } from '@/template';
+import { usePageProps } from '@/components';
 
 
 function Wrapper(props:any){

@@ -1,6 +1,6 @@
 'use server'
 
-import { getServerSessionToken } from "@_/lib/auth/server";
+import { getServerSessionToken } from "@/lib/auth/server";
 import LoginForm from "@/modules/login/LoginForm";
 import { redirect } from "next/navigation";
 

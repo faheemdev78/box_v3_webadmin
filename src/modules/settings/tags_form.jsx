@@ -2,14 +2,14 @@
 // import PropTypes from 'prop-types';
 // import { Drawer, Button, Heading, Icon, Loader } from '@/components'
 // import { rules, composeValidators, FormField, FormFieldGroup, FormComponent, UploadField } from '@/components/form'
-// // import { FormField, FormFieldGroup, SubmitButton, rules, submitHandler } from '@_/components/form';
+// // import { FormField, FormFieldGroup, SubmitButton, rules, submitHandler } from '@/components/form';
 // import { message, Row, Col } from 'antd';
 // import { useLazyQuery, useMutation, useSubscription } from '@apollo/client/react';
-// import { __error } from '@_/lib/consoleHelper';
+// import { __error } from '@/lib/consoleHelper';
 
 // // const RECORD = loader('graphqls/tags/tag.graphql');
-// import RECORD_EDIT from '@_/graphql/tags/edit.graphql';
-// import RECORD_ADD from '@_/graphqls/tags/add.graphql';
+// import RECORD_EDIT from '@/graphql/tags/edit.graphql';
+// import RECORD_ADD from '@/graphqls/tags/add.graphql';
 
 
 // export class FormComp extends Component {

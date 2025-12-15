@@ -4,18 +4,18 @@ import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react'
 import { Card, Col, message, Popconfirm, Row, Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { Button, IconButton, Loader, Table } from '@_/components';
+import { Button, IconButton, Loader, Table } from '@/components';
 import { LocationForm } from '@/modules/location/locationForm';
-// import { defaultPageSize } from '@_/configs';
-import { __error } from '@_/lib/consoleHelper';
-import { PageHeader } from '@_/template';
-import { Page } from '@_/template/page';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+// import { defaultPageSize } from '@/configs';
+import { __error } from '@/lib/consoleHelper';
+import { PageHeader } from '@/template';
+import { Page } from '@/template/page';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import LIST_DATA from '@_/graphql/location/locations.graphql'
-import DELETE_REC from '@_/graphql/location/deleteLocation.graphql';
-// import ADD_REC from '@_/graphql/location/addLocation.graphql';
-// import EDIT_REC from '@_/graphql/location/editLocation.graphql';
+import LIST_DATA from '@/graphql/location/locations.graphql'
+import DELETE_REC from '@/graphql/location/deleteLocation.graphql';
+// import ADD_REC from '@/graphql/location/addLocation.graphql';
+// import EDIT_REC from '@/graphql/location/editLocation.graphql';
 
 
 

@@ -1,22 +1,20 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { Button, DevBlock, IconButton, DeleteButton, Loader, Table } from '@_/components';
+import { Button, DevBlock, IconButton, DeleteButton, Loader, Table } from '@/components';
 import { Alert, Col, Drawer, message, Row, Space } from 'antd';
 import type { ColumnType } from 'antd/es/table';
-// import type { AlignType } from 'rc-table/lib/interface';
-// import { useSession } from 'next-auth/react'
-import security from '@_/lib/security';
-import { defaultPagination } from '@_/configs';
+import security from '@/lib/security';
+import { defaultPagination } from '@/configs';
 import { useLazyQuery, useMutation } from '@apollo/client/react';
-import { FieldsDefinationForm } from '@_/modules/fieldsDefinations';
-import { useAppSelector } from '@_/rStore/hooks';
-import type { RootState } from '@_/rStore';
-import { __error } from '@_/lib/consoleHelper';
-import { PageHeader } from '@_/template';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { FieldsDefinationForm } from '@/modules/fieldsDefinations';
+import { useAppSelector } from '@/rStore/hooks';
+import type { RootState } from '@/rStore';
+import { __error } from '@/lib/consoleHelper';
+import { PageHeader } from '@/template';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import GET_QUERY_RECORDS from '@_/graphql/fields_definations/fieldsDefinationsQuery.graphql'
-import DELETE_RECORD from '@_/graphql/fields_definations/deleteFieldsDefination.graphql'
+import GET_QUERY_RECORDS from '@/graphql/fields_definations/fieldsDefinationsQuery.graphql'
+import DELETE_RECORD from '@/graphql/fields_definations/deleteFieldsDefination.graphql'
 
 interface StateType {
     pagination: typeof defaultPagination;

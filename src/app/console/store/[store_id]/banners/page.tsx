@@ -1,7 +1,6 @@
 'use client'
 
-// import StoreWrapper from '@/modules/store/storeWrapper';
-import { DevBlock, usePageProps } from '@_/components';
+import { DevBlock, usePageProps } from '@/components';
 
 function BannersPage() {
     const { store } = usePageProps() as unknown as { store: any }

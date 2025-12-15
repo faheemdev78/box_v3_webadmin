@@ -3,14 +3,14 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react'
 import { Card, Col, message, Popconfirm, Row, Space, Tag } from 'antd';
-import { Button, IconButton, Loader, Table } from '@_/components';
-import { CategoriesForm } from '@_/modules/categories';
-import { PageHeader } from '@_/template';
-import { __error, __yellow } from '@_/lib';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { Button, IconButton, Loader, Table } from '@/components';
+import { CategoriesForm } from '@/modules/categories';
+import { PageHeader } from '@/template';
+import { __error, __yellow } from '@/lib';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import LIST_DATA from '@_/graphql/product_cat/productCats.graphql'
-import RECORD_DELETE from '@_/graphql/product_cat/deleteProductCat.graphql';
+import LIST_DATA from '@/graphql/product_cat/productCats.graphql'
+import RECORD_DELETE from '@/graphql/product_cat/deleteProductCat.graphql';
 
 const constructCategoryArray = (allCats:any, parent: any = null) => {
     if (!allCats) return []

@@ -2,18 +2,17 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Alert, Card, Col, message, Popconfirm, Row, Space } from 'antd';
-import { adminRoot, defaultPageSize } from '@_/configs';
+import { adminRoot, defaultPageSize } from '@/configs';
 import Link from 'next/link';
-// import StoreWrapper from '@_/modules/store/storeWrapper';
-import { VehiclesList } from '@_/modules/vehicles';
-import { PageHeader } from '@_/template';
-import { Button, usePageProps } from '@_/components';
-import { Page } from '@_/template/page';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
-import { __error } from '@_/lib/consoleHelper';
+import { VehiclesList } from '@/modules/vehicles';
+import { PageHeader } from '@/template';
+import { Button, usePageProps } from '@/components';
+import { Page } from '@/template/page';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { __error } from '@/lib/consoleHelper';
 
-import LIST_DATA from '@_/graphql/vehicles/vehiclesQuery.graphql'
-import RECORD_DELETE from '@_/graphql/vehicles/deleteVehicle.graphql';
+import LIST_DATA from '@/graphql/vehicles/vehiclesQuery.graphql'
+import RECORD_DELETE from '@/graphql/vehicles/deleteVehicle.graphql';
 
 const defaultFilter = {}; // { status: 'online' }
 

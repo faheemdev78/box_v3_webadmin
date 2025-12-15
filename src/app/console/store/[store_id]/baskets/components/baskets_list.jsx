@@ -1,17 +1,17 @@
+'use client'
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types';
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client/react';
 import { Popconfirm, Alert, message, Row, Col, Modal, Space } from 'antd';
 import { Barcode, Loader, Icon, Button, IconButton, Table, Avatar, ListHeader, DevBlock, DeleteButton } from '@/components';
-import { __error } from '@_/lib/consoleHelper';
+import { __error } from '@/lib/consoleHelper';
 import BasketFilter from './BasketFilter'
-import { catchApolloError, checkApolloRequestErrors, lightOrDark, utcToDate } from '@_/lib/utill';
+import { catchApolloError, checkApolloRequestErrors, lightOrDark, utcToDate } from '@/lib/utill';
 import BasketForm from './basket_form';
-import { defaultDateTimeFormat } from '@_/configs';
+import { defaultDateTimeFormat } from '@/configs';
 
-import LIST_DATA from '@_/graphql/baskets/baskets.graphql';
-import RECORD_DELETE from '@_/graphql/baskets/deleteBasket.graphql';
-import RELEASE_BASKET from '@_/graphql/baskets/releaseBasket.graphql';
+import LIST_DATA from '@/graphql/baskets/baskets.graphql';
+import RECORD_DELETE from '@/graphql/baskets/deleteBasket.graphql';
+import RELEASE_BASKET from '@/graphql/baskets/releaseBasket.graphql';
 
 const ReleaseBasketButton = ({ basket, onSuccess }) => {
     const [busy, setBusy] = useState(false)

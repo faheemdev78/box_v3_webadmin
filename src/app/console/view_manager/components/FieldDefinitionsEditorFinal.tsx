@@ -4,7 +4,7 @@ import {
 } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, CopyOutlined, InfoCircleFilled } from '@ant-design/icons';
 import { Form as FinalForm } from 'react-final-form';
-import { FormField, SubmitButton, rules, submitHandler } from '@_/components/form';
+import { FormField, SubmitButton, rules, submitHandler } from '@/components/form';
 import arrayMutators from 'final-form-arrays';
 import { FieldArray } from 'react-final-form-arrays';
 

@@ -1,23 +1,22 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { __error } from '@_/lib/consoleHelper';
+import { __error } from '@/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Alert, Breadcrumb, Card, Col, Divider, message, Popconfirm, Row, Space, Switch } from 'antd';
-import { Button, DevBlock, GMap, IconButton, Loader, Drawer, StatusTag, Table, usePageProps } from '@_/components';
-import StoreWrapper from '@_/modules/store/storeWrapper';
-import GeoZoneForm from '@_/modules/geo_zones/zoneForm';
+import { Button, DevBlock, GMap, IconButton, Loader, Drawer, StatusTag, Table, usePageProps } from '@/components';
+import GeoZoneForm from '@/modules/geo_zones/zoneForm';
 import { Polygon } from '@react-google-maps/api';
 import Link from 'next/link';
-import { adminRoot } from '@_/configs';
-import { PageHeader } from '@_/template';
-import { Page } from '@_/template/page';
+import { adminRoot } from '@/configs';
+import { PageHeader } from '@/template';
+import { Page } from '@/template/page';
 import { useParams } from 'next/navigation';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
+import GET_RECORD from '@/graphql/geo_zone/geoZone.graphql';
+import GEO_ZONES from '@/graphql/geo_zone/geoZones.graphql';
 
-import GET_RECORD from '@_/graphql/geo_zone/geoZone.graphql';
-import GEO_ZONES from '@_/graphql/geo_zone/geoZones.graphql';
 
 
 // function EditStoreZone({ params: { zone_id }, store }) {

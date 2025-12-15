@@ -1,11 +1,8 @@
 'use client'
 
-import React from 'react'
-import { __error, __yellow } from '@_/lib/consoleHelper';
-// import { ProductWrapper, ProductView } from "@_/modules/products";
-// import StoreWrapper from '@_/modules/store/storeWrapper';
+import { __error, __yellow } from '@/lib/consoleHelper';
 
-import { StaffWrapper, StaffView } from "@_/modules/staff";
+import { StaffWrapper, StaffView } from "@/modules/staff";
 import { StaffProfile } from './components';
 
 function Wrapper(props: any){

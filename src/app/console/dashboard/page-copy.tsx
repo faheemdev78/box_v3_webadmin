@@ -1,17 +1,17 @@
 'use server';
 
 import { Card } from "antd";
-import { Page } from "@_/template";
+import { Page } from "@/template";
 // 'use client';
 
 // import { Card, Col, Divider, Dropdown, Row, Space } from "antd";
 // import { useDispatch, useSelector } from 'react-redux';
 // import { DownOutlined, UserOutlined } from '@ant-design/icons';
-// import { Button, DevBlock, PageHeading } from "@_/components";
-// import { __error } from "@_/lib/consoleHelper";
-// import security from "@_/lib/security.js";
-// import { PageHeader, Header, Page } from "@_/template";
-// import { getSessionToken } from "@_/lib/auth";
+// import { Button, DevBlock, PageHeading } from "@/components";
+// import { __error } from "@/lib/consoleHelper";
+// import security from "@/lib/security.js";
+// import { PageHeader, Header, Page } from "@/template";
+// import { getSessionToken } from "@/lib/auth";
 
 
 async function ConsoleHome() {

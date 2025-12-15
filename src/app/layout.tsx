@@ -8,13 +8,13 @@ import ApolloWrapper from "@/aClient/provider";
 // import Nav from "@/components/nav";
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import ReduxProvider from '@/rStore/provider';
-// import { SessionProvider } from "@_/lib/auth/SessionProvider";
+// import { SessionProvider } from "@/lib/auth/SessionProvider";
 import ValidateClientSession from '@/lib/auth/validateClientSession';
 import { Header } from "@/template";
 import NextTopLoader from 'nextjs-toploader';
-import { Footer } from '@_/template/footer';
-import { fetchSettings } from '@_/lib/fetchSettings';
-import { DevBlock } from '@_/components/devBlock';
+import { Footer } from '@/template/footer';
+import { fetchSettings } from '@/lib/fetchSettings';
+import { DevBlock } from '@/components/devBlock';
 
 function StartupError({ error }: { error: Error }) {
   return (

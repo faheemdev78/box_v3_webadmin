@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { message, Row, Col, Card, Alert, Popover, Space, Tooltip } from 'antd';
 import moment from 'moment';
 import _ from 'lodash'
-import { Page, PageBar, PageHeader } from '@_/template';
+import { Page, PageBar, PageHeader } from '@/template';
 import { __error, __yellow } from '@/lib/consoleHelper';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -12,7 +12,7 @@ import { useLazyQuery, useMutation, useSubscription } from '@apollo/client/react
 import { catchApolloError, checkApolloRequestErrors, dateToUtc } from '@/lib/utill';
 import { Button, Loader, DevBlock, Table, PopMenu } from '@/components'
 import FieldFormEditor from '@/modules/settings/FieldFormEditor';
-import { sleep } from '@_/lib';
+import { sleep } from '@/lib';
 
 import { FieldArray } from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays'
@@ -20,14 +20,14 @@ import { Form as FinalForm, Field as FinalField } from 'react-final-form';
 import { FormField, FormFieldGroup, SubmitButton, rules, submitHandler } from '@/components/form';
 
 import { useAppDispatch, useAppSelector, useAppStore } from '@/rStore/hooks';
-import { initSettings } from '@_/rStore/slices/systemSlice';
+import { initSettings } from '@/rStore/slices/systemSlice';
 
-import { fetchSettings } from '@_/lib/fetchSettings';
+import { fetchSettings } from '@/lib/fetchSettings';
 
-import GET_VALUES from '@_/graphql/value_pairs/valuePairs.graphql';
-import UPDATE_SORT from '@_/graphql/value_pairs/updateValuePairsSort.graphql';
-import EDIT_MULTIPLE from '@_/graphql/value_pairs/updateValuePairArray.graphql';
-import DEL_SETTINGS from '@_/graphql/value_pairs/deleteValuePairs.graphql';
+import GET_VALUES from '@/graphql/value_pairs/valuePairs.graphql';
+import UPDATE_SORT from '@/graphql/value_pairs/updateValuePairsSort.graphql';
+import EDIT_MULTIPLE from '@/graphql/value_pairs/updateValuePairArray.graphql';
+import DEL_SETTINGS from '@/graphql/value_pairs/deleteValuePairs.graphql';
 
 
 const SortableTable = ({ fields, onUpdate }: { fields: any[]; onUpdate: (sorted: any[]) => void }) => {

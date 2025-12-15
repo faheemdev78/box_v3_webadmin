@@ -3,16 +3,16 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation';
 import { useLazyQuery, useMutation } from '@apollo/client/react'
-import { DevBlock, Loader, Icon, Button } from '@_/components'
-import { PageHeader } from '@_/template'
-import { Page } from '@_/template/page'
+import { DevBlock, Loader, Icon, Button } from '@/components'
+import { PageHeader } from '@/template'
+import { Page } from '@/template/page'
 import { Alert, Card, Descriptions, Table, Tag, Space, Typography, Divider, Row, Col, Modal, Input, message } from 'antd'
 import type { ColumnsType } from 'antd/es/table';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
-import { useAppSelector } from '@_/rStore/hooks';
-import { getSettings } from '@_/rStore/slices/systemSlice';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { useAppSelector } from '@/rStore/hooks';
+import { getSettings } from '@/rStore/slices/systemSlice';
 import moment from 'moment';
-import { defaultDateTimeFormat, adminRoot } from '@_/configs';
+import { defaultDateTimeFormat, adminRoot } from '@/configs';
 
 import ORDER from '@/graphql/order/getOrignalOrder.graphql'
 import REVERT_ORDER_STAGE from '@/graphql/order/revertOrderStage.graphql'

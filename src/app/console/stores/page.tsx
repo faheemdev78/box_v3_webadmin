@@ -2,18 +2,18 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Card, Col, message, Popconfirm, Row, Space } from 'antd';
-import { Button, IconButton, Loader, PageHeading, Table } from '@_/components';
+import { Button, IconButton, Loader, PageHeading, Table } from '@/components';
 import { ColumnsType } from 'antd/es/table';
-import { adminRoot, defaultPageSize } from '@_/configs';
+import { adminRoot, defaultPageSize } from '@/configs';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Page } from '@_/template/page';
-import { PageHeader } from '@_/template';
-import { catchApolloError, checkApolloRequestErrors } from '@_/lib/utill_apollo';
-import { __error } from '@_/lib/consoleHelper';
+import { Page } from '@/template/page';
+import { PageHeader } from '@/template';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { __error } from '@/lib/consoleHelper';
 
-import LIST_DATA from '@_/graphql/stores/storesQuery.graphql'
-import RECORD_DELETE from '@_/graphql/stores/deleteStore.graphql';
+import LIST_DATA from '@/graphql/stores/storesQuery.graphql'
+import RECORD_DELETE from '@/graphql/stores/deleteStore.graphql';
 
 const defaultFilter = { status: 'online' }
 

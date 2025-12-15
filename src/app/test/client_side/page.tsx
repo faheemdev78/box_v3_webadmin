@@ -1,11 +1,9 @@
 'use client'
-// import Image from "next/image";
-// import Link from "next/link";
 import { useQuery, useLazyQuery } from "@apollo/client/react";
 import { use, useEffect, useState } from "react";
-import { getSessionToken } from "@_/lib/auth";
+import { getSessionToken } from "@/lib/auth";
 
-import TEST_QUERY from "@_/graphql/test/testQuery.graphql";
+import TEST_QUERY from "@/graphql/test/testQuery.graphql";
 
 function ClientSide() {
     // const { data, loading, error } = useQuery<any>(TEST_QUERY);

@@ -9,20 +9,20 @@
 // import { Card, Row, Col, Space, Button, Typography, Modal, Input, message, Progress, Tag, Alert } from 'antd';
 // import { CheckCircleOutlined, LeftOutlined, ExclamationCircleOutlined, PrinterOutlined } from '@ant-design/icons';
 // import { useParams, useRouter } from 'next/navigation';
-// import { useAppSelector, useAppDispatch } from '@_/rStore/hooks';
-// import { getActiveShift, getCurrentOrderId, setCurrentOrder } from '@_/rStore/slices/tillVerificationSlice';
-// import { getSettings } from '@_/rStore/slices/systemSlice';
+// import { useAppSelector, useAppDispatch } from '@/rStore/hooks';
+// import { getActiveShift, getCurrentOrderId, setCurrentOrder } from '@/rStore/slices/tillVerificationSlice';
+// import { getSettings } from '@/rStore/slices/systemSlice';
 // import { useStartOrderVerification, useCompleteOrderVerification, 
 //   // useMyLockedOrders,
 //   useMyActiveTillShift, usePrintTillReceipt
-// } from '@_/hooks/useTillVerification';
-// import { adminRoot } from '@_/configs';
-// import { Loader, usePageProps } from '@_/components';
-// import { Page } from '@_/template';
-// import { ItemVerificationRow } from '@_/modules/orders/tillVerification/ItemVerificationRow';
-// import { BasketSelector } from '@_/modules/orders/tillVerification/BasketSelector';
+// } from '@/hooks/useTillVerification';
+// import { adminRoot } from '@/configs';
+// import { Loader, usePageProps } from '@/components';
+// import { Page } from '@/template';
+// import { ItemVerificationRow } from '@/modules/orders/tillVerification/ItemVerificationRow';
+// import { BasketSelector } from '@/modules/orders/tillVerification/BasketSelector';
 
-// import START_ORDER_VERIFICATION from '@_/graphql/till_verification/startOrderVerification.graphql';
+// import START_ORDER_VERIFICATION from '@/graphql/till_verification/startOrderVerification.graphql';
 
 
 // const { Title, Text } = Typography;

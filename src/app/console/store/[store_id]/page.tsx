@@ -1,6 +1,5 @@
 'use client'
 
-import React, { useState } from 'react'
 import { Alert, Card, Col, Row, Statistic, Table, Tag, Progress, List, Timeline, Space } from 'antd';
 import {
     ShoppingCartOutlined,
@@ -16,13 +15,13 @@ import {
     ArrowUpOutlined,
     ArrowDownOutlined
 } from '@ant-design/icons';
-import { StatusTag } from '@_/components';
+import { StatusTag } from '@/components';
 import StoreWrapper from '@/modules/store/storeWrapper';
-import { Page } from '@_/template/page';
-import { PageHeader } from '@_/template';
-import { publishStatus } from '@_/configs';
-import { useAppSelector } from '@_/rStore/hooks';
-import { getSettings } from '@_/rStore/slices/systemSlice';
+import { Page } from '@/template/page';
+import { PageHeader } from '@/template';
+import { publishStatus } from '@/configs';
+import { useAppSelector } from '@/rStore/hooks';
+import { getSettings } from '@/rStore/slices/systemSlice';
 
 // Dummy Data for Dashboard
 const DASHBOARD_DATA = {

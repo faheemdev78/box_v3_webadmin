@@ -1,11 +1,10 @@
-import PageProvider from '@_/components/pageProps';
-import { adminRoot } from '@_/configs'
-import { PageBar } from '@_/template'
-import { createApolloClient } from '@_/aClient/client';
-import { getServerSessionToken } from '@_/lib/auth/server';
+import PageProvider from '@/components/pageProps';
+import { adminRoot } from '@/configs'
+import { PageBar } from '@/template'
+import { createApolloClient } from '@/aClient/client';
+import { getServerSessionToken } from '@/lib/auth/server';
 
-
-import GET_STORE from '@_/graphql/stores/store.graphql';
+import GET_STORE from '@/graphql/stores/store.graphql';
 
 
 // export default async function Layout(

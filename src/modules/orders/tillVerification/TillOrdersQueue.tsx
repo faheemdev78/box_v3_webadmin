@@ -14,17 +14,17 @@
 // import { useTillVerificationQueue, useMyActiveTillShift, 
 //   // useMyLockedOrders,
 //   useOpenTillShift, useCloseTillShift, useStartOrderVerification
-// } from '@_/hooks/useTillVerification';
-// import { useAppSelector } from '@_/rStore/hooks';
-// import { getSettings } from '@_/rStore/slices/systemSlice';
-// import { getActiveShift } from '@_/rStore/slices/tillVerificationSlice';
+// } from '@/hooks/useTillVerification';
+// import { useAppSelector } from '@/rStore/hooks';
+// import { getSettings } from '@/rStore/slices/systemSlice';
+// import { getActiveShift } from '@/rStore/slices/tillVerificationSlice';
 // import dayjs from 'dayjs';
 // import relativeTime from 'dayjs/plugin/relativeTime';
 // import duration from 'dayjs/plugin/duration';
-// import { Loader, OrderTable } from '@_/components';
-// import { adminRoot } from '@_/configs';
+// import { Loader, OrderTable } from '@/components';
+// import { adminRoot } from '@/configs';
 // import Link from 'next/link';
-// import { Page } from '@_/template';
+// import { Page } from '@/template';
 
 // dayjs.extend(relativeTime);
 // dayjs.extend(duration);

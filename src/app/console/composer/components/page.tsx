@@ -1,9 +1,9 @@
 'use client'
 
 import Link from "next/link";
-import { adminRoot } from "@_/configs";
-import { PageHeader } from "@_/template";
-import { Button } from "@_/components";
+import { adminRoot } from "@/configs";
+import { PageHeader } from "@/template";
+import { Button } from "@/components";
 
 
 function ComponentsHome() {

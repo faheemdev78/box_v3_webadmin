@@ -1,6 +1,6 @@
 'use client'
 
-import { ViewFilterConfig, ViewConfig, FilterField, ColumnConfig } from '@_/components/ViewFilter';
+import { ViewFilterConfig, ViewConfig, FilterField, ColumnConfig } from '@/components/ViewFilter';
 
 // Order filter fields configuration
 export const ORDER_FILTER_FIELDS: FilterField[] = [

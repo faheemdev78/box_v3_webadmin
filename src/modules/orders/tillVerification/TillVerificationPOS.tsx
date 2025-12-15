@@ -9,20 +9,20 @@
 // import { Card, Row, Col, Space, Button, Typography, Modal, Input, message, Progress, Tag, Alert } from 'antd';
 // import { CheckCircleOutlined, LeftOutlined, ExclamationCircleOutlined, PrinterOutlined } from '@ant-design/icons';
 // import { useRouter } from 'next/navigation';
-// import { useAppSelector, useAppDispatch } from '@_/rStore/hooks';
-// import { getActiveShift, getCurrentOrderId, setCurrentOrder } from '@_/rStore/slices/tillVerificationSlice';
-// import { getSettings } from '@_/rStore/slices/systemSlice';
+// import { useAppSelector, useAppDispatch } from '@/rStore/hooks';
+// import { getActiveShift, getCurrentOrderId, setCurrentOrder } from '@/rStore/slices/tillVerificationSlice';
+// import { getSettings } from '@/rStore/slices/systemSlice';
 // import {
 //   useStartOrderVerification,
 //   useCompleteOrderVerification,
 //   useMyLockedOrders,
 //   useMyActiveTillShift,
 //   usePrintTillReceipt
-// } from '@_/hooks/useTillVerification';
+// } from '@/hooks/useTillVerification';
 // import { ItemVerificationRow } from './ItemVerificationRow';
 // import { BasketSelector } from './BasketSelector';
-// import { Loader } from '@_/components';
-// import { adminRoot } from '@_/configs';
+// import { Loader } from '@/components';
+// import { adminRoot } from '@/configs';
 
 // const { Title, Text } = Typography;
 // const { TextArea } = Input;
