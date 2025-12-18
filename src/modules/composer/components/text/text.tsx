@@ -19,7 +19,7 @@ export function Text_Render({ item }: { item: { data: any, values: any, styles: 
 export function Text_Props({ item }: { item: { name: any, data: any, values: any } }){
     const { name, data, values } = item;
     return (<>
-        <Space direction='vertical'>
+        <Space orientation='vertical'>
             <Card styles={{ body: { padding: "10px" } }}>
                 <Heading style={undefined}>Value</Heading>
                 <FormField name={`${name}.values.value`} type="text" />

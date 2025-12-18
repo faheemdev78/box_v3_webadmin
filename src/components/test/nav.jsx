@@ -21,7 +21,7 @@ export function Nav(props) {
   return (<>
     <Divider>Test Navigation</Divider>
 
-    <Space direction="horizontal" className='width-100' split="|">
+    <Space orientation="horizontal" className='width-100' separator="|">
       <LoginButton />
       {(loggedin) && <>
         <Link href="/test">Home</Link>

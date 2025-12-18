@@ -122,9 +122,9 @@ const DeliverySlotFormComp = ({ initialValues, onClose, onSuccess, open, store }
                     const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                     return (<>
-                        {error && <Alert message={error} showIcon type='error' />}
+                        {error && <Alert title="Error" description={error} showIcon type='error' />}
 
-                        <form id="TimeSlotForm" {...submitHandler(formargs)}><Space direction='vertical' style={{ width: "100%" }}>
+                        <form id="TimeSlotForm" {...submitHandler(formargs)}><Space orientation='vertical' style={{ width: "100%" }}>
                             <Row gutter={[10, 20]}>
                                 <Col span={12}><FormField type="select" name="day" label="Day" validate={rules.required}
                                     options={[

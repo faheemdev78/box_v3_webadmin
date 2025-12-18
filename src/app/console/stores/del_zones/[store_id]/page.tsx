@@ -146,9 +146,9 @@ function StoreZones() {
         set_storeData({ ...resutls })
     }
 
-    if (fatelError) return <Alert message={fatelError} type="error" showIcon />
+    if (fatelError) return <Alert title="Error" description={fatelError} type="error" showIcon />
     if (loading || (data && !storeData)) return <Loader loading={true} />
-    if (!data) return <Alert message="No data found!" type='error' showIcon />
+    if (!data) return <Alert title="Error" description="No data found!" type='error' showIcon />
 
     return (<>
         <PageHeader 

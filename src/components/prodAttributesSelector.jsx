@@ -40,7 +40,7 @@ export const ProdAttributesSelector = ({ initialValues=[], onUpdate }) => {
     if (loading) return <Loader loading={true} />
 
     return (<>
-        <Space style={{ width:"100%" }} direction='vertical'>
+        <Space style={{ width: "100%" }} orientation='vertical'>
             {data && data?.productAttributes?.map((item, i) => {
                 return (<Card key={i} onClick={() => onItemClick(item)} styles={{ body:{ padding:"10px", fontSize:"16px" }}}>
                     <Space>

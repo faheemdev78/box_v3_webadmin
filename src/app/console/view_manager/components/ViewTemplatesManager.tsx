@@ -5,7 +5,7 @@ export const ViewTemplatesManager: React.FC = () => {
   return (
     <div>
       <Alert
-        message="View Templates"
+        title="View Templates"
         description="View templates allow you to create pre-defined views that will be automatically created for new entity configurations. This feature will be implemented in a future update."
         type="info"
         showIcon

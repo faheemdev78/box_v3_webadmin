@@ -28,8 +28,8 @@ export const ThumbnailHolder = props => {
     // else if (props.response) data = { ...props.response };
 
     // check if its a upload response or archived image from DB
-    let _thumbUrl = response ? `${process.env.NEXT_PUBLIC_CDN_ASSETS}${response.thumbUrl}` : thumbUrl;
-    let _srcUrl = response ? `${process.env.NEXT_PUBLIC_CDN_ASSETS}${response.srcUrl}` : srcUrl;
+    let _thumbUrl = response ? `${process.env.NEXT_PUBLIC_CDN_URL}${response.thumbUrl}` : thumbUrl;
+    let _srcUrl = response ? `${process.env.NEXT_PUBLIC_CDN_URL}${response.srcUrl}` : srcUrl;
 
     return (<div className={styles.gallery_item}>
         {status == 'loading' && <Loader className={`loader`} size="small" loading={status == 'loading'} />}
@@ -329,7 +329,7 @@ export const UploadImage = props => {
 
     const uploadProps = {
         // fileList,
-        action: props.action, // || `${process.env.NEXT_PUBLIC_API_URL}/upload/assets`,
+        action: props.action, // || `${process.env.NEXT_PUBLIC_CDN_API_URI}/upload/assets`,
         disabled: false,
         multiple: false,
         data: props.data,
@@ -583,14 +583,14 @@ export const Bk_UploadField = props => {
     if (!props.buttonLabel) _props.buttonLabel = "Upload";
     if (!props.listType) _props.listType = "picture";
     if (!props.limit) _props.limit = 1;
-    if (!props.action) _props.action = `${process.env.ADMIN_API_URI}/upload/assets`;
-    // if (!props.remove_action) _props.remove_action = `${process.env.ADMIN_API_URI}/remove/assets`;
+    if (!props.action) _props.action = `${process.env.NEXT_PUBLIC_ADMIN_API_URI}/upload/assets`;
+    // if (!props.remove_action) _props.remove_action = `${process.env.NEXT_PUBLIC_ADMIN_API_URI}/remove/assets`;
 
     if (_props.listType == "picture-grid" || _props.listType == "picture-card" || _props.listType == "list") {
         return <UploadImage {..._props} />
     }
     else {
-        return <Alert message={`Invalid gallery type (${props.listType})`} type="warning" showIcon />
+        return <Alert title="Error" description={`Invalid gallery type (${props.listType})`} type="warning" showIcon />
     }
 }
 

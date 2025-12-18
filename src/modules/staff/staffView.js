@@ -11,7 +11,7 @@ export const StaffView = ({ onStatusUpdate, onUpdate, staff }) => {
     const [mode, setMode] = useState('view')
 
     return (<>
-        {/* {error && <Alert message={error} showIcon type='error' />} */}
+        {/* {error && <Alert title="Error" description={error} showIcon type='error' />} */}
 
         <h1>{staff.name} <IconButton onClick={() => setMode('edit')} icon="pen" size="small" /></h1>
 

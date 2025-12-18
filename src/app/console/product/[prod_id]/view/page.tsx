@@ -15,7 +15,7 @@ import { Alert, Card } from 'antd';
 
 
 function ViewProductFormWrapper({ product, session, refresh, store }: { product: any; session: any; refresh: any; store: any }) {
-    if (!session || !session?.user?._id) return <Alert message="Invalid user session" showIcon type='error' />
+    if (!session || !session?.user?._id) return <Alert title="Error" description="Invalid user session" showIcon type='error' />
 
     return (<>
         <ProductView initialValues={product} session={session} store={store} refresh={refresh} />

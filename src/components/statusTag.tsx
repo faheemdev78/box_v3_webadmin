@@ -59,7 +59,7 @@ export const StatusTag: React.FC<StatusTagProps> = ({ size=14, value, editable, 
                         const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                         return (<>
-                            {/* {error || router?.query?.error && <Alert message={error || router?.query?.error} showIcon type='error' />} */}
+                            {/* {error || router?.query?.error && <Alert title="Error" description={error || router?.query?.error} showIcon type='error' />} */}
 
                             <form id="statusUpdater" {...submitHandler(formargs)}><Row gutter={[10, 10]}>
                                 <Col span={24}><FormField name="status" options={options || publishStatus} placeholder={`${val}`} type="select" validate={rules.required} /></Col>

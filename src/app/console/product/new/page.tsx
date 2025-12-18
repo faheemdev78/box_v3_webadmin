@@ -353,7 +353,7 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
         if (thumbnailSizes) formData.append('thumbnails', JSON.stringify(thumbnailSizes));
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_ASSETS_URI}/upload`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_CDN_API_URI}/upload`, {
                 method: 'POST',
                 body: formData,
             });
@@ -372,7 +372,7 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
 
 
 
-    if (fetalError) return <Alert message={fetalError} type='error' showIcon />
+    if (fetalError) return <Alert title="Error" description={fetalError} type='error' showIcon />
 
     // return (<DevBlock obj={extraFields} />)
 
@@ -484,7 +484,7 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
 
                                     <div style={{ width: "800px", textAlign: "left", border: "2px solid #EEE", borderRadius: "10px", justifySelf: "center" }}>
 
-                                        {error && <Alert message={error} showIcon type='error' />}
+                                        {error && <Alert title="Error" description={error} showIcon type='error' />}
 
                                         {activeStep == 0 && <>
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Select a product category</Divider>
@@ -553,7 +553,7 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
                                                         <FieldArray name="attributes">
                                                             {({ fields }) => {
                                                                 return (<>
-                                                                    <Space direction='vertical' size={10}>
+                                                                    <Space orientation='vertical' size={10}>
                                                                         {fields.map((name, index) => {
                                                                             const thisNode = fields.value[index];
 
@@ -788,7 +788,7 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
                                             <div style={{ padding: "0 20px 20px 20px" }}>
                                                 <FieldArray name="extra_fields">
                                                     {({ fields }) => {
-                                                        return (<Space style={{ width: "100%" }} direction='vertical' size={20}>
+                                                        return (<Space style={{ width: "100%" }} orientation='vertical' size={20}>
                                                             {fields.map((name, index) => {
                                                                 const thisNode = fields.value[index];
 

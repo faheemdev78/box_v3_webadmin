@@ -77,7 +77,7 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }: { onSuccess: () 
         const { handleSubmit, submitting, form, values, invalid, errors, submitFailed, dirty } = formargs;
 
         return (<>
-          {error && <Alert message={error} showIcon type='error' />}
+          {error && <Alert title="Error" description={error} showIcon type='error' />}
           <form id="UserTypeForm" {...submitHandler(formargs)}>
 
             <Row gutter={[10, 10]}>
@@ -187,7 +187,7 @@ function UserTypes() {
     },
   ];
 
-  // if (!security.verifyRole("200.1", session_user)) return <Alert message="Access Denied!" showIcon type='error' />
+  // if (!security.verifyRole("200.1", session_user)) return <Alert title="Error" description="Access Denied!" showIcon type='error' />
 
   return (<>
     <PageHeader title="Users Types">

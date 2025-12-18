@@ -31,29 +31,27 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const settings = await fetchSettings();
   if (settings.error) return <StartupError error={settings.error} />
   
-  console.log("process.env: ", JSON.stringify(process.env))
+  // console.log("process.env: ", JSON.stringify(process.env))
 
-  return (
-    <html lang="en">
-      <body>
-        <ApolloWrapper>
-          {/* <SessionProvider> */}
-            <AntdRegistry>
-            <ReduxProvider settings={settings}>
-                <ValidateClientSession>
-                  <Header />
-                  <NextTopLoader />
-                  {children}
-                  <Footer />
-                  <DevBlock obj={process.env} force={false} />
-                </ValidateClientSession>
-              </ReduxProvider>
-            </AntdRegistry>
-          {/* </SessionProvider> */}
-        </ApolloWrapper>
-      </body>
-    </html>
-  );
+  return (<html lang="en">
+    <body>
+      <ApolloWrapper>
+        {/* <SessionProvider> */}
+          <AntdRegistry>
+          <ReduxProvider settings={settings}>
+              <ValidateClientSession>
+                <Header />
+                <NextTopLoader />
+                {children}
+                <Footer />
+                {/* <DevBlock obj={process.env} force={false} /> */}
+              </ValidateClientSession>
+            </ReduxProvider>
+          </AntdRegistry>
+        {/* </SessionProvider> */}
+      </ApolloWrapper>
+    </body>
+  </html>);
 }
 
 

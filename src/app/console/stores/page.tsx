@@ -124,7 +124,7 @@ function Stores(props:any) {
             />
         </Page>
 
-        {/* <Space split="|">
+        {/* <Space separator="|">
             <PageHeading>Stroes</PageHeading>
             <Link href={`${adminRoot}/stores/new`} >Add New Store</Link>
         </Space>

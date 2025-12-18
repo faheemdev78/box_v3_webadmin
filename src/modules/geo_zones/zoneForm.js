@@ -148,7 +148,7 @@ function FormComp({ onSuccess, initialValues, store, ...props }) {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
 
                     {zones_resutls.loading && <Loader loading={true} />}
 
@@ -258,9 +258,9 @@ function GeoZoneForm({ zone_id, store, ...props }) {
 
     const onSuccess = (val) => router.push(`${adminRoot}/store/${store._id}/zones`);
 
-    if (error) return <Alert message={error} type="error" showIcon />
+    if (error) return <Alert title="Error" description={error} type="error" showIcon />
     if (zone_id && (loading || !initialValues)) return <Loader loading={true} />
-    if (!store._id) return <Alert message={"Store ID not found!"} type='error' showIcon />
+    if (!store._id) return <Alert title="Error" description={"Store ID not found!"} type='error' showIcon />
 
     return (<>
         <FormComp onSuccess={onSuccess} initialValues={initialValues} store={store} {...props} />

@@ -474,7 +474,7 @@ function ViewFilterPage() {
               value={newViewVisibility}
               onChange={(e) => setNewViewVisibility(e.target.value)}
             >
-              <Space direction="vertical">
+              <Space orientation="vertical">
                 <Radio value="private">Private</Radio>
                 <Radio value="team" disabled>
                   My team:

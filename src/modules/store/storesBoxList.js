@@ -47,12 +47,12 @@ function StoresBoxList(props) {
     if (loading) return <Loader loading={true}>Fetching online stores...</Loader>
 
     return (<>
-        {(error || !data || !data?.stores[0]?._id) && <Alert message={error || "No stores available"} tyoe="error" showIcon />}
+        {(error || !data || !data?.stores[0]?._id) && <Alert title="Error" description={error || "No stores available"} tyoe="error" showIcon />}
 
         <Row>
             <Col flex="auto"><PageHeading>Stores</PageHeading></Col>
             <Col>
-                <Space split="|">
+                <Space separator="|">
                     <Link href={`${adminRoot}/stores`}>Show All Stores</Link>
                     <Link href={`${adminRoot}/stores/new`}>Add new Store</Link>
                 </Space>

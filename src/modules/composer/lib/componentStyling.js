@@ -21,7 +21,7 @@ export function ComponentStyling({ name, showHeading=true }) {
         </Row>
 
         <Divider>Background</Divider>
-        <Space size={5} direction='horizontal'>
+        <Space size={5} orientation='horizontal'>
             <FormField name={name ? `${name}.styles.background.type` : `styles.background.type`} type='select' label="Color Type" compact
                 wrapperStyle={{ width: "100px", border: "0px solid blue" }}
                 options={[
@@ -42,7 +42,7 @@ export function ComponentStyling({ name, showHeading=true }) {
                 <FormField name={name ? `${name}.styles.background.color1` : `styles.background.color1`} _label="Color 1" type="color" compact />
             </div>}
             {getFieldValue('styles.background.type')?.value == 'gradient' && <div style={{ marginTop: "23px" }}>
-                <Space direction='horizontal'>
+                <Space orientation='horizontal'>
                     <FormField name={name ? `${name}.styles.background.color1` : `styles.background.color1`} _label="Color 1" type="color" compact />
                     <FormField name={name ? `${name}.styles.background.color2` : `styles.background.color2`} _label="Color 2" type="color" compact />
                 </Space>

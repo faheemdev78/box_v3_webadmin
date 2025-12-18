@@ -243,7 +243,7 @@ export function DndContainers({ containers, onUpdate, itemParser, gutter, contai
         setOverContainer(null)
     }
 
-    if (!validateParams()) return <Alert message="Incomplte parameters provided" type="error" showIcon />
+    if (!validateParams()) return <Alert title="Error" description="Incomplte parameters provided" type="error" showIcon />
 
     const span = !items ? 24 : 24 / Object.keys(items).length;
     const getContainerProps = (name) => (containerProps[name] || {});

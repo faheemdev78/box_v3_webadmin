@@ -61,10 +61,10 @@ export function ProdLimitsForm({ initialValues, onSuccess, onCancel }) {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProdItendityForm" {...submitHandler(formargs)}>
 
-                        <Space direction='vertical' size={20} style={{ width: "100%" }}>
+                        <Space orientation='vertical' size={20} style={{ width: "100%" }}>
                             <FormField label="Cart limit" type="number" name="cart_limit" validate={rules.required} />
 
                             <Space>

@@ -127,7 +127,7 @@
 //     >
 //       <Space direction="vertical" style={{ width: '100%' }}>
 //         <Text>Are you sure you want to close your shift?</Text>
-//         {shiftSession?.till_verification_orders?.length > 0 && <Alert message={`You have ${shiftSession.till_verification_orders.length} order(s) in progress. They will be released`} type="error" showIcon />}
+//         {shiftSession?.till_verification_orders?.length > 0 && <Alert title="Error" description={`You have ${shiftSession.till_verification_orders.length} order(s) in progress. They will be released`} type="error" showIcon />}
 //         {shiftSession?.till_verification_orders?.length > 0 && (<Text type="warning">⚠️ You have {activeShift?.performance?.total_units_processed?.length} order(s) in progress. They will be released.</Text>)}
 //         <Input.TextArea placeholder="Optional: Shift notes..." value={closeNotes} onChange={(e) => setCloseNotes(e.target.value)} rows={3} />
 //       </Space>

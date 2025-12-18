@@ -100,7 +100,7 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
         messageApi.open({ key: "onSubmit", type: 'loading', content: "Saving product image" })
 
         try {
-            const results = await axios.post(`${process.env.ADMIN_API_URI}/upload_files`, formData, {
+            const results = await axios.post(`${process.env.NEXT_PUBLIC_ADMIN_API_URI}/upload_files`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
                 .then(r => ((r.data.error) ? r.data : r?.data?.files));
@@ -137,7 +137,7 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
         messageApi.open({ key: "onSubmit", type: 'loading', content: "Saving product video" })
 
         try {
-            const results = await axios.post(`${process.env.ADMIN_API_URI}/upload_files`, formData, {
+            const results = await axios.post(`${process.env.NEXT_PUBLIC_ADMIN_API_URI}/upload_files`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
                 .then(r => ((r.data.error) ? r.data : r?.data?.files));
@@ -180,7 +180,7 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
         messageApi.open({ key: "onSubmit", type: 'loading', content: `Saving product gallery (${files.length})` })
 
         try {
-            const results = await axios.post(`${process.env.ADMIN_API_URI}/upload_files`, formData, {
+            const results = await axios.post(`${process.env.NEXT_PUBLIC_ADMIN_API_URI}/upload_files`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
                 .then(r => ((r.data.error) ? r.data : r?.data?.files));
@@ -251,7 +251,7 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProdImagesDataForm" {...submitHandler(formargs)}>
 
                         <Space wrap>

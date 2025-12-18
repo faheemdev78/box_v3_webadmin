@@ -318,7 +318,7 @@ export const FieldDefinitionsEditor: React.FC<FieldDefinitionsEditorProps> = ({
 
           {showOptions && (
             <Form.Item label="Options">
-              <Space direction="vertical" style={{ width: '100%' }}>
+              <Space orientation="vertical" style={{ width: '100%' }}>
                 {options.map((option, index) => (
                   <Space key={index} style={{ width: '100%' }}>
                     <Input

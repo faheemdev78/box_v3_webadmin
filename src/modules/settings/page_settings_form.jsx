@@ -141,7 +141,7 @@ const FormComp = props => {
                         const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                         return (<>
-                            {/* {error && <Alert message={error} showIcon type='error' />} */}
+                            {/* {error && <Alert title="Error" description={error} showIcon type='error' />} */}
                             <form id="PageSettingForm" {...submitHandler(formargs)}>
 
                                 {/* <FormField type="text" name="tooltip" label="Tooltip" validate={rules.required} /> */}
@@ -195,7 +195,7 @@ const FormComp = props => {
                                                     {products && products.map((prod, i) => {
                                                         return (
                                                             <Row key={i} className="date-row" gutter={[15, 0]} style={{ flexWrap: "nowrap" }}>
-                                                                <Col flex="30px"><Avatar size={40} shape="square" src={`${process.env.REACT_APP_DATA_URL}/${prod.picture_thumb}`} /></Col>
+                                                                <Col flex="30px"><Avatar size={40} shape="square" src={`${process.env.NEXT_PUBLIC_CDN_URL}/${prod.picture_thumb}`} /></Col>
                                                                 <Col flex="auto"><div style={{ flexWrap: "wrap", whiteSpace: "normal" }}>{prod.title}</div></Col>
                                                                 <Col flex="20px"><IconButton icon="minus" onClick={() => formProps.form.mutators.setProduct({ remove_prod: prod, key: key })} /></Col>
                                                             </Row>
@@ -305,7 +305,7 @@ const FormComp = props => {
                                                 {products && products.map((prod, i) => {
                                                     return (
                                                         <Row key={i} className="date-row" gutter={[15, 0]} style={{ flexWrap: "nowrap" }}>
-                                                            <Col flex="30px"><Avatar size={40} shape="square" src={`${process.env.REACT_APP_DATA_URL}/${prod.picture_thumb}`} /></Col>
+                                                            <Col flex="30px"><Avatar size={40} shape="square" src={`${process.env.NEXT_PUBLIC_CDN_URL}/${prod.picture_thumb}`} /></Col>
                                                             <Col flex="auto"><div style={{ flexWrap: "wrap", whiteSpace: "normal" }}>{prod.title}</div></Col>
                                                             <Col flex="20px"><IconButton icon="minus" onClick={() => formProps.form.mutators.setProduct({ remove_prod: prod, key: key })} /></Col>
                                                         </Row>

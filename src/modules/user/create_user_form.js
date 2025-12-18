@@ -65,7 +65,7 @@ export const CreateUserForm = ({ show, onSuccess, onCancel, initialValues }) => 
 
                 return (<>
                     <form id={"add_user_form"} {...submitHandler(formargs)}><>
-                        {error && <Alert message={error} type='error' showIcon />}
+                        {error && <Alert title="Error" description={error} type='error' showIcon />}
 
                         <Row gutter={[5, 5]}>
                             <Col span={24}><FormField type="text" name="name" label="Name" validate={rules.required} /></Col>

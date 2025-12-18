@@ -20,7 +20,7 @@ function ComponentCreator() {
 
     <Row>
       <Col flex="300px">
-        <Space direction='vertical'>
+        <Space orientation='vertical'>
           <h3>Form</h3>
           <div>Text Field</div>
           <div>Text Area</div>
@@ -42,7 +42,7 @@ function ComponentCreator() {
             const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
             return (<>
-              {error && <Alert message={error} showIcon type='error' />}
+              {error && <Alert title="Error" description={error} showIcon type='error' />}
               <form id="component_creator_form" {...submitHandler(formargs)}><Row gutter={[10, 10]}>
 
                 <Col span={24}><FormField name="title" label="title" type="text" validate={rules.required} /></Col>

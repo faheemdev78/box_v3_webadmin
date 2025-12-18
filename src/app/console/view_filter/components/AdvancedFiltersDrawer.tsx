@@ -409,7 +409,7 @@ export const AdvancedFiltersDrawer: React.FC<AdvancedFiltersDrawerProps> = ({
           {editingFilter && editingGroup ? (<>
             <h4>Edit filter</h4>
             <Card size="small">
-              <Space direction="vertical" style={{ width: '100%' }} size="middle">
+              <Space orientation="vertical" style={{ width: '100%' }} size="middle">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <strong>{getField(editingFilter.field)?.label || editingFilter.field}</strong>
                   <Space>

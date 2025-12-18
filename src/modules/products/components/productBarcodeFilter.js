@@ -15,7 +15,7 @@ const renderItem = (id, title, picture_thumb) => ({
     value: title,
     product: { _id: id, title, picture_thumb },
     label: (<Row align="middle">
-        <Col style={{ paddingRight: 5 }}>{<Avatar src={picture_thumb ? `${process.env.NEXT_PUBLIC_CDN_ASSETS}/${picture_thumb}` : null} icon={<Icon icon="image" />} />}</Col>
+        <Col style={{ paddingRight: 5 }}>{<Avatar src={picture_thumb ? `${process.env.NEXT_PUBLIC_CDN_URL}/${picture_thumb}` : null} icon={<Icon icon="image" />} />}</Col>
         <Col flex="auto">{title}</Col>
     </Row>),
 });

@@ -74,16 +74,16 @@ export function ProdVitalInfoForm({ initialValues, onSuccess, onCancel }) {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProdItendityForm" {...submitHandler(formargs)}>
 
-                        <Space direction='vertical' size={20} style={{ width: "100%" }}>
+                        <Space orientation='vertical' size={20} style={{ width: "100%" }}>
                             <FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_expirable">Is product expirable?</FormField>
                             <FormField label="Country/Regin or Origin" type="text" name="origon" validate={rules.required} />
                             <FieldArray name="attributes">
                                 {({ fields }) => {
                                     return (<>
-                                        <Space direction='vertical' size={10}>
+                                        <Space orientation='vertical' size={10}>
                                             {fields.map((name, index) => {
                                                 const thisNode = fields.value[index];
 

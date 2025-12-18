@@ -16,7 +16,7 @@ const SEARCH_QUERY = gql`query users($filter:String, $others:String){
 export const UsersDD = (props) => {
     let _props = { ...props }
     // delete _props.type;
-    // if (!props.type) return <Alert message="Category type not provided" showIcon type='error' />
+    // if (!props.type) return <Alert title="Error" description="Category type not provided" showIcon type='error' />
 
     return <SearchableSelect 
         // static_filter={{  }}

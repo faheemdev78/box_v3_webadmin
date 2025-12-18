@@ -150,7 +150,7 @@ export const ProductTypesForm = props => {
                     const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                     return (<>
-                        {error && <Alert message={error} showIcon type='error' />}
+                        {error && <Alert title="Error" description={error} showIcon type='error' />}
                         <form id="ProdTypeForm" {...submitHandler(formargs)}>
                             <Card>
                                 
@@ -167,7 +167,7 @@ export const ProductTypesForm = props => {
                                     <Col span={24}>
                                         <div style={{ height: "10px" }} />
                                         <FieldArray name="attributes">
-                                            {({ fields }) => (<Space direction='vertical' style={{ width: "100%" }}>
+                                            {({ fields }) => (<Space orientation='vertical' style={{ width: "100%" }}>
                                                 {fields.map((name, index) => {
                                                     const thisNode = fields.value[index];
 

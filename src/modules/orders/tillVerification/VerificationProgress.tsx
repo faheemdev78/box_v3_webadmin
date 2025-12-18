@@ -28,7 +28,7 @@ export const VerificationProgress: React.FC<VerificationProgressProps> = ({ comp
   if (compact) {
     return (
       <Card size="small">
-        <Space direction="vertical" style={{ width: '100%' }}>
+        <Space orientation="vertical" style={{ width: '100%' }}>
           <Text strong>Progress: {stats.verified_count}/{stats.total_items} items</Text>
           <Progress
             percent={stats.completion_percentage}
@@ -48,7 +48,7 @@ export const VerificationProgress: React.FC<VerificationProgressProps> = ({ comp
         </Space>
       }
     >
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <Space orientation="vertical" style={{ width: '100%' }} size="large">
         {/* Progress Bar */}
         <div>
           <div style={{ marginBottom: 8 }}>

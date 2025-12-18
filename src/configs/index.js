@@ -9,6 +9,4 @@ export const startDayOfWeek = 0; // 0 = Sunday
 
 export const COOKIE_ID = 'box_a';
 
-export const GOOGLE_API_KEY = "AIzaSyDhplL9_Tnp7Ig4lZE5TW5zme47NOeSwSw";
-
 

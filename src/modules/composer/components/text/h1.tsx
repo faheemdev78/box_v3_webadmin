@@ -18,7 +18,7 @@ function H1_Render({ item: { data, values, styles, name } }: { item: any }) {
 
 function H1_Props({ item: { name, data, values } }: { item: any }){
     return (<>
-        <Space direction='vertical'>
+        <Space orientation='vertical'>
             <Card styles={{ body: { padding: "10px" } }}>
                 <Heading style={{}}>Value</Heading>
                 <FormField name={`${name}.values.value`} type="text" />

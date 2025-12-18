@@ -50,7 +50,7 @@ export function ProdStorePropsForm({ initialValues, store, onSuccess, onCancel }
         return false;
     }
 
-    if (!store) return <Alert message="Missing store!" type='error' showIcon />
+    if (!store) return <Alert title="Error" description="Missing store!" type='error' showIcon />
 
     return (<>
         <FinalForm onSubmit={onSubmit} initialValues={initialValues}
@@ -61,7 +61,7 @@ export function ProdStorePropsForm({ initialValues, store, onSuccess, onCancel }
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProdStorePropsForm" {...submitHandler(formargs)}>
 
                         <Row gutter={[10, 10]}>

@@ -769,12 +769,12 @@ function ConsoleHome() {
                         <List
                             size="small"
                             dataSource={DASHBOARD_DATA.inventoryAlerts}
-                            renderItem={(item) => (
+                            renderItem={(item: any) => (
                                 <List.Item>
                                     <List.Item.Meta
                                         title={item.product}
                                         description={
-                                            <Space direction="vertical" size={0}>
+                                            <Space orientation="vertical" size={0}>
                                                 <span>{item.affected_stores} stores affected</span>
                                                 <Space>
                                                     <span>Total Stock: {item.total_stock}</span>

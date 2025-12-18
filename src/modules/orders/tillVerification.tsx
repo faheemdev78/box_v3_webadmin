@@ -190,7 +190,7 @@ function TillVerification({ serial }: { serial:string }) {
         if (verificationStatus !== 'pending') {
             return (
                 <Alert
-                    message={`Order ${verificationStatus === 'verified' ? 'Verified' : 'Rejected'}`}
+                    title={`Order ${verificationStatus === 'verified' ? 'Verified' : 'Rejected'}`}
                     description={`This order has been ${verificationStatus} and is being processed.`}
                     type={verificationStatus === 'verified' ? 'success' : 'error'}
                     showIcon
@@ -241,8 +241,8 @@ function TillVerification({ serial }: { serial:string }) {
             <Card>
                 <div className="text-center py-8">
                     {fatelError ? 
-                        <Alert message={fatelError} type="error" showIcon /> :
-                        <Alert message={'Order not found or not available for verification'} type="error" showIcon />
+                        <Alert title="Error" description={fatelError} type="error" showIcon /> :
+                        <Alert title="Error" description={'Order not found or not available for verification'} type="error" showIcon />
                     }
                     {/* <Text type="secondary">Order not found or not available for verification</Text> */}
                     <br />

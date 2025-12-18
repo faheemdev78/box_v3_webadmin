@@ -68,7 +68,7 @@ export function PageBar({ menuArray, _session, pop_item_style }: {
 
 
     return (<div className='menu-bar'>
-      <Space size={0} split="|">
+        <Space size={0} separator="|">
             {filterPermissions(menuArray, session)?.map((item: any, i: number) => {
 
                 if (item.children && filterPermissions(item.children, session).length > 0) {

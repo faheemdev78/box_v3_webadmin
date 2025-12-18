@@ -243,7 +243,7 @@ function CreateProductForm ({ initialValues }) {
         formData.append('files', file.originFileObj); // Append each file
 
         try {
-            const results = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload_files`, formData, {
+            const results = await axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/upload_files`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
                 .then(r => ((r.data.error) ? r.data : r?.data?.files));
@@ -280,7 +280,7 @@ function CreateProductForm ({ initialValues }) {
         messageApi.open({ key: "onSubmit", type: 'loading', content: "Saving product image" })
 
         try {
-            const results = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload_files`, formData, {
+            const results = await axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/upload_files`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
                 .then(r => ((r.data.error) ? r.data : r?.data?.files));
@@ -317,7 +317,7 @@ function CreateProductForm ({ initialValues }) {
         messageApi.open({ key: "onSubmit", type: 'loading', content: "Saving product video" })
 
         try {
-            const results = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload_files`, formData, {
+            const results = await axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/upload_files`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
                 .then(r => ((r.data.error) ? r.data : r?.data?.files));
@@ -360,7 +360,7 @@ function CreateProductForm ({ initialValues }) {
         messageApi.open({ key: "onSubmit", type: 'loading', content: `Saving product gallery (${files.length})` })
 
         try {
-            const results = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/upload_files`, formData, {
+            const results = await axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/upload_files`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
                 .then(r => ((r.data.error) ? r.data : r?.data?.files));
@@ -483,7 +483,7 @@ function CreateProductForm ({ initialValues }) {
                                 <p>Attributes filter</p>
                             </Col>
                             <Col flex="auto" style={{ backgroundColor: "#FFF" }}>
-                                {error && <Alert message={error} showIcon type='error' />}
+                                {error && <Alert title="Error" description={error} showIcon type='error' />}
 
                                 <div style={{ padding:"20px 100px 50px 100px" }}><Steps progressDot current={activeStep} items={stepsArray} /></div>
 
@@ -576,7 +576,7 @@ function CreateProductForm ({ initialValues }) {
                                                     <FieldArray name="attribute">
                                                         {({ fields }) => {
                                                             return (<>
-                                                                <Space direction='vertical' size={10}>
+                                                                <Space orientation='vertical' size={10}>
                                                                     {fields.map((name, index) => {
                                                                         const thisNode = fields.value[index];
 
@@ -783,7 +783,7 @@ function CreateProductForm ({ initialValues }) {
                                                             thumbnail={{ displaySize: { width: "190px", height: "190px" } }}
                                                             maxCount={1}
                                                             multiple={true}
-                                                            // defaultValues={values?.picture && [{ ...values?.picture, _id: values._id, url: `${process.env.NEXT_PUBLIC_ASSETS_API}${values?.picture?.url}`, thumb: `${process.env.NEXT_PUBLIC_ASSETS_API}${values?.picture?.thumb}`}]}
+                                                            // defaultValues={values?.picture && [{ ...values?.picture, _id: values._id, url: `${process.env.NEXT_PUBLIC_CDN_URL}${values?.picture?.url}`, thumb: `${process.env.NEXT_PUBLIC_CDN_URL}${values?.picture?.thumb}`}]}
                                                             defaultValues={values?.picture && [{ ...values?.picture, _id: values._id, url: `${values?.picture?.url}`, thumb: `${values?.picture?.thumb}` }]}
                                                             uploadFiles={uploadProdImage}
                                                             deleteFile={onProdImageDelete}

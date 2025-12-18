@@ -125,7 +125,7 @@ export const uploadFile = async ({ file, data, thumbSize, headers, withCredentia
         file
     }
 
-    await axios.post(process.env.NEXT_PUBLIC_API_URL+`/upload_files`, formData, { 
+    await axios.post(process.env.NEXT_PUBLIC_CDN_API_URI+`/upload_files`, formData, { 
             withCredentials, 
             headers: {
                 'Content-Type': 'multipart/form-data'
@@ -175,7 +175,7 @@ export const uploadFiles = async ({ files, data, thumbSize, headers, withCredent
             }
         });
 
-    let resutls = await axios.post(process.env.NEXT_PUBLIC_API_URL+`/upload_files`, formData, { 
+    let resutls = await axios.post(process.env.NEXT_PUBLIC_CDN_API_URI+`/upload_files`, formData, { 
             withCredentials, 
             headers: { 'Content-Type': 'multipart/form-data' }, 
             onUploadProgress

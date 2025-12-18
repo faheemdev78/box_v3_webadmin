@@ -93,7 +93,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
         else set_showPreview(target)
     }
 
-    const URL = thumb_url ? `${process.env.NEXT_PUBLIC_CDN_ASSETS}/${thumb_url}` : '';
+    const URL = thumb_url ? `${process.env.NEXT_PUBLIC_CDN_URL}/${thumb_url}` : '';
     const resolvedSrc = URL || config.placeholder || '';
 
     return (<>
@@ -121,7 +121,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
         </Loader>
 
         <Modal open={showPreview !== false} onCancel={() => set_showPreview(false)} width={'1000px'} style={{ textAlign: "center" }} title={false} footer={false} destroyOnHidden>
-            {(showPreview) && <Image src={`${process.env.NEXT_PUBLIC_CDN_ASSETS}/${showPreview.url}`} width={500} height={500} alt="" />}
+            {(showPreview) && <Image src={`${process.env.NEXT_PUBLIC_CDN_URL}/${showPreview.url}`} width={500} height={500} alt="" />}
         </Modal>
 
     </>)
@@ -249,7 +249,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
 
         let uri:string = `upload_files`;
 
-        const results = await axios.post(`${process.env.NEXT_PUBLIC_CDN_API}/${uri}`, formData,
+        const results = await axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/${uri}`, formData,
                 { headers: { 'Content-Type': 'multipart/form-data' } }
             )
             .then((r: any) => (r?.error || r?.data?.error || r.data))
@@ -333,7 +333,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
 
         <Modal open={previewImg !== null} onCancel={() => setPreviewImg(null)} width={'1000px'} title={false} footer={false} destroyOnHidden style={{ textAlign: "center" }}>
             {/* {(previewImg && !busy) && <Image src={previewImg} style={{ width: "100%" }} width={0} height={0} alt="" />} */}
-            {(previewImg && !busy) && <Image unoptimized src={process.env.NEXT_PUBLIC_CDN_ASSETS+'/'+previewImg} width={500} height={500} alt="" />}
+            {(previewImg && !busy) && <Image unoptimized src={process.env.NEXT_PUBLIC_CDN_URL+'/'+previewImg} width={500} height={500} alt="" />}
             {busy && <Loader loading={true} />}
         </Modal>
 

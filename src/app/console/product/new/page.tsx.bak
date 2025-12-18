@@ -388,7 +388,7 @@ function CreateProductForm ({ initialValues }) {
         if (thumbnailSizes) formData.append('thumbnails', JSON.stringify(thumbnailSizes)); 
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_ASSETS_URI}/upload`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_CDN_API_URI}/upload`, {
                 method: 'POST',
                 body: formData,
             });
@@ -587,7 +587,7 @@ function CreateProductForm ({ initialValues }) {
                                                         <FieldArray name="attributes">
                                                             {({ fields }) => {
                                                                 return (<>
-                                                                    <Space direction='vertical' size={10}>
+                                                                    <Space orientation='vertical' size={10}>
                                                                         {fields.map((name, index) => {
                                                                             const thisNode = fields.value[index];
 
@@ -819,7 +819,7 @@ function CreateProductForm ({ initialValues }) {
                                             <div style={{ padding: "0 20px 20px 20px" }}>
                                                 <FieldArray name="extra_fields">
                                                     {({ fields }) => {
-                                                        return (<Space style={{ width: "100%" }} direction='vertical' size={20}>
+                                                        return (<Space style={{ width: "100%" }} orientation='vertical' size={20}>
                                                             {fields.map((name, index) => {
                                                                 const thisNode = fields.value[index];
 

@@ -118,7 +118,7 @@ export function FilterBuilder({ config, form }: FilterBuilderProps) {
     //                         >
     //                             <FieldArray name={`${groupName}.conditions`}>
     //                                 {({ fields: conditionFields }) => (
-    //                                     <Space direction="vertical" style={{ width: '100%' }}>
+    //                                     <Space orientation="vertical" style={{ width: '100%' }}>
     //                                         {conditionFields.map((conditionName, condIndex) => {
     //                                             const condition = conditionFields.value[condIndex];
     //                                             const fieldConfig = getFieldConfig(condition?.field);
@@ -133,7 +133,7 @@ export function FilterBuilder({ config, form }: FilterBuilderProps) {
     //                                                             {group.logic || 'AND'}
     //                                                         </Tag>
     //                                                     )}
-    //                                                     <Space direction="vertical" style={{ width: '100%' }}>
+    //                                                     <Space orientation="vertical" style={{ width: '100%' }}>
     //                                                         <Row gutter={8} align="middle">
     //                                                             <Col>
     //                                                                 <FormField

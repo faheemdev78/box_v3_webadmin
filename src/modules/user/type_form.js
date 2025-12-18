@@ -57,7 +57,7 @@ export const TypeForm = ({ onSuccess, onCancel, show, fields }) => {
 
                 return (<>
                     <form id="user_type_form" {...submitHandler(formargs)}>
-                        {error && <Alert message={error} type='error' showIcon />}
+                        {error && <Alert title="Error" description={error} type='error' showIcon />}
 
                         <Row gutter={[10, 10]}>
                             <Col span={24}><FormField type="text" name="title" label="Title" validate={rules.required} /></Col>

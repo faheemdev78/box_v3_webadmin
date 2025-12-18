@@ -259,7 +259,7 @@ export function StaffProfile() {
                         <Timeline
                             items={RECENT_ACTIVITIES.map((activity) => ({
                                 color: getActivityColor(activity.type),
-                                children: (
+                                content: (
                                     <>
                                         <p style={{ margin: 0 }}>
                                             <strong>{activity.action}</strong>

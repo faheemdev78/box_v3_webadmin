@@ -183,7 +183,7 @@ export const EntityConfigFormFinal: React.FC<EntityConfigFormFinalProps> = ({
         </span>
       </div>
 
-      {error && <Alert message={error} type="error" showIcon closable onClose={() => setError(null)} style={{ marginBottom: 16 }} />}
+      {error && <Alert title="Error" description={error} type="error" showIcon closable onClose={() => setError(null)} style={{ marginBottom: 16 }} />}
 
       <FinalForm
         onSubmit={onSubmit}
@@ -201,7 +201,7 @@ export const EntityConfigFormFinal: React.FC<EntityConfigFormFinalProps> = ({
                   {
                     key: 'basic', label: 'Basic Info',
                     children: (
-                      <Space direction="vertical" style={{ width: '100%' }} size="large">
+                      <Space orientation="vertical" style={{ width: '100%' }} size="large">
                         <Row gutter={16}>
                           <Col span={12}>
                             <FormField
@@ -266,7 +266,7 @@ export const EntityConfigFormFinal: React.FC<EntityConfigFormFinalProps> = ({
                   {
                     key: 'defaults', label: 'Defaults',
                     children: (
-                      <Space direction="vertical" style={{ width: '100%' }} size="large">
+                      <Space orientation="vertical" style={{ width: '100%' }} size="large">
                         <FormField
                           type="select"
                           name="defaultColumns"

@@ -4,12 +4,11 @@ import { __error } from "./consoleHelper";
     .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.user }))
 */
 export function checkApolloRequestErrors({ results, allowEmpty = false, parseReturn }){
-    
-    try {
-        console.log("results: ", JSON.stringify(results, 0, 2))
-    } catch (error) {
-        console.log("results: ", results)        
-    }
+    // try {
+    //     console.log("results: ", JSON.stringify(results, 0, 2))
+    // } catch (error) {
+    //     console.log("results: ", results)        
+    // }
     
     if (!results && allowEmpty) return results;
     if (!results) return { error: { message:"Invalid or empty results!" } }
@@ -34,6 +33,8 @@ export function checkApolloRequestErrors({ results, allowEmpty = false, parseRet
 
 
 export function catchApolloError(err) {
+    if (err.name == 'AbortError') return;
+
     // console.log("catchApolloError: ", Object.keys(err))
     // err.forEach(element => {
     //     console.log("element: ", element)

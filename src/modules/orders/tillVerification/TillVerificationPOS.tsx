@@ -136,7 +136,7 @@
 //     return (
 //       <div style={{ textAlign: 'center', padding: '100px 0' }}>
 //         <Card>
-//           <Space direction="vertical">
+//           <Space orientation="vertical">
 //             <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
 //             <Title level={4}>No Active Shift</Title>
 //             <Text>You must have an active shift to verify orders.</Text>
@@ -165,7 +165,7 @@
 //     return (
 //       <div style={{ textAlign: 'center', padding: '100px 0' }}>
 //         <Card>
-//           <Space direction="vertical">
+//           <Space orientation="vertical">
 //             <ExclamationCircleOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
 //             <Title level={4}>Failed to Load Order</Title>
 //             <Text>Could not load order data. The order might not be available for verification.</Text>
@@ -198,7 +198,7 @@
 //           <Col>
 //             <Space>
 //               <Button icon={<LeftOutlined />} onClick={handleBack} size="large">Back</Button>
-//               <Space direction="vertical" size={0}>
+//               <Space orientation="vertical" size={0}>
 //                 <Title level={3} style={{ margin: 0 }}>Till Verification - Order #{orderData?.serial}</Title>
 //                 <Text type="secondary">Customer: {customer?.name} | Picker: {picker?.name}</Text>
 //               </Space>
@@ -224,7 +224,7 @@
 //         {/* Left Column - Items List */}
 //         <Col xs={24} lg={16}>
 //           <Card title={<Title level={4} style={{ margin: 0 }}>Items to Verify</Title>} style={{ minHeight: '70vh' }}>
-//             <Space direction="vertical" style={{ width: '100%' }}>
+//             <Space orientation="vertical" style={{ width: '100%' }}>
 //               {orderItems.map((item: any) => {
 //                 // Get verification status from order item
 //                 const verificationStatus = {
@@ -250,10 +250,10 @@
 
 //         {/* Right Column - Progress & Summary */}
 //         <Col xs={24} lg={8}>
-//           <Space direction="vertical" style={{ width: '100%' }} size="middle">
+//           <Space orientation="vertical" style={{ width: '100%' }} size="middle">
 //             {/* Progress Card */}
 //             <Card size="small" title="Verification Progress">
-//               <Space direction="vertical" style={{ width: '100%' }} size="small">
+//               <Space orientation="vertical" style={{ width: '100%' }} size="small">
 //                 <div>
 //                   <Text strong style={{ fontSize: 16 }}>
 //                     {verifiedItems} / {totalItems} items
@@ -273,7 +273,7 @@
 
 //             {/* Order Summary */}
 //             <Card size="small" title="Order Summary">
-//               <Space direction="vertical" style={{ width: '100%' }} size="small">
+//               <Space orientation="vertical" style={{ width: '100%' }} size="small">
 //                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
 //                   <Text>Subtotal:</Text>
 //                   <Text strong>{settings.currency}{orderData?.current_order?.totals?.subTotal?.toFixed(2) || '0.00'}</Text>
@@ -301,7 +301,7 @@
 
 //             {/* Tips Card */}
 //             <Card size="small" title="💡 Tips" styles={{ body: { padding: 12 } }}>
-//               <Space direction="vertical" size="small">
+//               <Space orientation="vertical" size="small">
 //                 <Text type="secondary" style={{ fontSize: 12 }}>
 //                   • Navigate away to auto-hold this order
 //                 </Text>
@@ -331,14 +331,14 @@
 //         width={800}
 //         okButtonProps={{ disabled: selectedBasketIds.length === 0 }}
 //       >
-//         <Space direction="vertical" style={{ width: '100%' }} size="large">
+//         <Space orientation="vertical" style={{ width: '100%' }} size="large">
 //           <div>
 //             <Text>
 //               Verification Progress: <Text strong>{verifiedItems} / {totalItems} items</Text>
 //             </Text>
 //             {verifiedItems < totalItems && (
 //               <Alert
-//                 message="Not all items have been verified. Continue anyway?"
+//                 title="Error" description="Not all items have been verified. Continue anyway?"
 //                 type="warning"
 //                 showIcon
 //                 style={{ marginTop: 8 }}

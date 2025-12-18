@@ -122,7 +122,7 @@ function FitlerForm({ initialValues = {}, config }: FilterBuilderProps) {
                                             >
                                                 <FieldArray name={`${groupName}.conditions`}>
                                                     {({ fields: conditionFields }) => (
-                                                        <Space direction="vertical" style={{ width: '100%' }}>
+                                                        <Space orientation="vertical" style={{ width: '100%' }}>
                                                             {conditionFields.map((conditionName, condIndex) => {
                                     const condition = conditionFields.value[condIndex];
                                     const fieldConfig = getFieldConfig(condition?.field);
@@ -133,7 +133,7 @@ function FitlerForm({ initialValues = {}, config }: FilterBuilderProps) {
                                                                     {condIndex > 0 && (
                                                                         <Tag color={group.logic === 'AND' ? 'green' : 'orange'} style={{ marginBottom: 8 }}>{group.logic || 'AND'}</Tag>
                                                                     )}
-                                                                    <Space direction="vertical" style={{ width: '100%' }}>
+                                        <Space orientation="vertical" style={{ width: '100%' }}>
                                                                         <Row gutter={[5, 5]} align="middle">
                                                                             <Col span={8}>
                                                                                 <FormField

@@ -100,7 +100,7 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
 
     return (<div>
         {/* <h1>{`Editing "${data?.page_type?.title}" Variant`}</h1> */}
-        {error && <Alert message={error} type="error" showIcon />}
+        {error && <Alert title="Error" description={error} type="error" showIcon />}
 
         <Row gutter={[20, 20]}>
             <Col span={12}>

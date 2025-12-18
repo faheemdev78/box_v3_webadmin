@@ -75,18 +75,18 @@ export function ProductWrapper({ render, store, ...props }) {
 
 
     // if (status == 'loading') return <Loader loading={true} />
-    if (!prod_id || fatelError) return <Alert message={fatelError || "No Product ID found!"} type='error' showIcon />
+    if (!prod_id || fatelError) return <Alert title="Error" description={fatelError || "No Product ID found!"} type='error' showIcon />
     if (loading || !data) return <Loader loading={true}>Fetching product...</Loader>
     
     const isStoreUser = !!(session?.user?.store?._id);
-    // if (isStoreUser && store && store._id !== session?.user?.store?._id) return <Alert message="Unauthorized store access!" type='error' showIcon />
+    // if (isStoreUser && store && store._id !== session?.user?.store?._id) return <Alert title="Error" description="Unauthorized store access!" type='error' showIcon />
 
     const canEdit = security.verifyRole('104.4', session.user.permissions);
 
     return (<>
         <PageHeader 
             title={data.title}
-            sub={<Space split="|">
+            sub={<Space separator="|">
                 <div>ID: {data._id}</div>
                 <div><StatusTag value={data.status} editable={canEdit && !isStoreUser} options={publishStatus} onSubmit={onStatusUpdate} /></div>
                 <Button onClick={()=>fetchData()}>Refresh</Button>

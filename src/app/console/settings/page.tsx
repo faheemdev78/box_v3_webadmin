@@ -275,7 +275,7 @@ function RenderGroup({ initialValues, title, refetchData, session, onEditField }
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {(error) && <Alert message={error} showIcon type='error' />}
+                    {(error) && <Alert title="Error" description={error} showIcon type='error' />}
 
                     <form id={`form_${title.replaceAll(" ", "_")}`} {...submitHandler(formargs)}>
 
@@ -291,11 +291,11 @@ function RenderGroup({ initialValues, title, refetchData, session, onEditField }
                                             return (<Col span={["something"].includes(field.category) ? 24 : 12} key={index}>
                                                 <Row align="bottom" className='nowrap'>
                                                     <Col flex="auto">
-                                                        {/* {field.error && <Alert message={field.error.message} type='error' showIcon />} */}
+                                                        {/* {field.error && <Alert title="Error" description={field.error.message} type='error' showIcon />} */}
                                                         {!field.error && <FormField name={`${name}.value`} {..._field} />}
                                                     </Col>
                                                     <Col>
-                                                        <PopMenu direction="horizontal" size="small" placement="left" items={[
+                                                        <PopMenu orientation="horizontal" size="small" placement="left" items={[
                                                             { onClick: () => onEditField(field), label: "Edit" },
                                                             { onClick: () => onDeletePress(field._id), label: "Delete", type: 'delete' }
                                                         ]}></PopMenu>
@@ -435,7 +435,7 @@ function SettingsPage () {
         if (theField.value_type == "select") return { type: "select", options:[], label: label, tooltip: tooltip, allowClear: true }
 
         return { error: { message: `Invalid field (${theField.title}) ~ (type: ${theField && theField.value_type})` }}
-        // return <Alert message={`Invalid field (code: ${theField.title}) ~ (type: ${theField && theField.type})`} type="error" showIcon />
+        // return <Alert title="Error" description={`Invalid field (code: ${theField.title}) ~ (type: ${theField && theField.type})`} type="error" showIcon />
     }
 
     const onFieldsUpdate = () => {
@@ -454,7 +454,7 @@ function SettingsPage () {
 
     
     if (busy || loading) return <Loader loading={true} center />
-    if (!settingsArray) return <Alert message="Empty settingsArray" type='error' showIcon />
+    if (!settingsArray) return <Alert title="Error" description="Empty settingsArray" type='error' showIcon />
 
     let groupped = _.groupBy(settingsArray, "category");
     let keys = Object.keys(groupped);

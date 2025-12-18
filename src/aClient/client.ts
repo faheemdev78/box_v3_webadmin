@@ -58,7 +58,6 @@ const httpLink = new HttpLink({
     credentials: "include",
 });
 
-
 const authLink = new SetContextLink((prevContext, operation) => {
     // const token = getAuthToken();
     const contextToken = prevContext?.authToken;
@@ -112,8 +111,6 @@ const authLink = new SetContextLink((prevContext, operation) => {
 
 
 export const createApolloClient = () => {
-    console.log("Apollo link: ", process.env.NEXT_PUBLIC_GRAPHQL_URI);
-    
     return new ApolloClient({
         ssrMode: typeof window === "undefined",
         link: ApolloLink.from([errorLink, authLink, httpLink]),

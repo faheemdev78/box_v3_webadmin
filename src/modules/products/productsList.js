@@ -79,7 +79,7 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
     // { title: 'ID', dataIndex: '_id', key:'_id', width: 80, align: 'left' },
     { title: 'Name', dataIndex: 'title', key:'title', render: (text, record) => {
         return (<Row gutter={16}>
-          <Col><Avatar size={40} shape="square" src={record?.picture?.thumbnails ? `${process.env.NEXT_PUBLIC_CDN_ASSETS}/${record?.picture?.thumbnails[0]}` : null} icon={<Icon icon="image" />} /></Col>
+          <Col><Avatar size={40} shape="square" src={record?.picture?.thumbnails ? `${process.env.NEXT_PUBLIC_CDN_URL}/${record?.picture?.thumbnails[0]}` : null} icon={<Icon icon="image" />} /></Col>
           <Col>
             <Link href={parseEditLink ? parseEditLink(record) : `${adminRoot}/product/${record._id}/view`}>{record.title}</Link>
             <div style={{ fontSize: "0.9em", color: "#AAA" }}>ID: {record._id}</div>
@@ -165,7 +165,7 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
       title={<>{props.title || "Product Catalogue"} {props.titlePostfix}</>}
       sub={<div>{pagination ? `Total ${pagination.total || 0} records found` : null}</div>}
       ><>
-        <Space split="|">
+        <Space separator="|">
           {!props.hideAddProduct && <Button type="link" color="orange"><Link href={`${adminRoot}/product/new`}>Add New Product</Link></Button>}
           <Radio.Group size="small" value={pageView} buttonStyle="solid" onChange={({ target }) => changeView(target.value)}>
             <Radio.Button value="list"><Icon icon='th-list' /></Radio.Button>
@@ -178,7 +178,7 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
     {/* {!(props.hideListHeader === true) && <ListHeader
       title={<>{props.title || "Product Catalogue"} {props.titlePostfix}</>}
       sub={pagination ? `Total ${pagination.total || 0} records found` : null}
-      right={<Space split="|">
+      right={<Space separator="|">
           {!props.hideAddProduct && <>
             <Link href={`${adminRoot}/product/new`}>Add New Product</Link>
           </>}

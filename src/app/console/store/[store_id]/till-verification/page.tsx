@@ -129,9 +129,9 @@ function ActiveSession({ store, onSessionUpdate }:{
       okButtonProps={{ danger: true }}
       confirmLoading={closingShift}
     >
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <Text>Are you sure you want to close your shift?</Text>
-        {shiftSessionAny?.till_verification_orders?.length > 0 && <Alert message={`You have ${shiftSessionAny.till_verification_orders.length} order(s) in progress. They will be released`} type="error" showIcon />}
+        {shiftSessionAny?.till_verification_orders?.length > 0 && <Alert title="Error" description={`You have ${shiftSessionAny.till_verification_orders.length} order(s) in progress. They will be released`} type="error" showIcon />}
         {shiftSessionAny?.till_verification_orders?.length > 0 && (<Text type="warning">⚠️ You have {activeShift?.performance?.total_units_processed || 0} order(s) in progress. They will be released.</Text>)}
         <Input.TextArea placeholder="Optional: Shift notes..." value={closeNotes} onChange={(e) => setCloseNotes(e.target.value)} rows={3} />
       </Space>
@@ -223,7 +223,7 @@ function TillOrders(){
         style={{ marginBottom: 16 }}
         size="small"
       >
-        <Space direction="vertical" style={{ width: '100%' }} size="small">
+        <Space orientation="vertical" style={{ width: '100%' }} size="small">
           {lockedOrders.map((order: any) => (
             <Card
               key={order._id}
@@ -378,7 +378,7 @@ export default TillOrders;
 //     },
 //     { title: 'Picked At', dataIndex: ['processing_stages', 'picking', 'completed_at'], key: 'picked_at', width: 160,
 //       render: (completedAt: string) => (
-//         <Space direction="vertical" size={0}>
+//         <Space orientation="vertical" size={0}>
 //           <Text type="secondary" style={{ fontSize: 12 }}>
 //             <ClockCircleOutlined /> {dayjs(completedAt).format('HH:mm A')}
 //           </Text>
@@ -430,7 +430,7 @@ export default TillOrders;
 //       <Card>
 //         <Empty
 //           description={
-//             <Space direction="vertical">
+//             <Space orientation="vertical">
 //               <Text type="danger">Error loading orders</Text>
 //               <Text type="secondary">{error.message || 'Unknown error'}</Text>
 //               <Button onClick={() => refetch()}>Retry</Button>
@@ -494,7 +494,7 @@ export default TillOrders;
 //         style={{ marginBottom: 16 }}
 //         size="small"
 //       >
-//         <Space direction="vertical" style={{ width: '100%' }} size="small">
+//         <Space orientation="vertical" style={{ width: '100%' }} size="small">
 //           {lockedOrders.map((order: any) => (
 //             <Card
 //               key={order._id}
@@ -541,7 +541,7 @@ export default TillOrders;
 //         <Empty
 //           image={Empty.PRESENTED_IMAGE_SIMPLE}
 //           description={
-//             <Space direction="vertical">
+//             <Space orientation="vertical">
 //               <Text>No orders available for verification</Text>
 //               <Text type="secondary" style={{ fontSize: 12 }}>Available orders will appear here</Text>
 //             </Space>
@@ -597,7 +597,7 @@ export default TillOrders;
 //       okButtonProps={{ danger: true }}
 //       confirmLoading={closingShift}
 //     >
-//       <Space direction="vertical" style={{ width: '100%' }}>
+//       <Space orientation="vertical" style={{ width: '100%' }}>
 //         <Text>Are you sure you want to close your shift?</Text>
 //         {lockedOrders.length > 0 && (
 //           <Text type="warning">

@@ -47,8 +47,8 @@ export function ProductView({ session, store, refresh, ...props }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialValues])
 
-    if (!session || !session?.user?._id) return <Alert message="Invalid session provided" showIcon type='error' />
-    if (isStoreUser && String(session?.user?.store?._id) !== String(store._id)) return <Alert message="Unauthorized Store Access" showIcon type='error' />
+    if (!session || !session?.user?._id) return <Alert title="Error" description="Invalid session provided" showIcon type='error' />
+    if (isStoreUser && String(session?.user?.store?._id) !== String(store._id)) return <Alert title="Error" description="Unauthorized Store Access" showIcon type='error' />
 
 
     async function fetchVarients(){
@@ -104,15 +104,15 @@ export function ProductView({ session, store, refresh, ...props }) {
                     {initialValues?.categories?.map((item, i) => (<div key={i}>- {item.title}</div>))}
                 </div>
 
-                {/* {!initialValues?.store?._id ? <Alert message="No Store Found" showIcon type='warning' /> : <>
+                {/* {!initialValues?.store?._id ? <Alert title="Error" description="No Store Found" showIcon type='warning' /> : <>
                     <Divider>{initialValues?.store?.store_title}</Divider>
                 </>} */}
 
             </Col>
 
-            <Col flex="auto"><Space style={{ width:"100%"}} direction='vertical'>
+            <Col flex="auto"><Space style={{ width: "100%" }} orientation='vertical'>
 
-                {initialValues.status == 'offline' && <Alert message="This product is globally offline" showIcon type='warning' />}
+                {initialValues.status == 'offline' && <Alert title="Error" description="This product is globally offline" showIcon type='warning' />}
 
                 {(store && store._id) && <>
                     <Card style={{ padding:0 }} styles={{  body: { padding: 0 } }}>
@@ -125,7 +125,7 @@ export function ProductView({ session, store, refresh, ...props }) {
                         </Space></Divider>
                         <div style={{ padding:"0 20px 20px 20px" }}>
                             {!initialValues?.store?._id && <Alert
-                                message={<Space><span>Store not configured yet</span> <Button onClick={() => set_editMode('editStoreProps')} color="blue" size="small">Configure now</Button></Space>}
+                                title="Warning" description={<Space><span>Store not configured yet</span> <Button onClick={() => set_editMode('editStoreProps')} color="blue" size="small">Configure now</Button></Space>}
                                 type='warning'
                                 showIcon
                             />}
@@ -240,7 +240,7 @@ export function ProductView({ session, store, refresh, ...props }) {
                     <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Extra Info {(canEdit && !isStoreUser) && <IconButton onClick={() => set_editMode('extra_fields')} icon="pen" size="small" />}</Divider>
 
                     <div style={{ padding: "0 20px 20px 20px" }}>
-                        <Space style={{ width:"100%" }} direction='vertical' size={20}>
+                        <Space style={{ width: "100%" }} orientation='vertical' size={20}>
                             {initialValues?.extra_fields?.map((field, i) => {
                                 return (<Row gutter={[10, 20]} align="top" key={i}>
                                     <Col span={8} align="right"><Label>{field.label}</Label></Col>

@@ -3,7 +3,7 @@ import { Alert, Col, Divider, Row } from 'antd';
 
 
 export const RenderUiElemtns = ({ data, fieldValues, style }) => {
-    let child = <Alert message="Invalid Field!" type='warning' showIcon />
+    let child = <Alert title="Error" description="Invalid Field!" type='warning' showIcon />
 
     let fieldStyle = { minWidth: "50px", minHeight: "30px", backgroundColor: "#EEE", ...style }
     if (fieldValues && fieldValues.style) Object.assign(fieldStyle, { ...fieldValues.style })

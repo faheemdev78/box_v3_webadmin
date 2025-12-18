@@ -53,19 +53,19 @@ function VehicleDetails() {
     }
 
     
-    if (fatelError) return <Alert message={fatelError} type="error" showIcon />
+    if (fatelError) return <Alert title="Error" description={fatelError} type="error" showIcon />
     if (loading || (data && !thisNode)) return <Loader loading={true} />
-    if (!thisNode) return <Alert message="No data found!" type='error' showIcon />
+    if (!thisNode) return <Alert title="Error" description="No data found!" type='error' showIcon />
 
     return (<>
         <PageHeader 
             title={thisNode.title}
-            sub={<Space split="|">
+            sub={<Space separator="|">
                 <StatusTag value={thisNode.status} options={[{ label: thisNode.status, value: thisNode.status }]} onSubmit={async() => thisNode.status} />
                 <IconButton onClick={() => set_showForm(true)} icon="pen" size="small" />
             </Space>}
         >
-            <Space split="|">
+            <Space separator="|">
                 <div>Reg# {thisNode.registration_no}</div>
                 <div>Box Capicity: {thisNode.box_cpacity}</div>
             </Space>

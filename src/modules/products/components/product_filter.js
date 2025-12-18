@@ -34,7 +34,7 @@ export const ProductFilter = props => {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProductFilterForm" {...submitHandler(formargs)}>
                         {/* <FormField name="username" label="Email / Login ID" type="text" validate={rules.required} /> */}
 

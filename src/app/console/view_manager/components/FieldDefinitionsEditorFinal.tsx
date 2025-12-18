@@ -265,7 +265,7 @@ export const FieldDefinitionsEditorFinal: React.FC<FieldDefinitionsEditorFinalPr
 
             return (
               <form {...submitHandler(formargs)}>
-                <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                <Space orientation="vertical" style={{ width: '100%' }} size="middle">
                   <FormField
                     type="text"
                     name="key"
@@ -319,7 +319,7 @@ export const FieldDefinitionsEditorFinal: React.FC<FieldDefinitionsEditorFinalPr
                       <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>Options</label>
                       <FieldArray name="options">
                         {({ fields: optionFields }) => (
-                          <Space direction="vertical" style={{ width: '100%' }}>
+                          <Space orientation="vertical" style={{ width: '100%' }}>
                             {optionFields.map((name, index) => (
                               <Space key={index} style={{ width: '100%' }}>
                                 <FormField

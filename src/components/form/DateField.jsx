@@ -125,7 +125,7 @@ export const DateField = props => {
     //     </Field>)
     // }
 
-    return (<Alert message={`Invalid field (${props.type})`} type='error' />)
+    return (<Alert title="Error" description={`Invalid field (${props.type})`} type='error' />)
 
 }
 // DateField.propTypes = {

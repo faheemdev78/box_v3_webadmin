@@ -34,7 +34,7 @@
 //     const [error, setError] = useState(null)
 
 //     const settings = useAppSelector(getSettings);
-    
+
 //     const onSubmit = async (values) => {
 //         setError(null);
 
@@ -42,14 +42,14 @@
 //             title: values.title,
 //             code: values.code,
 //             description: values.description,
-            
+
 //             type: values.type,
 //             status: values.status,
-            
+
 //             value: values.value,
 //             maxDiscount: values.maxDiscount,
 //             minSpend: values.minSpend,
-            
+
 //             appliesTo: values.appliesTo && {
 //                 scope: values.appliesTo.scope,
 //                 productIds: values?.appliesTo?.products?.map(o => (o._id)),
@@ -61,7 +61,7 @@
 //                 categoryIds: values?.excludes?.categories?.map(o => (o._id)),
 //                 storeIds: values?.excludes?.stores?.map(o => (o._id)),
 //             },
-            
+
 //             bogo: values.bogo && {
 //                 buyQty: values.bogo.buyQty,
 //                 getQty: values.bogo.getQty,
@@ -72,7 +72,7 @@
 //                 discountValue: o.discountValue,
 //                 type: o.type,
 //             })),
-            
+
 //             startDate: dateToUtc(values.startDate, { tz: settings.timezone }),
 //             endDate: dateToUtc(values.endDate, { tz: settings.timezone }),
 //             usageLimit: values.usageLimit,
@@ -83,7 +83,7 @@
 
 //         if (initialValues._id) {
 //             Object.assign(input, { _id: initialValues._id })
-            
+
 //             results = await editVoucher({ variables: { input } })
 //                 .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.editVoucher }))
 //                 .catch(catchApolloError)
@@ -117,8 +117,8 @@
 //                     // }
 
 //                     return (<>
-//                         <form id="VoucherForm" {...submitHandler(formargs)} style={{ width: "500px" }}><Space direction="vertical" style={{ width:"100%" }}>
-//                             {error && <Alert type="error" message={error} showIcon />}
+//                         <form id="VoucherForm" {...submitHandler(formargs)} style={{ width: "500px" }}><Space orientation="vertical" style={{ width:"100%" }}>
+//                             {error && <Alert type="error" title="Error" description={error} showIcon />}
 
 //                             <Row gutter={[10, 10]}>
 //                                 <Col span={12}><FormField type="text" name="title" label="Title" validate={rules.required} /></Col>

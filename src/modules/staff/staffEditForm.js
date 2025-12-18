@@ -64,7 +64,7 @@ const FormComponent = ({ onSuccess, initialValues }) => {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="StaffForm" {...submitHandler(formargs)}>
 
                         <Row gutter={[10, 10]}>
@@ -129,11 +129,11 @@ export const StaffEditForm = ({ user_id, onSuccess, ...props }) => {
     }
 
     
-    if (fatelError) return <Alert message={fatelError} type="error" showIcon />
+    if (fatelError) return <Alert title="Error" description={fatelError} type="error" showIcon />
     if (user_id && (loading || !initialValues)) return <Loader loading={true} />
     
     return (<>
-        {error && <Alert message={error} showIcon type='error' />}
+        {error && <Alert title="Error" description={error} showIcon type='error' />}
         <FormComponent {...props} initialValues={initialValues} onSuccess={onSuccess} />
     </>)
 }

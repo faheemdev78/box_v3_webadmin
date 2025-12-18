@@ -9,7 +9,7 @@ import { Avatar, DevBlock } from '@/components';
 import { PasswordUpdateButton } from '@/modules/user/components';
 
 function CustomerDashboard({ user, session, refresh }: { user: any; session: any; refresh: () => void }) {
-    if (!session || !session?.user?._id) return <Alert message="Invalid user session" showIcon type='error' />
+    if (!session || !session?.user?._id) return <Alert title="Error" description="Invalid user session" showIcon type='error' />
 
     return (<>
         {/* <ProductView initialValues={product} session={session} refresh={refresh} /> */}

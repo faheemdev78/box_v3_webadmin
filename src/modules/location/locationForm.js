@@ -72,7 +72,7 @@ const FormComponent = ({ onSubmit, ...props }) => {
         })
     }
 
-    if (error) return <Alert message={error} showIcon type='error' />
+    if (error) return <Alert title="Error" description={error} showIcon type='error' />
     if (props?.initialValues?._id && !initialValues) return <Loader loading={true} />
 
    
@@ -90,7 +90,7 @@ const FormComponent = ({ onSubmit, ...props }) => {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {/* {error && <Alert message={error} showIcon type='error' />} */}
+                    {/* {error && <Alert title="Error" description={error} showIcon type='error' />} */}
                     <form id="LocationForm" {...submitHandler(formargs)}>
 
                         <Row gutter={[10, 10]}>
@@ -232,9 +232,9 @@ export const LocationForm = ({initialValues, ...props}) => {
             // </>}
             title={`${props?.initialValues?._id ? 'Edit' : 'Add'} Location`}
         ><>
-            {error && <Alert message={error} showIcon type='error' />}
+            {error && <Alert title="Error" description={error} showIcon type='error' />}
 
-                <FormComponent {...props} initialValues={initialValues} onSubmit={onSubmit} />
+            <FormComponent {...props} initialValues={initialValues} onSubmit={onSubmit} />
         </>
         </Drawer>
     )

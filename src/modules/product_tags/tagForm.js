@@ -95,9 +95,9 @@ export const ProdTagForm = props => {
                     const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                     return (<>
-                        {error && <Alert message={error} showIcon type='error' />}
+                        {error && <Alert title="Error" description={error} showIcon type='error' />}
                         <form id="ProdTagForm" {...submitHandler(formargs)}>
-                            <Space direction='vertical' style={{ width:"100%" }}>
+                            <Space orientation='vertical' style={{ width:"100%" }}>
                                 <FormField type="text" name="title" label="Title" validate={[rules.required, rules.minChar(4)]} />
                                 <Row>
                                     <Col flex="auto" />

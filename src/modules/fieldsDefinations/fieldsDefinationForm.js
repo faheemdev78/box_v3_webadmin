@@ -109,7 +109,7 @@ export const FieldsDefinationForm = ({ initialValues, onClose, onSuccess, open }
                     const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                     return (<>
-                        {error && <Alert message={error} showIcon type='error' />}
+                        {error && <Alert title="Error" description={error} showIcon type='error' />}
                         <form id="FieldDefForm" {...submitHandler(formargs)}>
                             
                             <Row gutter={[10, 10]}>

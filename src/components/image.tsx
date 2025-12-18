@@ -6,8 +6,8 @@ type CustomImageProps = Omit<NextImageProps, 'src' | 'alt'> & { src: string; alt
 export function Image({ src, alt, ...props }: CustomImageProps) {
 
     let _src: string = src; 
-    if (!String(src).startsWith('/') && !String(src).startsWith('http')) _src = `${process.env.NEXT_PUBLIC_CDN_ASSETS}/${src}`;
-    //String(src).startsWith('http') ? src : `${process.env.NEXT_PUBLIC_CDN_ASSETS}/${src}`;
+    if (!String(src).startsWith('/') && !String(src).startsWith('http')) _src = `${process.env.NEXT_PUBLIC_CDN_URL}/${src}`;
+    //String(src).startsWith('http') ? src : `${process.env.NEXT_PUBLIC_CDN_URL}/${src}`;
 
 
     return (<>

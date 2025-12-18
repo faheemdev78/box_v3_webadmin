@@ -50,22 +50,22 @@ function StoreWrapper(props: any) {
     return resutls;
   }
 
-  if (!store_id || fatelError) return <Alert message={fatelError || "No Store ID found!"} type='error' showIcon />
+  if (!store_id || fatelError) return <Alert title="Error" description={fatelError || "No Store ID found!"} type='error' showIcon />
   if (loading) return <Loader loading={true}>Fetching store...</Loader>
-  if (!data || !data?.store?._id) return <Alert message="Store not found!" showIcon />
+  if (!data || !data?.store?._id) return <Alert title="Error" description="Store not found!" showIcon />
 
   return (<>
     
     <Row gutter={[50, 50]} style={{ borderBottom: "1px solid black" }}>
       <Col><h1>{data.store.title}</h1></Col>
-      <Col><Space style={{ width: "100%" }} direction="vertical">
+      <Col><Space style={{ width: "100%" }} orientation="vertical">
         {[
           { title: 'Geo Zones', href: `${adminRoot}/store/${data.store._id}/zones` },
         ].map((item, i) => {
           return <Link href={item.href} key={i}>{item.title}</Link>
         })}
       </Space></Col>
-      <Col><Space style={{ width: "100%" }} direction="vertical">
+      <Col><Space style={{ width: "100%" }} orientation="vertical">
         {[
           { title: 'Products', href: `${adminRoot}/store/${data.store._id}/products` },
         ].map((item, i) => {

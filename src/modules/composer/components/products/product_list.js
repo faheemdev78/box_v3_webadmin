@@ -31,7 +31,7 @@ function ProductList({ onProductsLoad, item: { data, schedule_start, schedule_en
 
     return (<>
         <div className={cssStyles.comp_prod_list} style={style}>
-            <div className={cssStyles.feature_icons}><Space direction='vertical' size={2}>
+            <div className={cssStyles.feature_icons}><Space orientation='vertical' size={2}>
                 {isScheduled && <Icon icon="clock" />}
             </Space></div>
 
@@ -45,7 +45,7 @@ function ProductList({ onProductsLoad, item: { data, schedule_start, schedule_en
                     return (<Col span={8} key={i}>
                         <div className={cssStyles.thumb} style={{}}>
                             {item?.picture?.thumbnails ?
-                                <Image src={`${process.env.NEXT_PUBLIC_CDN_ASSETS}/${item.picture.thumbnails[0]}`} width={142} height={142} alt={item.title} style={{ width: "100%", height: "auto" }} /> :
+                                <Image src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.picture.thumbnails[0]}`} width={142} height={142} alt={item.title} style={{ width: "100%", height: "auto" }} /> :
                                 <Icon style={{ fontSize: "64px", color: "#999999" }} icon="image" />
                             }
                         </div>
@@ -88,7 +88,7 @@ function ProductProps({ item: { name, data, values } }) {
     // console.log("values.title.show: ", getFieldValue('values.title.show')?.value)
 
     return (<>
-        <Space direction='vertical'>
+        <Space orientation='vertical'>
 
             <FormField name={`${name}.status`} type='select' label="Status" options={publishStatus} validate={rules.required} />
 
@@ -138,7 +138,7 @@ function ProductProps({ item: { name, data, values } }) {
                             <FormField name={`${name}.values.background.color1`} _label="Color 1" type="color" compact />
                         </>}
                         {getFieldValue('values.background.type')?.value == 'gradient' && <>
-                            <Space direction='horizontal'>
+                            <Space orientation='horizontal'>
                                 <FormField name={`${name}.values.background.color1`} _label="Color 1" type="color" compact />
                                 <FormField name={`${name}.values.background.color2`} _label="Color 2" type="color" compact />
                             </Space>

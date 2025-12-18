@@ -15,7 +15,7 @@ import SEARCH_QUERY from '@/graphql/user_role/userRoles.graphql'
 export const UserTypeDD = (props) => {
     let _props = { ...props }
     // delete _props.type;
-    // if (!props.type) return <Alert message="Category type not provided" showIcon type='error' />
+    // if (!props.type) return <Alert title="Error" description="Category type not provided" showIcon type='error' />
 
     return <SearchableSelect 
         static_filter={{  }}

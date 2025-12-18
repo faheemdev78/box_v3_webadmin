@@ -652,16 +652,10 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
               <Card title="Recent Activities" style={{ marginBottom: 16 }}>
                   <Timeline
                       items={DASHBOARD_DATA.recentActivities.map((activity) => ({
-                          children: (
-                              <>
-                                  <p style={{ margin: 0 }}>
-                                      <strong>{activity.action}</strong>
-                                  </p>
-                                  <p style={{ margin: 0, fontSize: 12, color: '#666' }}>
-                                      {activity.user} • {activity.time}
-                                  </p>
-                              </>
-                          )
+                          content: (<>
+                                <p style={{ margin: 0 }}><strong>{activity.action}</strong></p>
+                                <p style={{ margin: 0, fontSize: 12, color: '#666' }}>{activity.user} • {activity.time}</p>
+                            </>)
                       }))}
                   />
               </Card>

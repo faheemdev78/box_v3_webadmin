@@ -53,10 +53,10 @@ function ProdSEODataFormComp({ initialValues, onSuccess, onCancel }) {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProdDetailsForm" {...submitHandler(formargs)}>
 
-                        <Space direction='vertical' size={10} style={{ width:"100%" }}>
+                        <Space orientation='vertical' size={10} style={{ width:"100%" }}>
                             <div>
                                 <Label style={{ marginTop: "3px", marginBottom: "2px" }}>Tags for local search</Label>
                                 <div><TagsManager name="tags" /></div>

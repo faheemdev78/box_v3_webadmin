@@ -41,7 +41,7 @@ function ZoneDeliverySlots() {
 
     return (<>
         {loading && <Loader loading={true} />}
-        {fatelError && <Alert type="error" message={fatelError} showIcon />}
+        {fatelError && <Alert type="error" title="Error" description={fatelError} showIcon />}
 
         {data && data?.geoZone?._id && <>
             {/* <Breadcrumb

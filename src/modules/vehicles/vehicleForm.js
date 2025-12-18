@@ -137,7 +137,7 @@ function FormComp({ initialValues, ...props}) {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="NewVehicleForm" {...submitHandler(formargs)}>
 
                         <Row gutter={[10, 10]}>
@@ -209,9 +209,9 @@ export function VehicleForm({ store, ...props }) {
 
     const onSuccess = (val) => router.push(`${adminRoot}/store/${store_id}/vehicles`);
 
-    if (error) return <Alert message={error} type="error" showIcon />
+    if (error) return <Alert title="Error" description={error} type="error" showIcon />
     if (props?.initialValues?._id && (loading || !initialValues)) return <Loader loading={true} />
-    if (!store || !store._id) return <Alert message={"Store ID not found!"} type='error' showIcon />
+    if (!store || !store._id) return <Alert title="Error" description={"Store ID not found!"} type='error' showIcon />
 
     return (<>
         <FormComp {...props} onSuccess={onSuccess} store={store} initialValues={initialValues} />

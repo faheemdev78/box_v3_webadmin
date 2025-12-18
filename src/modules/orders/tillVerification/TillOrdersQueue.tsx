@@ -126,7 +126,7 @@
 //     },
 //     { title: 'Picked At', dataIndex: ['processing_stages', 'picking', 'completed_at'], key: 'picked_at', width: 160,
 //       render: (completedAt: string) => (
-//         <Space direction="vertical" size={0}>
+//         <Space orientation="vertical" size={0}>
 //           <Text type="secondary" style={{ fontSize: 12 }}>
 //             <ClockCircleOutlined /> {dayjs(completedAt).format('HH:mm A')}
 //           </Text>
@@ -178,7 +178,7 @@
 //       <Card>
 //         <Empty
 //           description={
-//             <Space direction="vertical">
+//             <Space orientation="vertical">
 //               <Text type="danger">Error loading orders</Text>
 //               <Text type="secondary">{error.message || 'Unknown error'}</Text>
 //               <Button onClick={() => refetch()}>Retry</Button>
@@ -259,7 +259,7 @@
 //         style={{ marginBottom: 16 }}
 //         size="small"
 //       >
-//         <Space direction="vertical" style={{ width: '100%' }} size="small">
+//         <Space orientation="vertical" style={{ width: '100%' }} size="small">
 //           {lockedOrders.map((order: any) => (
 //             <Card
 //               key={order._id}
@@ -306,7 +306,7 @@
 //         <Empty
 //           image={Empty.PRESENTED_IMAGE_SIMPLE}
 //           description={
-//             <Space direction="vertical">
+//             <Space orientation="vertical">
 //               <Text>No orders available for verification</Text>
 //               <Text type="secondary" style={{ fontSize: 12 }}>Available orders will appear here</Text>
 //             </Space>
@@ -362,7 +362,7 @@
 //       okButtonProps={{ danger: true }}
 //       confirmLoading={closingShift}
 //     >
-//       <Space direction="vertical" style={{ width: '100%' }}>
+//       <Space orientation="vertical" style={{ width: '100%' }}>
 //         <Text>Are you sure you want to close your shift?</Text>
 //         {lockedOrders.length > 0 && (
 //           <Text type="warning">

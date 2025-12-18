@@ -8,7 +8,6 @@ import { Loader } from './loader';
 import { GoogleMap, useJsApiLoader, Libraries, DrawingManager, PolygonF, Polygon, InfoWindow } from '@react-google-maps/api'
 import _ from 'lodash'
 import { Button } from './button';
-import { GOOGLE_API_KEY } from '@/configs';
 
 // import GEO_ZONES from '_/graphql/geo_zone/geoZones.graphql';
 
@@ -45,11 +44,11 @@ function MapProvider({ children }) {
 
     // Load the Google Maps JavaScript API asynchronously
     const { isLoaded: scriptLoaded, loadError } = useJsApiLoader({
-        googleMapsApiKey: GOOGLE_API_KEY, //NEXT_PUBLIC_GOOGLEMAP_API_KEY,
+        googleMapsApiKey: NEXT_PUBLIC_GOOGLEMAP_API_KEY,
         libraries: libraries,
     });
 
-    if (loadError) return <Alert message="Encountered error while loading google maps" type='error' showIcon />
+    if (loadError) return <Alert title="Error" description="Encountered error while loading google maps" type='error' showIcon />
     if (!scriptLoaded) return <Loader loading={true}>Map Script is loading ...</Loader>
 
     // Return the children prop wrapped by this MapProvider component

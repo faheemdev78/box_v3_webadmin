@@ -157,7 +157,7 @@ export const AllViewsDrawer: React.FC<AllViewsDrawerProps> = ({
       width={720}
     >
       {/* Filters and Search */}
-      <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
+      <Space orientation="vertical" style={{ width: '100%', marginBottom: 16 }}>
         <Search
           placeholder="Search views by name or description..."
           allowClear
@@ -225,7 +225,7 @@ export const AllViewsDrawer: React.FC<AllViewsDrawerProps> = ({
                 }}
                 onClick={() => handleSwitchView(view._id)}
               >
-                <Space direction="vertical" style={{ width: '100%' }} size={0}>
+                <Space orientation="vertical" style={{ width: '100%' }} size={0}>
                   {/* Header Row */}
                   <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                     <Space>

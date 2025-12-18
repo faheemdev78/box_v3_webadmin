@@ -207,7 +207,7 @@ export function ProductImageManager({ session, ...props }) {
 
 
 
-    if (!session || !session?.user?._id) return <Alert message="Invalid session provided" showIcon type='error' />
+    if (!session || !session?.user?._id) return <Alert title="Error" description="Invalid session provided" showIcon type='error' />
 
     const isStoreUser = !!(session?.user?.store?._id);
     const canEdit = !isStoreUser && security.verifyRole('104.4', session.user.permissions);
@@ -218,7 +218,7 @@ export function ProductImageManager({ session, ...props }) {
 
         {/* <DevBlock obj={initialValues?.picture} /> */}
 
-        <Space wrap split={<div style={{ borderRight:"1px solid #DDD", height:"100px" }} />}>
+        <Space wrap separator={<div style={{ borderRight:"1px solid #DDD", height:"100px" }} />}>
             <div align="center" style={{ maxWidth:"400px" }}><Space wrap>
                 <div align="center">
                     <FileUploader
@@ -308,8 +308,8 @@ export function ProductImageManager({ session, ...props }) {
         {/* <Card>
             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Product Images</Divider>
             <Space wrap style={{ width: "100%" }}>
-                {initialValues?.picture && <Thumbnail prefix={process.env.NEXT_PUBLIC_ASSETS_API} actions={!canEdit ? undefined : { remove: removeMainImage }} file={initialValues?.picture} />}
-                {initialValues?.video && <Thumbnail prefix={process.env.NEXT_PUBLIC_ASSETS_API} actions={!canEdit ? undefined : { remove: removeVideo }} file={initialValues?.video} />}
+                {initialValues?.picture && <Thumbnail prefix={process.env.NEXT_PUBLIC_CDN_URL} actions={!canEdit ? undefined : { remove: removeMainImage }} file={initialValues?.picture} />}
+                {initialValues?.video && <Thumbnail prefix={process.env.NEXT_PUBLIC_CDN_URL} actions={!canEdit ? undefined : { remove: removeVideo }} file={initialValues?.video} />}
                 {ensureArrayLength(gallery || [], PROD_GAL_SIZE)?.map((item, i) => (<Thumbnail actions={!canEdit ? undefined : { remove: removeGalleryImage }} placeholder={NOIMAGE} file={item} key={i} />))}
             </Space>
         </Card> */}

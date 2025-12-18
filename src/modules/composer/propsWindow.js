@@ -9,7 +9,7 @@ import styles from './Composer.module.scss';
 const RenderProps = ({ item, item: { name, data, value } }) => {
     // Render Text Components
     let found = components.find(o => o.type == data?.type)
-    if (!found) return <Alert type="error" message="Props not deifned" />
+    if (!found) return <Alert type="error" title="Error" description="Props not deifned" />
 
     return found.propsRender({ item })
 }

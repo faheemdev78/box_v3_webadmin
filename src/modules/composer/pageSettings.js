@@ -30,7 +30,7 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                         const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                         return (<>
-                            {error && <Alert message={error} showIcon type='error' />}
+                            {error && <Alert title="Error" description={error} showIcon type='error' />}
                             <form id="component_creator_form" {...submitHandler(formargs)}><Row gutter={[10, 10]}>
 
                                 <Row gutter={[20, 20]}>
@@ -68,7 +68,7 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                                                 </>}
                                             </Col>
                                             <Col span={4}>
-                                                {values?.background?.type == 'gradient' && <Space direction='horizontal'>
+                                                {values?.background?.type == 'gradient' && <Space orientation='horizontal'>
                                                     <FormField name="background.color1" _label="Color 1" type="color" compact />
                                                     <FormField name="background.color2" _label="Color 2" type="color" compact />
                                                 </Space>}

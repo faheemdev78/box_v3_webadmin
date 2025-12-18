@@ -194,7 +194,7 @@ export function OrderTable({
             render: (pickup_allow: boolean, rec: any) => (<Tag color={pickup_allow ? 'green' : 'red'}>{pickup_allow ? "YES" : "NO"}</Tag>)
         },
         { title: 'Created', dataIndex: ['createdAt'], key: 'createdAt', width: 115, align: 'left', 
-            render: (createdAt: string) => createdAt && (<Space direction="vertical" size={0}>
+            render: (createdAt: string) => createdAt && (<Space orientation="vertical" size={0}>
                 <Text type="secondary" style={{ fontSize: 12 }}><ClockCircleOutlined /> {utcToDate(createdAt).format('HH:mm A')}</Text>
                 <Text type="secondary" style={{ fontSize: 11 }}>{utcToDate(createdAt).fromNow()}</Text>
                 {/* <Text type="secondary" style={{ fontSize: 11 }}>{dayjs(createdAt).isValid() ? dayjs(createdAt).fromNow() : "Invalid Date"}</Text> */}

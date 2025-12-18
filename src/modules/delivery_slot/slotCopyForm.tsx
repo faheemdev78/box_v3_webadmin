@@ -63,9 +63,9 @@ const SlotCopyFormComp = ({ onSuccess, day, deliverySlots, store }: SlotCopyForm
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
 
-                    <form id="CopySlotForm" {...submitHandler(formargs)}><Space direction='vertical' style={{ width: "100%" }}>
+                    <form id="CopySlotForm" {...submitHandler(formargs)}><Space orientation='vertical' style={{ width: "100%" }}>
 
                         <Divider>Select Slots to copy</Divider>
                         <FormField options={[
@@ -81,7 +81,7 @@ const SlotCopyFormComp = ({ onSuccess, day, deliverySlots, store }: SlotCopyForm
                         <FieldArray name="deliverySlots">                            
                                 {({ fields }) => {
                                     return (<>
-                                        <Space direction="vertical" style={{ width: "100%" }}>
+                                        <Space orientation="vertical" style={{ width: "100%" }}>
                                             {fields.map((name, index) => {
                                                 const thisNode = fields.value[index];
 
@@ -113,7 +113,7 @@ const SlotCopyFormComp = ({ onSuccess, day, deliverySlots, store }: SlotCopyForm
 export const SlotCopyForm: React.FC<SlotCopyFormProps> = (props: SlotCopyFormProps) => {
     let deliverySlots = props?.deliverySlots?.filter((o: any) => (o.day.toLocaleLowerCase() === props.day.toLocaleLowerCase()));
 
-    if (!deliverySlots || deliverySlots.length < 1) return (<Alert type="error" message="No slots found for the selected day" showIcon />)
+    if (!deliverySlots || deliverySlots.length < 1) return (<Alert type="error" title="Error" description="No slots found for the selected day" showIcon />)
 
     // return <DevBlock obj={{ day: props.day, deliverySlots }} />
 

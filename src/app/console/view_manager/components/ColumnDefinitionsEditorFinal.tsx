@@ -209,7 +209,7 @@ export const ColumnDefinitionsEditorFinal: React.FC<ColumnDefinitionsEditorFinal
 
             return (<>
               <form {...submitHandler(formargs)}>
-                <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                <Space orientation="vertical" style={{ width: '100%' }} size="middle">
                   {availableFields.length > 0 ? (
                     <FormField
                       type="select"

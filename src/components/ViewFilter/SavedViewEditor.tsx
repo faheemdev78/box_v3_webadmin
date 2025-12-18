@@ -181,7 +181,7 @@ export function SavedViewEditor({ view, config, onApply }: SavedViewEditorProps)
     };
 
     return (<div>
-        {view.description && <Alert message={view.description} type='info' showIcon />}
+        {view.description && <Alert title="Error" description={view.description} type='info' showIcon />}
 
         <Card size="small" title="View Filter" style={{ marginBottom: 16 }}>
             <FinalForm
@@ -190,7 +190,7 @@ export function SavedViewEditor({ view, config, onApply }: SavedViewEditorProps)
                 render={(formArgs) => {
                     const { handleSubmit, pristine, form } = formArgs;
                     return (<div>
-                        <Space direction="vertical" style={{ width: '100%' }} size="small">
+                        <Space orientation="vertical" style={{ width: '100%' }} size="small">
                             {allConditions.map((item, index) => {
                                 const fieldConfig = getFieldConfig(item.condition.field);
                                 const isChangeable = !!item.condition.isChangeable;
@@ -234,7 +234,7 @@ export function SavedViewEditor({ view, config, onApply }: SavedViewEditorProps)
             />
 
             <Divider>Filter View</Divider>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space orientation="vertical" style={{ width: '100%' }}>
                 {view.filterGroups.map((group, gIndex) => (<div key={gIndex}>
                     <Card size="small" styles={{ body:{ padding:'3px' } }}>
                         {gIndex > 0 && <Tag color="blue" style={{ marginBottom: 8 }}>OR</Tag>}
@@ -270,7 +270,7 @@ export function SavedViewEditor({ view, config, onApply }: SavedViewEditorProps)
         {/* Non-changeable Filters (Read-only) */}
         {nonChangeableConditions.length > 0 && (
             <Card size="small" title="Fixed Filters" style={{ marginBottom: 16 }}>
-                <Space direction="vertical" style={{ width: '100%' }} size="small">
+                <Space orientation="vertical" style={{ width: '100%' }} size="small">
                     {nonChangeableConditions.map((item, index) => {
                         const fieldConfig = getFieldConfig(item.condition.field);
                         return (<Row key={index} gutter={8}>
@@ -309,7 +309,7 @@ export function SavedViewEditor({ view, config, onApply }: SavedViewEditorProps)
                             </Space>}
                             style={{ marginBottom: 16 }}
                         >
-                            <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                            <Space orientation="vertical" style={{ width: '100%' }} size="middle">
                                 {changeableConditions.map((item, index) => {
                                     const fieldConfig = getFieldConfig(item.condition.field);
                                     return (<div key={index}>
@@ -344,7 +344,7 @@ export function SavedViewEditor({ view, config, onApply }: SavedViewEditorProps)
                 {
                     key: '1',
                     label: 'View Full Filter Configuration',
-                    children: (<Space direction="vertical" style={{ width: '100%' }}>
+                    children: (<Space orientation="vertical" style={{ width: '100%' }}>
                         {view.filterGroups.map((group, gIndex) => (<div key={gIndex}>
                             {gIndex > 0 && <Tag color="blue" style={{ marginBottom: 8 }}>OR</Tag>}
                             <Card size="small">

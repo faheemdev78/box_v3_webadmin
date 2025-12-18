@@ -282,7 +282,7 @@ export function DeliverySlotManager({ store, zone }) {
         </PageHeader>
 
         <Page>
-            {error && <Alert message={error} type="error" showIcon />}
+            {error && <Alert title="Error" description={error} type="error" showIcon />}
 
             <Table
                 title={zone ? false : () => (<SlotFilter onSubmit={setLocalFilter} />)}

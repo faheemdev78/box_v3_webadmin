@@ -15,7 +15,7 @@ function SearchFieldSelector({ searchFields }: SearchFieldSelectorProps) {
         <Popover
             title="Search Fields"
             trigger="click"
-            content={() => (<Space direction='vertical'>
+            content={() => (<Space orientation='vertical'>
                 {searchFields.map((item, i) => (<Checkbox onChange={onSelect} value={item.value} key={i}>{item.label}</Checkbox>))}
                 {/* <Checkbox onChange={console.log}>Field 1</Checkbox> <Checkbox onChange={console.log}>Field 4</Checkbox> */}
             </Space>)}

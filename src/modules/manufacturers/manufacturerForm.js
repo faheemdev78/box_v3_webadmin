@@ -138,7 +138,7 @@ export const ManufacturerForm = props => {
                     const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                     return (<>
-                        {error && <Alert message={error} showIcon type='error' />}
+                        {error && <Alert title="Error" description={error} showIcon type='error' />}
 
                         <form id="ManufacturerForm" {...submitHandler(formargs)}>
                             <Row gutter={[10, 10]}>

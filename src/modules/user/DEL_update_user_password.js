@@ -44,9 +44,9 @@ export const UpdateUserPassword = ({ show, _id_user, onSuccess, onCancel }) => {
                     return (<>
                         <form id="update_pwd_form" {...submitHandler(formargs)}>
 
-                            {error && <Alert message={error} showIcon type='error' />}
+                            {error && <Alert title="Error" description={error} showIcon type='error' />}
 
-                            <Space style={{ width: "100%" }} direction='vertical'>
+                            <Space style={{ width: "100%" }} orientation='vertical'>
                                 <FormField type="password" name="password" label="New Password" validate={rules.required} />
                                 <Row>
                                     <Col flex="auto"><Button onClick={onCancel} type="default">Cancel</Button></Col>

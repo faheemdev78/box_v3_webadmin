@@ -112,8 +112,8 @@ function OrderPreview() {
     };
 
     if (loading) return <Loader loading={true} />
-    if (!data?.order) return <Alert message="Order not found!" type="error" showIcon />
-    if (error) return <Alert message={error} showIcon type="error" />
+    if (!data?.order) return <Alert title="Error" description="Order not found!" type="error" showIcon />
+    if (error) return <Alert title="Error" description={error} showIcon type="error" />
 
     const order = data.order;
     const originalOrder = order.original_order;
@@ -382,7 +382,7 @@ function OrderPreview() {
                         <Col span={12}>
                             {/* Applied Vouchers */}
                             {originalOrder?.vouchers && originalOrder.vouchers.length > 0 && (<Card title="Applied Vouchers" variant="outlined" style={{ marginBottom: 24 }}>
-                                <Space direction="vertical" style={{ width: '100%' }}>
+                                <Space orientation="vertical" style={{ width: '100%' }}>
                                     {originalOrder.vouchers.map((voucher: any, idx: number) => (
                                         <div key={idx} style={{ padding: '8px', background: '#f0f0f0', borderRadius: '4px' }}>
                                             <div><strong>{voucher.title}</strong></div>
@@ -437,7 +437,7 @@ function OrderPreview() {
 
                 </Col>
 
-                <Col span={8}><Space size={10} direction='vertical'>
+                <Col span={8}><Space size={10} orientation='vertical'>
                     <Card title="Order Information" variant="outlined">
                         <Descriptions column={1} size="small">
                             <Descriptions.Item><Descriptions column={2} size="small">
@@ -512,7 +512,7 @@ function OrderPreview() {
 
 
             {/* Lock Information */}
-            {order.locked_by && (<Alert message="Order Locked" type="warning" showIcon icon={<Icon icon="lock" />} style={{ marginBottom: 24 }}
+            {order.locked_by && (<Alert title="Order Locked" type="warning" showIcon icon={<Icon icon="lock" />} style={{ marginBottom: 24 }}
                 description={<div>
                     <div>Locked by: {order.locked_by}</div>
                     <div>Lock Type: {order.lock_type}</div>
@@ -543,9 +543,9 @@ function OrderPreview() {
             okButtonProps={{ danger: true }}
             width={600}
         >
-            <Space direction="vertical" style={{ width: '100%' }} size="large">
+            <Space orientation="vertical" style={{ width: '100%' }} size="large">
                 <Alert
-                    message="Warning"
+                    title="Warning"
                     description={
                         <div>
                             <p>You are about to revert this order to <strong>{revertTargetStage}</strong>.</p>

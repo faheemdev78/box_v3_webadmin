@@ -42,7 +42,7 @@ export const ProdSkeleton_ListItem = ({ loading, count=1, gutter=[10, 10], child
     return (<Row gutter={0}>
         {items.map((item, i) => {
             return (<Col key={i} span={8} style={{ textAlign: 'center' }}>
-                <Space direction='vertical' align='center'>
+                <Space orientation='vertical' align='center'>
                     <Skeleton.Avatar active={loading} shape="square" size={120} />
                     <Skeleton.Node active={loading} style={{ width:"120px", height:"15px" }} />
                     <Skeleton.Node active={loading} style={{ width:"120px", height:"15px" }} />

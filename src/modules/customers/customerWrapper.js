@@ -4,8 +4,6 @@ import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { Alert, Card, Col, message, Row, Space } from 'antd';
 import { Loader, StatusTag } from '@/components';
 import { adminRoot, defaultDateFormat, userStatus } from '@/configs';
-import Link from 'next/link';
-// import { useSession } from 'next-auth/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Page } from '@/template/page';
 import { PageHeader } from '@/template';
@@ -38,19 +36,15 @@ export function CustomerWrapper({ render, ...props }) {
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.user }))
             .catch(catchApolloError)
 
-        if (resutls.error) {
+        if (resutls && resutls.error) {
             set_fatelError(resutls?.error?.message || "Customer not found!")
             return;
         }
 
         setData(resutls)
-        // return resutls;
     }
 
     const onStatusUpdate = async (values) => {
-        // console.log("onStatusUpdate()", values)
-        // return false;
-        
         let resutls = await updateUserStatus({ variables: { _id_user: data._id, status: values.status } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.updateUserStatus }))
             .catch(catchApolloError)
@@ -65,8 +59,7 @@ export function CustomerWrapper({ render, ...props }) {
     }
 
 
-    // if (status == 'loading') return <Loader loading={true} />
-    if (!user_id || fatelError) return <Alert message={fatelError || "No User ID found!"} type='error' showIcon />
+    if (!user_id || fatelError) return <Alert title="Error fetching user" description={fatelError || "No User ID found!"} type='error' showIcon />
     if (loading || !data) return <Loader loading={true}>Fetching Customer...</Loader>
 
     const canEdit = true; // security.verifyRole('104.4', session.user.permissions);
@@ -75,7 +68,7 @@ export function CustomerWrapper({ render, ...props }) {
         <PageHeader 
             title={data.name}
             sub={<div>
-                <Space split="|">
+                <Space separator="|">
                     <div>ID: {data._id}</div>
                     <div><StatusTag value={data.status} editable={canEdit} options={userStatus} onSubmit={onStatusUpdate} /></div>
                 </Space>

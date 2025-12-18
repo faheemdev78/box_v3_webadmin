@@ -128,8 +128,8 @@ function ProductFields() {
 
 
     // if (status == 'loading') return <Loader loading={true} />
-    if (!session || !session?.user?._id) return <Alert message="Invalid user session" showIcon type='error' />
-    if (!canManage) return <Alert message="Acess Denied" showIcon type='error' />
+    if (!session || !session?.user?._id) return <Alert title="Error" description="Invalid user session" showIcon type='error' />
+    if (!canManage) return <Alert title="Error" description="Acess Denied" showIcon type='error' />
 
 
 

@@ -199,7 +199,7 @@ function DriverSettlements() {
         const allReturned = record.session.all_baskets_returned;
 
         return (
-          <Space direction="vertical" size="small">
+          <Space orientation="vertical" size="small">
             <div>
               <Text>{returned}/{assigned} returned</Text>
             </div>
@@ -227,7 +227,7 @@ function DriverSettlements() {
         }
 
         return (
-          <Space direction="vertical" size="small" style={{ textAlign: 'right', width: '100%' }}>
+          <Space orientation="vertical" size="small" style={{ textAlign: 'right', width: '100%' }}>
             <div>
               <Text strong>₹{wallet.total_cod_collected.toFixed(2)}</Text>
             </div>
@@ -261,7 +261,7 @@ function DriverSettlements() {
         const canRelease = canReleaseOrders(record);
 
         return (
-          <Space direction="vertical" size="small">
+          <Space orientation="vertical" size="small">
             {hasPendingCOD && !wallet.is_settled && (
               <Button
                 type="primary"
@@ -320,7 +320,7 @@ function DriverSettlements() {
         {drivers.length === 0 && !loading ? (
           <Card>
             <Alert
-              message="No Pending Settlements"
+              title="No Pending Settlements"
               description="There are no drivers with pending settlements at the moment."
               type="info"
               showIcon
@@ -351,7 +351,7 @@ function DriverSettlements() {
           cancelText="Cancel"
         >
           {selectedDriver && (
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <Space orientation="vertical" size="large" style={{ width: '100%' }}>
               <div>
                 <Title level={5}>Driver Information</Title>
                 <Text>{selectedDriver.driver.name}</Text>

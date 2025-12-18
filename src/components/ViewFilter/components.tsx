@@ -61,7 +61,7 @@ export function ViewTab({
     // Full tab content
     return (<div>
         <Card size="small" style={{ marginBottom: 16 }}>
-            <Space direction="vertical" style={{ width: '100%' }}>
+            <Space orientation="vertical" style={{ width: '100%' }}>
                 <div>
                     <Space>
                         <strong style={{ fontSize: 16 }}>{view.name}</strong>
@@ -133,9 +133,9 @@ export function AllViewsTab({
         <Card key={view.id} size="small" style={{ width: '100%', marginBottom: 8 }}>
             <Row justify="space-between" align="middle">
                 <Col flex="auto">
-                    <Space direction="vertical" size={0}>
-                        <Space direction='horizontal'>
-                            {/* <Space direction='vertical' size={0}>
+                    <Space orientation="vertical" size={0}>
+                        <Space orientation='horizontal'>
+                            {/* <Space orientation='vertical' size={0}>
                                 {view.isPinned && <PushpinFilled style={{ color: '#1890ff' }} />}
                                 {view.isFavorite && <StarFilled style={{ color: '#faad14' }} />}
                             </Space> */}
@@ -183,14 +183,14 @@ export function AllViewsTab({
     return (<>
         {favoriteViews.length > 0 && (<>
             <Divider>Starred Views</Divider>
-            <Space direction="vertical" style={{ width: '100%', marginBottom: 16, padding: "10px" }}>
+            <Space orientation="vertical" style={{ width: '100%', marginBottom: 16, padding: "10px" }}>
                 {favoriteViews.map(renderViewCard)}
             </Space>
         </>)}
 
         {otherViews.length > 0 && (<>
             <Divider>Other Views</Divider>
-            <Space direction="vertical" style={{ width: '100%', padding: "10px" }}>
+            <Space orientation="vertical" style={{ width: '100%', padding: "10px" }}>
                 {otherViews.map(renderViewCard)}
             </Space>
         </>)}
@@ -210,7 +210,7 @@ export function SaveViewModal({ visible, onClose, onSave, config }: {
                 onSubmit={onSave}
                 render={(formArgs) => (
                     <form {...submitHandler(formArgs)}>
-                        <Space direction="vertical" style={{ width: '100%' }}>
+                        <Space orientation="vertical" style={{ width: '100%' }}>
                             <FormField
                                 name="viewName"
                                 type="text"

@@ -100,7 +100,7 @@ function StoreProductsHome(props:any) {
     // if (!session?.store_id) columns = undefined; // ['title', 'barcode', 'variations_count', 'status']; // for non-store users
 
     return (<>
-        {error && <Alert message={error} type="error" showIcon />}
+        {error && <Alert title="Error" description={error} type="error" showIcon />}
         <ProductsList
             {...state}
             busy={busy} setBusy={setBusy}

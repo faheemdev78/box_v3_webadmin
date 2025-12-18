@@ -45,7 +45,7 @@ export function SideMenu() {
     return (<div className={`${styles.modules_list_wrapper} ${styles.custom_scroller}`}>
         <Row className="nowrap" style={{ height: "inherit" }}>
             <Col style={{ borderRight: "1px solid #D0DAE5", padding: "10px", height: "inherit" }}><div>
-                <Space direction='vertical'>
+                <Space orientation='vertical'>
                     <Button onClick={() => set_selectedMenu('text')} block>Text</Button>
                     <Button onClick={() => set_selectedMenu('categories')} block>Categories</Button>
                     <Button onClick={() => set_selectedMenu('carousel')} block>Carousel</Button>

@@ -1,12 +1,7 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -18,35 +13,24 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
-    "typeRoots": [
-      "@types",
-      "src/@types",
-      "node_modules/@types"
-    ],
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@_/*": ["./src/*"],
       "@/*": ["./src/*"]
     }
   },
   "include": [
-    "src/**/*",
     "next-env.d.ts",
+    "*.d.ts",
+    "**/*.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts",
-    "**/*.d.ts",
-    ".next/dev/dev/types/**/*.ts"
+    "**/*.mts"
   ],
-  "files": ["@types/graphql.d.ts"],
-  "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
-  ]
+  "exclude": ["node_modules"]
 }

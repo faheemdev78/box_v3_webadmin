@@ -62,9 +62,9 @@ export function StaffWrapper({ render, ...props }) {
         return values.status;
     }
 
-    if (!user_id || fatelError) return <Alert message={fatelError || "No User ID found!"} type='error' showIcon />
+    if (!user_id || fatelError) return <Alert title="Error" description={fatelError || "No User ID found!"} type='error' showIcon />
     if (loading) return <Loader loading={true}>Fetching user...</Loader>
-    if (!data || !data?.user?._id) return <Alert message="User not found!" showIcon />
+    if (!data || !data?.user?._id) return <Alert title="Error" description="User not found!" showIcon />
 
 
     return (<>

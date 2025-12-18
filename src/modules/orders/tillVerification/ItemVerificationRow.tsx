@@ -132,10 +132,10 @@ export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, 
         <Col span={8}>Price</Col>
       </Row>
 
-      <Space direction="vertical" style={{ width: '100%' }} size="small">
+      <Space orientation="vertical" style={{ width: '100%' }} size="small">
         {/* Item Info */}
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-          <Space direction="vertical" size={0}>
+          <Space orientation="vertical" size={0}>
             <Text strong style={{ fontSize: 16 }}>{item.title}</Text>
             {item.barcode && (<Text type="secondary" style={{ fontSize: 12 }}>Barcode: {item.barcode}</Text>)}
           </Space>
@@ -187,7 +187,7 @@ export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, 
       okText="Confirm Missing"
       okButtonProps={{ danger: true }}
     >
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <Text>Mark <Text strong>{item.title}</Text> as missing?</Text>
         <TextArea
           placeholder="Optional: Reason for missing item..."
@@ -207,7 +207,7 @@ export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, 
       okText="Confirm Quantity"
       okButtonProps={{ disabled: mismatchQty === verificationStatus.qty_expected }}
     >
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <Text>Expected quantity: <Text strong>{verificationStatus.qty_expected}</Text></Text>
         <Space>
           <Text>Actual quantity found:</Text>

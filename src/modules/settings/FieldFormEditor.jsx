@@ -86,7 +86,7 @@ const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, c
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {/* {error && <Alert message={error} showIcon type='error' />} */}
+                    {/* {error && <Alert title="Error" description={error} showIcon type='error' />} */}
                     <form id="SettingsFieldEditorForm" {...submitHandler(formargs)}>
 
                         <Row>
@@ -186,11 +186,11 @@ const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, c
 
 
 const Wrapper = ({ department, show, initialValues, onCancel, onSuccess }) => {
-    // if (!department) return <Alert message="Department not found" type='error' showIcon />
+    // if (!department) return <Alert title="Error" description="Department not found" type='error' showIcon />
     // if (!show) return null;
     // store-settings
     return (<Modal title={initialValues ? `Edit Field under ${department}` : `Add Field under (${department})`} open={show} footer={false} onCancel={onCancel} destroyOnHidden>
-        {!department && <Alert message="Department not found" type='error' showIcon />}
+        {!department && <Alert title="Error" description="Department not found" type='error' showIcon />}
         {(!department || !show) ? null : <>
             <FieldFormEditorComp department={department} initialValues={initialValues} onSuccess={onSuccess} onCancel={onCancel} />
         </>}

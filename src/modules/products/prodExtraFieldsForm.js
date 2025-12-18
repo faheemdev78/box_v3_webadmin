@@ -72,12 +72,12 @@ function ProdExtraFieldsFormComp({ initialValues, onSuccess, onCancel }) {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProdExtraInfosForm" {...submitHandler(formargs)}>
 
                         <FieldArray name="extra_fields">
                             {({ fields }) => {
-                                return (<Space style={{ width: "100%" }} direction='vertical' size={20}>
+                                return (<Space style={{ width: "100%" }} orientation='vertical' size={20}>
                                     {fields.map((name, index) => {
                                         const thisNode = fields.value[index];
 

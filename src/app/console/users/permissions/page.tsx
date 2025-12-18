@@ -126,7 +126,7 @@ function UserPermissions(props:any) {
   }
 
   // if (!session_user) return <Loader loading={true} />
-  // if (!security.verifyRole("100.11", session_user)) return <Alert message="Access Denied" showIcon type='error' />
+  // if (!security.verifyRole("100.11", session_user)) return <Alert title="Error" description="Access Denied" showIcon type='error' />
 
 
   return (<>
@@ -134,7 +134,7 @@ function UserPermissions(props:any) {
     <PageHeader title="User Permissions"></PageHeader>
 
 
-    {error && <Alert message={error} type="error" showIcon />}
+    {error && <Alert title="Error" description={error} type="error" showIcon />}
 
     <Page>
       <Table 

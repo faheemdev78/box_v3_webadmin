@@ -48,7 +48,7 @@ export function ProdVariationForm({ initialValues, onSuccess, onCancel }) {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProdDetailsForm" {...submitHandler(formargs)}>
 
                         <FormField label="This product have Variations?" checkedChildren="Yes" unCheckedChildren="No" type="switch" name="have_variations" />

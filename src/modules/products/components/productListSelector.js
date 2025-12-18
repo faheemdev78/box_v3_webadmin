@@ -22,7 +22,7 @@ function itemParser (data){
         <Row gutter={[10]} align="middle">
             <Col>
                 {data?.picture?.thumbnails ? 
-                    <Image src={`${process.env.NEXT_PUBLIC_CDN_ASSETS}/${data.picture.thumbnails[0]}`} width={50} height={50} alt={data.title} /> :
+                    <Image src={`${process.env.NEXT_PUBLIC_CDN_URL}/${data.picture.thumbnails[0]}`} width={50} height={50} alt={data.title} /> :
                     <Icon style={{ fontSize: "50px", color: "#999999" }} icon="image" />
                 }
             </Col>
@@ -101,7 +101,7 @@ export const ProductListSelector = ({ limit, onSubmit, selected_products }) => {
 
     return (<>
         <SearchBar loading={busy} onSearch={doSearch} />
-        {(data?.products?.length < 1 && !busy && called) && <Alert message="No products found!" showIcon type='warning' />}
+        {(data?.products?.length < 1 && !busy && called) && <Alert title="Error" description="No products found!" showIcon type='warning' />}
 
         <DndContainers
             onUpdate={onUpdate}

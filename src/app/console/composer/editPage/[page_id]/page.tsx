@@ -35,7 +35,7 @@ import PUBLISH_PAGE from '@/graphql/app_pages/publishAppPage.graphql'
 
 function ItemRender({ item, item: { data, value, name } }: { item: any }) {
     let found = components.find(o => o.type == data?.type)
-    if (!found) return <Alert type="error" message={`Invalid field (${data?.type})`} />
+    if (!found) return <Alert type="error" title="Error!" description={`Invalid field (${data?.type})`} />
 
     return found.renderer ? found.renderer({ item }) : <p>NO renderor</p>
 }
@@ -472,7 +472,7 @@ function EditAppPage() {
     const onItemClick = (vals: any) => set_showProps(vals)
     const handleDragStart = (event: any) => set_sortDragging(event.active.id);
 
-    if (fatelError) return <Alert message={fatelError} type='error' showIcon />
+    if (fatelError) return <Alert title="Error" description={fatelError} type='error' showIcon />
     if (loading && !pageData) return <Loader loading={true} />
     if (!pageData) return <Loader loading={true}>Parsing data...</Loader>
 
@@ -498,7 +498,7 @@ function EditAppPage() {
                 const disableSave = !dirty;// || hasEmptyRows;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="page_composer_form" {...submitHandler(formargs)}>
 
                         <div style={{ borderBottom: "1px solid #D0DAE5", padding: "10px", backgroundColor: "#FFF" }}>
@@ -508,11 +508,11 @@ function EditAppPage() {
                                     <Button onClick={toggleSchedule} tooltip={{ title: "Schedule", placement: "bottom" }} icon={<Icon icon="clock" />} />
                                 </Space></Col>
                                 <Col span={8} style={{ textAlign: 'center' }}>
-                                    {/* <Space split="|"><div>Web</div><div>Mobile</div></Space> */}
+                                    {/* <Space separator="|"><div>Web</div><div>Mobile</div></Space> */}
                                     <h4>{pageData.title}</h4>
                                 </Col>
                                 <Col span={8} style={{ textAlign: 'right' }}><Space>
-                                    {/* {dirty && <Alert type='warning' showIcon message="Contents updated" />} */}
+                                    {/* {dirty && <Alert type='warning' showIcon title="Error" description="Contents updated" />} */}
                                     <ExternalSubmitButton
                                         color="orange"
                                         disabled={disableSave}

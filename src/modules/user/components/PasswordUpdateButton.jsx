@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react'
 import { Form as FinalForm } from 'react-final-form';
 import { FormField, SubmitButton, rules, composeValidators, submitHandler } from '@/components/form';
@@ -40,7 +42,7 @@ export const PasswordUpdateButton = ({ _id, default_mode = "preview", query_type
         return "reset"
     }
 
-    if (!_id) return <Alert message="Update refference not available"  showIcon type="error" />
+    if (!_id) return <Alert title="Error" description="Update refference not available"  showIcon type="error" />
 
     return (<>
         <Button onClick={() => setMode("edit")} size="small" color="blue">Reset Password</Button>

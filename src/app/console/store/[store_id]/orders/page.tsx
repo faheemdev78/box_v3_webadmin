@@ -293,7 +293,7 @@ function OrdersListPage(props:any) {
             render: (pickup_allow: boolean, rec: any) => (<Tag color={pickup_allow ? 'green' : 'red'}>{pickup_allow ? "YES" : "NO"}</Tag>)
         },
         { title: 'Created', dataIndex: ['createdAt'], key: 'createdAt', width: 115, align: 'left',
-            render: (createdAt: string) => createdAt && (<Space direction="vertical" size={0}>
+            render: (createdAt: string) => createdAt && (<Space orientation="vertical" size={0}>
                 <Text type="secondary" style={{ fontSize: 12 }}><ClockCircleOutlined /> {utcToDate(createdAt).format('HH:mm A')}</Text>
                 <Text type="secondary" style={{ fontSize: 11 }}>{utcToDate(createdAt).fromNow()}</Text>
             </Space>)
@@ -383,7 +383,7 @@ function OrdersListPage(props:any) {
                     },
                     createdAt: {
                         width: 130,
-                        render: (createdAt: string) => (<Space direction="vertical" size={0}>
+                        render: (createdAt: string) => (<Space orientation="vertical" size={0}>
                             <Text type="secondary" style={{ fontSize: 12 }}><ClockCircleOutlined /> {utcToDate(createdAt).format('HH:mm A')}</Text>
                             <Text type="secondary" style={{ fontSize: 11 }}>{utcToDate(createdAt).fromNow()}</Text>
                         </Space>)
@@ -434,7 +434,7 @@ function OrdersListPage(props:any) {
                                     {/* Revert Buttons */}
                                     <Popover 
                                         content={<div>
-                                            <Space size="small" wrap direction="vertical" style={{ width:"100%" }}>
+                                            <Space size="small" wrap orientation="vertical" style={{ width:"100%" }}>
                                                 {canRevertTo(record, 'pending') && (<Button size="small" danger block onClick={() => handleRevertOrder(record, 'pending')}>to Pending</Button>)}
                                                 {canRevertTo(record, 'picking-complete') && (<Button block size="small" onClick={() => handleRevertOrder(record, 'picking-complete')}>to Picking Complete</Button>)}
                                                 {canRevertTo(record, 'ready-to-dispatch') && (<Button block size="small" onClick={() => handleRevertOrder(record, 'ready-to-dispatch')}>to Ready to Dispatch</Button>)}
@@ -466,7 +466,7 @@ function OrdersListPage(props:any) {
                     extra={<Button onClick={() => fetchData({})} loading={loading}>Refresh</Button>}
                     styles={{ body: { padding: 0 } }}
                 >
-                    {fatelError && <Alert message={fatelError} type="error" showIcon />}
+                    {fatelError && <Alert title="Error" description={fatelError} type="error" showIcon />}
 
                     <OrderTable
                         busy={false}

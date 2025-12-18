@@ -56,9 +56,9 @@ function StoreWrapper({ render, ...props }) {
         return resutls.status;
     }
 
-    if (!store_id || fatelError) return <Alert message={fatelError || "No Store ID found!"} type='error' showIcon />
+    if (!store_id || fatelError) return <Alert title="Error" description={fatelError || "No Store ID found!"} type='error' showIcon />
     if (loading) return <Loader loading={true}>Fetching store...</Loader>
-    if (!data || !data?.store?._id) return <Alert message="Store not found!" showIcon />
+    if (!data || !data?.store?._id) return <Alert title="Error" description="Store not found!" showIcon />
 
     return (<>
         {/* <div className='page-bar'>

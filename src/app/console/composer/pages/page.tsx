@@ -129,7 +129,7 @@ function PagesHome() {
             <Button onClick={() => set_showCreateForm(true)} color="orange">Create new page</Button>
         </PageHeader>
 
-        {error && <Alert message={error} showIcon type="error" />}
+        {error && <Alert title="Error" description={error} showIcon type="error" />}
         <Table 
             bordered
             columns={columns} 

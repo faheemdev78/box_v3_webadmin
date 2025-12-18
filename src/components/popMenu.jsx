@@ -6,32 +6,35 @@ import { Icon } from './icon'
 
 
 /**
- <PopMenu direction="horizontal" placement="left" 
+ <PopMenu orientation="horizontal" placement="left" 
     items={[
         { onClick: () => set_showFieldForm(field), label: "Edit" },
         { onClick: () => onDeletePress(field._id), label: "Delete", type: 'delete' }
     ]}
 ></PopMenu>
 */
-export function PopMenu({ placement = "topRight", trigger = "click", title = false, items, direction = 'vertical', size = "default" }) {
+export function PopMenu({ placement = "topRight", trigger = "click", title = false, items, orientation = 'vertical', size = "default" }) {
     const [open, setOpen] = useState(false)
 
     return (<>
         <Popover
-            content={<Space direction={direction}>{items.map((item, i) => {
-                if(item.type=='delete'){
-                    return (<DeleteButton size={size} onClick={() => {
-                        item.onClick();
-                        setOpen(false)
-                    }}>{item.label}</DeleteButton>)
-                }
-
-                return (<Button size={size} onClick={() => {
-                    item.onClick();
-                    setOpen(false)
-                }} key={i}>{item.label}</Button>)
-
-            })}</Space>}
+            content={<Space orientation={orientation}>{items.map((item, i) => (<div key={i}>
+                {item.type == 'delete' ? <>
+                    <DeleteButton 
+                        size={size} 
+                        onClick={() => {
+                            item.onClick();
+                            setOpen(false)
+                        }}>{item.label}</DeleteButton>
+                </> : <>
+                    <Button 
+                        size={size} 
+                        onClick={() => {
+                            item.onClick();
+                            setOpen(false)
+                        }}>{item.label}</Button>
+                </>} 
+            </div>))}</Space>}
             title={title}
             trigger={trigger}
             placement={placement}

@@ -246,7 +246,7 @@ export function StaffProfile() {
                         </Descriptions>
 
                         <div style={{ marginTop: 20 }}>
-                            <Space direction="vertical" style={{ width: '100%' }}>
+                            <Space orientation="vertical" style={{ width: '100%' }}>
                                 <Button type="primary" block>Edit Profile</Button>
                                 <Button type="default" block>View Schedule</Button>
                                 <Button type="default" block>Send Message</Button>
@@ -259,19 +259,13 @@ export function StaffProfile() {
                         <Timeline
                             items={RECENT_ACTIVITIES.map((activity) => ({
                                 color: getActivityColor(activity.type),
-                                children: (
-                                    <>
-                                        <p style={{ margin: 0 }}>
-                                            <strong>{activity.action}</strong>
-                                            <span style={{ float: 'right', color: '#999', fontSize: 12 }}>
-                                                {activity.time.split(' ')[1]}
-                                            </span>
-                                        </p>
-                                        <p style={{ margin: 0, color: '#666', fontSize: 12 }}>
-                                            {activity.details}
-                                        </p>
-                                    </>
-                                )
+                                content: (<>
+                                    <p style={{ margin: 0 }}>
+                                        <strong>{activity.action}</strong>
+                                        <span style={{ float: 'right', color: '#999', fontSize: 12 }}>{activity.time.split(' ')[1]}</span>
+                                    </p>
+                                    <p style={{ margin: 0, color: '#666', fontSize: 12 }}>{activity.details}</p>
+                                </>)
                             }))}
                         />
                     </Card>

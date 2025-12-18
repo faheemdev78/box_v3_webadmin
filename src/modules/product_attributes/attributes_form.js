@@ -97,7 +97,7 @@ const ProductAttributesForm_Comp = ({ onClose, callback, fields, open }) => {
                     const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                     return (<>
-                        {error && <Alert message={error} showIcon type='error' />}
+                        {error && <Alert title="Error" description={error} showIcon type='error' />}
                         <form id="ProductAttributesForm" {...submitHandler(formargs)}>
                             <Row gutter={[10, 10]}>
                                 <Col span={16}><FormField type="text" name="title" label="Title" validate={[rules.required, rules.minChar(2)]} /></Col>

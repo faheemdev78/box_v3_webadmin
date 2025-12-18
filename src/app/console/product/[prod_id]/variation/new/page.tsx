@@ -249,7 +249,7 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                             <Col flex="auto" style={{ backgroundColor: "#FFF" }}>
                                 <h2>Variation <span style={{ color: "#999" }}>of <Link href={`${adminRoot}/product/${initialValues._id_parent}/view`}>{initialValues.title}</Link></span></h2>
 
-                                {error && <Alert message={error} showIcon type='error' />}
+                                {error && <Alert title="Error" description={error} showIcon type='error' />}
 
                                 <div style={{ padding: "20px 100px 50px 100px" }}><Steps progressDot current={activeStep} items={stepsArray} /></div>
 
@@ -314,8 +314,8 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                                                     <FieldArray name="attributes">
                                                         {({ fields }) => {
                                                             return (<>
-                                                                <Space direction='vertical' size={10}>
-                                                                    {fields.map((name, index) => {
+                                                                <Space orientation='vertical' size={10}>
+                                                                    {fields.map((name:string, index:number) => {
                                                                         const thisNode = fields.value[index];
 
                                                                         return (<Space key={index}>
@@ -362,7 +362,7 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                                                 </Space></Col>
 
                                                 <Col span={24}><Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Cost</Divider></Col>
-                                                <Col span={8} style={{ textAlign: "center" }}><FormField label="Cost" direction="horizontal" type="number" name="cost" validate={rules.required} /></Col>
+                                                <Col span={8} style={{ textAlign: "center" }}><FormField label="Cost" orientation="horizontal" type="number" name="cost" validate={rules.required} /></Col>
 
                                                 <Col span={24}><Divider>Tax Settings</Divider></Col>
                                                 <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop: "0px" }}>This product is taxable</Label></Col>

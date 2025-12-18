@@ -1,4 +1,4 @@
-import React from 'react';
+'use client'
 import BarcodePackage, { BarcodeProps } from 'react-barcode';
 
 

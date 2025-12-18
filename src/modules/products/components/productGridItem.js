@@ -83,7 +83,7 @@ export const ProductGridItem = props => {
                 <RenderDD />
                 <Row style={{ flexWrap: "nowrap" }} onClick={() => props.onEditClick ? props.onEditClick(props) : console.log}>
                     <Col flex="135px">
-                        {<Avatar {...cardPropd} src={props.picture_thumb ? `${process.env.NEXT_PUBLIC_CDN_ASSETS}/${props.picture_thumb}` : null} icon={<Icon icon="image" />} />}
+                        {<Avatar {...cardPropd} src={props.picture_thumb ? `${process.env.NEXT_PUBLIC_CDN_URL}/${props.picture_thumb}` : null} icon={<Icon icon="image" />} />}
                         {props.available_qty < 1 && <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)', position: 'absolute', width: '100%', top: '-0px', left: '-0px', height: '135px', display: 'flex', alignItems: "center", justifyContent: "center" }}>
                             <div style={{ backgroundColor: '#CCC', borderRadius: '10px', margin: '10px', fontSize: '18px', padding: '0px 10px' }}>Sold Out</div>
                         </div>}

@@ -56,9 +56,9 @@ function ZoneWrapper({ render, ...props }) {
     }
 
 
-    if (!zone_id || fatelError) return <Alert message={fatelError || "No Zone ID found!"} type='error' showIcon />
+    if (!zone_id || fatelError) return <Alert title="Error" description={fatelError || "No Zone ID found!"} type='error' showIcon />
     if (loading) return <Loader loading={true}>Fetching zone...</Loader>
-    if (!data || !data?.zone?._id) return <Alert message="Zone not found!" showIcon />
+    if (!data || !data?.zone?._id) return <Alert title="Error" description="Zone not found!" showIcon />
 
     return (<>
         <Row gutter={[50, 50]} style={{ borderBottom:"1px solid black" }} align="middle">
@@ -69,7 +69,7 @@ function ZoneWrapper({ render, ...props }) {
                 </h1>
                 <div>{data.zone.code}</div>
             </Col>
-            <Col flex="auto"><Space split="|">
+            <Col flex="auto"><Space separator="|">
                 {[
                     { title: 'Geo Zones', href: `${adminRoot}/store/${data.zone.store._id}/zone/${data.zone._id}` },
                 ].map((item, i) => {

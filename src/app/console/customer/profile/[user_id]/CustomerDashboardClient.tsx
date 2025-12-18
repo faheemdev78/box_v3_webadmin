@@ -1,21 +1,12 @@
-'use client'
+'use client';
 
-import { __error, __yellow } from '@/lib/consoleHelper';
 import { CustomerWrapper } from '@/modules/customers';
 import { Alert, Card, Col, Divider, Row, Table, Tag, Statistic, List, Timeline, Descriptions, Space, Button } from 'antd';
 import { Avatar, DevBlock } from '@/components';
 import { PasswordUpdateButton } from '@/modules/user/components';
 import {
-    PhoneOutlined,
-    MailOutlined,
-    EnvironmentOutlined,
-    ShoppingCartOutlined,
-    DollarOutlined,
-    ClockCircleOutlined,
-    TrophyOutlined,
-    CheckCircleOutlined,
-    CloseCircleOutlined,
-    StopOutlined
+    PhoneOutlined, MailOutlined, EnvironmentOutlined, ShoppingCartOutlined, DollarOutlined, ClockCircleOutlined,
+    TrophyOutlined, CheckCircleOutlined, CloseCircleOutlined, StopOutlined, UserOutlined
 } from '@ant-design/icons';
 
 // Dummy Data
@@ -216,19 +207,19 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                     </div>
 
                     <Descriptions column={1} size="small">
-                        <Descriptions.Item label={<><MailOutlined /> Email</>}>
+                        <Descriptions.Item label={<Space size={2}><MailOutlined /> Email</Space>}>
                             {user.email}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<><PhoneOutlined /> Phone</>}>
+                        <Descriptions.Item label={<Space size={2}><PhoneOutlined /> Phone</Space>}>
                             {user.phone || '+1 (555) 123-4567'}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<><ClockCircleOutlined /> Last Seen</>}>
+                        <Descriptions.Item label={<Space size={2}><ClockCircleOutlined /> Last Seen</Space>}>
                             {new Date(DUMMY_USER_EXTRAS.last_seen).toLocaleString()}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Member Since">
+                        <Descriptions.Item label={<Space size={2}><UserOutlined /> Member Since</Space>}>
                             {new Date(DUMMY_USER_EXTRAS.member_since).toLocaleDateString()}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<><TrophyOutlined /> Loyalty Points</>}>
+                        <Descriptions.Item label={<Space size={2}><TrophyOutlined /> Loyalty Points</Space>}>
                             <Tag color="gold">{DUMMY_USER_EXTRAS.loyalty_points} points</Tag>
                         </Descriptions.Item>
                         <Descriptions.Item label="Referrals">
@@ -250,7 +241,7 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                     <List
                         size="small"
                         dataSource={DUMMY_USER_EXTRAS.favorite_categories}
-                        renderItem={(item) => (
+                        renderItem={(item:any) => (
                             <List.Item>
                                 <Tag color="green">{item}</Tag>
                             </List.Item>
@@ -286,11 +277,10 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                                 precision={2}
                                 prefix="$"
                                 styles={{
-                                    content: {
+                                    content:{
                                         color: '#3f8600'
                                     }
                                 }}
-
                             />
                         </Col>
                         <Col xs={12} sm={8} md={6}>
@@ -324,7 +314,6 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                                         color: '#cf1322'
                                     }
                                 }}
-
                             />
                         </Col>
                         <Col xs={12} sm={8} md={6}>
@@ -337,7 +326,6 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                                         color: '#d46b08'
                                     }
                                 }}
-
                             />
                         </Col>
                         <Col xs={12} sm={8} md={6}>
@@ -389,7 +377,7 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                 <Card title="Delivery Addresses" variant='outlined' style={{ marginTop: 16 }}>
                     <List
                         dataSource={DUMMY_ADDRESSES}
-                        renderItem={(address) => (
+                        renderItem={(address:any) => (
                             <List.Item
                                 key={address._id || address.label}
                                 actions={[
@@ -401,12 +389,14 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                                 <List.Item.Meta
                                     avatar={<EnvironmentOutlined style={{ fontSize: 24 }} />}
                                     title={<strong>{address.label}</strong>}
-                                    description={<>
-                                        <div>{address.address_line1}</div>
-                                        {address.address_line2 && <div>{address.address_line2}</div>}
-                                        <div>{address.city}, {address.state} {address.zip}</div>
-                                        <div>{address.country}</div>
-                                    </>}
+                                    description={
+                                        <>
+                                            <div>{address.address_line1}</div>
+                                            {address.address_line2 && <div>{address.address_line2}</div>}
+                                            <div>{address.city}, {address.state} {address.zip}</div>
+                                            <div>{address.country}</div>
+                                        </>
+                                    }
                                 />
                             </List.Item>
                         )}
@@ -421,9 +411,13 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                             content: (<>
                                 <p style={{ margin: 0 }}>
                                     <strong>{activity.action}</strong>
-                                    <span style={{ float: 'right', color: '#999', fontSize: 12 }}>{activity.time}</span>
+                                    <span style={{ float: 'right', color: '#999', fontSize: 12 }}>
+                                        {activity.time}
+                                    </span>
                                 </p>
-                                <p style={{ margin: 0, color: '#666', fontSize: 12 }}>{activity.details}</p>
+                                <p style={{ margin: 0, color: '#666', fontSize: 12 }}>
+                                    {activity.details}
+                                </p>
                             </>)
                         }))}
                     />
@@ -440,8 +434,12 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
     </>)
 }
 
-function Wrapper(props: any){
-    return (<CustomerWrapper {...props} render={({ user, session, refresh }: { user: any; session: any; refresh: () => void }) => (<CustomerDashboard user={user} session={session} refresh={refresh} {...props} />)} />)
+export default function CustomerDashboardClient() {
+    return (
+        <CustomerWrapper
+            render={({ user, session, refresh }: { user: any; session: any; refresh: () => void }) => (
+                <CustomerDashboard user={user} session={session} refresh={refresh} />
+            )}
+        />
+    );
 }
-
-export default Wrapper;

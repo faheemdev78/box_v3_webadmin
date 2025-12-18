@@ -55,7 +55,7 @@ export function ProdCategoriesFieldsForm({ initialValues, store, onSuccess, onCa
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProdCategoriesFieldsForm" {...submitHandler(formargs)}>
 
                         <ProdCatTreeSelection name="categories" onChange={form.mutators.onCatChange} validate={rules.required} />

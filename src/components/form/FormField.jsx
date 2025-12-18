@@ -123,8 +123,8 @@ export const FormField = props => {
 
     if (props.mode == 'preview') return <div className={`${styles.preview_field} ${styles[props.type+"_preview"]}`} style={props.style}>{props.value}</div>
 
-    if (!props.type) return <Alert message="Undefined field type" type="warning" showIcon />
-    if (!props.name) return <Alert message="Undefined field name" type="warning" showIcon />
+    if (!props.type) return <Alert title="Error" description="Undefined field type" type="warning" showIcon />
+    if (!props.name) return <Alert title="Error" description="Undefined field name" type="warning" showIcon />
 
     else if (
         props.type == 'text'
@@ -156,7 +156,7 @@ export const FormField = props => {
     
     else if (props.type == 'color') return ColorField({ ...props, ...initialProps });
 
-    return <Alert message={`Undfined type (${props.type})`} type='warning' />
+    return <Alert title="Error" description={`Undfined type (${props.type})`} type='warning' />
 
 }
 export default FormField;
@@ -220,7 +220,7 @@ export const RadioField = props => {
     return (<>
         <div className={`form-field ${!props.compact && "field-margins"} radio ${props.className}`} style={props.wrapperStyle}>
             {props.label && <Label isRequired={props.isRequired} style={{ ...props.label_style, paddingRight:"10px" }}>{props.label}{` `}</Label>}
-            <Space direction={props.direction || 'horizontal'} split={props.split} align={props.align} size={props.size}>
+            <Space orientation={props.direction || 'horizontal'} split={props.split} align={props.align} size={props.size}>
                 {options.map((item, i) => {
                     return (<label key={i} style={item.style}>
                         {/* <Field {...props.final_fieldProps} component="input" type="radio" /> */}

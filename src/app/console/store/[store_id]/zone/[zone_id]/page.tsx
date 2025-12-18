@@ -91,12 +91,12 @@ function EditStoreZone({ store }: { store: any }) {
         set_zoneData({ ...resutls })
     }
 
-    if (fatelError) return <Alert message={fatelError} type="error" showIcon />
+    if (fatelError) return <Alert title="Error" description={fatelError} type="error" showIcon />
     if (loading || (data && !zoneData)) return <Loader loading={true} />
-    if (!data) return <Alert message="No data found!" type='error' showIcon />
+    if (!data) return <Alert title="Error" description="No data found!" type='error' showIcon />
 
     return (<>
-        <Space split="|">
+        <Space separator="|">
             <h1>{zoneData.title}</h1>
             <IconButton onClick={() => set_showZoneForm(true)} icon="pen" />
             <Link href={`${adminRoot}/store/${store._id}/zone/${zone_id}/delivery_slots`}>Delivery Slots</Link>
@@ -325,14 +325,14 @@ function Wrapper(props:any){
         return results;
     }
 
-    if (!zone_id) return <Alert message="Missing Zone ID" showIcon type='error' />
-    if (fatelError) return <Alert message={fatelError} showIcon type='error' />
+    if (!zone_id) return <Alert title="Error" description="Missing Zone ID" showIcon type='error' />
+    if (fatelError) return <Alert title="Error" description={fatelError} showIcon type='error' />
     if (loading || !initialValues || zones_resutls.loading) return <Loader loading={true} />
 
     return (<>
         <PageHeader title={`${initialValues.title}`}
             sub={<>
-                <Space split="|">
+                <Space separator="|">
                     <IconButton onClick={() => set_showZoneForm(true)} icon="pen" size="small" />
                     <StatusTag value={initialValues.status} options={[{ label: initialValues.status, value: initialValues.status }]} onSubmit={async() => initialValues.status} />
                     {initialValues.type == 'delivery' && <>
@@ -351,7 +351,7 @@ function Wrapper(props:any){
         </PageHeader>
 
 
-        {/* <Space split="|">
+        {/* <Space separator="|">
             <h1>{initialValues.title}</h1>
             <div>{initialValues.type}</div>
             <IconButton onClick={() => set_showZoneForm(true)} icon="pen" />

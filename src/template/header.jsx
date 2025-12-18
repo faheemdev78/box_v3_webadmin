@@ -26,7 +26,7 @@ export function Header({  }) {
     const router = useRouter()
 
     const pathname = usePathname();
-    if (pathname === '/login' || !session || !session.token) return null; // <Alert message="not logged in" type="error" showIcon />;
+    if (pathname === '/login' || !session || !session.token) return null; // <Alert title="Error" description="not logged in" type="error" showIcon />;
 
     // async function logout(args) {
     //     let callbackUrl = (args && args.callbackUrl) || '/';
@@ -38,10 +38,10 @@ export function Header({  }) {
     // }
 
     const PopContents = () => {
-        return (<div style={{ width: "300px", border: "0px solid #000" }}><Space direction='vertical' split={<div style={{ borderBottom: "1px solid #EEE" }} />} style={{ width: "100%" }}>
+        return (<div style={{ width: "300px", border: "0px solid #000" }}><Space orientation='vertical' separator={<div style={{ borderBottom: "1px solid #EEE" }} />} style={{ width: "100%" }}>
             <div style={{ padding: "20px" }}>
                 <Row gutter={[20]}>
-                    <Col><Space direction="vertical">
+                    <Col><Space orientation="vertical">
                         <Avatar size={50}>{String(session.user.name).charAt(0)}</Avatar>
                         {/* <Button color="red" size="small" onClick={() => logout()}>Log out</Button> */}
                         <Button color="red" size="small" onClick={() => router.replace("/logout")}>Log out</Button>
@@ -66,7 +66,7 @@ export function Header({  }) {
             </div>
 
             <div style={{ padding: "0px" }}>
-                <Space direction='vertical' style={{ width: "100%" }} size={0}>
+                <Space orientation='vertical' style={{ width: "100%" }} size={0}>
                     <LinkComp href="#">Report a Problem</LinkComp>
                     <LinkComp onClick={() => logout({ callbackUrl: "/login" })}>Sign Out</LinkComp>
                 </Space>
@@ -82,7 +82,7 @@ export function Header({  }) {
                 <Col><TopBar menuArray={topMenuArray} session={session} /></Col>
                 <Col flex="auto" align="center"><CommonSearchBar onFocus={() => set_showGlobalResults(true)} /></Col>
                 <Col align="right" className='menu-bar'>
-                    <Space split={<div style={{ width: "1px", height: "30px", backgroundColor: "#000" }} />} size={0}>
+                    <Space separator={<div style={{ width: "1px", height: "30px", backgroundColor: "#000" }} />} size={0}>
                         <div style={{ fontSize: "24px" }}><Space size={0}>
                             <div className='menu-bar-item' style={{ padding: "10px 15px" }} onClick={() => set_showDrawer('alerts')}><Icon icon="bell" color="white" /></div>
                             <div className='menu-bar-item' style={{ padding: "10px 15px" }} onClick={() => set_showDrawer('messages')}><Icon icon="message" color="white" /></div>

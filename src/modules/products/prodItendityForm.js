@@ -63,10 +63,10 @@ export function ProdItendityForm({ initialValues, onSuccess, onCancel }) {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    {error && <Alert message={error} showIcon type='error' />}
+                    {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProdItendityForm" {...submitHandler(formargs)}>
 
-                        <Space direction='vertical' size={20} style={{ width: "100%" }}>
+                        <Space orientation='vertical' size={20} style={{ width: "100%" }}>
                             <FormField type="text" name="title" label="Title" validate={[rules.required, rules.minChar(4)]} />
                             <FormField onChange={filterSlug} type="text" name="slug" label="Slug (no space)" validate={[rules.required, rules.nospace, rules.minChar(4)]} />
                             {/* <FormField type="textarea" rows={2} name="short_description" label="Short Description" validate={[rules.required, rules.minChar(4)]} /> */}

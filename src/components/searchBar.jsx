@@ -3,7 +3,7 @@ import { Input, Alert } from 'antd';
 import debounce from 'lodash/debounce';
 
 export const SearchBar = ({ onFocus, style, placeholder, size, timeout, permanentFilter, filter, onFilterUpdate, onChange, onSearch, loading, returnJson }) => {
-    if (!onSearch) return <Alert message="Missing onSearch function" type='error' showIcon />
+    if (!onSearch) return <Alert title="Error" description="Missing onSearch function" type='error' showIcon />
 
     const doSearch = (kw) => {
         let _filter = { ...filter, ...permanentFilter }

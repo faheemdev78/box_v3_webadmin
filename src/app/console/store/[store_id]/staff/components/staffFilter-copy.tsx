@@ -406,12 +406,12 @@ export function StaffFilter({ onFilterChange }: { onFilterChange?: (filterGroups
         return (<div>
             {favoriteFilters.length > 0 && (<>
                 <h4>Favorite Filters</h4>
-                <Space direction="vertical" style={{ width: '100%', marginBottom: 16 }}>
+                <Space orientation="vertical" style={{ width: '100%', marginBottom: 16 }}>
                     {favoriteFilters.map(filter => (
                         <Card key={filter.id} size="small" style={{ width: '100%' }}>
                             <Row justify="space-between" align="middle">
                                 <Col flex="auto">
-                                    <Space direction="vertical" size={0}>
+                                    <Space orientation="vertical" size={0}>
                                         <Space>
                                             <StarFilled style={{ color: '#faad14' }} />
                                             <strong>{filter.name}</strong>
@@ -446,12 +446,12 @@ export function StaffFilter({ onFilterChange }: { onFilterChange?: (filterGroups
             {otherFilters.length > 0 && (
                 <>
                     <h4>All Filters</h4>
-                    <Space direction="vertical" style={{ width: '100%' }}>
+                    <Space orientation="vertical" style={{ width: '100%' }}>
                         {otherFilters.map(filter => (
                             <Card key={filter.id} size="small" style={{ width: '100%' }}>
                                 <Row justify="space-between" align="middle">
                                     <Col flex="auto">
-                                        <Space direction="vertical" size={0}>
+                                        <Space orientation="vertical" size={0}>
                                             <strong>{filter.name}</strong>
                                             {filter.description && (
                                                 <div style={{ fontSize: 12, color: '#666' }}>{filter.description}</div>
@@ -550,7 +550,7 @@ export function StaffFilter({ onFilterChange }: { onFilterChange?: (filterGroups
                                                                     }
                                                                 >
                                                                     <FieldArray name={`${groupName}.conditions`}>
-                                                                        {({ fields: conditionFields }) => (<Space direction="vertical" style={{ width: '100%' }}>
+                                                                        {({ fields: conditionFields }) => (<Space orientation="vertical" style={{ width: '100%' }}>
                                                                             {conditionFields.map((conditionName, condIndex) => {
                                                                                 const condition = conditionFields.value[condIndex];
                                                                                 const fieldConfig = getFieldConfig(condition?.field);
@@ -637,7 +637,7 @@ export function StaffFilter({ onFilterChange }: { onFilterChange?: (filterGroups
                                 onSubmit={handleSaveFilter}
                                 render={(saveFormArgs) => (
                                     <form {...submitHandler(saveFormArgs)}>
-                                        <Space direction="vertical" style={{ width: '100%' }}>
+                                        <Space orientation="vertical" style={{ width: '100%' }}>
                                             <FormField
                                                 name="filterName"
                                                 type="text"

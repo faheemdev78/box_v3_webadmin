@@ -69,7 +69,7 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
   if (error || data?.getAvailableBaskets?.error) {
     return (
       <Alert
-        message="Error Loading Baskets"
+        title="Error Loading Baskets"
         description={error?.message || data?.getAvailableBaskets?.error?.message || 'Failed to load baskets'}
         type="error"
         showIcon
@@ -82,7 +82,7 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
       <Empty
         image={<ShoppingOutlined style={{ fontSize: 48, color: '#d9d9d9' }} />}
         description={
-          <Space direction="vertical">
+          <Space orientation="vertical">
             <Text>No delivery baskets available</Text>
             <Text type="secondary" style={{ fontSize: 12 }}>
               All baskets may be in use. Please wait or release locked baskets.
@@ -95,7 +95,7 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
 
   return (
     <div>
-      <Space direction="vertical" size={16} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={16} style={{ width: '100%' }}>
         {/* Header */}
         <div>
           <Title level={5} style={{ marginBottom: 4 }}>Select Delivery Baskets</Title>
@@ -104,7 +104,7 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
 
         {/* Selection count */}
         <Alert
-          message={
+          description={
             <Space>
               <Text strong>{selectedBaskets.length}</Text>
               <Text>basket(s) selected</Text>
@@ -141,7 +141,7 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
                     }
                   }}
                 >
-                  <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                  <Space orientation="vertical" size={4} style={{ width: '100%' }}>
                     {/* Color indicator */}
                     <div style={{ width: '100%', height: 8, backgroundColor: basket.color || '#d9d9d9', borderRadius: 4, }} />
 

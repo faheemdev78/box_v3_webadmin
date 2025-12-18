@@ -200,7 +200,7 @@ export const EditColumnsModal: React.FC<EditColumnsModalProps> = ({
                 <div style={{ fontWeight: 600, textTransform: 'uppercase', fontSize: '12px', color: '#666', marginBottom: '8px' }}>
                   {group}
                 </div>
-                <Space direction="vertical" style={{ width: '100%' }}>
+                <Space orientation="vertical" style={{ width: '100%' }}>
                   {columns.map((column) => (
                     <Checkbox
                       key={column.key}

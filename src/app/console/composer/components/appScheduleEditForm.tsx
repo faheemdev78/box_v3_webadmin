@@ -47,7 +47,7 @@ function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpd
     let values = form.getState().values
 
     return (<div>
-        {error && <Alert message={error} type="error" showIcon />}
+        {error && <Alert title="Error!" description={error} type="error" showIcon />}
         {/* <Divider>Schedule Date</Divider> */}
 
         <Space>

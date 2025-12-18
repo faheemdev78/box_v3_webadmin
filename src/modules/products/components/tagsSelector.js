@@ -25,7 +25,7 @@ export const TagsSelector = props => {
         const fetchId = lastFetchId;
         setState({ data: setNull(), fetching: true, value });
 
-        fetch(`${process.env.ADMIN_API_URI}/tags/search?title=${value}&black_list_ids=${props.black_list_ids || ""}`)
+        fetch(`${process.env.NEXT_PUBLIC_ADMIN_API_URI}/tags/search?title=${value}&black_list_ids=${props.black_list_ids || ""}`)
             .then(response => response.json())
             .then(body => {
 
