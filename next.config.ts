@@ -4,7 +4,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
     'local-origin.dev', '*.local-origin.dev',
-    
+
     "localhost", "*localhost*",
     // "localhost", "http://localhost", "http://localhost:3000", "http://localhost:3001", "http://localhost:3002",
 
@@ -19,11 +19,12 @@ const nextConfig: NextConfig = {
     // "http://192.168.18.10:3000",
     // "http://192.168.18.10:3001",
     // "http://192.168.18.10:3002",
-    
+
     "http://172.21.0.7:3000"
   ],
 
   reactCompiler: true,
+  reactStrictMode: false, // Disables React Strict Mode (which causes double rendering in dev)
 
   turbopack: {
     rules: {

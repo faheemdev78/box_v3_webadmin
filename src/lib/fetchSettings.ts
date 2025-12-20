@@ -8,7 +8,8 @@ import GET_CONFIGS from '@/graphql/settings/getSystemConfigs.graphql';
 
 
 export async function fetchSettings() {
-    console.log("fetchSettings()")
+    // console.log("fetchSettings()")
+
     const client = createApolloClient();
 
     const results = await client.query({ 
@@ -18,10 +19,14 @@ export async function fetchSettings() {
         .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: { data?: { getSystemConfigs?: any[] } }) => rr?.data?.getSystemConfigs }))
         .catch(catchApolloError)
 
-    if (results.error) return results;
+    if (!results || results.error) {
+        const err:any = results || { error: { message: "Empty Settings fetched!" } };
+        console.error(err)
+        return err;
+    }
     if (results.length < 1) return { error: { message:"No settings found"} };
 
-    let configs: Record<string, any> = {}
+    const configs: Record<string, any> = {}
     results.forEach((row: any) => {
         let value = row.value;
         if (row.value_type === 'number') value = parseFloat(row.value);

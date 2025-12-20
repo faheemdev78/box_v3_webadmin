@@ -4,7 +4,6 @@ import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { Alert, Col, message, Row, Space } from 'antd';
 import { Loader, StatusTag, usePageProps } from '@/components';
 // import { adminRoot, publishStatus } from '@/configs';
-// import Link from 'next/link';
 import { __error } from '@/lib/consoleHelper';
 import { useParams } from 'next/navigation';
 // import { PageBar, PageHeader } from '@/template';
