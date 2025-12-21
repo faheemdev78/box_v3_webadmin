@@ -1,6 +1,6 @@
 'use client'
 
-import { Alert, Card, Col, Row, Statistic, Table, Tag, Progress, Timeline, Space } from 'antd';
+import { Alert, Card, Col, Row, Statistic, Table, Tag, Progress, List, Timeline, Space } from 'antd';
 import {
     ShoppingCartOutlined,
     UserOutlined,
@@ -15,7 +15,7 @@ import {
     ArrowUpOutlined,
     ArrowDownOutlined
 } from '@ant-design/icons';
-import { StatusTag, List } from '@/components';
+import { StatusTag } from '@/components';
 import StoreWrapper from '@/modules/store/storeWrapper';
 import { Page } from '@/template/page';
 import { PageHeader } from '@/template';
@@ -239,6 +239,81 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
     </PageHeader>
       
     <Page>
+      {/* Today's Performance */}
+      {/* <Card title="Today's Performance" style={{ marginBottom: 16 }}>
+          <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12} md={6}>
+                  <Card>
+                      <Statistic
+                          title="Revenue"
+                          value={DASHBOARD_DATA.todayStats.revenue}
+                          precision={2}
+                          prefix={<CurrencyIcon />}
+                          suffix={
+                              <span style={{ fontSize: 14, color: DASHBOARD_DATA.comparison.revenue > 0 ? '#3f8600' : '#cf1322' }}>
+                                  {DASHBOARD_DATA.comparison.revenue > 0 ? <RiseOutlined /> : <FallOutlined />}
+                                  {Math.abs(DASHBOARD_DATA.comparison.revenue)}%
+                              </span>
+                          }
+                          styles={{
+                              content: { color: '#3f8600' }
+                          }}
+                      />
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#999' }}>vs yesterday</div>
+                  </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                  <Card>
+                      <Statistic
+                          title="Orders"
+                          value={DASHBOARD_DATA.todayStats.orders}
+                          prefix={<ShoppingCartOutlined />}
+                          suffix={
+                              <span style={{ fontSize: 14, color: DASHBOARD_DATA.comparison.orders > 0 ? '#3f8600' : '#cf1322' }}>
+                                  {DASHBOARD_DATA.comparison.orders > 0 ? <RiseOutlined /> : <FallOutlined />}
+                                  {Math.abs(DASHBOARD_DATA.comparison.orders)}%
+                              </span>
+                          }
+                      />
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#999' }}>vs yesterday</div>
+                  </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                  <Card>
+                      <Statistic
+                          title="Customers"
+                          value={DASHBOARD_DATA.todayStats.customers}
+                          prefix={<UserOutlined />}
+                          suffix={
+                              <span style={{ fontSize: 14, color: DASHBOARD_DATA.comparison.customers > 0 ? '#3f8600' : '#cf1322' }}>
+                                  {DASHBOARD_DATA.comparison.customers > 0 ? <RiseOutlined /> : <FallOutlined />}
+                                  {Math.abs(DASHBOARD_DATA.comparison.customers)}%
+                              </span>
+                          }
+                      />
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#999' }}>vs yesterday</div>
+                  </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                  <Card>
+                      <Statistic
+                          title="Avg Order Value"
+                          value={DASHBOARD_DATA.todayStats.avgOrderValue}
+                          precision={2}
+                          prefix={currency}
+                          suffix={
+                              <span style={{ fontSize: 14, color: DASHBOARD_DATA.comparison.avgOrderValue > 0 ? '#3f8600' : '#cf1322' }}>
+                                  {DASHBOARD_DATA.comparison.avgOrderValue > 0 ? <RiseOutlined /> : <FallOutlined />}
+                                  {Math.abs(DASHBOARD_DATA.comparison.avgOrderValue)}%
+                              </span>
+                          }
+                      />
+                      <div style={{ marginTop: 8, fontSize: 12, color: '#999' }}>vs yesterday</div>
+                  </Card>
+              </Col>
+          </Row>
+      </Card> */}
+
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={6}>
           <Card>
@@ -525,6 +600,7 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
                                         color: '#52c41a'
                                     }
                                 }}
+
                           />
                       </Col>
                   </Row>
@@ -532,17 +608,32 @@ function StoreHome({ store, onStatusUpdate }: StoreHome_Props) {
 
               {/* Inventory Alerts */}
               <Card
-                  title={<Space><WarningOutlined style={{ color: '#ff4d4f' }} /> Inventory Alerts</Space>}
+                  title={
+                      <Space>
+                          <WarningOutlined style={{ color: '#ff4d4f' }} />
+                          Inventory Alerts
+                      </Space>
+                  }
                   style={{ marginBottom: 16 }}
               >
-                <List size="small" dataSource={DASHBOARD_DATA.inventoryAlerts}
-                    renderItem={(item) => (<List.Item>
-                        <List.Item.Meta title={item.product}
-                            description={<Space>
-                            <span>Stock: {item.stock}</span>
-                            <Tag color={item.status === 'critical' ? 'error' : 'warning'}>{item.status.toUpperCase()}</Tag>
-                        </Space>}/>
-                    </List.Item>)}
+                  <List
+                      size="small"
+                      dataSource={DASHBOARD_DATA.inventoryAlerts}
+                      renderItem={(item) => (
+                          <List.Item>
+                              <List.Item.Meta
+                                  title={item.product}
+                                  description={
+                                      <Space>
+                                          <span>Stock: {item.stock}</span>
+                                          <Tag color={item.status === 'critical' ? 'error' : 'warning'}>
+                                              {item.status.toUpperCase()}
+                                          </Tag>
+                                      </Space>
+                                  }
+                              />
+                          </List.Item>
+                      )}
                   />
               </Card>
 

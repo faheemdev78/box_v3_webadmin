@@ -29,3 +29,5 @@ export * from './prodAttributesSelector';
 export * from './orderTable';
 
 export * from './pageProps';
+
+export { default as List } from './List';

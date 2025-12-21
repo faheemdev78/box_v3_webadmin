@@ -1,0 +1,239 @@
+.list {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.5715;
+  color: rgba(0, 0, 0, 0.85);
+  box-sizing: border-box;
+
+  &-header,
+  &-footer {
+    padding: 12px 0;
+    background: transparent;
+  }
+
+  &-header {
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  &-footer {
+    border-top: 1px solid #f0f0f0;
+  }
+
+  &-empty {
+    padding: 16px 0;
+    text-align: center;
+    color: rgba(0, 0, 0, 0.25);
+  }
+
+  &-empty-text {
+    padding: 32px 0;
+    color: rgba(0, 0, 0, 0.25);
+    font-size: 14px;
+    line-height: 22px;
+    text-align: center;
+  }
+
+  &-items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    color: rgba(0, 0, 0, 0.85);
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    &-meta {
+      display: flex;
+      flex: 1;
+      align-items: flex-start;
+      max-width: 100%;
+
+      &-avatar {
+        margin-right: 16px;
+      }
+
+      &-content {
+        flex: 1 0;
+        width: 0;
+        color: rgba(0, 0, 0, 0.85);
+      }
+
+      &-title {
+        margin-bottom: 4px;
+        color: rgba(0, 0, 0, 0.85);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 22px;
+
+        > a {
+          color: rgba(0, 0, 0, 0.85);
+          transition: all 0.3s;
+
+          &:hover {
+            color: #40a9ff;
+          }
+        }
+      }
+
+      &-description {
+        color: rgba(0, 0, 0, 0.45);
+        font-size: 14px;
+        line-height: 22px;
+      }
+    }
+
+    &-actions {
+      flex: 0 0 auto;
+      margin-left: 48px;
+      padding: 0;
+      font-size: 0;
+      list-style: none;
+
+      & > li {
+        position: relative;
+        display: inline-block;
+        padding: 0 8px;
+        color: rgba(0, 0, 0, 0.45);
+        font-size: 14px;
+        line-height: 1.5715;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      &-split {
+        position: absolute;
+        top: 50%;
+        right: 0;
+        width: 1px;
+        height: 14px;
+        margin-top: -7px;
+        background-color: #f0f0f0;
+      }
+    }
+
+    &-extra {
+      flex: 0 0 auto;
+      margin-left: 40px;
+    }
+  }
+
+  &-split &-item {
+    // Border already applied by default
+  }
+
+  &-bordered {
+    border: 1px solid #d9d9d9;
+    border-radius: 2px;
+
+    .list-header {
+      padding-right: 24px;
+      padding-left: 24px;
+    }
+
+    .list-footer {
+      padding-right: 24px;
+      padding-left: 24px;
+    }
+
+    .list-item {
+      padding-right: 24px;
+      padding-left: 24px;
+    }
+
+    .list-pagination {
+      margin: 16px 24px;
+    }
+  }
+
+  &-small &-item {
+    padding: 8px 0;
+  }
+
+  &-large &-item {
+    padding: 16px 24px;
+  }
+
+  &-vertical {
+    .list-item {
+      align-items: initial;
+      flex-direction: column;
+
+      &-main {
+        display: block;
+        flex: 1;
+        width: 100%;
+      }
+
+      &-extra {
+        margin-left: 0;
+        margin-top: 16px;
+      }
+
+      &-meta {
+        margin-bottom: 16px;
+
+        &-title {
+          margin-bottom: 12px;
+          color: rgba(0, 0, 0, 0.85);
+          font-size: 16px;
+          line-height: 24px;
+        }
+      }
+
+      &-actions {
+        margin-left: 0;
+        margin-top: 16px;
+
+        > li {
+          padding: 0 16px 0 0;
+
+          &:first-child {
+            padding-left: 0;
+          }
+        }
+      }
+    }
+  }
+
+  &-loading {
+    position: relative;
+    pointer-events: none;
+
+    .list-loading-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .list-loading-spinner {
+      text-align: center;
+    }
+  }
+
+  &-pagination {
+    margin-top: 24px;
+    text-align: right;
+  }
+}
