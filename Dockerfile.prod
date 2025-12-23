@@ -1,16 +1,48 @@
-FROM node:20
-
+# -------- deps --------
+FROM node:20-alpine AS deps
 WORKDIR /app
 
-COPY package*.json ./
-# RUN npm install --legacy-peer-deps
-RUN npm ci
-# RUN npm ci --legacy-peer-deps --only=production
+# Needed by some npm packages on alpine
+RUN apk add --no-cache libc6-compat
 
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+
+# -------- builder --------
+FROM node:20-alpine AS builder
+WORKDIR /app
+RUN apk add --no-cache libc6-compat
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Build Next.js
 RUN npm run build
 
+
+# -------- runner (production) --------
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN apk add --no-cache libc6-compat
+
+# If you use Next.js "standalone" output, this is best.
+# It will work if your next.config.js has:
+#   module.exports = { output: "standalone" }
+#
+# We'll copy both standalone and static assets safely.
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/standalone ./
+
+# If you are NOT using output:"standalone", use this instead:
+# COPY --from=builder /app/package.json ./package.json
+# COPY --from=builder /app/next.config.* ./  # optional
+# COPY --from=builder /app/.next ./.next
+# COPY --from=builder /app/node_modules ./node_modules
+# COPY --from=builder /app/public ./public
+
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["node", "server.js"]

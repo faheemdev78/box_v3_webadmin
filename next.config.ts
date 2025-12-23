@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 /** @type {import('next').NextConfig} */
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+  
   allowedDevOrigins: [
     'local-origin.dev', '*.local-origin.dev',
 
