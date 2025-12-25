@@ -30,6 +30,7 @@ const LoginForm = () => {
     // const { settings, fmc_token } = useAppSelector(getSystemState);
     const dispatch = useAppDispatch();
     const fmc_token = useAppSelector(getFmcToken);
+    console.log("fmc_token: ", fmc_token)
 
     const onSubmit = async ({ username, pwd }: {
         username: string;
@@ -37,7 +38,7 @@ const LoginForm = () => {
     }) => {
         messageApi.open({ key: "updatable", type: 'loading', content: 'Processing...' });
 
-        let input = { 
+        const input = { 
             username, 
             pwd,
             fmc_token: fmc_token,
@@ -55,7 +56,8 @@ const LoginForm = () => {
 
         if (response.token) {
             try {
-                saveSessionToken(response.token);
+                await saveSessionToken(response.token);
+                console.log("document.cookie: ", document.cookie)
             } catch (error) {
                 console.error(error)
                 message.error("Failed to create session");

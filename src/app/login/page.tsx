@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 
 export default async function Login() {
     let token = await getServerSessionToken()
+    console.log("token: ", token)
 
     if (token){
         redirect('/logout')
