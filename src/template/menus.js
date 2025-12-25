@@ -50,9 +50,9 @@ export const topMenuArray = [
             { title: 'Locations', href: `${adminRoot}/locations`, rolePermessions: '900.1' },
             { title: 'Tags', href: `${adminRoot}/tags`, rolePermessions: '900.4' },
             { title: 'Customers', href: `${adminRoot}/customer`, rolePermessions: '1002.1' },
-            { title: 'Staff', href: `${adminRoot}/staff`, rolePermessions: '100.10' },
+            // { title: 'Staff', href: `${adminRoot}/staff`, rolePermessions: '100.10' },
             { title: 'Vouchers', href: `${adminRoot}/vouchers`, rolePermessions: '1003.1' },
-            { title: 'View Manager', href: `${adminRoot}/view_manager`, modulePermessions: '1004' },
+            // { title: 'View Manager', href: `${adminRoot}/view_manager`, modulePermessions: '1004' },
         ]
     },
 ]

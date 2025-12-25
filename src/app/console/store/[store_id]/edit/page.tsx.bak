@@ -58,14 +58,14 @@ function StoreWrapper(props: any) {
     
     <Row gutter={[50, 50]} style={{ borderBottom: "1px solid black" }}>
       <Col><h1>{data.store.title}</h1></Col>
-      <Col><Space style={{ width: "100%" }} direction="vertical">
+      <Col><Space style={{ width: "100%" }} orientation="vertical">
         {[
           { title: 'Geo Zones', href: `${adminRoot}/store/${data.store._id}/zones` },
         ].map((item, i) => {
           return <Link href={item.href} key={i}>{item.title}</Link>
         })}
       </Space></Col>
-      <Col><Space style={{ width: "100%" }} direction="vertical">
+      <Col><Space style={{ width: "100%" }} orientation="vertical">
         {[
           { title: 'Products', href: `${adminRoot}/store/${data.store._id}/products` },
         ].map((item, i) => {

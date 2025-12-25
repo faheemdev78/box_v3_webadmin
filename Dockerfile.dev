@@ -1,18 +1,17 @@
-FROM node:20-alpine
-
+FROM node:20
 WORKDIR /app
 
-# Required for some native deps (sharp, etc.)
-RUN apk add --no-cache libc6-compat
+# Needed by some npm packages on alpine
+# RUN apk add --no-cache libc6-compat
 
-# Install deps first (better caching)
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm ci
 
-# Copy source
 COPY . .
+
+
+ENV NODE_ENV=development
 
 EXPOSE 3000
 
-# Next.js dev server
 CMD ["npm", "run", "dev"]

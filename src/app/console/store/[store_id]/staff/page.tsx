@@ -125,7 +125,8 @@ function Staff() {
 
     return (<>
         <PageHeader title={`Staff`}>
-            <Button color="orange" type="link"><Link href={`${adminRoot}/store/${store._id}/staff/new`}>Add Staff</Link></Button>
+            {/* <Button color="orange" type="link"><Link href={`${adminRoot}/store/${store._id}/staff/new`}>Add Staff</Link></Button> */}
+            <Link href={`${adminRoot}/store/${store._id}/staff/new`}>Add Staff</Link>
         </PageHeader>
 
         <Page>

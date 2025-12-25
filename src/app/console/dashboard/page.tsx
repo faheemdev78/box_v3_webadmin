@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, Col, Row, Statistic, Table, Tag, List, Space, Select } from 'antd';
+import { Card, Col, Row, Statistic, Table, Tag, Space, Select } from 'antd';
 import {
     ShoppingCartOutlined,
     ShopOutlined,
@@ -18,6 +18,7 @@ import { Page } from '@/template/page';
 import { PageHeader } from '@/template';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
+import { List } from '@/components';
 
 
 // Dummy Data for Application-Wide Dashboard

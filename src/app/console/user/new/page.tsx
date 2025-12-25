@@ -15,21 +15,22 @@ import { PageHeader } from '@/template';
 import { Page } from '@/template/page';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
-import RECORD_ADD from '@/graphql/users/addStoreStaff.graphql'
+import RECORD_ADD from '@/graphql/users/addAdminUser.graphql'
+import RECORD_EDIT from '@/graphql/users/editAdminUser.graphql'
 
 
 function UserForm () {
     const [error, setError] = useState(false);
     const router = useRouter()
 
-    const [addStoreStaff, add_details] = useMutation<any>(RECORD_ADD); // { data, loading, error }
+    const [addUser, add_details] = useMutation<any>(RECORD_ADD); // { data, loading, error }
 
     const onSubmit = async (values: any) => {
         setError(null as any)
 
         let input = {
-            _id_store: values.store._id,
-            acc_type: values.acc_type.acc_type,
+            _id_store: values?.store?._id,
+            acc_type: values.acc_type,
             status: values.status,
             name: values.name,
             email: values.email,
@@ -44,8 +45,8 @@ function UserForm () {
         }
         else if (values.password && (values.password == values.confirm_pwd)) Object.assign(input, { password: values.password });
 
-        const resutls = await addStoreStaff({ variables: { input }})
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.addStoreStaff }))
+        const resutls = await addUser({ variables: { input }})
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.addUser }))
             .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
@@ -82,21 +83,26 @@ function UserForm () {
                         return (<>
                             {error && <Alert title="Error" description={error} showIcon type='error' />}
                             <form id="NewUserForm" {...submitHandler(formargs)}>
-                            
-                                <Space style={{ width: "100%" }} orientation='vertical' size={10}>
-
+                                 <Space style={{ width: "100%" }} orientation='vertical' size={10}>
                                     <div><Space>
-                                        <AccTypesDD
+                                        {/* <AccTypesDD preload
                                             onChange={(___: any, raw: any) => form.mutators.onTypeChanged(raw)}
-                                            label="Account Type" preload name="acc_type._id" validate={rules.required}
+                                            label="Account Type" name="acc_type._id" 
+                                            validate={rules.required}
+                                        /> */}
+                                        <FormField type="select" name="acc_type" label="Account Type" 
+                                            validate={rules.required}
+                                            options={[
+                                                { value: "admin", label:"Admin" }
+                                            ]} 
                                         />
                                         <FormField type="select" name="status" label="Status" className={values.status == 'enabled' ? "active" : "inactive"} options={userStatus} validate={rules.required} />
-                                        {(values?.acc_type?._id && String(values?.acc_type?.acc_type).indexOf("admin") < 0) && <>
+                                        {/* {(values?.acc_type?._id && String(values?.acc_type?.acc_type).indexOf("admin") < 0) && <>
                                             <StoresDD onChange={(___: any, raw: any) => form.mutators.onStoreChanged(raw)} preload name="store._id" label="Store" validate={rules.required} />
-                                        </>}
+                                        </>} */}
                                     </Space></div>
 
-                                    {values?.acc_type?._id && <>
+                                    {values?.acc_type && <>
                                         <div><Space>
                                             <FormField type="text" name="name" label="Name" validate={rules.required} />
                                             <FormField type="text" name="email" label="Email Address (Login Use)" validate={[rules.required, rules.isEmail]} />

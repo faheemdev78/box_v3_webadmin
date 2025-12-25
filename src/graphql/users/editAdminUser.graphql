@@ -1,0 +1,7 @@
+#import "./_fragment/user.graphql"
+
+mutation editAdminUser($input: EditAdminUser_Input!) {
+    editAdminUser(input: $input) {
+        ... UserInfo
+    }
+}

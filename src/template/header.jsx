@@ -67,8 +67,8 @@ export function Header({  }) {
 
             <div style={{ padding: "0px" }}>
                 <Space orientation='vertical' style={{ width: "100%" }} size={0}>
-                    <LinkComp href="#">Report a Problem</LinkComp>
-                    <LinkComp onClick={() => logout({ callbackUrl: "/login" })}>Sign Out</LinkComp>
+                    <Link href="#">Report a Problem</Link>
+                    <a href="/logout">Sign Out</a>
                 </Space>
             </div>
 

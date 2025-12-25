@@ -1,3 +1,5 @@
+// https://nextjs.org/docs/app/getting-started/proxy
+
 import { NextRequest, NextResponse } from "next/server";
 import { jwtDecode } from "jwt-decode";
 import type { JwtPayload } from "jwt-decode";
@@ -7,6 +9,7 @@ const protectedRoutes = ['/console'];
 const authRoutes = ['/login'];
 
 export const config = {
+    // matcher: '/about/:path*',
     unstable_allowDynamic: [
         // allows a single file
         // '/lib/utilities.js',
@@ -59,3 +62,6 @@ export default async function proxy(request: NextRequest) {
     // no-op proxy handler to satisfy Next's requirement without custom behavior
     return NextResponse.next();
 }
+
+
+

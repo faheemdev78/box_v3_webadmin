@@ -179,7 +179,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ limit = 50, page = 1, _i
       ),
     },
     { title: 'Delivery', dataIndex: ['delivery_slot'], key: 'delivery_slot', width: 160,
-      render: (delivery_slot: any) => (<Space direction="vertical" size={0}>
+      render: (delivery_slot: any) => (<Space orientation="vertical" size={0}>
         <Text type="secondary" style={{ fontSize: 12 }}><ClockCircleOutlined /> {dayjs(delivery_slot.start_date).format('HH:mm A')}</Text>
         <Text type="secondary" style={{ fontSize: 11 }}>{dayjs(delivery_slot.start_date).fromNow()}</Text>
       </Space>),
@@ -240,7 +240,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ limit = 50, page = 1, _i
         // extra={<Button onClick={() => refetch()} loading={loading}>Refresh</Button>}
       >
         {/* <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={<Space direction="vertical">
+          description={<Space orientation="vertical">
             <Text>No orders ready for till verification</Text>
             <Text type="secondary" style={{ fontSize: 12 }}>Orders will appear here when picking is completed</Text>
           </Space>}

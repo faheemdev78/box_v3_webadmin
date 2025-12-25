@@ -246,7 +246,7 @@ export function StaffProfile() {
                         </Descriptions>
 
                         <div style={{ marginTop: 20 }}>
-                            <Space direction="vertical" style={{ width: '100%' }}>
+                            <Space orientation="vertical" style={{ width: '100%' }}>
                                 <Button type="primary" block>Edit Profile</Button>
                                 <Button type="default" block>View Schedule</Button>
                                 <Button type="default" block>Send Message</Button>

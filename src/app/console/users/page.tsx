@@ -12,8 +12,8 @@ import { PageBar, PageHeader } from '@/template';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 import { __error } from '@/lib/consoleHelper';
 
-import LIST_DATA from '@/graphql/users/staffQuery.graphql'
-import RECORD_DELETE from '@/graphql/stores/deleteStore.graphql';
+import LIST_DATA from '@/graphql/users/adminQuery.graphql'
+// import RECORD_DELETE from '@/graphql/stores/deleteStore.graphql';
 
 const defaultFilter = { status: 'online' }
 
@@ -29,9 +29,9 @@ function Users(props:any) {
     const [dataArray, set_dataArray] = useState<any>(null)
     const [busy, setBusy] = useState(false)
 
-    const [deleteStore, del_results] = useMutation<any>(RECORD_DELETE); // { data, loading, error }
+    // const [deleteStore, del_results] = useMutation<any>(RECORD_DELETE); // { data, loading, error }
 
-    const [staffQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
+    const [adminQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
 
     useEffect(() => {
         if (called) return;
@@ -40,9 +40,9 @@ function Users(props:any) {
     }, [called])
 
     const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
-        let limit = args?.pageSize || defaultPageSize;
-        let current = args?.current || 1;
-        let skip = limit * (current - 1);
+        let limit:number = args?.pageSize || defaultPageSize;
+        let current:number = args?.current || 1;
+        let skip:number = limit * (current - 1);
 
         let filter = { ...state.filter };
         if (args.filter) filter = { ...args.filter };
@@ -51,7 +51,7 @@ function Users(props:any) {
         setState({ ...state, filter, pagination: { current } })
         setBusy(true)
 
-        const results = await staffQuery({
+        const results = await adminQuery({
             variables: {
                 limit,
                 page: skip,
@@ -59,7 +59,7 @@ function Users(props:any) {
                 others: JSON.stringify({})
             }
         })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.staffQuery }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.adminQuery }))
             .catch(catchApolloError)
 
         if (results && results.error) {
@@ -71,21 +71,23 @@ function Users(props:any) {
     }
 
     const handleDelete = async ({ _id }: { _id: any }) => {
-        let results = await deleteStore({ variables: { _id } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.deleteStore }))
-            .catch(catchApolloError)
+        alert("Account cannot be deleted");
+        // let results = await deleteStore({ variables: { _id } })
+        //     .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.deleteStore }))
+        //     .catch(catchApolloError)
 
-        if (!results || results.error) {
-            message.error((results && results?.error?.message) || "Unable to delete record")
-            return false;
-        }
+        // if (!results || results.error) {
+        //     message.error((results && results?.error?.message) || "Unable to delete record")
+        //     return false;
+        // }
 
-        message.success("Record deleted")
+        // message.success("Record deleted")
     }
 
     return (<>
         <PageHeader title={"Users"} sub={<div>{(dataArray && dataArray?.pagination?.totalDocs) || 0} records found</div>}>
-            <Button color="orange" type="link"><Link href={`${adminRoot}/user/new`} >Add New User</Link></Button>
+            {/* <Button color="orange" type="link"><Link href={`${adminRoot}/user/new`} >Add New User</Link></Button> */}
+            <Link href={`${adminRoot}/user/new`}>Add New User</Link>
         </PageHeader>
     
         <Page>

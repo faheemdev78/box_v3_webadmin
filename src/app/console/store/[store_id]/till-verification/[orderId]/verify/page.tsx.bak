@@ -89,7 +89,7 @@ function Header({ orderData, handleBack, setShowCompleteModal, completingOrder, 
       <Col>
         <Space>
           <Button icon={<LeftOutlined />} onClick={handleBack} size="large">Back</Button>
-          <Space direction="vertical" size={0}>
+          <Space orientation="vertical" size={0}>
             <Title level={3} style={{ margin: 0 }}>Till Verification - Order #{orderData?.serial}</Title>
             <Text type="secondary">Customer: {customer?.name} | Picker: {picker?.name}</Text>
           </Space>
@@ -103,7 +103,7 @@ function Header({ orderData, handleBack, setShowCompleteModal, completingOrder, 
 }
 
 function ErrorComp({ title, description, buttons }: { title:string, description:string, buttons?:ReactNode }){
-  return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Card><Space direction="vertical">
+  return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Card><Space orientation="vertical">
     <ExclamationCircleOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
     <Title level={4}>{title}</Title>
     <Text>{description}</Text>
@@ -213,7 +213,7 @@ const VerificationColumn = ({ item, orderId }: { item:any, orderId:string }) => 
       okButtonProps={{ danger: true }}
       loading={missingLoading}
     >
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         {/* <Text>Mark <Text strong>{item.title}</Text> as missing?</Text> */}
         <TextArea placeholder="Optional: Reason for missing item..."
           value={missingNotes}
@@ -232,7 +232,7 @@ const VerificationColumn = ({ item, orderId }: { item:any, orderId:string }) => 
       okButtonProps={{ disabled: mismatchQty === verificationStatus.qty_expected }}
       loading={mismatchLoading}
     >
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space orientation="vertical" style={{ width: '100%' }}>
         <Text>Expected quantity: <Text strong>{verificationStatus.qty_expected}</Text></Text>
         <Space>
           <Text>Actual quantity found:</Text>
@@ -421,9 +421,9 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
           <Table bordered dataSource={orderItems} pagination={false}
             columns={[
               { title: 'Title', dataIndex: 'title', key: 'title', render: (title: string, item: any) => {
-                  return (<Space direction='horizontal' size={10}>
+                  return (<Space orientation='horizontal' size={10}>
                     <Avatar size={72} shape="square">Product</Avatar>
-                    <Space direction='vertical' size={0}>
+                    <Space orientation='vertical' size={0}>
                       <Text strong style={{ fontSize: 16 }}>{title}</Text>
                       <Text type="secondary" style={{ fontSize: 12 }}>Barcode: {item.barcode}</Text>
                       {item?.attributes?.map((atr: any, i: number) => (<Tag key={i}>{atr.val}{atr.title}</Tag>))}
@@ -456,10 +456,10 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 
         {/* Right Column - Progress & Summary */}
         <Col xs={24} lg={8}>
-          <Space direction="vertical" style={{ width: '100%' }} size={10}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={10}>
             {/* Progress Card */}
             <Card size="small" title="Verification Progress">
-              <Space direction="vertical" style={{ width: '100%' }} size="small">
+              <Space orientation="vertical" style={{ width: '100%' }} size="small">
                 <Text strong style={{ fontSize: 16 }}>{verifiedItems} / {totalItems} items</Text>
                 <Progress
                   percent={Math.round(progressPercent)}
@@ -475,7 +475,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 
             {/* Order Summary */}
             <Card size="small" title="Order Summary">
-              <Space direction="vertical" style={{ width: '100%' }} size="small">
+              <Space orientation="vertical" style={{ width: '100%' }} size="small">
                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
                   <Text>Subtotal:</Text>
                   <Text strong>{settings.currency}{orderData?.current_order?.totals?.subtotal?.toFixed(2) || '0.00'}</Text>
@@ -629,7 +629,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
       width={800}
       okButtonProps={{ disabled: selectedBasketIds.length === 0 }}
     >
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <Space orientation="vertical" style={{ width: '100%' }} size="large">
         <div>
           <Text>Verification Progress: <Text strong>{verifiedItems} / {totalItems} items</Text></Text>
           {verifiedItems < totalItems && (
@@ -800,7 +800,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 //     return (
 //       <div style={{ textAlign: 'center', padding: '100px 0' }}>
 //         <Card>
-//           <Space direction="vertical">
+//           <Space orientation="vertical">
 //             <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
 //             <Title level={4}>No Active Shift</Title>
 //             <Text>You must have an active shift to verify orders.</Text>
@@ -817,7 +817,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 
 //     return (<div style={{ textAlign: 'center', padding: '100px 0' }}>
 //       <Card>
-//         <Space direction="vertical">
+//         <Space orientation="vertical">
 //           <ExclamationCircleOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
 //           <Title level={4}>Failed to Load Order</Title>
 //           <Text>Could not load order data. The order might not be available for verification.</Text>
@@ -850,7 +850,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 //           <Col>
 //             <Space>
 //               <Button icon={<LeftOutlined />} onClick={handleBack} size="large">Back</Button>
-//               <Space direction="vertical" size={0}>
+//               <Space orientation="vertical" size={0}>
 //                 <Title level={3} style={{ margin: 0 }}>Till Verification - Order #{orderData?.serial}</Title>
 //                 <Text type="secondary">Customer: {customer?.name} | Picker: {picker?.name}</Text>
 //               </Space>
@@ -873,7 +873,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 //         {/* Left Column - Items List */}
 //         <Col xs={24} lg={16}>
 //           <Card title={<Title level={4} style={{ margin: 0 }}>Items to Verify</Title>} style={{ minHeight: '70vh' }}>
-//             <Space direction="vertical" style={{ width: '100%' }}>
+//             <Space orientation="vertical" style={{ width: '100%' }}>
 //               {orderItems.map((item: any) => (
 //                 <ItemVerificationRow
 //                   key={item._id_product}
@@ -888,10 +888,10 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 
 //         {/* Right Column - Progress & Summary */}
 //         <Col xs={24} lg={8}>
-//           <Space direction="vertical" style={{ width: '100%' }} size="middle">
+//           <Space orientation="vertical" style={{ width: '100%' }} size="middle">
 //             {/* Progress Card */}
 //             <Card size="small" title="Verification Progress">
-//               <Space direction="vertical" style={{ width: '100%' }} size="small">
+//               <Space orientation="vertical" style={{ width: '100%' }} size="small">
 //                 <Text strong style={{ fontSize: 16 }}>{verifiedItems} / {totalItems} items</Text>
 //                 <Progress
 //                   percent={Math.round(progressPercent)}
@@ -907,7 +907,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 
 //             {/* Order Summary */}
 //             <Card size="small" title="Order Summary">
-//               <Space direction="vertical" style={{ width: '100%' }} size="small">
+//               <Space orientation="vertical" style={{ width: '100%' }} size="small">
 //                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
 //                   <Text>Subtotal:</Text>
 //                   <Text strong>{settings.currency}{orderData?.current_order?.totals?.subTotal?.toFixed(2) || '0.00'}</Text>
@@ -935,7 +935,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 
 //             {/* Tips Card */}
 //             <Card size="small" title="💡 Tips" styles={{ body: { padding: 12 } }}>
-//               <Space direction="vertical" size="small">
+//               <Space orientation="vertical" size="small">
 //                 <Text type="secondary" style={{ fontSize: 12 }}>• Navigate away to auto-hold this order</Text>
 //                 <Text type="secondary" style={{ fontSize: 12 }}>• Verify items by clicking the Verify button</Text>
 //                 <Text type="secondary" style={{ fontSize: 12 }}>• Mark issues using Missing/Qty Issue buttons</Text>
@@ -959,7 +959,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 //         width={800}
 //         okButtonProps={{ disabled: selectedBasketIds.length === 0 }}
 //       >
-//         <Space direction="vertical" style={{ width: '100%' }} size="large">
+//         <Space orientation="vertical" style={{ width: '100%' }} size="large">
 //           <div>
 //             <Text>Verification Progress: <Text strong>{verifiedItems} / {totalItems} items</Text></Text>
 //             {verifiedItems < totalItems && (
@@ -1078,7 +1078,7 @@ function TillVerificationPOS_Wrapper() {
 
 
   if (fatelError) return (<Page><div style={{ textAlign: 'center', padding: '100px 0' }}><Card>
-    <Space direction="vertical" align="center">
+    <Space orientation="vertical" align="center">
       <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
       <Title level={4}>Session Required</Title>
       <Text>{fatelError}</Text>
@@ -1090,7 +1090,7 @@ function TillVerificationPOS_Wrapper() {
   // if (!ready) return <Loader loading={true}><div style={{ textAlign: "center" }}>Preparing...</div></Loader>
 
   if (!shiftSession) return (<Page><div style={{ textAlign: 'center', padding: '100px 0' }}><Card>
-    <Space direction="vertical" align="center">
+    <Space orientation="vertical" align="center">
       <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
       <Title level={4}>No active shift found!</Title>
       <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Go to Till Queue</Button>
@@ -1098,7 +1098,7 @@ function TillVerificationPOS_Wrapper() {
   </Card></div></Page>);
 
   if (!orderId) return (<Page><div style={{ textAlign: 'center', padding: '100px 0' }}><Card>
-    <Space direction="vertical" align="center">
+    <Space orientation="vertical" align="center">
       <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
       <Title level={4}>Order ID not found!</Title>
       <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Go to Till Queue</Button>
