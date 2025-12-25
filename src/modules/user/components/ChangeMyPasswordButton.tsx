@@ -9,6 +9,7 @@ import { Button } from '@/components';
 import { SafetyOutlined } from '@ant-design/icons';
 
 import UPDATE_MY_PASSWORD from '@/graphql/users/updateMyPassword.graphql'
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
 type ChangeMyPasswordButtonProps = {
     buttonText?: string;
@@ -53,7 +54,10 @@ export const ChangeMyPasswordButton: React.FC<ChangeMyPasswordButtonProps> = ({
         try {
             const result = await updateMyPassword({
                 variables: { input }
-            }).then(r => r?.data?.updateMyPassword);
+            })
+                .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.updateMyPassword }))
+                .catch(catchApolloError)
+            // const result = (data as Record<string, unknown>)?.updateMyPassword as { error?: { message?: string } } | undefined;
 
             if (!result || result.error) {
                 message.error(result?.error?.message || "Unable to update password");
