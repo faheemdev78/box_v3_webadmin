@@ -12,6 +12,8 @@ interface UserState {
     acc_type: string | null;
     permissions: string | null;
     store?: SessionStoreState | null;
+    // [key: string]: string | number | boolean | null | undefined | SessionStoreState; // Allow any additional properties
+    [key: string]: any; // Allow any additional properties
 }
 interface SessionState {
     user: UserState;
