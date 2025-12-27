@@ -89,7 +89,7 @@ function ProductsListPage() {
             setBusy={setBusy}
             fetchData={fetchData}
             loading={loading}
-            parseEditLink={(prod: any) => `${adminRoot}/products/${prod._id}/view`}
+            parseEditLink={(prod: any) => `${adminRoot}/product/${prod._id}/view`}
             searchFilterConfig={undefined}
             // onEditRecord={(prod) => router.push(`${adminRoot}/product/${prod._id}/view`)}
         />

@@ -79,7 +79,7 @@ export const store_topMenuArray = ({ baseUrl="" }) => ([
         children: [
             { title: 'Geo Zones', href: `${baseUrl}/zones` },
             { title: 'Staff', href: `${baseUrl}/staff` },
-            { title: 'Drivers', href: `${baseUrl}/drivers` },
+            { title: 'Driver Settlements', href: `${baseUrl}/drivers` },
             { title: 'Vehicles', href: `${baseUrl}/vehicles` },
             { title: 'Delivery Slots', href: `${baseUrl}/delivery_slots` },
             { title: 'Baskets', href: `${baseUrl}/baskets` },

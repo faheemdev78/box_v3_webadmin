@@ -1,29 +1,9 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
-import {
-  Alert,
-  Card,
-  Col,
-  message,
-  Popconfirm,
-  Row,
-  Space,
-  Table,
-  Tag,
-  Typography,
-  Modal,
-  InputNumber,
-  Statistic,
-  Divider
+import { Alert, Card, Col, message, Popconfirm, Row, Space, Table, Tag, Typography, Modal, InputNumber, Statistic, Divider
 } from 'antd';
-import {
-  DollarOutlined,
-  ShoppingOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  WarningOutlined
-} from '@ant-design/icons';
+import { DollarOutlined, ShoppingOutlined, CheckCircleOutlined, ClockCircleOutlined, WarningOutlined } from '@ant-design/icons';
 import { PageHeader } from '@/template';
 import { Button, usePageProps } from '@/components';
 import { Page } from '@/template/page';
@@ -86,11 +66,7 @@ function DriverSettlements() {
     const result = await getDrivers({
       variables: { _id_store: store._id }
     })
-      .then(r => checkApolloRequestErrors({
-        results: r,
-        allowEmpty: true,
-        parseReturn: (rr:any) => rr?.data?.getDriversWithPendingSettlement
-      }))
+      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.getDriversWithPendingSettlement }))
       .catch(catchApolloError);
 
     if (result && !result.error) {
@@ -229,22 +205,18 @@ function DriverSettlements() {
         return (
           <Space orientation="vertical" size="small" style={{ textAlign: 'right', width: '100%' }}>
             <div>
-              <Text strong>₹{wallet.total_cod_collected.toFixed(2)}</Text>
+              <Text strong>{wallet.total_cod_collected.toFixed(2)}</Text>
             </div>
             <div>
               <Text type="secondary" style={{ fontSize: '12px' }}>
-                Deposited: ₹{wallet.deposited_amount.toFixed(2)}
+                Deposited: {wallet.deposited_amount.toFixed(2)}
               </Text>
             </div>
             {wallet.pending_deposit > 0 && (
-              <Tag color="error" icon={<WarningOutlined />}>
-                Pending: ₹{wallet.pending_deposit.toFixed(2)}
-              </Tag>
+              <Tag color="error" icon={<WarningOutlined />}>Pending: {wallet.pending_deposit.toFixed(2)}</Tag>
             )}
             {wallet.is_settled && (
-              <Tag color="success" icon={<CheckCircleOutlined />}>
-                Settled
-              </Tag>
+              <Tag color="success" icon={<CheckCircleOutlined />}>Settled</Tag>
             )}
           </Space>
         );
@@ -263,20 +235,11 @@ function DriverSettlements() {
         return (
           <Space orientation="vertical" size="small">
             {hasPendingCOD && !wallet.is_settled && (
-              <Button
-                type="primary"
-                size="small"
-                icon={<DollarOutlined />}
-                onClick={() => handleSettleWallet(record)}
-              >
-                Settle Wallet
-              </Button>
+              <Button type="primary" size="small" icon={<DollarOutlined />} onClick={() => handleSettleWallet(record)}>Settle Wallet</Button>
             )}
 
             {basketsPending && (
-              <Tag color="orange" icon={<ClockCircleOutlined />}>
-                Waiting for baskets
-              </Tag>
+              <Tag color="orange" icon={<ClockCircleOutlined />}>Waiting for baskets</Tag>
             )}
 
             {canRelease && record.pending_orders.length > 0 && (
@@ -287,20 +250,14 @@ function DriverSettlements() {
                 okText="Yes"
                 cancelText="No"
               >
-                <Button
-                  type="default"
-                  size="small"
-                  icon={<CheckCircleOutlined />}
-                >
+                <Button type="default" size="small" icon={<CheckCircleOutlined />}>
                   Release Orders ({record.pending_orders.length})
                 </Button>
               </Popconfirm>
             )}
 
             {canRelease && record.pending_orders.length === 0 && (
-              <Tag color="success" icon={<CheckCircleOutlined />}>
-                All Clear
-              </Tag>
+              <Tag color="success" icon={<CheckCircleOutlined />}>All Clear</Tag>
             )}
           </Space>
         );
@@ -308,13 +265,10 @@ function DriverSettlements() {
     },
   ];
 
-  return (
-    <>
-      <PageHeader
-        title="Driver Settlements"
-      >
-        <Button onClick={fetchDrivers} loading={loading}>Refresh</Button>
-      </PageHeader>
+  return (<>
+    <PageHeader title="Driver Settlements">
+      <Button onClick={fetchDrivers} loading={loading}>Refresh</Button>
+    </PageHeader>
 
       <Page>
         {drivers.length === 0 && !loading ? (
@@ -366,7 +320,7 @@ function DriverSettlements() {
                   <Statistic
                     title="Total COD Collected"
                     value={selectedDriver.session.driver_wallet?.total_cod_collected || 0}
-                    prefix="₹"
+                    prefix=""
                     precision={2}
                   />
                 </Col>
@@ -374,7 +328,7 @@ function DriverSettlements() {
                   <Statistic
                     title="Already Deposited"
                     value={selectedDriver.session.driver_wallet?.deposited_amount || 0}
-                    prefix="₹"
+                    prefix=""
                     precision={2}
                   />
                 </Col>
@@ -388,13 +342,13 @@ function DriverSettlements() {
                   style={{ width: '100%' }}
                   value={depositAmount}
                   onChange={(value) => setDepositAmount(value || 0)}
-                  prefix="₹"
+                  prefix="RS"
                   precision={2}
                   min={0}
                   max={selectedDriver.pending_deposit}
                 />
                 <Text type="secondary" style={{ fontSize: '12px', display: 'block', marginTop: '8px' }}>
-                  Pending deposit: ₹{selectedDriver.pending_deposit.toFixed(2)}
+                  Pending deposit: {selectedDriver.pending_deposit.toFixed(2)}
                 </Text>
               </div>
             </Space>

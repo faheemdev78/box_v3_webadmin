@@ -152,7 +152,7 @@ function FormComp({ onSuccess, initialValues, store, ...props }) {
 
                     {zones_resutls.loading && <Loader loading={true} />}
 
-                    <form id="ZoneForm" {...submitHandler(formargs)}><>
+                    <form id="ZoneForm" {...submitHandler(formargs)}>
                         <Card>
                             <Row gutter={[10, 10]}>
                                 <Col flex="auto"><FormField type="text" name="title" label="Title" validate={rules.required} /></Col>
@@ -196,14 +196,12 @@ function FormComp({ onSuccess, initialValues, store, ...props }) {
                             />
                         </div>}
 
-
-
                         <Row>
                             <Col flex="auto" />
                             <Col><SubmitButton loading={submitting} label={'Save'} /></Col>
                         </Row>
-                    </>
-                    <DevBlock obj={values} title="values" />
+                        
+                        <DevBlock obj={values} title="values" />
                     </form>
                 </>)
 
