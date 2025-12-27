@@ -448,7 +448,7 @@ function ProductsFilterPage() {
       </Card>
 
       {/* All Views Drawer */}
-      <Drawer title="All Views" open={showAllViews} onClose={() => setShowAllViews(false)} width={720}>
+      <Drawer title="All Views" open={showAllViews} onClose={() => setShowAllViews(false)} size={720}>
         <AllView views={views} setActiveViewId={setActiveViewId} setShowAllViews={setShowAllViews} handleDeleteView={handleDeleteView} />
       </Drawer>
 

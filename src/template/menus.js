@@ -57,4 +57,35 @@ export const topMenuArray = [
     },
 ]
 
+export const store_topMenuArray = ({ baseUrl="" }) => ([
+    { title: 'Dashbord', href: `${baseUrl}` },
+    // { title: 'Discount Vouchers', href: `${baseUrl}/discount_vouchers` },
+    // { title: 'Offers', href: `${baseUrl}/offers` },
+    // { title: 'Vendors', href: `${baseUrl}/vendors` },                
+    { title: 'Products', href: `${baseUrl}/products` },
+    {
+        title: 'Orders', href: `${baseUrl}/orders`, //modulePermessions: '106',
+        children: [
+            { title: 'Orders', href: `${baseUrl}/orders` },
+            // { title: 'Orders on Till', href: `${baseUrl}/orders-on-till` },
+            { title: 'Orders on Till', href: `${baseUrl}/till-verification` },
+            { title: 'Ready to Dispatch', href: `${baseUrl}/ready-to-dispatch` },
+            { title: 'Dispatched', href: `${baseUrl}/dispatched` },
+        ]
+    },
+    { title: 'Carts', href: `${baseUrl}/cart` },
+    
+    { title: 'More', 
+        children: [
+            { title: 'Geo Zones', href: `${baseUrl}/zones` },
+            { title: 'Staff', href: `${baseUrl}/staff` },
+            { title: 'Drivers', href: `${baseUrl}/drivers` },
+            { title: 'Vehicles', href: `${baseUrl}/vehicles` },
+            { title: 'Delivery Slots', href: `${baseUrl}/delivery_slots` },
+            { title: 'Baskets', href: `${baseUrl}/baskets` },
+            { title: 'Banners', href: `${baseUrl}/banners` },
+        ]
+    },
+])
+
 

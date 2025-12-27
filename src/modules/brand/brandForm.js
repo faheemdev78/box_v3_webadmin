@@ -125,7 +125,7 @@ export const BrandForm = props => {
 
    
     return (
-        <Drawer width={600} destroyOnHidden maskClosable={false} placement="right"
+        <Drawer size={600} destroyOnHidden maskClosable={false} placement="right"
             onClose={props.onClose}
             open={props.open}
             footer={false}

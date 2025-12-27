@@ -26,5 +26,6 @@ query getDriversWithPendingSettlement($_id_store: ID!) {
       serial
       current_stage
     }
+    error { ...ErrorInfo }
   }
 }

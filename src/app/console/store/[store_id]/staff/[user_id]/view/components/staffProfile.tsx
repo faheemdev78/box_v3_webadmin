@@ -206,297 +206,295 @@ export function StaffProfile() {
         }
     ];
 
-    return (
-        <div>
-            <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-                {/* Staff Profile Section */}
-                <Col xs={24} lg={8}>
-                    <Card title="Staff Information">
-                        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                            <Avatar src={DUMMY_STAFF.avatarUrl} size={120} icon={<UserOutlined />} />
-                            <h2 style={{ marginTop: 16, marginBottom: 4 }}>{DUMMY_STAFF.name}</h2>
-                            <Tag color="blue">{DUMMY_STAFF.position}</Tag>
-                        </div>
+    return (<div>
+        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+            {/* Staff Profile Section */}
+            <Col xs={24} lg={8}>
+                <Card title="Staff Information">
+                    <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                        <Avatar src={DUMMY_STAFF.avatarUrl} size={120} icon={<UserOutlined />} />
+                        <h2 style={{ marginTop: 16, marginBottom: 4 }}>{DUMMY_STAFF.name}</h2>
+                        <Tag color="blue">{DUMMY_STAFF.position}</Tag>
+                    </div>
 
-                        <Descriptions column={1} size="small">
-                            <Descriptions.Item label="Employee ID">
-                                {DUMMY_STAFF.employee_id}
-                            </Descriptions.Item>
-                            <Descriptions.Item label={<><MailOutlined /> Email</>}>
-                                {DUMMY_STAFF.email}
-                            </Descriptions.Item>
-                            <Descriptions.Item label={<><PhoneOutlined /> Phone</>}>
-                                {DUMMY_STAFF.phone}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Department">
-                                {DUMMY_STAFF.department}
-                            </Descriptions.Item>
-                            <Descriptions.Item label={<><CalendarOutlined /> Join Date</>}>
-                                {new Date(DUMMY_STAFF.join_date).toLocaleDateString()}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Status">
-                                <Tag color="green">{DUMMY_STAFF.status.toUpperCase()}</Tag>
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Shift">
-                                {DUMMY_STAFF.shift}
-                            </Descriptions.Item>
-                            <Descriptions.Item label="Hourly Rate">
-                                ${DUMMY_STAFF.hourly_rate}/hr
-                            </Descriptions.Item>
-                        </Descriptions>
+                    <Descriptions column={1} size="small">
+                        <Descriptions.Item label="Employee ID">
+                            {DUMMY_STAFF.employee_id}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={<><MailOutlined /> Email</>}>
+                            {DUMMY_STAFF.email}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={<><PhoneOutlined /> Phone</>}>
+                            {DUMMY_STAFF.phone}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Department">
+                            {DUMMY_STAFF.department}
+                        </Descriptions.Item>
+                        <Descriptions.Item label={<><CalendarOutlined /> Join Date</>}>
+                            {new Date(DUMMY_STAFF.join_date).toLocaleDateString()}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Status">
+                            <Tag color="green">{DUMMY_STAFF.status.toUpperCase()}</Tag>
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Shift">
+                            {DUMMY_STAFF.shift}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Hourly Rate">
+                            ${DUMMY_STAFF.hourly_rate}/hr
+                        </Descriptions.Item>
+                    </Descriptions>
 
-                        <div style={{ marginTop: 20 }}>
-                            <Space orientation="vertical" style={{ width: '100%' }}>
-                                <Button type="primary" block>Edit Profile</Button>
-                                <Button type="default" block>View Schedule</Button>
-                                <Button type="default" block>Send Message</Button>
-                            </Space>
-                        </div>
-                    </Card>
+                    <div style={{ marginTop: 20 }}>
+                        <Space orientation="vertical" style={{ width: '100%' }}>
+                            <Button type="primary" block>Edit Profile</Button>
+                            <Button type="default" block>View Schedule</Button>
+                            <Button type="default" block>Send Message</Button>
+                        </Space>
+                    </div>
+                </Card>
 
-                    {/* Recent Activities */}
-                    <Card title="Recent Activities" style={{ marginTop: 16 }}>
-                        <Timeline
-                            items={RECENT_ACTIVITIES.map((activity) => ({
-                                color: getActivityColor(activity.type),
-                                content: (<>
-                                    <p style={{ margin: 0 }}>
-                                        <strong>{activity.action}</strong>
-                                        <span style={{ float: 'right', color: '#999', fontSize: 12 }}>{activity.time.split(' ')[1]}</span>
-                                    </p>
-                                    <p style={{ margin: 0, color: '#666', fontSize: 12 }}>{activity.details}</p>
-                                </>)
-                            }))}
-                        />
-                    </Card>
-                </Col>
+                {/* Recent Activities */}
+                <Card title="Recent Activities" style={{ marginTop: 16 }}>
+                    <Timeline
+                        items={RECENT_ACTIVITIES.map((activity) => ({
+                            color: getActivityColor(activity.type),
+                            content: (<>
+                                <p style={{ margin: 0 }}>
+                                    <strong>{activity.action}</strong>
+                                    <span style={{ float: 'right', color: '#999', fontSize: 12 }}>{activity.time.split(' ')[1]}</span>
+                                </p>
+                                <p style={{ margin: 0, color: '#666', fontSize: 12 }}>{activity.details}</p>
+                            </>)
+                        }))}
+                    />
+                </Card>
+            </Col>
 
-                {/* Main Content Section */}
-                <Col xs={24} lg={16}>
-                    {/* Performance Overview */}
-                    <Card title="Performance Overview - Current Month">
+            {/* Main Content Section */}
+            <Col xs={24} lg={16}>
+                {/* Performance Overview */}
+                <Card title="Performance Overview - Current Month">
+                    <Row gutter={[16, 16]}>
+                        <Col xs={12} sm={8} md={6}>
+                            <Statistic
+                                title="Overall Rating"
+                                value={PERFORMANCE_METRICS.overall_rating}
+                                suffix="/ 5.0"
+                                prefix={<StarOutlined style={{ color: '#faad14' }} />}
+                            />
+                        </Col>
+                        <Col xs={12} sm={8} md={6}>
+                            <Statistic
+                                title="Orders Processed"
+                                value={PERFORMANCE_METRICS.orders_processed}
+                                prefix={<ShoppingCartOutlined />}
+                            />
+                        </Col>
+                        <Col xs={12} sm={8} md={6}>
+                            <Statistic
+                                title="Customer Satisfaction"
+                                value={PERFORMANCE_METRICS.customer_satisfaction}
+                                suffix="/ 5.0"
+                                prefix={<TrophyOutlined />}
+                                styles={{
+                                    content: { color: '#3f8600' }
+                                }}
+                            />
+                        </Col>
+                        <Col xs={12} sm={8} md={6}>
+                            <Statistic
+                                title="Monthly Sales"
+                                value={PERFORMANCE_METRICS.monthly_sales}
+                                precision={2}
+                                prefix={<DollarOutlined />}
+                            />
+                        </Col>
+                    </Row>
+
+                    <div style={{ marginTop: 24 }}>
                         <Row gutter={[16, 16]}>
-                            <Col xs={12} sm={8} md={6}>
-                                <Statistic
-                                    title="Overall Rating"
-                                    value={PERFORMANCE_METRICS.overall_rating}
-                                    suffix="/ 5.0"
-                                    prefix={<StarOutlined style={{ color: '#faad14' }} />}
-                                />
-                            </Col>
-                            <Col xs={12} sm={8} md={6}>
-                                <Statistic
-                                    title="Orders Processed"
-                                    value={PERFORMANCE_METRICS.orders_processed}
-                                    prefix={<ShoppingCartOutlined />}
-                                />
-                            </Col>
-                            <Col xs={12} sm={8} md={6}>
-                                <Statistic
-                                    title="Customer Satisfaction"
-                                    value={PERFORMANCE_METRICS.customer_satisfaction}
-                                    suffix="/ 5.0"
-                                    prefix={<TrophyOutlined />}
-                                    styles={{
-                                        content: { color: '#3f8600' }
-                                    }}
-                                />
-                            </Col>
-                            <Col xs={12} sm={8} md={6}>
-                                <Statistic
-                                    title="Monthly Sales"
-                                    value={PERFORMANCE_METRICS.monthly_sales}
-                                    precision={2}
-                                    prefix={<DollarOutlined />}
-                                />
-                            </Col>
-                        </Row>
-
-                        <div style={{ marginTop: 24 }}>
-                            <Row gutter={[16, 16]}>
-                                <Col xs={24} sm={12} md={8}>
-                                    <div>
-                                        <div style={{ marginBottom: 8 }}>Efficiency Score</div>
-                                        <Progress
-                                            percent={PERFORMANCE_METRICS.efficiency_score}
-                                            status="active"
-                                            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-                                        />
-                                    </div>
-                                </Col>
-                                <Col xs={24} sm={12} md={8}>
-                                    <div>
-                                        <div style={{ marginBottom: 8 }}>Quality Score</div>
-                                        <Progress
-                                            percent={PERFORMANCE_METRICS.quality_score}
-                                            status="active"
-                                            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-                                        />
-                                    </div>
-                                </Col>
-                                <Col xs={24} sm={12} md={8}>
-                                    <div>
-                                        <div style={{ marginBottom: 8 }}>Teamwork Score</div>
-                                        <Progress
-                                            percent={PERFORMANCE_METRICS.teamwork_score}
-                                            status="active"
-                                            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-                                        />
-                                    </div>
-                                </Col>
-                                <Col xs={24} sm={12} md={8}>
-                                    <div>
-                                        <div style={{ marginBottom: 8 }}>Punctuality Score</div>
-                                        <Progress
-                                            percent={PERFORMANCE_METRICS.punctuality_score}
-                                            status="active"
-                                            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-                                        />
-                                    </div>
-                                </Col>
-                                <Col xs={24} sm={12} md={8}>
-                                    <div>
-                                        <div style={{ marginBottom: 8 }}>Sales Target</div>
-                                        <Progress
-                                            percent={PERFORMANCE_METRICS.sales_target_achievement}
-                                            status="active"
-                                            strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
-                                        />
-                                    </div>
-                                </Col>
-                            </Row>
-                        </div>
-
-                        <div style={{ marginTop: 24 }}>
-                            <Row gutter={[16, 16]}>
-                                <Col span={8}>
-                                    <Card size="small" style={{ backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
-                                        <Statistic
-                                            title="Compliments"
-                                            value={PERFORMANCE_METRICS.customer_compliments}
-                                            prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
-                                            styles={{
-                                                content: { color: '#52c41a' }
-                                            }}
-                                        />
-                                    </Card>
-                                </Col>
-                                <Col span={8}>
-                                    <Card size="small" style={{ backgroundColor: '#fff1f0', border: '1px solid #ffccc7' }}>
-                                        <Statistic
-                                            title="Complaints"
-                                            value={PERFORMANCE_METRICS.customer_complaints}
-                                            prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
-                                            styles={{
-                                                content: { color: '#ff4d4f' }
-                                            }}
-                                        />
-                                    </Card>
-                                </Col>
-                                <Col span={8}>
-                                    <Card size="small" style={{ backgroundColor: '#e6f7ff', border: '1px solid #91d5ff' }}>
-                                        <Statistic
-                                            title="Training (Completed)"
-                                            value={PERFORMANCE_METRICS.training_completed}
-                                            suffix={`/ ${PERFORMANCE_METRICS.training_completed + PERFORMANCE_METRICS.training_pending}`}
-                                            prefix={<TrophyOutlined style={{ color: '#1890ff' }} />}
-                                            styles={{
-                                                content: { color: '#1890ff' }
-                                            }}
-                                        />
-                                    </Card>
-                                </Col>
-                            </Row>
-                        </div>
-                    </Card>
-
-                    {/* Attendance Section */}
-                    <Card
-                        title="Attendance - Current Month (January 2024)"
-                        style={{ marginTop: 16 }}
-                    >
-                        {/* Attendance Summary */}
-                        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-                            <Col xs={12} sm={8} md={4}>
-                                <Statistic
-                                    title="Total Days"
-                                    value={ATTENDANCE_SUMMARY.total_days}
-                                    prefix={<CalendarOutlined />}
-                                />
-                            </Col>
-                            <Col xs={12} sm={8} md={4}>
-                                <Statistic
-                                    title="Present"
-                                    value={ATTENDANCE_SUMMARY.present_days}
-                                    styles={{
-                                        content: { color: '#3f8600' }
-                                    }}
-                                    prefix={<CheckCircleOutlined />}
-                                />
-                            </Col>
-                            <Col xs={12} sm={8} md={4}>
-                                <Statistic
-                                    title="Absent"
-                                    value={ATTENDANCE_SUMMARY.absent_days}
-                                    styles={{
-                                        content: { color: '#cf1322' }
-                                    }}
-                                    prefix={<CloseCircleOutlined />}
-                                />
-                            </Col>
-                            <Col xs={12} sm={8} md={4}>
-                                <Statistic
-                                    title="Late"
-                                    value={ATTENDANCE_SUMMARY.late_days}
-                                    styles={{
-                                        content: { color: '#d46b08' }
-                                    }}
-                                />
-                            </Col>
-                            <Col xs={12} sm={8} md={4}>
-                                <Statistic
-                                    title="Total Hours"
-                                    value={ATTENDANCE_SUMMARY.total_hours}
-                                    precision={1}
-                                    prefix={<ClockCircleOutlined />}
-                                />
-                            </Col>
-                            <Col xs={12} sm={8} md={4}>
+                            <Col xs={24} sm={12} md={8}>
                                 <div>
-                                    <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>Attendance Rate</div>
+                                    <div style={{ marginBottom: 8 }}>Efficiency Score</div>
                                     <Progress
-                                        type="circle"
-                                        percent={ATTENDANCE_SUMMARY.attendance_rate}
-                                        size={60}
+                                        percent={PERFORMANCE_METRICS.efficiency_score}
+                                        status="active"
+                                        strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+                                    />
+                                </div>
+                            </Col>
+                            <Col xs={24} sm={12} md={8}>
+                                <div>
+                                    <div style={{ marginBottom: 8 }}>Quality Score</div>
+                                    <Progress
+                                        percent={PERFORMANCE_METRICS.quality_score}
+                                        status="active"
+                                        strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+                                    />
+                                </div>
+                            </Col>
+                            <Col xs={24} sm={12} md={8}>
+                                <div>
+                                    <div style={{ marginBottom: 8 }}>Teamwork Score</div>
+                                    <Progress
+                                        percent={PERFORMANCE_METRICS.teamwork_score}
+                                        status="active"
+                                        strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+                                    />
+                                </div>
+                            </Col>
+                            <Col xs={24} sm={12} md={8}>
+                                <div>
+                                    <div style={{ marginBottom: 8 }}>Punctuality Score</div>
+                                    <Progress
+                                        percent={PERFORMANCE_METRICS.punctuality_score}
+                                        status="active"
+                                        strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+                                    />
+                                </div>
+                            </Col>
+                            <Col xs={24} sm={12} md={8}>
+                                <div>
+                                    <div style={{ marginBottom: 8 }}>Sales Target</div>
+                                    <Progress
+                                        percent={PERFORMANCE_METRICS.sales_target_achievement}
+                                        status="active"
                                         strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
                                     />
                                 </div>
                             </Col>
                         </Row>
+                    </div>
 
-                        {/* Attendance Table */}
-                        <Table
-                            columns={attendanceColumns}
-                            dataSource={DUMMY_ATTENDANCE}
-                            rowKey="date"
-                            pagination={{ pageSize: 10 }}
-                            scroll={{ x: 'max-content' }}
-                            size="small"
-                        />
-                    </Card>
+                    <div style={{ marginTop: 24 }}>
+                        <Row gutter={[16, 16]}>
+                            <Col span={8}>
+                                <Card size="small" style={{ backgroundColor: '#f6ffed', border: '1px solid #b7eb8f' }}>
+                                    <Statistic
+                                        title="Compliments"
+                                        value={PERFORMANCE_METRICS.customer_compliments}
+                                        prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+                                        styles={{
+                                            content: { color: '#52c41a' }
+                                        }}
+                                    />
+                                </Card>
+                            </Col>
+                            <Col span={8}>
+                                <Card size="small" style={{ backgroundColor: '#fff1f0', border: '1px solid #ffccc7' }}>
+                                    <Statistic
+                                        title="Complaints"
+                                        value={PERFORMANCE_METRICS.customer_complaints}
+                                        prefix={<CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
+                                        styles={{
+                                            content: { color: '#ff4d4f' }
+                                        }}
+                                    />
+                                </Card>
+                            </Col>
+                            <Col span={8}>
+                                <Card size="small" style={{ backgroundColor: '#e6f7ff', border: '1px solid #91d5ff' }}>
+                                    <Statistic
+                                        title="Training (Completed)"
+                                        value={PERFORMANCE_METRICS.training_completed}
+                                        suffix={`/ ${PERFORMANCE_METRICS.training_completed + PERFORMANCE_METRICS.training_pending}`}
+                                        prefix={<TrophyOutlined style={{ color: '#1890ff' }} />}
+                                        styles={{
+                                            content: { color: '#1890ff' }
+                                        }}
+                                    />
+                                </Card>
+                            </Col>
+                        </Row>
+                    </div>
+                </Card>
 
-                    {/* Performance History */}
-                    <Card title="Performance History (Last 6 Months)" style={{ marginTop: 16 }}>
-                        <Table
-                            columns={performanceHistoryColumns}
-                            dataSource={PERFORMANCE_HISTORY}
-                            rowKey="month"
-                            pagination={false}
-                            scroll={{ x: 'max-content' }}
-                        />
-                    </Card>
-                </Col>
-            </Row>
-        </div>
-    );
+                {/* Attendance Section */}
+                <Card
+                    title="Attendance - Current Month (January 2024)"
+                    style={{ marginTop: 16 }}
+                >
+                    {/* Attendance Summary */}
+                    <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                        <Col xs={12} sm={8} md={4}>
+                            <Statistic
+                                title="Total Days"
+                                value={ATTENDANCE_SUMMARY.total_days}
+                                prefix={<CalendarOutlined />}
+                            />
+                        </Col>
+                        <Col xs={12} sm={8} md={4}>
+                            <Statistic
+                                title="Present"
+                                value={ATTENDANCE_SUMMARY.present_days}
+                                styles={{
+                                    content: { color: '#3f8600' }
+                                }}
+                                prefix={<CheckCircleOutlined />}
+                            />
+                        </Col>
+                        <Col xs={12} sm={8} md={4}>
+                            <Statistic
+                                title="Absent"
+                                value={ATTENDANCE_SUMMARY.absent_days}
+                                styles={{
+                                    content: { color: '#cf1322' }
+                                }}
+                                prefix={<CloseCircleOutlined />}
+                            />
+                        </Col>
+                        <Col xs={12} sm={8} md={4}>
+                            <Statistic
+                                title="Late"
+                                value={ATTENDANCE_SUMMARY.late_days}
+                                styles={{
+                                    content: { color: '#d46b08' }
+                                }}
+                            />
+                        </Col>
+                        <Col xs={12} sm={8} md={4}>
+                            <Statistic
+                                title="Total Hours"
+                                value={ATTENDANCE_SUMMARY.total_hours}
+                                precision={1}
+                                prefix={<ClockCircleOutlined />}
+                            />
+                        </Col>
+                        <Col xs={12} sm={8} md={4}>
+                            <div>
+                                <div style={{ fontSize: 14, color: '#666', marginBottom: 8 }}>Attendance Rate</div>
+                                <Progress
+                                    type="circle"
+                                    percent={ATTENDANCE_SUMMARY.attendance_rate}
+                                    size={60}
+                                    strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
+                                />
+                            </div>
+                        </Col>
+                    </Row>
+
+                    {/* Attendance Table */}
+                    <Table
+                        columns={attendanceColumns}
+                        dataSource={DUMMY_ATTENDANCE}
+                        rowKey="date"
+                        pagination={{ pageSize: 10 }}
+                        scroll={{ x: 'max-content' }}
+                        size="small"
+                    />
+                </Card>
+
+                {/* Performance History */}
+                <Card title="Performance History (Last 6 Months)" style={{ marginTop: 16 }}>
+                    <Table
+                        columns={performanceHistoryColumns}
+                        dataSource={PERFORMANCE_HISTORY}
+                        rowKey="month"
+                        pagination={false}
+                        scroll={{ x: 'max-content' }}
+                    />
+                </Card>
+            </Col>
+        </Row>
+    </div>);
 }

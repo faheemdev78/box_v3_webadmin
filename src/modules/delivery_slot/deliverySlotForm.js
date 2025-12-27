@@ -102,7 +102,7 @@ const DeliverySlotFormComp = ({ initialValues, onClose, onSuccess, open, store }
 
 
     return (
-        <Drawer width={400} destroyOnHidden maskClosable={true} placement="right"
+        <Drawer size={400} destroyOnHidden maskClosable={true} placement="right"
             onClose={onClose}
             open={open}
             footer={false}

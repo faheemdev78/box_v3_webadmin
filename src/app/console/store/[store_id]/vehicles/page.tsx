@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
-import { Alert, Card, Col, message, Popconfirm, Row, Space } from 'antd';
+import { Alert, Card, Col, Drawer, message, Modal, Popconfirm, Row, Space } from 'antd';
 import { adminRoot, defaultPageSize } from '@/configs';
 import Link from 'next/link';
 import { VehiclesList } from '@/modules/vehicles';
@@ -27,6 +27,8 @@ function Vehicles() {
         busy: false,
     })
 
+    const [showDrawer, set_showDrawer] = useState(false)
+    const [showModal, set_showModal] = useState(false)
     const [dataArray, set_dataArray] = useState<any>(null)
 
     const [deleteVehicle, del_results] = useMutation<any>(RECORD_DELETE); // { data, loading, error }
@@ -89,7 +91,8 @@ function Vehicles() {
 
     return (<>
         <PageHeader title="Vehicles">
-            <Button type="link" color="orange"><Link href={`${adminRoot}/store/${store._id}/vehicles/new`}>Add Vehicle</Link></Button>
+            {/* <Button type="link" color="orange"><Link href={`${adminRoot}/store/${store._id}/vehicles/new`}>Add Vehicle</Link></Button> */}
+            <Link href={`${adminRoot}/store/${store._id}/vehicles/new`}>Add Vehicle</Link>
         </PageHeader>
 
         <Page>
@@ -100,6 +103,18 @@ function Vehicles() {
                 pagination={false}
             />
         </Page>
+
+
+        <Drawer open={showDrawer} onClose={() => set_showDrawer(false)} placement='right' 
+            styles={{
+                wrapper:{
+                    width: "100vw"
+                }
+            }}
+            >
+            <p>hellow orld</p>
+        </Drawer>
+
 
     </>)
 

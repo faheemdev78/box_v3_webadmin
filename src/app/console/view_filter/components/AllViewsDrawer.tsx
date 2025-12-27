@@ -154,7 +154,7 @@ export const AllViewsDrawer: React.FC<AllViewsDrawerProps> = ({
       placement="right"
       onClose={onClose}
       open={visible}
-      width={720}
+      size={720}
     >
       {/* Filters and Search */}
       <Space orientation="vertical" style={{ width: '100%', marginBottom: 16 }}>

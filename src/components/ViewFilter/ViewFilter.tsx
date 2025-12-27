@@ -511,7 +511,7 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
             />
         </Drawer>
 
-        <Drawer title={`${showAddNewForm === true ? 'Create' : 'Edit'} View`} footer={false} open={showAddNewForm !== false} destroyOnHidden={true} onClose={() => set_showAddNewForm(false)} styles={{ body:{ padding:"15px" } }} width="600px">
+        <Drawer title={`${showAddNewForm === true ? 'Create' : 'Edit'} View`} footer={false} open={showAddNewForm !== false} destroyOnHidden={true} onClose={() => set_showAddNewForm(false)} styles={{ body:{ padding:"15px" } }} size={600}>
             {showAddNewForm !== false && <>
                 <FitlerForm initialValues={{}} config={config} />
             </>}

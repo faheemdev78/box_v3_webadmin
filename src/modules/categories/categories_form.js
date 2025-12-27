@@ -167,7 +167,7 @@ export const CategoriesForm = props => {
 
    
     return (
-        <Drawer width={500} destroyOnHidden maskClosable={false} placement="right"
+        <Drawer size={500} destroyOnHidden maskClosable={false} placement="right"
             onClose={props.onClose}
             open={props.open}
             footer={false}

@@ -60,7 +60,7 @@ export const ProductSelector = props => {
             {props.children}
         </div>
 
-        <Drawer width={400} destroyOnClose maskClosable={true} placement="right" onClose={toggleDrawer} visible={showList} title={`Manage Products`}><>
+        <Drawer size={400} destroyOnClose maskClosable={true} placement="right" onClose={toggleDrawer} visible={showList} title={`Manage Products`}><>
             
             <SearchField
                 type="search"

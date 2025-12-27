@@ -85,7 +85,7 @@ const ProductAttributesForm_Comp = ({ onClose, callback, fields, open }) => {
 
 
     return (
-        <Drawer width={600} destroyOnHidden maskClosable={false} placement="right"
+        <Drawer size={600} destroyOnHidden maskClosable={false} placement="right"
             onClose={onClose}
             open={open}
             footer={false}

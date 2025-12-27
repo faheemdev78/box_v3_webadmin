@@ -50,7 +50,7 @@ function UserForm () {
             .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
-            setError((resutls && resutls.error.message) || "Invalid Response")
+            setError((resutls && resutls?.error?.message) || "Invalid Response")
             return true;
         }
         

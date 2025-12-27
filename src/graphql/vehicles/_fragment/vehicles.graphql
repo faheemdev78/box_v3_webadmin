@@ -1,13 +1,19 @@
 #import "../../_fragment/error.graphql"
-#import "../../_fragment/geoPoint.graphql"
+#import "../../_fragment/GeoPointReff.graphql"
 
-fragment LocationsReffInfo on LocationsReff {
-    _id
+fragment GeoZoneReffInfo  on GeoZoneReff {
+    _id_zone
     title
-    code
-    child_of
-    center {...GeoPointInfo}
-    type
+    category
+    city {
+      _id
+      title
+      code
+      child_of
+      center {...GeoPointReffInfo}
+      type
+      status
+    }
     status
 }
 
@@ -15,19 +21,12 @@ fragment VehiclesInfo on Vehicles {
   _id
   title
   registration_no
-  zones {
-    _id_zone
-    title
-    category
-    city {...LocationsReffInfo}
-    # city { _id title code type }
-    status
-  }
+  zones { ...GeoZoneReffInfo }
   status
   drivers { _id name }
   store {
     _id title code
-    center {...GeoPointInfo}
+    center {...GeoPointReffInfo}
   }
   box_cpacity
 

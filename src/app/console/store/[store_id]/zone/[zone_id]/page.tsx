@@ -154,7 +154,9 @@ function EditStoreZone({ store }: { store: any }) {
         </Row>
 
 
-        <Drawer open={showZoneForm} onClose={() => set_showZoneForm(false)} title={zoneData.title} footer={false} destroyOnHidden width="100%" height={"100%"} placement='top'>
+        <Drawer open={showZoneForm} onClose={() => set_showZoneForm(false)} title={zoneData.title} footer={false} destroyOnHidden 
+            styles={{ wrapper: { width: "100vw" } }} placement='right'
+        >
             {showZoneForm && <GeoZoneForm zone_id={zone_id} store_id={store._id} store={store} staticZones={relatedZones} />}
         </Drawer>
 
@@ -370,7 +372,8 @@ function Wrapper(props:any){
             <ServiceZone {...props} relatedZones={zones_resutls?.data?.geoZones} initialValues={initialValues} store={store} />
         }
 
-        <Drawer open={showZoneForm} onClose={() => set_showZoneForm(false)} title={initialValues.title} footer={false} destroyOnHidden width="100%" height={"100%"} placement='top'>
+        <Drawer open={showZoneForm} onClose={() => set_showZoneForm(false)} title={initialValues.title} footer={false} destroyOnHidden 
+            styles={{ wrapper: { width: "100vw" } }} placement='right'>
             {showZoneForm && <GeoZoneForm zone_id={zone_id} store_id={store._id} store={store} staticZones={zones_resutls?.data?.geoZones} />}
         </Drawer>
 

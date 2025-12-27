@@ -3,6 +3,7 @@ import { adminRoot } from '@/configs'
 import { PageBar } from '@/template'
 import { createApolloClient } from '@/aClient/client';
 import { getServerSessionToken } from '@/lib/auth/server';
+import { StoreHeader } from '@/template/store_header'
 
 import GET_STORE from '@/graphql/stores/store.graphql';
 
@@ -34,8 +35,10 @@ export default async function Layout({
     // console.log("store: ", store)
 
     return (<>
+        <StoreHeader baseUrl={baseUrl} store_id={store_id} store={store} />
+
         <PageProvider pageProps={{ baseUrl, store_id, store }}>
-            <h3>{store.title}</h3>
+            {/* <h3>{store.title}</h3>
             <div className='page-bar'>
                 <PageBar pop_item_style={{ color:"#2D3E51" }} menuArray={[
                     { title: 'Store Dashbord', href: `${baseUrl}` },
@@ -61,7 +64,7 @@ export default async function Layout({
                     { title: 'Vehicles', href: `${baseUrl}/vehicles` },
                     { title: 'Delivery Slots', href: `${baseUrl}/delivery_slots` },
                 ]} />
-            </div>
+            </div> */}
             {children}
         </PageProvider>
     </>)

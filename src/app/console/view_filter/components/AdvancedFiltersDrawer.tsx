@@ -293,7 +293,7 @@ export const AdvancedFiltersDrawer: React.FC<AdvancedFiltersDrawerProps> = ({
   const editingGroup = filterGroups.find(g => g.conditions.some(c => c.id === editingFilterId));
 
   return (
-    <Drawer title="All Filters" open={visible} onClose={onClose} width={720} footer={null}>
+    <Drawer title="All Filters" open={visible} onClose={onClose} size={720} footer={null}>
       <div style={{ display: 'flex', height: '100%', marginLeft: -24, marginRight: -24, marginTop: -24, marginBottom: -24 }}>
         {/* Left Panel - Filter Groups */}
         <div style={{ flex: 1, padding: 24, borderRight: '1px solid #f0f0f0', overflowY: 'auto' }}>

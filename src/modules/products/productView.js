@@ -70,7 +70,7 @@ export function ProductView({ session, store, refresh, ...props }) {
         onClose: () => set_editMode(false),
         placement: 'right',
         destroyOnHidden: true,
-        width: "500px",
+        size: 500,
         footer: <p>Hello world</p>
     }
 
@@ -319,7 +319,7 @@ export function ProductView({ session, store, refresh, ...props }) {
         {/* <DevBlock obj={initialValues} title="initialValues" /> */}
 
 
-        <Drawer {...drawerProps} open={editMode === 'editIdentity'} title="Edit Identity" width={"500px"}>
+        <Drawer {...drawerProps} open={editMode === 'editIdentity'} title="Edit Identity" size={500}>
             {editMode === 'editIdentity' && <ProdItendityForm
                 store={store}
                 initialValues={initialValues}
@@ -367,7 +367,7 @@ export function ProductView({ session, store, refresh, ...props }) {
             />}
         </Drawer>
 
-        <Drawer {...drawerProps} width="650px" open={editMode === 'editImages'} title="Product Images">
+        <Drawer {...drawerProps} size={650} open={editMode === 'editImages'} title="Product Images">
             {editMode === 'editImages' && <ProdImagesDataForm
                 store={store}
                 initialValues={initialValues}

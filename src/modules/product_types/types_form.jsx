@@ -108,7 +108,7 @@ export const ProductTypesForm = props => {
 
 
     return (<>
-        <Drawer width={400} destroyOnHidden maskClosable={false} placement="right"
+        <Drawer size={400} destroyOnHidden maskClosable={false} placement="right"
             styles={{ body: { backgroundColor: "#EEEEEE", padding: "5px" } }}
             onClose={props.onClose}
             open={props.open}
@@ -193,7 +193,7 @@ export const ProductTypesForm = props => {
                             </Card>
 
 
-                            <Drawer width={400} maskClosable={true} placement="right"
+                            <Drawer size={400} maskClosable={true} placement="right"
                                 styles={{ body: { backgroundColor: "#EEEEEE", padding: "5px" } }}
                                 onClose={() => set_showAttrSelector(false)}
                                 open={showAttrSelector !== false}

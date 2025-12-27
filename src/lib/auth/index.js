@@ -34,6 +34,8 @@ export const saveSessionToken = async (token) => {
         return;
     }
 
+    console.log("saveSessionToken: ", `${COOKIE_ID}=${token}; path=/; max-age=${cookieAge}; ${process.env.NODE_ENV !== 'development' ? "Secure" : ""}`)
+
     document.cookie = `${COOKIE_ID}=${token}; path=/; max-age=${cookieAge}; ${process.env.NODE_ENV !== 'development' ? "Secure" : ""}`;
 };
 

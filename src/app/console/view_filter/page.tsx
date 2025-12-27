@@ -300,7 +300,7 @@ function ViewFilterPage() {
       </Card>
 
       {/* All Views Drawer */}
-      <Drawer title="All Views" open={showAllViews} onClose={() => setShowAllViews(false)} width={720}>
+      <Drawer title="All Views" open={showAllViews} onClose={() => setShowAllViews(false)} size={720}>
         <Tabs
           defaultActiveKey="all"
           items={[
@@ -358,7 +358,7 @@ function ViewFilterPage() {
         title="All Filters"
         open={showAdvancedFilters}
         onClose={() => setShowAdvancedFilters(false)}
-        width={720}
+        size={720}
       >
         <div style={{ display: 'flex', height: '100%' }}>
           {/* Left side - Current filters */}

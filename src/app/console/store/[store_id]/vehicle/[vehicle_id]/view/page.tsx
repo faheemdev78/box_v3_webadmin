@@ -88,7 +88,8 @@ function VehicleDetails() {
 
         {/* <DevBlock obj={thisNode} /> */}
 
-        <Drawer open={showForm} onClose={() => set_showForm(false)} title={thisNode.title} footer={false} destroyOnHidden width="100%" height={"100%"} placement='top'>
+        <Drawer open={showForm} onClose={() => set_showForm(false)} title={thisNode.title} footer={false} destroyOnHidden 
+            styles={{ wrapper:{ width:"100vw" } }} placement='right'>
             {showForm && <VehicleForm initialValues={thisNode} store={store} onSuccess={onSuccess} />}
         </Drawer>
 

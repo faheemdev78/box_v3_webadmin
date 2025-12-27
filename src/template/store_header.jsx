@@ -10,7 +10,7 @@ import { utcToDate } from "@/lib/utill"
 import { LinkComp, TopBar } from "./menuBar"
 import { useDispatch, useSelector } from 'react-redux';
 import { usePathname, useRouter } from "next/navigation"
-import { topMenuArray } from './menus';
+import { store_topMenuArray } from './menus';
 
 
 function CommonSearchBar({ onFocus, onSearch=console.log }){
@@ -19,24 +19,14 @@ function CommonSearchBar({ onFocus, onSearch=console.log }){
 
 
 
-export function Header({  }) {
+export function StoreHeader({ baseUrl, store }) {
     const [showGlobalResults, set_showGlobalResults] = useState(false)
     const [showDrawer, set_showDrawer] = useState(false)
     const session = useSelector((state) => state.session);
     const router = useRouter()
 
     const pathname = usePathname();
-    if (pathname.startsWith("/console/store") && !pathname.startsWith("/console/stores")) return null; // disable for store routes
     if (pathname === '/login' || !session || !session.token) return null; // <Alert title="Error" description="not logged in" type="error" showIcon />;
-
-    // async function logout(args) {
-    //     let callbackUrl = (args && args.callbackUrl) || '/';
-    //     clearSessionToken();
-    //     cleanStore();
-    //     await sleep(100)
-    //     router.replace(callbackUrl)
-    //     // window.location = callbackUrl; // || "/"; // '/'
-    // }
 
     const PopContents = () => {
         return (<div style={{ width: "300px", border: "0px solid #000" }}><Space orientation='vertical' separator={<div style={{ borderBottom: "1px solid #EEE" }} />} style={{ width: "100%" }}>
@@ -44,7 +34,6 @@ export function Header({  }) {
                 <Row gutter={[20]}>
                     <Col><Space orientation="vertical">
                         <Avatar size={50}>{String(session.user.name).charAt(0)}</Avatar>
-                        {/* <Button color="red" size="small" onClick={() => logout()}>Log out</Button> */}
                         <Button color="red" size="small" onClick={() => router.replace("/logout")}>Log out</Button>
                     </Space></Col>
                     <Col>
@@ -79,8 +68,11 @@ export function Header({  }) {
     return (<>
         <div className='top-bar'>
             <Row align="middle" gutter={[20]} className='nowrap'>
-                <Col><Link href={adminRoot}><Image src="/box-logo-green.png" priority="high" alt="BOX" width={100} height={32} /></Link></Col>
-                <Col><TopBar menuArray={topMenuArray} session={session} /></Col>
+                <Col>
+                    <Link href={adminRoot}><Image src="/box-logo-green.png" priority="high" alt="BOX" width={70} height={22} /></Link>
+                    <div style={{ fontSize: "10px" }}>{store && store.title}</div>
+                </Col>
+                <Col><TopBar menuArray={store_topMenuArray({ baseUrl })} session={session} /></Col>
                 <Col flex="auto" align="center"><CommonSearchBar onFocus={() => set_showGlobalResults(true)} /></Col>
                 <Col align="right" className='menu-bar'>
                     <Space separator={<div style={{ width: "1px", height: "30px", backgroundColor: "#000" }} />} size={0}>
@@ -90,7 +82,7 @@ export function Header({  }) {
                         </Space></div>
                         <Popover title={false} trigger="hover"
                             styles={{ body: { padding: "0px" } }}
-                            content={<PopContents />}>
+                            content={PopContents()}>
                             <Space className='menu-bar-item' style={{ display: "inline-flex" }}>
                                 <Avatar size={30}>{String(session.user.name).charAt(0).toUpperCase()}</Avatar>
                                 <div style={{ maxWidth: "50px" }} className='ellipsis'>{session.user.name}</div>
@@ -107,8 +99,6 @@ export function Header({  }) {
                 <Col><IconButton icon="close" onClick={() => set_showGlobalResults(false)} /></Col>
             </Row>
             <p>0 Search result(s) found</p>
-
-            {/* <DummyTable /> */}
         </div>
 
         <Drawer open={showDrawer == 'alerts'} title="Alerts" onClose={() => set_showDrawer(false)}>

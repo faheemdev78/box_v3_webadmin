@@ -220,7 +220,8 @@ export const LocationForm = ({initialValues, ...props}) => {
     }
 
     return (
-        <Drawer height={'100%'} destroyOnHidden maskClosable={false} placement="top"
+        <Drawer destroyOnHidden maskClosable={false}
+            styles={{ wrapper: { width: "100vw" } }} placement='right'
             onClose={props.onClose}
             open={props.open}
             footer={false}

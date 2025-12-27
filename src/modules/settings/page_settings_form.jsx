@@ -101,7 +101,7 @@ const FormComp = props => {
     const pageOptions = pageOptionsArray[props?.fields?.key];
 
     return (<>
-        <Drawer width={"500px"} destroyOnClose maskClosable={false} placement="right" visible={showform} onClose={onClose} 
+        <Drawer size={500} destroyOnClose maskClosable={false} placement="right" visible={showform} onClose={onClose} 
             styles={{ body: { backgroundColor: "#f0f2f5", padding: 0 } }}
             title={`Edit Page Setting`}
             footer={<>

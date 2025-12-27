@@ -89,7 +89,7 @@ export const FieldsDefinationForm = ({ initialValues, onClose, onSuccess, open }
 
 
     return (
-        <Drawer width={600} destroyOnHidden maskClosable={false} placement="right"
+        <Drawer size={600} destroyOnHidden maskClosable={false} placement="right"
             title={`${initialValues && initialValues._id ? 'Edit' : 'Add'} Field`}
             onClose={onClose}
             open={open}
