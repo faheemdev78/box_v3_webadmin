@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Row, Col, Divider, message, Alert } from 'antd';
+import { Row, Col, Divider, message, Alert, Space } from 'antd';
 import { __error } from '@/lib/consoleHelper';
 import { publishStatus } from '@/configs';
 import { Loader, DevBlock, Button, Icon } from '@/components';
@@ -27,7 +27,7 @@ export const ProductFilter = props => {
 
     if (props.loading) return <Loader loading={true} />
 
-    return (<div style={{ border:"1px solid black"}}>
+    return (<div style={{ border:"0px solid black"}}>
         <FinalForm onSubmit={onSubmit} initialValues={{ ...defaultFilter, ...props.defaultValue }}
             mutators={{ ...arrayMutators }}
             render={(formargs) => {
@@ -38,45 +38,46 @@ export const ProductFilter = props => {
                     <form id="ProductFilterForm" {...submitHandler(formargs)}>
                         {/* <FormField name="username" label="Email / Login ID" type="text" validate={rules.required} /> */}
 
-                        <Row>
-                            
-                            {exclude.indexOf('search.keywords') < 0 && <Col>
+                        <Space style={{ marginBottom:"5px" }}>
+                            {exclude.indexOf('search.keywords') < 0 && <div style={{ width:"200px" }}>
                                 <FormField type="text" // prefix={<Icon icon="user" color="#CCC" />} 
-                                    name="search.keywords" placeholder="keyword to search..." label="Keyword search" width="200px" compact allowClear size="small" />
-                            </Col>}
-                            
-                            {exclude.indexOf('_id_cat') < 0 && <Col>
+                                    name="search.keywords" placeholder="keyword to search..." label="Keyword search" compact allowClear size="small"
+                                />
+                            </div>}
+
+                            {exclude.indexOf('_id_cat') < 0 && <div style={{ width:"200px" }}>
                                 <ProdCatsDD compact allowClear preload
-                                    name="_id_cat" placeholder="Category" label="Category" width="200px" size="small"
+                                    name="_id_cat" placeholder="Category" label="Category" size="small"
                                     inputProps={{
                                         showSearch: true,
                                         filterOption: (input, option) =>
                                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
                                     }}
                                 />
-                            </Col>}
-                            {exclude.indexOf('_id_type') < 0 && <Col>
-                                <ProdTypeDD
-                                    name="_id_type" placeholder="Product Type" label="Product Type" width="200px" compact allowClear preload size="small"
+                            </div>}
+
+                            {exclude.indexOf('_id_type') < 0 && <div style={{ width:"200px" }}>
+                                <ProdTypeDD name="_id_type" placeholder="Product Type" label="Product Type" compact allowClear preload size="small"
                                     inputProps={{
                                         showSearch: true,
                                         filterOption: (input, option) =>
                                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase()),
                                     }}
-
                                 />
-                            </Col>}
-                            {exclude.indexOf('status') < 0 && <Col>
-                                <FormField type="select" options={publishStatus} name="status" placeholder="Status" label="Status" width="100px" compact allowClear size="small" />
-                            </Col>}
-                            {exclude.indexOf('brand') < 0 && <Col>
-                                <BrandsDD name="brand*_id" filter={{}} label="Brands" placeholder="Search Brands..." width="150px" compact preload localsearch allowClear size="small" />
-                            </Col>}
+                            </div>}
 
-                            <Col className="go-column">
+                            {exclude.indexOf('status') < 0 && <div style={{ width:"100px" }}>
+                                <FormField type="select" options={publishStatus} name="status" placeholder="Status" label="Status" compact allowClear size="small" />
+                            </div>}
+
+                            {exclude.indexOf('brand') < 0 && <div style={{ width:"200px" }}>
+                                <BrandsDD name="brand*_id" filter={{}} label="Brands" placeholder="Search Brands..." compact preload localsearch allowClear size="small" />
+                            </div>}
+                            
+                            <div style={{ paddingTop:"16px"}}>
                                 <Button className="send_button" loading={props.loading} htmlType="submit"><Icon icon="search" /></Button>
-                            </Col>
-                        </Row>
+                            </div>
+                        </Space>
 
                     </form>
                 </>)

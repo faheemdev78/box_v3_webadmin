@@ -102,6 +102,7 @@ function StoreProductsHome(props:any) {
     return (<>
         {error && <Alert title="Error" description={error} type="error" showIcon />}
         <ProductsList
+            hideAddProduct={true}
             {...state}
             busy={busy} setBusy={setBusy}
             fetchData={fetchData}
