@@ -79,7 +79,7 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
 
     const [addProduct, add_details] = useMutation<any>(RECORD_ADD); // { data, loading, error }
 
-    const onChange = (value:string) => {
+    const onChange = (value:number) => {
         // set_activeStep(value);
     };
 
