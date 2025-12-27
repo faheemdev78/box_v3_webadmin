@@ -35,7 +35,7 @@ export default async function Layout({
     // console.log("store: ", store)
 
     return (<>
-        <StoreHeader baseUrl={baseUrl} store_id={store_id} store={store} />
+        <StoreHeader baseUrl={baseUrl} store={store} />
 
         <PageProvider pageProps={{ baseUrl, store_id, store }}>
             {/* <h3>{store.title}</h3>
