@@ -166,7 +166,8 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
       sub={<div>{pagination ? `Total ${pagination.total || 0} records found` : null}</div>}
       ><>
         <Space separator="|">
-          {!props.hideAddProduct && <Button type="link" color="orange"><Link href={`${adminRoot}/product/new`}>Add New Product</Link></Button>}
+          {/* {!props.hideAddProduct && <Button type="link" color="orange"><Link href={`${adminRoot}/product/new`}>Add New Product</Link></Button>} */}
+          {!props.hideAddProduct && <Link href={`${adminRoot}/product/new`}>Add New Product</Link>}
           <Radio.Group size="small" value={pageView} buttonStyle="solid" onChange={({ target }) => changeView(target.value)}>
             <Radio.Button value="list"><Icon icon='th-list' /></Radio.Button>
             <Radio.Button disabled value="grid"><Icon icon='th-large' /></Radio.Button>

@@ -79,6 +79,10 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
 
     const [addProduct, add_details] = useMutation<any>(RECORD_ADD); // { data, loading, error }
 
+    const onChange = value => {
+        // set_activeStep(value);
+    };
+
     const onSubmit = async (values: any) => {
         const { picture, video, gallery } = values;
         // console.log(__yellow("onSubmit()"), values)
@@ -149,9 +153,9 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
             fit_for_dispatch: (values.fit_for_dispatch === true),
             tags: values?.tags?.join(), //?.toString(),
             meta: [
-                { name: 'keywords', val: values?.meta?.keywords },  //values?.meta?.keywords?.toString() },
-                { name: 'title', val: values?.meta?.title },
-                { name: 'description', val: values?.meta?.description },
+                { name: 'keywords', val: values?.meta?.keywords || "" },  //values?.meta?.keywords?.toString() },
+                { name: 'title', val: values?.meta?.title || "" },
+                { name: 'description', val: values?.meta?.description || "" },
             ],
         }
 
@@ -190,10 +194,10 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
         return results;
     }
 
-    const uploadProdImage = async (_files: any) => {
-        // Legacy stub kept for compatibility; actual uploads handled by updateMainFile/updateGalleryFiles
-        return true;
-    }
+    // const uploadProdImage = async (_files: any) => {
+    //     // Legacy stub kept for compatibility; actual uploads handled by updateMainFile/updateGalleryFiles
+    //     return true;
+    // }
 
     const updateMainFile = async (files: any, _id: any) => {
         console.log(__yellow("updateMainFile()"), files)
@@ -328,17 +332,17 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
 
     }
 
-    const onProdImageDelete = async (file: any) => {
-        return;
-        // Disabled function - unreachable code
-        // let resutls = await deleteProductImg({ variables: { _id_product: editNode._id } })
-        //     .then((r: any) => (r?.data?.deleteProductImg))
-        //     .catch((err: any) => {
-        //         console.log(__error("Error: "), err)
-        //         return { error: { message: "Unable to delete Image" } }
-        //     })
-        // return resutls.error ? resutls : [];
-    }
+    // const onProdImageDelete = async (file: any) => {
+    //     return;
+    //     // Disabled function - unreachable code
+    //     // let resutls = await deleteProductImg({ variables: { _id_product: editNode._id } })
+    //     //     .then((r: any) => (r?.data?.deleteProductImg))
+    //     //     .catch((err: any) => {
+    //     //         console.log(__error("Error: "), err)
+    //     //         return { error: { message: "Unable to delete Image" } }
+    //     //     })
+    //     // return resutls.error ? resutls : [];
+    // }
 
 
 
@@ -367,34 +371,39 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
         } finally {
             console.log(__success("Upload complete"))
         }
-      }
-
-
+    }
 
 
     if (fetalError) return <Alert title="Error" description={fetalError} type='error' showIcon />
-
-    // return (<DevBlock obj={extraFields} />)
 
     return (<>
         {contextHolder}
 
         <Layout style={{ backgroundColor: "transparent" }}>
-            <Sider trigger={null} collapsible collapsed={collapsed} theme='light'>
-                <Button type="text" block icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)} />
-
-                <h1>Options</h1>
-                <p>Picture</p>
-                <p>Title</p>
-                <p>Barcode</p>
-                <p>Categories</p>
-                <p>Attributes filter</p>
-                
+            <Sider trigger={null} collapsible collapsed={collapsed} theme='light' collapsedWidth={40}>
+                <Button size='large' type="text" block icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)} />
+                {!collapsed && <>
+                    <h1>Options</h1>
+                    <p>Picture</p>
+                    <p>Title</p>
+                    <p>Barcode</p>
+                    <p>Categories</p>
+                    <p>Attributes filter</p>
+                </>}
             </Sider>
-            <Layout style={{ backgroundColor: "transparent" }}>
+
+            <Layout style={{ backgroundColor: "transparent", minWidth: "1320px" }}>
+                <Steps type="panel" 
+                    current={activeStep} 
+                    onChange={onChange}
+                    items={stepsArray} style={{ padding:"0 5px" }} />
                 <Content style={{ margin: '0px 5px', padding: '24px', minHeight: '50vh', background: 'white', borderRadius: '5px', }}>
                     
-                    <div style={{ justifySelf: "center", margin:"10px 50px 50px 50px", border:"0px solid black" }}><Steps progressDot current={activeStep} items={stepsArray} /></div>
+                    {/* <div style={{ justifySelf: "center", margin:"10px 50px 50px 50px", border:"0px solid black", width:"100%" }}>
+                        <Steps 
+                            type="panel"
+                            current={activeStep} items={stepsArray} />
+                    </div> */}
 
                     <FinalForm onSubmit={onSubmit} initialValues={initialValues}
                         mutators={{
@@ -482,7 +491,7 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
                             return (<>
                                 <form id="CreateProductForm" {...submitHandler(formargs)} style={{ border: "0px solid black", minHeight: "100%" }}>
 
-                                    <div style={{ width: "800px", textAlign: "left", border: "2px solid #EEE", borderRadius: "10px", justifySelf: "center" }}>
+                                    <div style={{ width: "900px", textAlign: "left", border: "2px solid #EEE", borderRadius: "10px", justifySelf: "center" }}>
 
                                         {error && <Alert title="Error" description={error} showIcon type='error' />}
 
