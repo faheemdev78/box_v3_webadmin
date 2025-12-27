@@ -22,7 +22,7 @@ const renderItem = (id, title, picture_thumb) => ({
 
 
 export const ProductBarcodeFilter = props => {
-    const [busy, setBusy] = useState(false)
+    // const [busy, setBusy] = useState(false)
     const [results, setResults] = useState([])
 
     const [products, { called, loading }] = useLazyQuery(PRODUCTS, { fetchPolicy: "no-cache" });
