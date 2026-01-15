@@ -1,18 +1,61 @@
 :root {
-    --background: #EEEEEE;
-    --foreground: #171717;
+    --background: #F6F7F9;
+    // --foreground: #171717;
+
+    --border-color: #E5E7EB;
+
+    --fontSize: 14px;
+    --font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    --fontColor: #1F2937;
+    --lineHeight: 1.5;
+
+    --secondaryFontSize: 13px;
+    --secondaryFontColor: #6B7280;
+
+    --hintFontSize: 12px;
+
+    --hyperlinkColor: #008DFB;
+
+    --h1-font-size: 24px;
+    --h1-font-weight: 600;
+    
+    --h2-font-size: 18px;
+    --h2-font-weight: 600;
+    
+    --h3-font-size: 14px;
+    --h3-font-weight: 400;
+
+    // Table
+    --table-body-text: 14px;
+    // header
+    --table-headers-font-size: 13px;
+    --table-headers-case: uppercase;
+    --table-headers-font-weight: 600;
+    --table-headers-font-color: #6B7280;
+    --table-headers-background: #F5F8FA;
+    
+
+    // // Button
+    // --button-font-size: 14px;
+    // --button-font-weight: 600;
+    // --button-primary-color: #37A53C;
+    // --button-blue-color: #1661A1;
+    // --button-red-color: #B82A2A;
+    // --button-disabled-color: #EBF0F6;
+
+
 }
 
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
+    // --font-sans: var(--font-geist-sans);
+    // --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: light) {
     :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
+        // --background: #0a0a0a;
+        // --foreground: #ededed;
     }
 }

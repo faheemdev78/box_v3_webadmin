@@ -1,8 +1,25 @@
 .custom_bt{
+  font-size: 14px;
+  font-weight: 600;
   &:hover {
-      // box-shadow: none|h-offset v-offset blur spread color |inset|initial|inherit;
-      box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2), 0 2px 5px 0 rgba(0, 0, 0, 0.19) !important;
-    }
+    // box-shadow: none|h-offset v-offset blur spread color |inset|initial|inherit;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.2), 0 2px 5px 0 rgba(0, 0, 0, 0.19) !important;
+  }
+}
+
+// --button-disabled-color: #EBF0F6;
+
+.bt_green {
+  background: #37A53C;
+  border-color: #37A53C;
+  border-bottom-width: 1px;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: rgba($color: #37A53C, $alpha: 0.8) !important;
+    border-color: #37A53C !important;
+    color: white !important;
+  }
 }
 
 .bt_orange {
@@ -12,36 +29,34 @@
   color: white;
 
   &:hover:not(:disabled) {
-    background: #ef8e70 !important;
-    border-color: #C16A50 !important;
+    background: #EBF0F6 !important;
+    border-color: #EBF0F6 !important;
     color: white !important;
   }
-
 }
 
 .bt_blue {
-  background: #1E5F91;
-  border-color: #1E5F91;
+  background: #1661A1;
+  border-color: #1661A1;
   border-bottom-width: 3px;
   color: white;
 
   &:hover:not(:disabled) {
-    background: rgba($color: #1E5F91, $alpha: 0.8) !important;
-    border-color: #1E5F91 !important;
+    background: rgba($color: #1661A1, $alpha: 0.8) !important;
+    border-color: #1661A1 !important;
     color: white !important;
   }
-
 }
 
 .bt_red {
-  background: #a50000;
-  border-color: #6a0606;
+  background: #B82A2A;
+  border-color: #B82A2A;
   border-bottom-width: 3px;
   color: white;
 
   &:hover:not(:disabled) {
-    background: rgba($color: #8a0000, $alpha: 1.0) !important;
-    border-color: #ff0303 !important;
+    background: rgba($color: #B82A2A, $alpha: 1.0) !important;
+    border-color: #B82A2A !important;
     color: white !important;
   }
 

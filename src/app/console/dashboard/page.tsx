@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, Col, Row, Statistic, Table, Tag, Space, Select } from 'antd';
+import { Card, Col, Row, Statistic, Tag, Space, Select } from 'antd';
 import {
     ShoppingCartOutlined,
     ShopOutlined,
@@ -18,7 +18,7 @@ import { Page } from '@/template/page';
 import { PageHeader } from '@/template';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
-import { List } from '@/components';
+import { List, Table, Button } from '@/components';
 
 
 // Dummy Data for Application-Wide Dashboard
@@ -339,6 +339,17 @@ function ConsoleHome() {
         </PageHeader>
 
         <Page>
+
+            <div><Space>
+                <Button color="green">Green</Button>
+                <Button size="small" color="green">Green</Button>
+                <Button color="orange">Orange</Button>
+                <Button size="small" color="orange">Orange</Button>
+                <Button color="blue">Blue</Button>
+                <Button size="small" color="blue">Blue</Button>
+                <Button color="red">Red</Button>
+                <Button size="small" color="red">Red</Button>
+            </Space></div>
 
             <Row gutter={[16, 16]}>
                 {/* Overall Performance Metrics */}

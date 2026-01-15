@@ -28,7 +28,11 @@ import { Label, RenderError } from './extras';
 import { composeValidators, composeValidatorsArray } from './lib';
 import { ColorField } from './colorField';
 
-
+const FieldStyles = {
+    background: "#F5F8FA",
+    border: "1px solid #E5E7EB",
+    fontSize: "14px",
+}
 
 /******** Field Usage*****************
  * 
@@ -292,9 +296,20 @@ export const TextField = props => {
                                     prefix={props.prefix}
                                     suffix={props.suffix}
                                     onChange={onChange}
-                                    className={`${props.isRequired && styles.is_required_field}`}
                                     style={props.style}
                                     disabled={props?.final_fieldProps?.disabled}
+                                    className={`${props.isRequired && styles.is_required_field}`}
+                                    styles={{
+                                        root: {},
+                                        prefix: {},
+                                        input: {
+                                            backgroundColor: FieldStyles.background,
+                                            border: FieldStyles.border,
+                                            fontSize: FieldStyles.fontSize
+                                        },
+                                        suffix: {},
+                                        count: {}
+                                    }}
                                 />
                                 <RenderError {...meta} />
                             </div>}
@@ -318,7 +333,20 @@ export const HiddenField = props => {
                 } */}
 
                 return (<>
-                    <AntInput type='hidden' {...input} {...props.fieldProps}  />
+                    <AntInput 
+                        type='hidden' {...input} {...props.fieldProps}
+                        styles={{
+                            root: {},
+                            prefix: {},
+                            input: {
+                                backgroundColor: FieldStyles.background,
+                                border: FieldStyles.border,
+                                fontSize: FieldStyles.fontSize
+                            },
+                            suffix: {},
+                            count: {}
+                        }}
+                    />
                     <RenderError {...meta} />
                 </>)
 
@@ -348,6 +376,16 @@ export const TextareaField = props => {
                                 className={`${props.isRequired && styles.is_required_field}`}
                                 style={props.style}
                                 disabled={props?.final_fieldProps?.disabled}
+                                styles={{
+                                    root: {},
+                                    textarea: {
+                                        backgroundColor: FieldStyles.background,
+                                        border: FieldStyles.border,
+                                        fontSize: FieldStyles.fontSize
+                                    },
+                                    count: {},
+                                }}
+
                             />
                         </div>
                         <RenderError {...meta} />
@@ -390,6 +428,18 @@ export const NumberField = props => {
                                     step={props.step}
                                     // onkeypress={props.onkeypress}
                                     parser={props.parser}
+                                    styles={{
+                                        root: {
+                                            backgroundColor: FieldStyles.background,
+                                            border: FieldStyles.border,
+                                        },
+                                        prefix: {},
+                                        input: {
+                                            fontSize: FieldStyles.fontSize
+                                        },
+                                        suffix: {},
+                                        count: {}
+                                    }}
                                 />
                                 <RenderError {...meta} />
                             </div>}
@@ -574,7 +624,27 @@ export const SelectField = props => {
                                             <Col flex="auto" style={{ padding: "5px 10px", color: value ? '#000' : 'white' }}>{value || "."}</Col>
                                             <Col></Col>
                                         </Row>}
-                                        {!props.preview && <AntSelect {...input} {...fieldProps} className={`${props.isRequired && styles.is_required_field}`}>
+                                        {!props.preview && <AntSelect {...input} {...fieldProps} className={`${props.isRequired && styles.is_required_field}`}
+                                            styles={{
+                                                root: {
+                                                    backgroundColor: FieldStyles.background,
+                                                    border: FieldStyles.border,
+                                                    fontSize: FieldStyles.fontSize
+                                                },
+                                                prefix: {},
+                                                content: {},
+                                                placeholder: {},
+                                                clear: {},
+                                                input: {},
+                                                suffix: {},
+                                                popup: {
+                                                    root: {},
+                                                    list: {},
+                                                    listItem: {}
+                                                }
+                                            }}
+
+                                        >
                                             {props?.options?.map((item, i) => {
                                                 let node = optionParser(item);
                                                 return <AntSelect.Option value={node.value} style={node.style} key={i}>{node.children}</AntSelect.Option>;

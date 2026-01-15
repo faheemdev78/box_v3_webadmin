@@ -100,8 +100,9 @@ Admin Template
 }
 
 .page-title {
-    color: #0291AE;
-    font-size: 24px;
+    color: var(--secondaryFontColor);
+    font-size: var(--h1-font-size);
+    font-weight: var(--h1-font-weight);
 }
 
 .global-search-results {

@@ -4,7 +4,70 @@
     color: #848484 !important;
 }
 
+/********** Drawer styles ********/
+.custom-drawer{
+    .cd-mask{}
+    .cd-section{}
+    .cd-header{
+        background: linear-gradient(to right,
+                    hsla(187, 100%, 37%, 1),
+                    hsla(172, 100%, 37%, 1));
+        // background: hsla(187, 100%, 37%, 1);
+        // background: linear-gradient(90deg, hsla(187, 100%, 37%, 1) 0%, hsla(172, 100%, 37%, 1) 100%);
+        // background: -moz-linear-gradient(90deg, hsla(187, 100%, 37%, 1) 0%, hsla(172, 100%, 37%, 1) 100%);
+        // background: -webkit-linear-gradient(90deg, hsla(187, 100%, 37%, 1) 0%, hsla(172, 100%, 37%, 1) 100%);
+        // filter: progid: DXImageTransform.Microsoft.gradient(startColorstr="#00A6BC", endColorstr="#00BDA5", GradientType=1);
+    }
+    .cd-title{ 
+        color: white;
+        font-weight: 600;
+    }
+    .cd-extra{}
+    .cd-footer{}
+    .cd-dragger{}
+    .cd-close{ 
+        color: white;
+    }
+}
+
+
 /********** Table styles ********/
+.custom-table-root{
+    .ct-title{}
+    .ct-header-wrapper{
+        .ct-header-row{}
+        .ct-header-cell{
+            background-color: var(--table-headers-background);
+            color: var(--table-headers-font-color);
+            font-weight: var(--table-headers-font-weight);
+            text-transform: var(--table-headers-case);
+            font-size: var(--table-headers-font-size);
+        }
+    }
+    .ct-section{}
+    .ct-body-wrapper{
+        .ct-body-row{}
+        .ct-body-cell{
+            font-size: var(--table-body-text);
+        }
+    }
+    .ct-cell{}
+    .ct-pagination-root{}
+    .ct-pagination-item{}
+}
+
+// .custom_antd-table{
+//     // .ant-table-thead{
+//     //     &>tr>th{
+//     //         background-color: var(--table-headers-background);
+//     //         color: var(--table-headers-font-color);
+//     //         font-weight: var(--table-headers-font-weight);
+//     //         text-transform: var(--table-headers-case);
+//     //     }
+//     //     .ant-table-cell{}
+//     // }
+//     // .ant-table-tbody{}
+// }
 .ant-table-row,
 .table_row {
     &.even_row {

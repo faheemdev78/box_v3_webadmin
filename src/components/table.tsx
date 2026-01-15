@@ -116,6 +116,27 @@ export const Table: React.FC<MyTableProps> = (_props) => {
 
     return (<>
         <AntTable
+            classNames={{
+                root: 'custom-table-root',
+                title: 'ct-title',
+                header: {
+                    wrapper: 'ct-header-wrapper',
+                    row: 'ct-header-row',
+                    cell: 'ct-header-cell'
+                },
+                section: 'ct-section',
+                body: {
+                    wrapper: 'ct-body-wrapper',
+                    row: 'ct-body-row',
+                    cell: 'ct-body-cell',
+                },
+                footer: 'ct-cell',
+                pagination: {
+                    root: 'ct-pagination-root',
+                    item: 'ct-pagination-item'
+                }
+            }}
+            className={`custom_antd-table`}
             rowClassName={(record, index) => (`table_row ${index % 2 ? "even_row" : "odd_row"}`)}
             {...props}
             dataSource={dataSource || []}

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Tabs, Button, Space, Dropdown, Drawer, Modal, Input, Radio, Table, Tag, message } from 'antd';
+import { Card, Tabs, Space, Dropdown, Modal, Input, Radio, Table, Tag, message } from 'antd';
 import { PlusOutlined, FilterOutlined, CloseOutlined, MoreOutlined, DownOutlined } from '@ant-design/icons';
 import { Page } from '@/template';
 import { productsConfig } from '../configs/productsConfig';
@@ -11,6 +11,7 @@ import { generateTableColumns, getRowKey, applyFilters, applySort } from '../uti
 import { EditColumnsModal } from '../components/EditColumnsModal';
 import { QuickFiltersBar } from '../components/QuickFiltersBar';
 import { AdvancedFiltersDrawer } from '../components/AdvancedFiltersDrawer';
+import { Drawer, Button } from '@/components';
 
 // Initial saved views for products
 const INITIAL_PRODUCT_VIEWS: SavedView[] = [

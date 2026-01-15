@@ -44,10 +44,11 @@ export function Drawer(props: DrawerProps){
     content: {
       // boxShadow: '-10px 0 10px #666',
     },
-    header: {
-      color: "white",
-      // borderBottom: `1px solid ${token.colorPrimary}`,
-    },
+    // header: {
+    //   color: "white",
+    //   backgroundColor: "red",
+    //   // borderBottom: `1px solid ${token.colorPrimary}`,
+    // },
     body: {
       fontSize: token.fontSizeLG,
     },
@@ -56,14 +57,28 @@ export function Drawer(props: DrawerProps){
     // },
   };
 
-
   return (<ConfigProvider
     drawer={{
       classNames,
       styles: drawerStyles,
     }}
   >
-    <AntDrawer {...props} />
+    <AntDrawer 
+      closable={{ placement: 'end' }}
+      {...props}
+      classNames={{
+        root: 'custom-drawer',
+        mask: 'cd-mask',
+        section: 'cd-section',
+        header: 'cd-header',
+        title: 'cd-title',
+        extra: 'cd-extra',
+        footer: 'cd-footer',
+        dragger: 'cd-dragger',
+        close: 'cd-close',
+        ...props.classNames
+      }}
+    />
   </ConfigProvider>)
 }
 

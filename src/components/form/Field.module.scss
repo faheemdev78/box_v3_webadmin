@@ -17,7 +17,9 @@
     }
   }
 
-  &.textarea, &.text, &.number, &.email{ width: 100%; }
+  &.textarea, &.text, &.number, &.email{ 
+    width: 100%;
+  }
 
   &.textarea, &.text, &.date, &.number{
     .is_required_field {

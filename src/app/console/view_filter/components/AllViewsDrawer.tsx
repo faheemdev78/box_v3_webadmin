@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Drawer, List, Card, Space, Tag, Button, Select, Input, Typography, Tooltip, Popconfirm, Avatar, Empty } from 'antd';
+import { List, Card, Space, Tag, Select, Input, Typography, Tooltip, Popconfirm, Avatar, Empty } from 'antd';
 import {
   PushpinOutlined, PushpinFilled, EyeOutlined, CopyOutlined,
   DeleteOutlined, EditOutlined, UserOutlined, ClockCircleOutlined,
@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 import { useMutation } from '@apollo/client/react';
 import { PIN_SAVED_VIEW, DELETE_SAVED_VIEW } from '../graphql/mutations';
+import { Drawer, Button } from '@/components';
 import moment from 'moment';
 
 const { Text, Title } = Typography;
