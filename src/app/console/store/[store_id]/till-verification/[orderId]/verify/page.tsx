@@ -6,7 +6,7 @@
  */
 
 import React, { ReactNode, useEffect, useState } from 'react';
-import { Card, Row, Col, Space, Button, Typography, Modal, Input, message, Progress, Tag, Alert, InputNumber } from 'antd';
+import { Card, Row, Col, Space, Typography, Modal, Input, message, Progress, Tag, Alert, InputNumber } from 'antd';
 import { 
   CloseCircleOutlined, WarningOutlined, ClockCircleOutlined, EditOutlined,
   CheckCircleOutlined, LeftOutlined, ExclamationCircleOutlined, PrinterOutlined } from '@ant-design/icons';
@@ -19,13 +19,14 @@ import { useStartOrderVerification, useCompleteOrderVerification,
   useMyActiveTillShift, usePrintTillReceipt, useOpenTillShift
 } from '@/hooks/useTillVerification';
 import { adminRoot } from '@/configs';
-import { Avatar, DevBlock, Loader, Table, usePageProps } from '@/components';
+import { Avatar, DevBlock, Button, IconButton, Loader, Table, usePageProps, Icon, Drawer } from '@/components';
 import { Page } from '@/template';
 // import { ItemVerificationRow } from '@/modules/orders/tillVerification/ItemVerificationRow';
 import { BasketSelector } from '@/modules/orders/tillVerification/BasketSelector';
 import dayjs from 'dayjs';
 import { useVerifyOrderItem, useMarkOrderItemMissing, useMarkOrderItemDamaged, useMarkOrderItemMismatch } from '@/hooks/useTillVerification';
 import { __success, __yellow } from '@/lib/consoleHelper';
+import Link from 'next/link';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -259,7 +260,7 @@ const VerificationColumn = ({ item, orderId }: { item:any, orderId:string }) => 
 }
 
 
-const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
+const TillVerificationPOS_v1 = ({ shiftSession }: { shiftSession:any }) => {
   // console.log("TillVerificationPOS()")
   const { store, store_id }: any = usePageProps();
   const dispatch = useAppDispatch();
@@ -686,342 +687,777 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 
 }
 
-// export const BK___TillVerificationPOS = () => {
-//   const { store, store_id }:any = usePageProps()
-//   const params = useParams()
-//   const orderId = params.orderId as string
+const ProductHolder = ({ index }: { 
+  index:number;
+}) => {
+  return (<div className='flex flex-col overflow-hidden w-full h-[210px] bg-white border border-gray-200 rounded-md'>
+    <div className='flex-full flex flex-col flex-1 min-w-0 bg-gray-50 p-10'>
+      <Row className='nowrap'>
+        <Col flex="130px">
+          <div className='bg-blue-300' style={{ marginRight:"10px" }}>pic</div>
+        </Col>
+        <Col flex="auto">
+          {/* <div className='ellipsis w-[200px]'>The longest product title taken from any category from somwhere category from somwhere...</div> */}
+          <div className='h-13 overflow-hidden font-bold'>The longest product title taken from any category from somwhere category from somwhere. The longest product title taken from any category from somwhere category from somwhere </div>
+          <div><Tag color="green"><Icon icon="check-circle" />210 in Stock</Tag></div>
+          <div className='border-b border-gray-300' style={{ margin:"5px 0" }} />
+          <div>RS <span className='font-bold'>438</span> <span className='text-xs text-gray-500 line-through'>RS 500</span></div>
+          <div className='text-xs'>Qty recevied: 2</div>
+          <div style={{ margin: "5px 0" }} />
+          <Row gutter={[10, 10]}>
+            <Col flex={12}>
+              <div className='border-gray-300 bg-blue-200 rounded-md leading-5 text-sm' style={{ padding:"5px 8px" }}>
+                <div>Scanned</div>
+                <div>2</div>
+              </div>
+            </Col>
+            <Col flex={12}>
+              <div className='border-gray-300 bg-yellow-200 rounded-md p-10 leading-5 text-sm' style={{ padding: "5px 8px" }}>
+                <div>Scanned</div>
+                <div>2</div>
+              </div>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    </div>
+    <div className='text-xs' style={{ padding:"0 10px" }}>
+      <Row>
+        <Col span={12}><span className='text-xs'>#123654789</span></Col>
+        <Col span={12} className='text-right'><Tag>#123654789</Tag></Col>
+      </Row>
+    </div>
+  </div>)
+}
+const LeftColumn = ({ onNavClick }) => {
+  {/* C1: 100px fixed width */}
+  return (<div className='w-[100px] flex flex-col shrink-0 border-r border-gray-300 bg-white'>
+    <div className="flex-1 bg-gray-50/50">
+      <div className='flex flex-col'><Space orientation='vertical' size={1}>
+        {/* <div>LOGO</div> */}
+        <div onClick={() => onNavClick('orders')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Orders</div>
+        <div onClick={() => onNavClick('products')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Products</div>
+        <div onClick={() => onNavClick('baskets')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Baskets</div>
+        <div onClick={() => onNavClick('wrong_item')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Wrong Item</div>
+        <div onClick={() => onNavClick('excessive_item')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Excessive Item</div>
+        <div onClick={() => onNavClick('Supervisor Mode')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Supervisor Mode</div>
+        <div onClick={() => onNavClick('Redy to dispatch')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Redy to dispatch</div>
+      </Space>
+      </div>
+    </div>
+    <div className="h-[100px] border-gray-300 flex flex-col flex-center item-center justify-center bg-white">
+      <div className="flex flex-center item-center justify-center">Notification</div>
+      <div className='flex flex-center item-center justify-center'><Avatar>F</Avatar></div>
+    </div>
+  </div>)
+}
+const RightColumn = ({ showBags, showBaskets, showPrint }) => {
+  {/* C4: 300px fixed width */}
+  return (<div className='w-[300px] border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
+    <div className="flex-1 w-full p-4 bg-gray-50/50">
+      <div className='flex flex-col p-10'>
+        <div className=''><Input placeholder="Search barcode of items in order" /></div>
+        <div className='flex flex-col items-center justify-center' style={{ marginTop:"10px" }}>
+          <div className='text-xl font-semibold mt-10'>Product Name</div>
+          <div className='w-[200px] h-[250px] bg-black' style={{margin:"10px"}}>Product Picture</div>
+          <div><Space>
+            <IconButton icon="plus" />
+            <div className='text-2xl border border-gray-300 rounded-sm' style={{ padding:"0 5px"}}>1/2</div>
+            <IconButton icon="minus" />
+            <Button color='green'>OK</Button>
+          </Space></div>
+        </div>
+      </div>
+      <div className='border-t border-gray-300 p-10'>
+        <div style={{ marginBottom:"10px"}}><Space>
+          <Button size="small">Basket 1</Button>
+          <Button size="small">Basket 2</Button>
+          <Button size="small">Basket 3</Button>
+        </Space></div>
+        <div style={{ marginBottom: "0px" }}><Space>
+          <Button onClick={showBags}>Bags</Button>
+          <Button onClick={showBaskets}>Baskets</Button>
+          <Button onClick={showPrint}>Print</Button>
+        </Space></div>
+      </div>
+      <div className='border-t border-gray-300 p-10'>Delivery details</div>
+    </div>
+    <div className="h-[100px] border-t border-gray-300 w-full flex flex-col p-10 font-semibold">
+      <Row>
+        <Col span={16}>Total Bill</Col><Col span={8}>4545/4545</Col>
+        <Col span={16}>Total Items</Col><Col span={8}>30/40</Col>
+        <Col span={16}>Out of stock items</Col><Col span={8}>10</Col>
+      </Row>
+    </div>
+  </div>)
+}
+const PageFooter = () => {
+  {/* C3: 100px height */}
+  // return (<div className="h-[100px] border-t border-gray-300 flex items-center justify-center bg-white">
+  return (<div className="h-[80px] border-t border-gray-300 flex bg-white">
+    <Row className='w-full p-20' align="middle">
+      <Col flex='auto'>
+        <Space><div className='font-bold'>Picker Basket</div> <Tag>0045</Tag><Tag>0041</Tag></Space>
+      </Col>
+      <Col flex='250px'>
+        <div>Ahsan Ali <span className='text-gray-400'>(picker)</span></div>
+        <div><span className='text-gray text-gray-400'>Wed 27th Nov 2025 - 16:35</span></div>
+      </Col>
+    </Row>
+  </div>)
+}
+const ContentArea = () => {
+  {/* C2: Flexible height/width with Blue border from your image */}
+  return (<div className="flex-1 flex flex-col items-start w-full bg-gray-50/50 overflow-y-auto">
+    {/* <div className='p-10 w-full'><Space wrap>
+      <IconButton icon='arrow-left' />
+      <div>Order ABC123456</div>
+      <Button>Unscanned (20)</Button>
+      <Button>Scanned (10)</Button>
+      <Button>Unavailable (10)</Button>
+    </Space></div> */}
 
-//   const router = useRouter();
-//   const dispatch = useAppDispatch();
-//   const settings = useAppSelector(getSettings);
+    <div className='p-10 flex-1 flex w-full'><div className='w-full'>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-[10px]">
+        {Array(10).fill(null).map((_, index) => (
+          <div key={index} className="w-full flex items-center justify-center">
+            <ProductHolder index={index} />
+          </div>
+        ))}
+      </div>
+    </div></div>
 
-//   // Get order from Redux state
-//   const orderData = useAppSelector(getCurrentOrder);
+  </div>)
+}
 
-//   // Fetch active shift
-//   const { session: activeShift, loading: shiftLoading } = useMyActiveTillShift();
+const ReadyToDispatchWizard = () => {
+  const [step, setStep] = useState<string>(1);
 
-//   // Mutations
-//   const { startOrder } = useStartOrderVerification();
-//   const { completeOrder, loading: completingOrder } = useCompleteOrderVerification();
-//   const { printReceipt, loading: printingReceipt } = usePrintTillReceipt();
+  if(step===1){
+    return (<div className='bg-green-200 rounded-lg' style={{ padding: "20px" }}>
+      <div style={{ padding: "10px" }} className='text-center'>
+        <Button onClick={()=>setStep(2)} color="green">Ready To Dispatch</Button>
+      </div>
+    </div>)
+  }
+  if (step === 2) {
+    return (<div className='' style={{ padding: "20px" }}>
+      <div style={{ padding: "10px" }} className='text-center'>
+        <div className='text-2xl'>Print Icon</div>
+        <div className='p-10'>
+          <Space>
+            <IconButton icon="plus" />
+            <div className='text-2xl border border-gray-300 rounded-sm' style={{ padding: "0 5px" }}>6</div>
+            <IconButton icon="minus" />
+          </Space>
+        </div>
+        <Button onClick={() => setStep(2)} color="green">Ready To Dispatch</Button>
+      </div>
+    </div>)
+  }
 
-//   const [showCompleteModal, setShowCompleteModal] = useState(false);
-//   const [selectedBasketIds, setSelectedBasketIds] = useState<string[]>([]);
-//   const [completeNotes, setCompleteNotes] = useState('');
-//   const [initAttempted, setInitAttempted] = useState(false);
-//   const [showReceiptModal, setShowReceiptModal] = useState(false);
-//   const [receiptText, setReceiptText] = useState<string>('');
-//   const [fatelError, setFatelError] = useState<string | null>(null);
+  return null;
+}
 
-//   // Initialize order verification on mount
-//   useEffect(() => {
-//     if (initAttempted) return;
+const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
+  // console.log("TillVerificationPOS()")
+  const { store, store_id }: any = usePageProps();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const params = useParams()
 
-//     const initializeOrder = async () => {
-//       setInitAttempted(true);
+  const orderId = params.orderId as string
 
-//       if (!orderData) {
-//         // Order not in Redux - try to start verification
-//         // Backend will handle if order is already locked by this user
-//         try {
-//           console.log('Starting order verification for:', orderId);
-//           const result = await startOrder(orderId);
-//           console.log("result: ", result)
+  const settings = useAppSelector(getSettings);
+  const tillVerification = useAppSelector(getTillVerification);
+  const activeShift = useAppSelector(getActiveShift);
+  const orderData = useAppSelector(getCurrentOrder);
 
-//           // Check if backend returned "resuming" message
-//           if (result?.success?.message?.includes('Resuming')) message.info('Resuming order verification');
-//           else message.success('Order verification started');
-//         } catch (error: any) {
-//           console.error('Failed to start order:', error);
-//           message.error(error.message || 'Failed to start order verification');
-//           setFatelError(error.message || 'Failed to start order verification');
-//         }
-//       } else {
-//         // Order already in Redux - just set as current
-//         console.log('Order already in Redux, setting as current');
-//         dispatch(setCurrentOrder(orderId));
-//       }
-//     };
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [selectedBasketIds, setSelectedBasketIds] = useState<string[]>([]);
+  const [completeNotes, setCompleteNotes] = useState('');
+  const [initAttempted, setInitAttempted] = useState(false);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
+  const [receiptText, setReceiptText] = useState<string>('');
+  const [fatelError, setFatelError] = useState<string | null>(null);
+  const [openDrawer, set_openDrawer] = useState<string | false>(false);
+  
+  const [showWrongItem, set_showWrongItem] = useState<boolean>(false);
+  const [showExcessiveItem, set_showExcessiveItem] = useState<boolean>(false);
+  const [showSupervisorLogin, set_showSupervisorLogin] = useState<boolean>(false);
+  const [showReadyToDispatch, set_showReadyToDispatch] = useState<boolean>(false);
+  
+  const [showBags, set_showBags] = useState<boolean>(false);
+  const [showBaskets, set_showBaskets] = useState<boolean>(false);
+  const [showPrint, set_showPrint] = useState<boolean>(false);
 
-//     initializeOrder();
-//     // eslint-disable-next-line react-hooks/exhaustive-deps
-//   }, [orderId]);
-
-//   const handleComplete = async () => {
-//     if (!orderData) return;
-
-//     // Validate basket selection
-//     if (selectedBasketIds.length === 0) {
-//       message.error('Please select at least one delivery basket');
-//       return;
-//     }
-
-//     try {
-//       await completeOrder(orderId, selectedBasketIds, completeNotes);
-//       message.success('Order verification completed successfully!');
-//       setShowCompleteModal(false);
-//       setSelectedBasketIds([]);
-//       setCompleteNotes('');
-//       dispatch(setCurrentOrder(null));
-//       router.push(`${adminRoot}/store/${store_id}/till-verification`);
-//     } catch (error: any) {
-//       message.error(error.message || 'Failed to complete verification');
-//     }
-//   };
-
-//   const handlePrintReceipt = async () => {
-//     try {
-//       const result = await printReceipt(orderId);
-//       if (result?.receiptText) {
-//         setReceiptText(result.receiptText);
-//         setShowReceiptModal(true);
-//         message.success('Receipt generated successfully!');
-//       }
-//     } catch (error: any) {
-//       message.error(error.message || 'Failed to print receipt');
-//     }
-//   };
-
-//   const handleBasketSelectionChange = (basketIds: string[]) => {
-//     setSelectedBasketIds(basketIds);
-//   };
-
-//   const handleBack = () => {
-//     // Just navigate back - order stays locked (auto-hold)
-//     dispatch(setCurrentOrder(null));
-//     router.push(`${adminRoot}/store/${store_id}/till-verification`);
-//   };
-
-//   // Check if shift is active
-//   if (fatelError) return <Alert title="Error" description={fatelError} showIcon type='error' />
-
-//   if (!activeShift) {
-//     return (
-//       <div style={{ textAlign: 'center', padding: '100px 0' }}>
-//         <Card>
-//           <Space orientation="vertical">
-//             <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
-//             <Title level={4}>No Active Shift</Title>
-//             <Text>You must have an active shift to verify orders.</Text>
-//             <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Go to Queue</Button>
-//           </Space>
-//         </Card>
-//       </div>
-//     );
-//   }
-
-//   // Loading state - show what's happening
-//   if (!orderData) {
-//     if (!initAttempted) return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Loader loading={true}>Initializing...</Loader></div>);
-
-//     return (<div style={{ textAlign: 'center', padding: '100px 0' }}>
-//       <Card>
-//         <Space orientation="vertical">
-//           <ExclamationCircleOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
-//           <Title level={4}>Failed to Load Order</Title>
-//           <Text>Could not load order data. The order might not be available for verification.</Text>
-//           <Space>
-//             <Button onClick={() => window.location.reload()}>Reload Page</Button>
-//             <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Back to Queue</Button>
-//           </Space>
-//         </Space>
-//       </Card>
-//     </div>);
-//   }
+  // Mutations
+  const { startOrder, called: calledStart } = useStartOrderVerification();
+  const { completeOrder, loading: completingOrder } = useCompleteOrderVerification();
+  const { printReceipt, loading: printingReceipt } = usePrintTillReceipt();
 
 
-//   const orderItems = orderData?.current_order?.items || [];
-//   const customer = orderData?.customer;
-//   const picker = orderData?.processing_stages?.picking?.handled_by;
+  // Initialize order verification on mount
+  useEffect(() => {
+    if (!orderId || calledStart) return;
 
-//   // Calculate verification progress
-//   const totalItems = orderItems.length;
-//   const verifiedItems = orderItems.filter((item: any) =>
-//     item.processed_qty > 0 || item.status === 'confirmed' || item.status === 'out_of_stock' || item.status === 'damaged'
-//   ).length;
-//   const progressPercent = totalItems > 0 ? (verifiedItems / totalItems) * 100 : 0;
+    // setInitAttempted(true)
+    initializeOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId, calledStart]);
 
-//   return (<Page>
-//     <div style={{ padding: 24, backgroundColor: '#f0f2f5', minHeight: '100vh' }}>
-//       {/* Header */}
-//       <div style={{ marginBottom: 16 }}>
-//         <Row align="middle" justify="space-between">
-//           <Col>
-//             <Space>
-//               <Button icon={<LeftOutlined />} onClick={handleBack} size="large">Back</Button>
-//               <Space orientation="vertical" size={0}>
-//                 <Title level={3} style={{ margin: 0 }}>Till Verification - Order #{orderData?.serial}</Title>
-//                 <Text type="secondary">Customer: {customer?.name} | Picker: {picker?.name}</Text>
-//               </Space>
-//             </Space>
-//           </Col>
-//           <Col>
-//             <Button
-//               type="primary" size="large" loading={completingOrder} disabled={verifiedItems === 0}
-//               icon={<CheckCircleOutlined />}
-//               onClick={() => setShowCompleteModal(true)}
-//             >
-//               Complete Verification
-//             </Button>
-//           </Col>
-//         </Row>
-//       </div>
 
-//       {/* Main Content */}
-//       <Row gutter={16}>
-//         {/* Left Column - Items List */}
-//         <Col xs={24} lg={16}>
-//           <Card title={<Title level={4} style={{ margin: 0 }}>Items to Verify</Title>} style={{ minHeight: '70vh' }}>
-//             <Space orientation="vertical" style={{ width: '100%' }}>
-//               {orderItems.map((item: any) => (
-//                 <ItemVerificationRow
-//                   key={item._id_product}
-//                   item={item}
-//                   verificationStatus={getVerificationStatusFromItem(item)}
-//                   orderId={orderId}
-//                 />
-//               ))}
-//             </Space>
-//           </Card>
-//         </Col>
+  const initializeOrder = async () => {
+    console.log(__yellow("initializeOrder()"))
+    if (calledStart) return;
 
-//         {/* Right Column - Progress & Summary */}
-//         <Col xs={24} lg={8}>
-//           <Space orientation="vertical" style={{ width: '100%' }} size="middle">
-//             {/* Progress Card */}
-//             <Card size="small" title="Verification Progress">
-//               <Space orientation="vertical" style={{ width: '100%' }} size="small">
-//                 <Text strong style={{ fontSize: 16 }}>{verifiedItems} / {totalItems} items</Text>
-//                 <Progress
-//                   percent={Math.round(progressPercent)}
-//                   status={verifiedItems === totalItems ? 'success' : 'active'}
-//                   strokeColor={verifiedItems === totalItems ? '#52c41a' : '#1890ff'}
-//                 />
-//                 <Space>
-//                   <Tag color="success">{verifiedItems} Verified</Tag>
-//                   <Tag color="default">{totalItems - verifiedItems} Pending</Tag>
-//                 </Space>
-//               </Space>
-//             </Card>
+    if (!orderData) {
+      try {
+        const result = await startOrder(orderId);
+        console.log("result: ", result)
 
-//             {/* Order Summary */}
-//             <Card size="small" title="Order Summary">
-//               <Space orientation="vertical" style={{ width: '100%' }} size="small">
-//                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-//                   <Text>Subtotal:</Text>
-//                   <Text strong>{settings.currency}{orderData?.current_order?.totals?.subTotal?.toFixed(2) || '0.00'}</Text>
-//                 </Space>
-//                 {orderData?.current_order?.totals?.discount > 0 && (
-//                   <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-//                     <Text type="secondary">Discount:</Text>
-//                     <Text type="secondary">-{settings.currency}{orderData?.current_order?.totals?.discount?.toFixed(2)}</Text>
-//                   </Space>
-//                 )}
-//                 <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-//                   <Text>Tax:</Text>
-//                   <Text>{settings.currency}{orderData?.current_order?.totals?.tax?.toFixed(2) || '0.00'}</Text>
-//                 </Space>
-//                 <div style={{ borderTop: '1px solid #d9d9d9', paddingTop: 8, marginTop: 8 }}>
-//                   <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-//                     <Text strong style={{ fontSize: 16 }}>Total:</Text>
-//                     <Text strong style={{ fontSize: 18, color: '#1890ff' }}>
-//                       {settings.currency}{orderData?.current_order?.totals?.grandTotal?.toFixed(2) || '0.00'}
-//                     </Text>
-//                   </Space>
-//                 </div>
-//               </Space>
-//             </Card>
+        if (result?.success?.message?.includes('Resuming')) message.info('Resuming order verification');
+        else message.success('Order verification started');
 
-//             {/* Tips Card */}
-//             <Card size="small" title="💡 Tips" styles={{ body: { padding: 12 } }}>
-//               <Space orientation="vertical" size="small">
-//                 <Text type="secondary" style={{ fontSize: 12 }}>• Navigate away to auto-hold this order</Text>
-//                 <Text type="secondary" style={{ fontSize: 12 }}>• Verify items by clicking the Verify button</Text>
-//                 <Text type="secondary" style={{ fontSize: 12 }}>• Mark issues using Missing/Qty Issue buttons</Text>
-//               </Space>
-//             </Card>
-//           </Space>
-//         </Col>
-//       </Row>
+      } catch (error: any) {
+        console.error('Failed to start order:', error);
+        setFatelError(error.message || 'Failed to start order verification');
+      }
+    } else {
+      // Order already in Redux - just set as current
+      console.log('Order already in Redux, setting as current');
+      dispatch(setCurrentOrder(orderId));
+    }
+  };
 
-//       {/* Complete Verification Modal */}
-//       <Modal
-//         title="Complete Verification"
-//         open={showCompleteModal}
-//         onOk={handleComplete}
-//         onCancel={() => {
-//           setShowCompleteModal(false);
-//           setSelectedBasketIds([]);
-//         }}
-//         okText="Complete Verification"
-//         confirmLoading={completingOrder}
-//         width={800}
-//         okButtonProps={{ disabled: selectedBasketIds.length === 0 }}
-//       >
-//         <Space orientation="vertical" style={{ width: '100%' }} size="large">
-//           <div>
-//             <Text>Verification Progress: <Text strong>{verifiedItems} / {totalItems} items</Text></Text>
-//             {verifiedItems < totalItems && (
-//               <Alert type="warning" showIcon style={{ marginTop: 8 }} title="Error" description="Not all items have been verified. Continue anyway?" />
-//             )}
-//           </div>
+  const handleCompleteWithReceipt = async () => {
+    if (!orderData) return;
 
-//           <div>
-//             <Title level={5} style={{ marginBottom: 12 }}>Select Delivery Baskets</Title>
-//             <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-//               Select the delivery baskets for this order. Items from pickup baskets will be transferred to these baskets.
-//             </Text>
-//             <BasketSelector
-//               storeId={store_id}
-//               onSelectionChange={handleBasketSelectionChange}
-//               minRequired={1}
-//               category="dispatch"
-//             />
-//           </div>
+    // Validate basket selection
+    if (selectedBasketIds.length === 0) {
+      message.error('Please select at least one delivery basket');
+      return;
+    }
 
-//           <TextArea
-//             placeholder="Optional: Add completion notes..."
-//             value={completeNotes}
-//             onChange={(e) => setCompleteNotes(e.target.value)}
-//             rows={3}
-//           />
-//         </Space>
-//       </Modal>
+    try {
+      await completeOrder(orderId, selectedBasketIds, completeNotes);
+      message.success('Order verification completed successfully!');
+      setShowCompleteModal(false);
+      setSelectedBasketIds([]);
+      setCompleteNotes('');
 
-//       {/* Receipt Printing Modal */}
-//       <Modal
-//         title="Till Receipt"
-//         open={showReceiptModal}
-//         onCancel={() => setShowReceiptModal(false)}
-//         footer={[
-//           <Button key="close" onClick={() => setShowReceiptModal(false)}>Close</Button>,
-//           <Button key="print" type="primary" icon={<PrinterOutlined />}
-//             onClick={() => {
-//               // In a real implementation, this would send to thermal printer
-//               window.print();
-//             }}
-//           >
-//             Print
-//           </Button>,
-//         ]}
-//         width={600}
-//       >
-//         <div style={{
-//           fontFamily: 'monospace',
-//           whiteSpace: 'pre-wrap',
-//           backgroundColor: '#f5f5f5',
-//           padding: 16,
-//           borderRadius: 4,
-//           fontSize: 12,
-//           lineHeight: 1.4
-//         }}>
-//           {receiptText}
-//         </div>
-//       </Modal>
-//     </div>
-//   </Page>);
-// };
+      // Offer to print receipt
+      Modal.confirm({
+        title: 'Print Receipt?',
+        content: 'Would you like to print the till receipt for this order?',
+        okText: 'Print Receipt',
+        cancelText: 'Skip',
+        icon: <PrinterOutlined />,
+        onOk: async () => {
+          try {
+            const result = await printReceipt(orderId);
+            if (result?.receiptText) {
+              setReceiptText(result.receiptText);
+              setShowReceiptModal(true);
+            }
+          } catch (error: any) {
+            message.error(error.message || 'Failed to print receipt');
+            // Still navigate away
+            dispatch(setCurrentOrder(null));
+            router.push(`${adminRoot}/store/${store_id}/till-verification`);
+          }
+        },
+        onCancel: () => {
+          dispatch(setCurrentOrder(null));
+          router.push(`${adminRoot}/store/${store_id}/till-verification`);
+        },
+      });
+    } catch (error: any) {
+      message.error(error.message || 'Failed to complete verification');
+    }
+  };
+
+  const handleBasketSelectionChange = (basketIds: string[]) => setSelectedBasketIds(basketIds);
+
+  const handleBack = () => {
+    dispatch(setCurrentOrder(null));
+    router.push(`${adminRoot}/store/${store_id}/till-verification`);
+  };
+
+  const onNavClick = (nav:string) => {
+    if (nav =='wrong_item'){
+      set_showWrongItem(true)
+      return;
+    }
+    if (nav =='excessive_item'){
+      set_showExcessiveItem(true);
+      return;
+    }
+    if (nav =='Supervisor Mode'){
+      set_showSupervisorLogin(true);
+      return;
+    }
+    if (nav =='Redy to dispatch'){
+      set_showReadyToDispatch(true);
+      return;
+    }
+
+    set_openDrawer(nav)
+  }
+
+  if (fatelError) return <Alert title="Error" description={fatelError} showIcon type='error' />
+  if (!orderId || !activeShift) {
+    let eInfo = { title:"", description:"" }
+    if (!orderId) Object.assign(eInfo, {
+      title: "Missing order ID", description: "Unable to find target order ID"
+    })
+    if (!activeShift && !orderId) Object.assign(eInfo, {
+      title: "No Active Shift", description: "You must have an active shift to verify orders."
+    })
+
+    return <ErrorComp {...eInfo}
+      buttons={<><Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Go to Queue</Button></>}
+    />
+  }
+
+  // Loading state - show what's happening
+  if (!orderData) {
+    if (!calledStart) return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Loader loading={true}>Initializing...</Loader></div>);
+
+    return <ErrorComp title="Failed to Load Order" description="Could not load order data. The order might not be available for verification." 
+      buttons={<><Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Back to Queue</Button></>}
+    />
+  }
+
+  const orderItems = orderData?.current_order?.items || [];
+  const customer = orderData?.customer;
+  const picker = orderData?.processing_stages?.picking?.handled_by;
+
+  // Calculate verification progress
+  const totalItems = orderItems.length;
+  const verifiedItems = orderItems.filter((item: any) =>
+    item.processed_qty > 0 || item.status === 'confirmed' || item.status === 'out_of_stock' || item.status === 'damaged'
+  ).length;
+  const progressPercent = totalItems > 0 ? (verifiedItems / totalItems) * 100 : 0;
+
+  return (<>
+    <div className="flex h-[calc(100vh-50px)] w-full overflow-hidden">
+      <LeftColumn onNavClick={onNavClick} />
+
+      {/* Middle Column Wrapper (C2 + C3) */}
+      <div className="flex flex-col flex-1 min-w-0">
+        <div>
+          <div className='p-10 w-full'><Space wrap>
+            <IconButton onClick={() => router.back()} icon='arrow-left' />
+            <div>Order ABC123456</div>
+            <Button>Unscanned (20)</Button>
+            <Button>Scanned (10)</Button>
+            <Button>Unavailable (10)</Button>
+          </Space></div>
+        </div>
+        <ContentArea />
+        <PageFooter />
+      </div>
+
+      <RightColumn showBags={() => set_showBags(true)} showBaskets={() => set_showBaskets(true)} showPrint={() => set_showPrint(true)} />
+    </div>
+
+    <Drawer open={openDrawer === 'products'} onClose={() => set_openDrawer(false)} footer={false} title={'Products'} size={'large'}>
+      {openDrawer==='products' && <></>}
+    </Drawer>
+    <Drawer open={openDrawer === 'baskets'} onClose={() => set_openDrawer(false)} footer={false} title={'Baskets'} size={'large'}>
+      {openDrawer==='baskets' && <></>}
+    </Drawer>
+    <Drawer open={openDrawer === 'orders'} onClose={() => set_openDrawer(false)} footer={false} title={'Orders'} size={'large'}>
+      {openDrawer==='orders' && <></>}
+    </Drawer>
+
+    {/* const [showBags, set_showBags] = useState<boolean>(false);
+    const [showBaskets, set_showBaskets] = useState<boolean>(false);
+    const [showPrint, set_showPrint] = useState<boolean>(false); */}
+
+    <Modal open={showBags} onCancel={() => set_showBags(false)} title='Add Bags' footer={false}>
+      {/* <h1>Add Bags</h1> */}
+      <div className='p-10 flex-1 flex w-full'><div className='w-full'>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-[10px]">
+          {Array(8).fill(null).map((_, index) => (
+            <div key={index} className="flex flex-col w-full items-center justify-center">
+              <div className='flex flex-col items-center justify-center overflow-hidden w-full h-[200px] bg-white border border-gray-200 rounded-md p-5'>
+                <div className='h-[100px] w-[70px] bg-blue-300'>pic</div>
+                <div>{index}x{index} Size</div>
+                <div className='text-2xl font-bold'>10 RS</div>
+                <Button color='green' block>Add</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div></div>
+    </Modal>
+    <Modal open={showBaskets} onCancel={() => set_showBaskets(false)} title='Add Baskets' footer={false}>
+      <div className='p-10 flex-1 flex w-full'><div className='w-full'>
+        <div style={{ padding:"10px 0" }}><Row gutter={[10, 10]}>
+          <Col flex="auto"><Input placeholder="Search Basket" /></Col>
+          <Col><Button color="green">Add</Button></Col>
+        </Row></div>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-[10px]">
+          {Array(8).fill(null).map((_, index) => (
+            <div key={index} className="flex flex-col w-full items-center justify-center">
+              <div className='flex flex-col items-center justify-center overflow-hidden w-full h-[70px] bg-white border border-gray-200 rounded-md p-5'>
+                <div className='text-lg'>0123</div>
+                <Button color='red' block>Remove</Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div></div>
+    </Modal>
+    <Modal open={showPrint} onCancel={() => set_showPrint(false)} title='Print' footer={false}></Modal>
+
+    <Modal open={showWrongItem} onCancel={() => set_showWrongItem(false)} title='Wrong Item' footer={false}>
+      <div>
+        <div className='bg-red-700 h-5'></div>
+        <div className='' style={{ padding:"20px" }}>
+          <Row align="middle">
+            <Col span={12}><div style={{ padding: "10px" }} className='flex flex-col w-full items-center justify-center'>
+              <div>title</div>
+              <div className='h-[150px] w-[100px] bg-blue-300'>picture</div>
+              <div>attributes</div>
+              <div>123456789</div>
+            </div></Col>
+            <Col span={12} className='border-l border-gray-200'><div style={{ padding: "10px" }} className='text-center'>
+              <div className="flex flex-col w-full items-center justify-center">
+                <div className='flex flex-col items-center justify-center bg-red-700 h-[50px] w-[50px] text-white text-2xl font-bold rounded-full'>X</div>
+              </div>
+              <div className='text-2xl text-red-700 font-bold'>Wrong Item</div>
+              <p>Current order does not contain this item. Please remove this item from order.</p>
+              <Button color="red">Acknoledge</Button>
+            </div></Col>
+          </Row>
+        </div>
+        <div className='bg-red-700 h-5'></div>
+      </div>
+    </Modal>
+    <Modal open={showExcessiveItem} onCancel={() => set_showExcessiveItem(false)} title='Excessive Item' footer={false}
+      styles={{
+        container:{
+          backgroundColor: 'yellow'
+        }
+      }}
+      >
+      <div className='bg-white rounded-lg'>
+        <div className='' style={{ padding: "20px" }}>
+          <Row align="middle">
+            <Col span={12}><div style={{ padding: "10px" }} className='flex flex-col w-full items-center justify-center'>
+              <div>title</div>
+              <div className='h-[150px] w-[100px] bg-blue-300'>picture</div>
+              <div>attributes</div>
+              <div>123456789</div>
+            </div></Col>
+            <Col span={12} className='border-l border-gray-200'><div style={{ padding: "10px" }} className='text-center'>
+              <div className="flex flex-col w-full items-center justify-center">
+                <div className='flex flex-col items-center justify-center bg-red-700 h-[50px] w-[50px] text-white text-2xl font-bold rounded-full'>X</div>
+              </div>
+              <div className='text-2xl text-red-700 font-bold'>Excessive Item</div>
+              <p>this item is already scanned in full quantity</p>
+              <Button color="red">Acknoledge</Button>
+            </div></Col>
+          </Row>
+        </div>
+      </div>
+    </Modal>
+    
+    <Modal open={showSupervisorLogin} onCancel={() => set_showSupervisorLogin(false)} title='Supervisor Login' footer={false}>
+      <div className='' style={{ padding: "20px" }}>
+        <div style={{ padding: "10px" }} className='text-center'>
+          <div className="flex flex-col w-full items-center justify-center">
+            <div className='flex flex-col items-center justify-center bg-yellow-300 h-[60px] w-[60px] text-red-500 text-2xl font-bold rounded-full'>Alert</div>
+          </div>
+          <div className='text-lg font-bold'>Scan Supervisor Card or Enter Security Key</div>
+          <div style={{ padding: "10px 0" }}><Input placeholder="************" type={'password'} /></div>
+          <Button color="green">Approve</Button>
+        </div>
+      </div>
+    </Modal>
+
+    <Modal open={showReadyToDispatch} onCancel={() => set_showReadyToDispatch(false)} title='Ready to dispatch' footer={false}>
+      <ReadyToDispatchWizard />
+    </Modal>
+
+  </>)
+  
+  return (<>
+    <Page><div style={{ minHeight: '100vh' }}>
+      <Header orderData={orderData} handleBack={handleBack} setShowCompleteModal={setShowCompleteModal} completingOrder={completingOrder} verifiedItems={verifiedItems} />
+    
+      <Row gutter={[10, 10]}>
+        <Col xs={24} lg={16}>
+          <Table bordered dataSource={orderItems} pagination={false}
+            columns={[
+              { title: 'Title', dataIndex: 'title', key: 'title', render: (title: string, item: any) => {
+                return (<Space orientation='horizontal' size={10}>
+                    <Avatar size={72} shape="square">Product</Avatar>
+                  <Space orientation='vertical' size={0}>
+                      <Text strong style={{ fontSize: 16 }}>{title}</Text>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Barcode: {item.barcode}</Text>
+                      {item?.attributes?.map((atr: any, i: number) => (<Tag key={i}>{atr.val}{atr.title}</Tag>))}
+                    </Space>
+                  </Space>)
+                }
+              },
+              { title: 'Quantity', dataIndex: 'qty', key: 'qty', width: 180, render: (title: string, item: any) => {
+                  // Use shared helper function
+                  const verificationStatus = getVerificationStatusFromItem(item);
+
+                  return (<>
+                    <Space>
+                      <Text strong style={{ fontSize: 24 }}>{verificationStatus.qty_verified}/{verificationStatus.qty_expected}</Text> x
+                      <Text>{settings.currency}{item.price}</Text>
+                    </Space>
+                    {getStatusTag(verificationStatus.status)}
+                    {verificationStatus.status === 'mismatch' && (<Text type="warning">(Found: {verificationStatus.qty_verified})</Text>)}
+                  </>)
+                }
+              },
+              { title: 'Total', dataIndex: 'total', key: 'total', width: 100, render: (title: string, item: any) => (<>{settings.currency}{item.total}</>)
+              },
+              {
+                title: 'Verification Status', dataIndex: 'total', key: 'total', width: 100, render: (title: string, item: any) => (<VerificationColumn orderId={orderId} item={item} />)
+              },
+            ]}
+          />
+        </Col>
+
+        {/* Right Column - Progress & Summary */}
+        <Col xs={24} lg={8}>
+          <Space orientation="vertical" style={{ width: '100%' }} size={10}>
+            {/* Progress Card */}
+            <Card size="small" title="Verification Progress">
+              <Space orientation="vertical" style={{ width: '100%' }} size="small">
+                <Text strong style={{ fontSize: 16 }}>{verifiedItems} / {totalItems} items</Text>
+                <Progress
+                  percent={Math.round(progressPercent)}
+                  status={verifiedItems === totalItems ? 'success' : 'active'}
+                  strokeColor={verifiedItems === totalItems ? '#52c41a' : '#1890ff'}
+                />
+                <Space>
+                  <Tag color="success">{verifiedItems} Verified</Tag>
+                  <Tag color="default">{totalItems - verifiedItems} Pending</Tag>
+                </Space>
+              </Space>
+            </Card>
+
+            {/* Order Summary */}
+            <Card size="small" title="Order Summary">
+              <Space orientation="vertical" style={{ width: '100%' }} size="small">
+                <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                  <Text>Subtotal:</Text>
+                  <Text strong>{settings.currency}{orderData?.current_order?.totals?.subtotal?.toFixed(2) || '0.00'}</Text>
+                </Space>
+                {orderData?.current_order?.totals?.discountTotal && orderData.current_order.totals.discountTotal > 0 && (<Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                  <Text type="secondary">Discount:</Text>
+                  <Text type="secondary">-{settings.currency}{orderData?.current_order?.totals?.discountTotal?.toFixed(2)}</Text>
+                </Space>)}
+                <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                  <Text>Tax:</Text>
+                  <Text>{settings.currency}{orderData?.current_order?.totals?.taxAmount?.toFixed(2) || '0.00'}</Text>
+                </Space>
+                <div style={{ borderTop: '1px solid #d9d9d9', paddingTop: 8, marginTop: 8 }}>
+                  <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+                    <Text strong style={{ fontSize: 16 }}>Total:</Text>
+                    <Text strong style={{ fontSize: 18, color: '#1890ff' }}>
+                      {settings.currency}{orderData?.current_order?.totals?.grandTotal?.toFixed(2) || '0.00'}
+                    </Text>
+                  </Space>
+                </div>
+              </Space>
+            </Card>
+
+            {/* Receipt Preview Card */}
+            <Card
+              size="small"
+              title={
+                <Space>
+                  <PrinterOutlined />
+                  <Text>Receipt Preview</Text>
+                </Space>
+              }
+              styles={{ body: { padding: 0 } }}
+            >
+              <div style={{
+                fontFamily: 'monospace',
+                fontSize: 10,
+                lineHeight: 1.3,
+                backgroundColor: '#fafafa',
+                padding: 12,
+                maxHeight: 400,
+                overflowY: 'auto',
+                whiteSpace: 'pre-wrap',
+                borderTop: '1px solid #f0f0f0'
+              }}>
+                {/* Store Header */}
+                <div style={{ textAlign: 'center', borderBottom: '1px dashed #999', paddingBottom: 8, marginBottom: 8 }}>
+                  <Text strong style={{ fontSize: 11 }}>{store?.name || 'BOX STORE'}</Text>
+                  <br />
+                  <Text type="secondary" style={{ fontSize: 9 }}>Till Receipt</Text>
+                </div>
+
+                {/* Order Info */}
+                <div style={{ marginBottom: 8 }}>
+                  <Text style={{ fontSize: 9 }}>Order: #{orderData?.serial}</Text>
+                  <br />
+                  <Text style={{ fontSize: 9 }}>Customer: {customer?.name || 'N/A'}</Text>
+                  <br />
+                  <Text style={{ fontSize: 9 }}>Date: {dayjs().format('DD/MM/YYYY HH:mm')}</Text>
+                  <br />
+                  <Text style={{ fontSize: 9 }}>Zone: {(orderData as any)?.zone?.title || 'N/A'}</Text>
+                  <br />
+                  {(orderData?.current_order as any)?.baskets && (orderData?.current_order as any).baskets.length > 0 && (
+                    <Text style={{ fontSize: 9 }}>Baskets: {(orderData?.current_order as any).baskets.map((b: any) => b.title || b.barcode).join(', ')}</Text>
+                  )}
+                </div>
+
+                <div style={{ borderTop: '1px dashed #999', borderBottom: '1px dashed #999', padding: '6px 0', marginBottom: 6 }}>
+                  {/* Items Header */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr 1fr', gap: '4px', marginBottom: 4, paddingBottom: 4, borderBottom: '1px solid #ddd' }}>
+                    <Text strong style={{ fontSize: 8 }}>ITEM</Text>
+                    <Text strong style={{ fontSize: 8, textAlign: 'right' }}>QTY x PRICE</Text>
+                    <Text strong style={{ fontSize: 8, textAlign: 'right' }}>TOTAL</Text>
+                  </div>
+
+                  {/* Items */}
+                  {orderItems.map((item: any, index: number) => {
+                    const qty = item.processed_qty || item.qty;
+                    const total = (qty * item.price).toFixed(2);
+                    const itemName = item.title?.substring(0, 20) || 'Item';
+
+                    return (
+                      <div key={index} style={{ marginBottom: 6 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '3fr 2fr 1fr', gap: '4px', alignItems: 'start' }}>
+                          <Text style={{ fontSize: 9 }}>{itemName}</Text>
+                          <Text style={{ fontSize: 9, textAlign: 'right' }}>{qty} x {settings.currency}{item.price?.toFixed(2)}</Text>
+                          <Text style={{ fontSize: 9, textAlign: 'right' }}>{settings.currency}{total}</Text>
+                        </div>
+                        <p>{item.status}</p>
+                        {item.status === 'out_of_stock' && (
+                          <Text type="danger" style={{ fontSize: 8, display: 'block', marginLeft: 4 }}>⚠ MISSING</Text>
+                        )}
+                        {item.issue_reason && (
+                          <Text type="warning" style={{ fontSize: 7, display: 'block', marginLeft: 4, fontStyle: 'italic' }}>Note: {item.issue_reason}</Text>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Totals */}
+                <div style={{ marginBottom: 6 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text style={{ fontSize: 9 }}>Subtotal:</Text>
+                    <Text style={{ fontSize: 9 }}>{settings.currency}{orderData?.current_order?.totals?.subtotal?.toFixed(2)}</Text>
+                  </div>
+                  {orderData?.current_order?.totals?.discountTotal && orderData.current_order.totals.discountTotal > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text style={{ fontSize: 9 }}>Discount:</Text>
+                      <Text style={{ fontSize: 9 }}>-{settings.currency}{orderData?.current_order?.totals?.discountTotal?.toFixed(2)}</Text>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text style={{ fontSize: 9 }}>Tax:</Text>
+                    <Text style={{ fontSize: 9 }}>{settings.currency}{orderData?.current_order?.totals?.taxAmount?.toFixed(2)}</Text>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid #333', paddingTop: 6, marginTop: 6 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Text strong style={{ fontSize: 10 }}>TOTAL:</Text>
+                    <Text strong style={{ fontSize: 10 }}>{settings.currency}{orderData?.current_order?.totals?.grandTotal?.toFixed(2)}</Text>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div style={{ textAlign: 'center', marginTop: 12, paddingTop: 8, borderTop: '1px dashed #999' }}>
+                  <Text type="secondary" style={{ fontSize: 8 }}>Thank you for your order!</Text>
+                  <br />
+                  <Text type="secondary" style={{ fontSize: 8 }}>Verified: {verifiedItems}/{totalItems} items</Text>
+                </div>
+              </div>
+            </Card>
+          </Space>
+        </Col>
+
+      </Row>
+
+    </div></Page>
+
+    {/* Complete Verification Modal */}
+    <Modal title="Complete Verification"
+      open={showCompleteModal}
+      onOk={handleCompleteWithReceipt}
+      onCancel={() => {
+        setShowCompleteModal(false);
+        setSelectedBasketIds([]);
+      }}
+      okText="Complete Verification"
+      confirmLoading={completingOrder}
+      width={800}
+      okButtonProps={{ disabled: selectedBasketIds.length === 0 }}
+    >
+      <Space orientation="vertical" style={{ width: '100%' }} size="large">
+        <div>
+          <Text>Verification Progress: <Text strong>{verifiedItems} / {totalItems} items</Text></Text>
+          {verifiedItems < totalItems && (
+            <Alert type="warning" showIcon style={{ marginTop: 8 }} title="Error" description="Not all items have been verified. Continue anyway?" />
+          )}
+        </div>
+
+        <div>
+          <Title level={5} style={{ marginBottom: 12 }}>Select Delivery Baskets</Title>
+          <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+            Select the delivery baskets for this order. Items from pickup baskets will be transferred to these baskets.
+          </Text>
+          <BasketSelector
+            storeId={store_id}
+            onSelectionChange={handleBasketSelectionChange}
+            minRequired={1}
+            category="dispatch"
+          />
+        </div>
+
+        <TextArea
+          placeholder="Optional: Add completion notes..."
+          value={completeNotes}
+          onChange={(e) => setCompleteNotes(e.target.value)}
+          rows={3}
+        />
+      </Space>
+    </Modal>
+
+    {/* Receipt Printing Modal */}
+    <Modal title="Till Receipt"
+      open={showReceiptModal}
+      onCancel={() => setShowReceiptModal(false)}
+      footer={[
+        <Button key="close" onClick={() => setShowReceiptModal(false)}>Close</Button>,
+        <Button key="print" type="primary" icon={<PrinterOutlined />}
+          onClick={() => {
+            // In a real implementation, this would send to thermal printer
+            window.print();
+          }}
+        >
+          Print
+        </Button>,
+      ]}
+      width={600}
+    >
+      <div style={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap', backgroundColor: '#f5f5f5', padding: 16, borderRadius: 4, fontSize: 12, lineHeight: 1.4 }}>
+        {receiptText}
+      </div>
+    </Modal>
+
+    <DevBlock obj={orderData} title="orderData" />
+  </>)
+
+}
 
 
 function TillVerificationPOS_Wrapper() {

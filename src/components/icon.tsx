@@ -5,8 +5,9 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 // import { faThumbsUp } from '@fortawesome/free-solid-svg-icons'
 import {
-  faAngleDown, faArrowRight, faBarcode, faBell, faClock, faCog, faEllipsisV, faEye, faImage, faMessage, faMultiply,
+  faArrowLeft, faArrowRight, faAngleDown, faBarcode, faBell, faClock, faCog, faEllipsisV, faEye, faImage, faMessage, faMultiply,
   faPen, faPlus, faMinus, faSearch, faSquare, faSquareCheck, faStopwatch, faThLarge, faThList, faTrashAlt, faCopy,
+  faCheckCircle,
   faRefresh,
   faAddressCard,
   faLocation,
@@ -16,7 +17,6 @@ import {
   faLock,
   faPlay,
   faTrash,
-  faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { FontAwesomeIconProps } from '@fortawesome/react-fontawesome';
@@ -27,7 +27,7 @@ library.add(
   faEllipsisV, faThList, faThLarge, faSearch, faBarcode, faPlus, faMinus,  faImage, faArrowRight, 
   faStopwatch, faClock, faCog, faEye, faSquareCheck, faSquare, faBell, faMultiply, faMessage, faAngleDown,
   faPen, faTrashAlt, faTrash, faCopy, faRefresh, faAddressCard, faLocation, faInfoCircle, faMapLocation, faBasketShopping,
-  faLock, faPlay, faArrowLeft
+  faLock, faPlay, faArrowLeft, faCheckCircle
 )
  
 
