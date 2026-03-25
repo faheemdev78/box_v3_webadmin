@@ -7,11 +7,34 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface TillShift {
   _id: string;
+  _id_staff?: string;
+  _id_store?: string;
+  session_type?: string;
+  status?: string;
   session_started_at: Date;
+  session_completed_at?: Date | null;
+  total_session_time?: number | null;
   performance: {
     total_units_processed: number;
     successful_units: number;
+    failed_units?: number;
+    average_time_per_unit?: number;
+    units_per_hour?: number;
+    accuracy_rate?: number;
+    error_rate?: number;
   };
+  till_verification_orders?: Array<{
+    _id_order: string;
+    order_serial: string;
+    order_status?: string;
+    delivery_baskets?: string[];
+    started_at?: Date | null;
+    held_at?: Date | null;
+    completed_at?: Date | null;
+    hold_reason?: string | null;
+    completion_notes?: string | null;
+  }>;
+  staff_notes?: string | null;
 }
 
 export interface OrderItem {
@@ -140,6 +163,7 @@ export const tillVerificationSlice = createSlice({
      */
     clearShift: (state) => {
       state.activeShift = null;
+      state.heldOrders = {};
       state.currentOrderId = null;
     },
 

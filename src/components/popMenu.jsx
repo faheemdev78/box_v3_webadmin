@@ -13,21 +13,21 @@ import { Icon } from './icon'
     ]}
 ></PopMenu>
 */
-export function PopMenu({ placement = "topRight", trigger = "click", title = false, items, orientation = 'vertical', size = "default" }) {
+export function PopMenu({ placement = "topRight", trigger = "click", title = false, items, orientation = 'vertical', size = "default", shape = 'default' }) {
     const [open, setOpen] = useState(false)
 
     return (<>
         <Popover
             content={<Space orientation={orientation}>{items.map((item, i) => (<div key={i}>
                 {item.type == 'delete' ? <>
-                    <DeleteButton 
+                    <DeleteButton block
                         size={size} 
                         onClick={() => {
                             item.onClick();
                             setOpen(false)
                         }}>{item.label}</DeleteButton>
                 </> : <>
-                    <Button 
+                    <Button block 
                         size={size} 
                         onClick={() => {
                             item.onClick();
@@ -41,7 +41,7 @@ export function PopMenu({ placement = "topRight", trigger = "click", title = fal
             open={open}
             onOpenChange={(op) => setOpen(op)}
         >
-            <Button icon={<Icon icon="ellipsis-v" />} />
+            <Button icon={<Icon icon="ellipsis-v" />} shape={shape} />
         </Popover>
     </>)
 

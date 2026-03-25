@@ -58,13 +58,13 @@ export function Header({  }) {
                 </Row>
             </div>
 
-            <div style={{ padding: "20px" }}>
+            {/* <div style={{ padding: "20px" }}>
                 <h4>Theme</h4>
                 <Space>
-                    {/* <Icon icon="circle" /> */}
+                    <Icon icon="circle" />
                     <div style={{ borderRadius:"50%", width:"30px", height:"30px", backgroundColor:"red" }} />
                 </Space>
-            </div>
+            </div> */}
 
             <div style={{ padding: "0px" }}>
                 <Space orientation='vertical' style={{ width: "100%" }} size={0}>

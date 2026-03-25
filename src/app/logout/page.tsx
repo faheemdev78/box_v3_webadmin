@@ -1,22 +1,26 @@
 'use client'
 
+import { useEffect } from "react";
 import { Loader } from "@/components";
-import { sleep } from "@/lib";
 import { clearSessionToken } from "@/lib/auth";
-import { cleanStore } from "@/rStore";
-import { redirect } from "next/navigation";
+import { store } from "@/rStore";
+import { clearSession } from "@/rStore/slices/sessionSlice";
+import { useRouter } from "next/navigation";
 
 
 
 function Logout() {
+    const router = useRouter();
 
-    // clear cookies
-    clearSessionToken()
-    // clear redux
-    cleanStore();
+    useEffect(() => {
+        async function runLogout() {
+            store.dispatch(clearSession());
+            await clearSessionToken();
+            router.replace('/login');
+        }
 
-    sleep(100)
-    redirect('/login')
+        runLogout();
+    }, [router]);
 
     return <Loader loading={true} />;
 }

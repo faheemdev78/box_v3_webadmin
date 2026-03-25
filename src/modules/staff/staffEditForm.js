@@ -33,10 +33,7 @@ const FormComponent = ({ onSuccess, initialValues }) => {
 
         let results = await editStoreStaff({ variables: { input } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.editStoreStaff }))
-            .catch(error => {
-                console.log(__error("Error: "), error);
-                return { error: { message: "Request Error!" } }
-            });
+            .catch(catchApolloError)
 
         if (results.error){
             message.error(results.error.message);
@@ -68,20 +65,19 @@ const FormComponent = ({ onSuccess, initialValues }) => {
                     <form id="StaffForm" {...submitHandler(formargs)}>
 
                         <Row gutter={[10, 10]}>
-                            <Col span={12}><FormField type="text" name="name" label="Name" validate={rules.required} /></Col>
-                            <Col span={12}><UserTypeDD name="acc_type" label="Account Type" validate={rules.required} preload /></Col>
-                            <Col span={12}><FormField type="email" name="email" label="Email" validate={[rules.required, rules.isEmail]} /></Col>
-                            <Col span={12}><FormField type="text" name="phone" label="Phone" validate={rules.required} /></Col>
+                            <Col span={12} sm={24}><FormField type="text" name="name" label="Name" validate={rules.required} /></Col>
+                            <Col span={12} sm={24}><UserTypeDD name="acc_type" label="Account Type" validate={rules.required} preload /></Col>
+                            <Col span={12} sm={24}><FormField type="email" name="email" label="Email" validate={[rules.required, rules.isEmail]} /></Col>
+                            <Col span={12} sm={24}><FormField type="text" name="phone" label="Phone" validate={rules.required} /></Col>
                             {/* <Col span={6}><FormField type="select" name="acc_type" label="Account Type" options={userAccount} validate={rules.required} compact /></Col> */}
 
                             <Col span={24} align="right"><SubmitButton loading={submitting} label={'Save'} /></Col>
                         </Row>
 
-                        
-                        <Row>
+                        {/* <Row>
                             <Col span={12}><DevBlock obj={values} title="values" /></Col>
                             <Col span={12}><DevBlock obj={initialValues} title="initialValues" /></Col>
-                        </Row>
+                        </Row> */}
 
                     </form>
                 </>)

@@ -131,8 +131,8 @@ function ActiveSession({ store, onSessionUpdate }:{
     >
       <Space orientation="vertical" style={{ width: '100%' }}>
         <Text>Are you sure you want to close your shift?</Text>
-        {shiftSessionAny?.till_verification_orders?.length > 0 && <Alert title="Error" description={`You have ${shiftSessionAny.till_verification_orders.length} order(s) in progress. They will be released`} type="error" showIcon />}
-        {shiftSessionAny?.till_verification_orders?.length > 0 && (<Text type="warning">⚠️ You have {activeShift?.performance?.total_units_processed || 0} order(s) in progress. They will be released.</Text>)}
+        {shiftSessionAny?.till_verification_orders?.length > 0 && <Alert title={`${shiftSessionAny.till_verification_orders.length} orders in process.`} description={`You have ${shiftSessionAny.till_verification_orders.length} order(s) in progress. They will be released.`} type="warning" showIcon />}
+        {/* {shiftSessionAny?.till_verification_orders?.length > 0 && (<Text type="warning">⚠️ You have {activeShift?.performance?.total_units_processed || 0} order(s) in progress. They will be released.</Text>)} */}
         <Input.TextArea placeholder="Optional: Shift notes..." value={closeNotes} onChange={(e) => setCloseNotes(e.target.value)} rows={3} />
       </Space>
     </Modal>

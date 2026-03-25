@@ -1,7 +1,8 @@
 'use client'
 
-import React from 'react'
-import { Card, Col, Row, Descriptions, Tag, Table, Statistic, Progress, Avatar, Space, Button, Timeline } from 'antd';
+import React, { useState, useEffect } from 'react'
+// import { useQuery, useLazyQuery, useMutation } from '@apollo/client/react';
+import { Card, Col, Row, Descriptions, Tag, Table, Statistic, Progress, Avatar, Space, Button, Timeline, Alert } from 'antd';
 import {
     UserOutlined,
     PhoneOutlined,
@@ -13,8 +14,15 @@ import {
     CloseCircleOutlined,
     CalendarOutlined,
     DollarOutlined,
-    ShoppingCartOutlined
+    ShoppingCartOutlined,
+    BankOutlined, BarcodeOutlined,
 } from '@ant-design/icons';
+import { usePageProps, Drawer, Loader, DevBlock, IconButton, PopMenu } from '@/components';
+import { StaffEditForm } from '@/modules/staff';
+
+
+// box_v3_webadmin/src/graphql/users/user.graphql
+import GET_USER from '@/graphql/users/user.graphql';
 
 // Dummy Staff Data
 const DUMMY_STAFF = {
@@ -109,7 +117,136 @@ const PERFORMANCE_HISTORY = [
     { month: 'Jan 2024', rating: 4.5, orders: 387, satisfaction: 4.7, efficiency: 92 }
 ];
 
-export function StaffProfile() {
+// const StaffProfileEditform = ({ initialValues }: { initialValues: any; }) => {
+//     return (<></>)
+// }
+
+const StaffProfileView = ({ staff, onProfileEditComplete }: { staff: any; onProfileEditComplete: any; }) => {
+    const [openProfileEditor, set_openProfileEditor] = useState(false)
+
+    function _onProfileEditComplete(args: any){
+        onProfileEditComplete(args)
+        set_openProfileEditor(false)
+    }
+
+    return (<>
+        <Card _title="Staff Information">
+            <Row gutter={[10, 10]} className='nowrap'>
+                <Col style={{ textAlign:"center" }}><Space orientation='vertical'>
+                    <Avatar src={staff.avatarUrl} size={120} icon={<UserOutlined />} />
+                    <div><Tag color={staff.status === 'active' ? "#187c18" : 'red'}>{staff.status.toUpperCase()}</Tag></div>
+                </Space></Col>
+                <Col flex="auto">
+                    <h2 style={{ marginTop: 16, marginBottom: 4 }}>{staff.name}</h2>
+                    <Descriptions column={1} size="small">
+                        <Descriptions.Item label={<Space><MailOutlined /> Email</Space>}>{staff.email}</Descriptions.Item>
+                        <Descriptions.Item label={<Space><PhoneOutlined /> Phone</Space>}>{staff.phone}</Descriptions.Item>
+                        <Descriptions.Item label={<Space><BankOutlined /> Store</Space>}>{staff.store.title}</Descriptions.Item>
+                        <Descriptions.Item label={<>Employee ID</>}>{staff._id}</Descriptions.Item>
+                        <Descriptions.Item label={<Space><CalendarOutlined /> Join Date</Space>}>{new Date(staff.createdAt).toLocaleDateString()}</Descriptions.Item>
+                        {/* <Descriptions.Item label="Status"><Tag color="green">{staff.status.toUpperCase()}</Tag></Descriptions.Item> */}
+                    </Descriptions>
+                </Col>
+            </Row>
+
+            <div style={{ position:"absolute", top:10, right:10 }}>
+                <PopMenu orientation="vertical" size="small" shape="round" placement="leftTop" items={[
+                    { onClick: () => set_openProfileEditor(true), label: "Edit" },
+                    { onClick: () => console.log("field._id"), label: "Reset Password", type: 'delete' }
+                ]} />
+            </div>
+            {/* <div style={{ textAlign: 'center', marginBottom: 20 }}></div> */}
+
+            {/* <Descriptions column={1} size="small">
+                <Descriptions.Item label="Store">{staff.store.title}</Descriptions.Item>
+                <Descriptions.Item label="Employee ID">{staff._id}</Descriptions.Item>
+                <Descriptions.Item label={<Space><CalendarOutlined /> Join Date</Space>}>{new Date(staff.createdAt).toLocaleDateString()}</Descriptions.Item>
+                <Descriptions.Item label="Shift">{DUMMY_STAFF.shift}</Descriptions.Item>
+                <Descriptions.Item label="Hourly Rate">${DUMMY_STAFF.hourly_rate}/hr</Descriptions.Item>
+            </Descriptions> */}
+
+            {/* <div style={{ marginTop: 20 }}>
+                <Space orientation="vertical" style={{ width: '100%' }}>
+                    <Button onClick={() => set_openProfileEditor(true)} type="primary" block>Edit Profile</Button>
+                    <Button type="default" block>View Schedule</Button>
+                    <Button type="default" block>Send Message</Button>
+                </Space>
+            </div> */}
+        </Card>
+
+        <Drawer open={openProfileEditor} onClose={() => set_openProfileEditor(false)}>
+            {openProfileEditor && <><StaffEditForm user_id={staff._id} onSuccess={_onProfileEditComplete} /></>}
+        </Drawer>
+
+
+    </>)
+    // return (<>
+    //     <Card title="Staff Information">
+    //         <div style={{ textAlign: 'center', marginBottom: 20 }}>
+    //             <Avatar src={DUMMY_STAFF.avatarUrl} size={120} icon={<UserOutlined />} />
+    //             <h2 style={{ marginTop: 16, marginBottom: 4 }}>{DUMMY_STAFF.name}</h2>
+    //             <Tag color="blue">{DUMMY_STAFF.position}</Tag>
+    //         </div>
+
+    //         <Descriptions column={1} size="small">
+    //             <Descriptions.Item label="Employee ID">
+    //                 {DUMMY_STAFF.employee_id}
+    //             </Descriptions.Item>
+    //             <Descriptions.Item label={<><MailOutlined /> Email</>}>
+    //                 {DUMMY_STAFF.email}
+    //             </Descriptions.Item>
+    //             <Descriptions.Item label={<><PhoneOutlined /> Phone</>}>
+    //                 {DUMMY_STAFF.phone}
+    //             </Descriptions.Item>
+    //             <Descriptions.Item label="Department">
+    //                 {DUMMY_STAFF.department}
+    //             </Descriptions.Item>
+    //             <Descriptions.Item label={<><CalendarOutlined /> Join Date</>}>
+    //                 {new Date(DUMMY_STAFF.join_date).toLocaleDateString()}
+    //             </Descriptions.Item>
+    //             <Descriptions.Item label="Status">
+    //                 <Tag color="green">{DUMMY_STAFF.status.toUpperCase()}</Tag>
+    //             </Descriptions.Item>
+    //             <Descriptions.Item label="Shift">
+    //                 {DUMMY_STAFF.shift}
+    //             </Descriptions.Item>
+    //             <Descriptions.Item label="Hourly Rate">
+    //                 ${DUMMY_STAFF.hourly_rate}/hr
+    //             </Descriptions.Item>
+    //         </Descriptions>
+
+    //         <div style={{ marginTop: 20 }}>
+    //             <Space orientation="vertical" style={{ width: '100%' }}>
+    //                 <Button onClick={() => set_openProfileEditor(true)} type="primary" block>Edit Profile</Button>
+    //                 <Button type="default" block>View Schedule</Button>
+    //                 <Button type="default" block>Send Message</Button>
+    //             </Space>
+    //         </div>
+    //     </Card>
+
+    //     <Drawer open={openProfileEditor} onClose={() => set_openProfileEditor(false)}>
+    //         {openProfileEditor && <></>}
+    //     </Drawer>
+
+    //     <DevBlock obj={user} />
+
+    // </>)
+}
+
+export function StaffProfile(props) {
+    // const { user_id, ...params } = useParams();
+    // const [get_product, { loading, called }] = useLazyQuery(GET_PRODUCT, { fetchPolicy: 'network-only' });
+    // const { data: user, loading, error } = useQuery<any>(GET_USER, {
+    //     variables: { _id: user_id },
+    //     fetchPolicy: "no-cache",
+    //     // onError: (error) => message.error(`Failed to load entity config: ${error.message}`)
+    // });
+
+    // const pageProps = (usePageProps() as any) || {};
+    // console.log({ user_id })
+
+    // console.log({ props })
+
     const getAttendanceStatus = (status: string) => {
         const statusConfig: Record<string, { color: string; text: string }> = {
             present: { color: 'success', text: 'Present' },
@@ -206,52 +343,18 @@ export function StaffProfile() {
         }
     ];
 
-    return (<div>
+    function onProfileEditComplete(args){}
+
+    // if (loading) return <Loader loading={true} />
+    // if (error) return <Alert title={"Error fetching user"} description={error.message} type="error" showIcon />
+    // if (!user || !user._id) return <Alert title={"User not found"} type="error" showIcon />
+
+
+    return (<>
         <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
             {/* Staff Profile Section */}
             <Col xs={24} lg={8}>
-                <Card title="Staff Information">
-                    <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                        <Avatar src={DUMMY_STAFF.avatarUrl} size={120} icon={<UserOutlined />} />
-                        <h2 style={{ marginTop: 16, marginBottom: 4 }}>{DUMMY_STAFF.name}</h2>
-                        <Tag color="blue">{DUMMY_STAFF.position}</Tag>
-                    </div>
-
-                    <Descriptions column={1} size="small">
-                        <Descriptions.Item label="Employee ID">
-                            {DUMMY_STAFF.employee_id}
-                        </Descriptions.Item>
-                        <Descriptions.Item label={<><MailOutlined /> Email</>}>
-                            {DUMMY_STAFF.email}
-                        </Descriptions.Item>
-                        <Descriptions.Item label={<><PhoneOutlined /> Phone</>}>
-                            {DUMMY_STAFF.phone}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Department">
-                            {DUMMY_STAFF.department}
-                        </Descriptions.Item>
-                        <Descriptions.Item label={<><CalendarOutlined /> Join Date</>}>
-                            {new Date(DUMMY_STAFF.join_date).toLocaleDateString()}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Status">
-                            <Tag color="green">{DUMMY_STAFF.status.toUpperCase()}</Tag>
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Shift">
-                            {DUMMY_STAFF.shift}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Hourly Rate">
-                            ${DUMMY_STAFF.hourly_rate}/hr
-                        </Descriptions.Item>
-                    </Descriptions>
-
-                    <div style={{ marginTop: 20 }}>
-                        <Space orientation="vertical" style={{ width: '100%' }}>
-                            <Button type="primary" block>Edit Profile</Button>
-                            <Button type="default" block>View Schedule</Button>
-                            <Button type="default" block>Send Message</Button>
-                        </Space>
-                    </div>
-                </Card>
+                <StaffProfileView staff={props.staff} onProfileEditComplete={onProfileEditComplete} />
 
                 {/* Recent Activities */}
                 <Card title="Recent Activities" style={{ marginTop: 16 }}>
@@ -496,5 +599,7 @@ export function StaffProfile() {
                 </Card>
             </Col>
         </Row>
-    </div>);
+
+
+    </>);
 }

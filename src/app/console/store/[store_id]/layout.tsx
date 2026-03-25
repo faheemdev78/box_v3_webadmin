@@ -1,6 +1,6 @@
 import PageProvider from '@/components/pageProps';
 import { adminRoot } from '@/configs'
-import { PageBar } from '@/template'
+// import { PageBar } from '@/template'
 import { createApolloClient } from '@/aClient/client';
 import { getServerSessionToken } from '@/lib/auth/server';
 import { StoreHeader } from '@/template/store_header'
@@ -21,6 +21,7 @@ export default async function Layout({
     children: React.ReactNode;
     params: Promise<{ store_id: string }>;
 }) {
+    // const allParams = await params;
     const { store_id } = await params;
     const baseUrl = `${adminRoot}/store/${store_id}`;
 

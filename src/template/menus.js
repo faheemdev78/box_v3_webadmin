@@ -5,7 +5,7 @@ export const topMenuArray = [
     { title: 'Dashboard', href: `${adminRoot}/dashboard` },
     { title: 'Products', href: `${adminRoot}/products`, modulePermessions: '104',
         children: [
-            { title: 'Catelogue', href: `${adminRoot}/products/list` },
+            { title: 'Catelogue', href: `${adminRoot}/products/list`, rolePermessions: "104.0" },
             { title: 'Attributes', href: `${adminRoot}/product_props/attributes`, rolePermessions: "104.1" },
             { title: 'Product Types', href: `${adminRoot}/product_props/types`, rolePermessions: '104.2' },
             { title: 'Categories', href: `${adminRoot}/product_props/categories`, rolePermessions: '104.6' },
@@ -61,29 +61,29 @@ export const store_topMenuArray = ({ baseUrl="" }) => ([
     { title: 'Dashbord', href: `${baseUrl}` },
     // { title: 'Discount Vouchers', href: `${baseUrl}/discount_vouchers` },
     // { title: 'Offers', href: `${baseUrl}/offers` },
-    // { title: 'Vendors', href: `${baseUrl}/vendors` },                
-    { title: 'Products', href: `${baseUrl}/products` },
+    // { title: 'Vendors', href: `${baseUrl}/vendors` },
+    { title: 'Products', href: `${baseUrl}/products`, rolePermessions: '104.0' },
     {
-        title: 'Orders', href: `${baseUrl}/orders`, //modulePermessions: '106',
+        title: 'Orders', href: `${baseUrl}/orders`, modulePermessions: '106',
         children: [
-            { title: 'Orders', href: `${baseUrl}/orders` },
+            { title: 'Orders', href: `${baseUrl}/orders`, rolePermessions: '106.0' },
             // { title: 'Orders on Till', href: `${baseUrl}/orders-on-till` },
-            { title: 'Orders on Till', href: `${baseUrl}/till-verification` },
-            { title: 'Ready to Dispatch', href: `${baseUrl}/ready-to-dispatch` },
-            { title: 'Dispatched', href: `${baseUrl}/dispatched` },
+            { title: 'Orders on Till', href: `${baseUrl}/till-verification`, rolePermessions: '106.11' },
+            { title: 'Ready to Dispatch', href: `${baseUrl}/ready-to-dispatch`, rolePermessions: '106.21' },
+            { title: 'Dispatched', href: `${baseUrl}/dispatched`, rolePermessions: '106.31' },
         ]
     },
-    { title: 'Carts', href: `${baseUrl}/cart` },
+    { title: 'Carts', href: `${baseUrl}/cart`, rolePermessions: '1008.0' },
     
     { title: 'More', 
         children: [
-            { title: 'Geo Zones', href: `${baseUrl}/zones` },
-            { title: 'Staff', href: `${baseUrl}/staff` },
-            { title: 'Driver Settlements', href: `${baseUrl}/drivers` },
-            { title: 'Vehicles', href: `${baseUrl}/vehicles` },
-            { title: 'Delivery Slots', href: `${baseUrl}/delivery_slots` },
-            { title: 'Baskets', href: `${baseUrl}/baskets` },
-            { title: 'Banners', href: `${baseUrl}/banners` },
+            { title: 'Geo Zones', href: `${baseUrl}/zones`, rolePermessions: '105.0' },
+            { title: 'Staff', href: `${baseUrl}/staff`, rolePermessions: '100.011' },
+            { title: 'Driver Settlements', href: `${baseUrl}/drivers`, rolePermessions: '100.14' },
+            { title: 'Vehicles', href: `${baseUrl}/vehicles`, rolePermessions: '1006.0' },
+            { title: 'Delivery Slots', href: `${baseUrl}/delivery_slots`, rolePermessions: '107.0' },
+            { title: 'Baskets', href: `${baseUrl}/baskets`, rolePermessions: '1005.0' },
+            { title: 'Banners', href: `${baseUrl}/banners`, rolePermessions: '1007.0' },
         ]
     },
 ])

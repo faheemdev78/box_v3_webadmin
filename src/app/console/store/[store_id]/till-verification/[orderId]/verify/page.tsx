@@ -690,41 +690,51 @@ const TillVerificationPOS_v1 = ({ shiftSession }: { shiftSession:any }) => {
 const ProductHolder = ({ index }: { 
   index:number;
 }) => {
-  return (<div className='flex flex-col overflow-hidden w-full h-[210px] bg-white border border-gray-200 rounded-md'>
-    <div className='flex-full flex flex-col flex-1 min-w-0 bg-gray-50 p-10'>
+  return (<div className='flex flex-col overflow-hidden w-full h-[220px] bg-white border border-gray-200 rounded-2xl shadow-md'>
+    <div className='flex-full flex flex-col flex-1 min-w-0 p-10'>
       <Row className='nowrap'>
         <Col flex="130px">
-          <div className='bg-blue-300' style={{ marginRight:"10px" }}>pic</div>
+          <div className='bg-blue-300 w-[130px] h-[150px] flex justify-center' style={{ marginRight:"10px" }}>pic</div>
         </Col>
         <Col flex="auto">
           {/* <div className='ellipsis w-[200px]'>The longest product title taken from any category from somwhere category from somwhere...</div> */}
           <div className='h-13 overflow-hidden font-bold'>The longest product title taken from any category from somwhere category from somwhere. The longest product title taken from any category from somwhere category from somwhere </div>
-          <div><Tag color="green"><Icon icon="check-circle" />210 in Stock</Tag></div>
+          <div><Tag color="#E7F6EC" style={{ color: "#166534" }}><Icon icon="check-circle" color="#2DA44E" />210 in Stock</Tag></div>
           <div className='border-b border-gray-300' style={{ margin:"5px 0" }} />
-          <div>RS <span className='font-bold'>438</span> <span className='text-xs text-gray-500 line-through'>RS 500</span></div>
-          <div className='text-xs'>Qty recevied: 2</div>
+          <div className='text-base'>RS <span className='font-bold text-2xl' style={{ color: "#DC2626" }}>438</span> <span className='text-base text-gray-500 line-through' style={{ color:"#9CA3AF"}}>RS 500</span></div>
+          <div className='text-sm'>Qty recevied: 2</div>
           <div style={{ margin: "5px 0" }} />
           <Row gutter={[10, 10]}>
             <Col flex={12}>
-              <div className='border-gray-300 bg-blue-200 rounded-md leading-5 text-sm' style={{ padding:"5px 8px" }}>
-                <div>Scanned</div>
-                <div>2</div>
+              <div className='border-gray-300 rounded-md leading-5' style={{ padding: "5px 5px", backgroundColor:"#E8F1FD" }}>
+                <Space wrap={false}>
+                  <Icon icon="barcode" size='2x' color="#2563EB" />
+                  <div style={{ color: "#1E3A8A" }}>
+                    <div className='text-sm' style={{ lineHeight: 1.2 }}>Scanned</div>
+                    <div className='text-lg font-bold' style={{ lineHeight: 1.2 }}>2</div>
+                  </div>
+                </Space>
               </div>
             </Col>
             <Col flex={12}>
-              <div className='border-gray-300 bg-yellow-200 rounded-md p-10 leading-5 text-sm' style={{ padding: "5px 8px" }}>
-                <div>Scanned</div>
-                <div>2</div>
+              <div className='border-gray-300 rounded-md p-10 leading-5' style={{ padding: "5px 5px", backgroundColor:"#FFF3E8" }}>
+                <Space>
+                  <Icon icon="shopping-basket" size='2x' color='#C2410C' />
+                  <div style={{ color:"#7C2D12"}}>
+                    <div className='text-sm' style={{ lineHeight: 1.2 }}>Picked</div>
+                    <div className='text-lg font-bold' style={{ lineHeight: 1.2 }}>2</div>
+                  </div>
+                </Space>
               </div>
             </Col>
           </Row>
         </Col>
       </Row>
     </div>
-    <div className='text-xs' style={{ padding:"0 10px" }}>
+    <div className='text-xs' style={{ padding: "0 10px", color:"#418895" }}>
       <Row>
-        <Col span={12}><span className='text-xs'>#123654789</span></Col>
-        <Col span={12} className='text-right'><Tag>#123654789</Tag></Col>
+        <Col span={12}><span className='text-xs'>123654789</span></Col>
+        <Col span={12} className='text-right'><Tag>SKU: 000000</Tag></Col>
       </Row>
     </div>
   </div>)
@@ -753,12 +763,12 @@ const LeftColumn = ({ onNavClick }) => {
 }
 const RightColumn = ({ showBags, showBaskets, showPrint }) => {
   {/* C4: 300px fixed width */}
-  return (<div className='w-[300px] border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
+  return (<div className='w-120 border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
     <div className="flex-1 w-full p-4 bg-gray-50/50">
       <div className='flex flex-col p-10'>
         <div className=''><Input placeholder="Search barcode of items in order" /></div>
         <div className='flex flex-col items-center justify-center' style={{ marginTop:"10px" }}>
-          <div className='text-xl font-semibold mt-10'>Product Name</div>
+          <div className='text-xl font-semibold mt-10' style={{ color:"#111827" }}>Product Name</div>
           <div className='w-[200px] h-[250px] bg-black' style={{margin:"10px"}}>Product Picture</div>
           <div><Space>
             <IconButton icon="plus" />
@@ -780,7 +790,10 @@ const RightColumn = ({ showBags, showBaskets, showPrint }) => {
           <Button onClick={showPrint}>Print</Button>
         </Space></div>
       </div>
-      <div className='border-t border-gray-300 p-10'>Delivery details</div>
+      <div className='border-t border-gray-300 p-10'>
+        <div>Area: <b>Zone 2</b></div>
+        <div>Time: <b>Wed 27 Nov 2024 . 14:00 - 14:30</b></div>
+      </div>
     </div>
     <div className="h-[100px] border-t border-gray-300 w-full flex flex-col p-10 font-semibold">
       <Row>
@@ -818,7 +831,7 @@ const ContentArea = () => {
     </Space></div> */}
 
     <div className='p-10 flex-1 flex w-full'><div className='w-full'>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-[10px]">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-[16px]">
         {Array(10).fill(null).map((_, index) => (
           <div key={index} className="w-full flex items-center justify-center">
             <ProductHolder index={index} />
@@ -828,6 +841,100 @@ const ContentArea = () => {
     </div></div>
 
   </div>)
+}
+const WrongItem = () => {
+  return (<div className='bg-white rounded-lg'>
+    <div className='' style={{ padding: "20px" }}>
+      <Row align="middle">
+        <Col span={12}><div style={{ padding: "10px" }} className='flex flex-col w-full items-center justify-center'>
+          <div>title</div>
+          <div className='h-[150px] w-[100px] bg-blue-300'>picture</div>
+          <div>attributes</div>
+          <div>123456789</div>
+        </div></Col>
+        <Col span={12} className='border-l border-gray-200'><div style={{ padding: "10px" }} className='text-center'>
+          <Space vertical align="center">
+            <div className="flex flex-col w-full items-center justify-center">
+              <div className='flex flex-col items-center justify-center bg-red-500 h-[50px] w-[50px] text-white text-2xl font-bold rounded-full'>X</div>
+            </div>
+            <div className='text-2xl text-red-500 font-bold'>Wrong Item</div>
+            <p>Current order does not contain this item. Please remove this item from order.</p>
+            <Button color="red">Acknoledge</Button>
+          </Space>
+        </div></Col>
+      </Row>
+    </div>
+  </div>)
+}
+const ExcessiveItem = () => {
+  return (<div className='bg-white rounded-lg'>
+    <div className='' style={{ padding: "20px" }}>
+      <Row align="middle">
+        <Col span={12}><div style={{ padding: "10px" }} className='flex flex-col w-full items-center justify-center'>
+          <div>title</div>
+          <div className='h-[150px] w-[100px] bg-blue-300'>picture</div>
+          <div>attributes</div>
+          <div>123456789</div>
+        </div></Col>
+        <Col span={12} className='border-l border-gray-200'><div style={{ padding: "10px" }} className='text-center'>
+          <Space vertical align="center">
+            <div className="flex flex-col w-full items-center justify-center">
+              <div className='flex flex-col items-center justify-center bg-red-700 h-[50px] w-[50px] text-white text-2xl font-bold rounded-full'>X</div>
+            </div>
+            <div className='text-2xl text-red-700 font-bold'>Excessive Item</div>
+            <p>this item is already scanned in full quantity</p>
+            <Button color="red">Acknoledge</Button>
+          </Space>
+        </div></Col>
+      </Row>
+    </div>
+  </div>)
+}
+const SupervisorLogin = () => {
+  return (<div className='' style={{ padding: "20px" }}>
+    <div style={{ padding: "10px" }} className='text-center'>
+      <div className="flex flex-col w-full items-center justify-center">
+        <div className='flex flex-col items-center justify-center bg-yellow-300 h-[60px] w-[60px] text-red-500 text-2xl font-bold rounded-full'>Alert</div>
+      </div>
+      <div className='text-lg font-bold'>Scan Supervisor Card or Enter Security Key</div>
+      <div style={{ padding: "10px 0" }}><Input placeholder="************" type={'password'} /></div>
+      <Button color="green">Approve</Button>
+    </div>
+  </div>)
+}
+const AddBaskets = () => {
+  return (<div className='p-10 flex-1 flex w-full'><div className='w-full'>
+    <div style={{ padding: "10px 0" }}><Row gutter={[10, 10]}>
+      <Col flex="auto"><Input placeholder="Search Basket" /></Col>
+      <Col><Button color="green">Add</Button></Col>
+    </Row></div>
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-[10px]">
+      {Array(8).fill(null).map((_, index) => (
+        <div key={index} className="flex flex-col w-full items-center justify-center">
+          <div className='flex flex-col items-center justify-center overflow-hidden w-full h-[70px] bg-white border border-gray-200 rounded-md p-5'>
+            <div className='text-lg'>0123</div>
+            <Button color='red' block>Remove</Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div></div>)
+}
+const AddBags = () => {
+  return (<div className='p-10 flex-1 flex w-full'><div className='w-full'>
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-[10px]">
+      {Array(8).fill(null).map((_, index) => (
+        <div key={index} className="flex flex-col w-full items-center justify-center">
+          <div className='flex flex-col items-center justify-center overflow-hidden w-full h-[200px] bg-white border border-gray-200 rounded-md p-5'>
+            <div className='h-[100px] w-[70px] bg-blue-300'>pic</div>
+            <div>{index}x{index} Size</div>
+            <div className='text-2xl font-bold'>10 RS</div>
+            <Button color='green' block>Add</Button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div></div>)
 }
 
 const ReadyToDispatchWizard = () => {
@@ -1042,7 +1149,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 
   return (<>
     <div className="flex h-[calc(100vh-50px)] w-full overflow-hidden">
-      <LeftColumn onNavClick={onNavClick} />
+      {/* <LeftColumn onNavClick={onNavClick} /> */}
 
       {/* Middle Column Wrapper (C2 + C3) */}
       <div className="flex flex-col flex-1 min-w-0">
@@ -1056,21 +1163,30 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
           </Space></div>
         </div>
         <ContentArea />
+        <div><Space>
+          {/* <div onClick={() => onNavClick('orders')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Orders</div> */}
+          {/* <div onClick={() => onNavClick('products')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Products</div> */}
+          {/* <div onClick={() => onNavClick('baskets')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Baskets</div> */}
+          <div onClick={() => onNavClick('wrong_item')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Wrong Item</div>
+          <div onClick={() => onNavClick('excessive_item')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Excessive Item</div>
+          <div onClick={() => onNavClick('Supervisor Mode')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Supervisor Mode</div>
+          <div onClick={() => onNavClick('Redy to dispatch')} className='cursor-pointer border-b-1 border-gray-200 hover:bg-sky-100 p-10'>Redy to dispatch</div>
+        </Space></div>
         <PageFooter />
       </div>
 
       <RightColumn showBags={() => set_showBags(true)} showBaskets={() => set_showBaskets(true)} showPrint={() => set_showPrint(true)} />
     </div>
 
-    <Drawer open={openDrawer === 'products'} onClose={() => set_openDrawer(false)} footer={false} title={'Products'} size={'large'}>
+    {/* <Drawer open={openDrawer === 'products'} onClose={() => set_openDrawer(false)} footer={false} title={'Products'} size={'large'}>
       {openDrawer==='products' && <></>}
-    </Drawer>
-    <Drawer open={openDrawer === 'baskets'} onClose={() => set_openDrawer(false)} footer={false} title={'Baskets'} size={'large'}>
+    </Drawer> */}
+    {/* <Drawer open={openDrawer === 'baskets'} onClose={() => set_openDrawer(false)} footer={false} title={'Baskets'} size={'large'}>
       {openDrawer==='baskets' && <></>}
-    </Drawer>
-    <Drawer open={openDrawer === 'orders'} onClose={() => set_openDrawer(false)} footer={false} title={'Orders'} size={'large'}>
+    </Drawer> */}
+    {/* <Drawer open={openDrawer === 'orders'} onClose={() => set_openDrawer(false)} footer={false} title={'Orders'} size={'large'}>
       {openDrawer==='orders' && <></>}
-    </Drawer>
+    </Drawer> */}
 
     {/* const [showBags, set_showBags] = useState<boolean>(false);
     const [showBaskets, set_showBaskets] = useState<boolean>(false);
@@ -1078,64 +1194,24 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
 
     <Modal open={showBags} onCancel={() => set_showBags(false)} title='Add Bags' footer={false}>
       {/* <h1>Add Bags</h1> */}
-      <div className='p-10 flex-1 flex w-full'><div className='w-full'>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(100px,1fr))] gap-[10px]">
-          {Array(8).fill(null).map((_, index) => (
-            <div key={index} className="flex flex-col w-full items-center justify-center">
-              <div className='flex flex-col items-center justify-center overflow-hidden w-full h-[200px] bg-white border border-gray-200 rounded-md p-5'>
-                <div className='h-[100px] w-[70px] bg-blue-300'>pic</div>
-                <div>{index}x{index} Size</div>
-                <div className='text-2xl font-bold'>10 RS</div>
-                <Button color='green' block>Add</Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div></div>
+      <AddBags />
     </Modal>
     <Modal open={showBaskets} onCancel={() => set_showBaskets(false)} title='Add Baskets' footer={false}>
-      <div className='p-10 flex-1 flex w-full'><div className='w-full'>
-        <div style={{ padding:"10px 0" }}><Row gutter={[10, 10]}>
-          <Col flex="auto"><Input placeholder="Search Basket" /></Col>
-          <Col><Button color="green">Add</Button></Col>
-        </Row></div>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-[10px]">
-          {Array(8).fill(null).map((_, index) => (
-            <div key={index} className="flex flex-col w-full items-center justify-center">
-              <div className='flex flex-col items-center justify-center overflow-hidden w-full h-[70px] bg-white border border-gray-200 rounded-md p-5'>
-                <div className='text-lg'>0123</div>
-                <Button color='red' block>Remove</Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div></div>
+      <AddBaskets />
     </Modal>
     <Modal open={showPrint} onCancel={() => set_showPrint(false)} title='Print' footer={false}></Modal>
 
-    <Modal open={showWrongItem} onCancel={() => set_showWrongItem(false)} title='Wrong Item' footer={false}>
-      <div>
-        <div className='bg-red-700 h-5'></div>
-        <div className='' style={{ padding:"20px" }}>
-          <Row align="middle">
-            <Col span={12}><div style={{ padding: "10px" }} className='flex flex-col w-full items-center justify-center'>
-              <div>title</div>
-              <div className='h-[150px] w-[100px] bg-blue-300'>picture</div>
-              <div>attributes</div>
-              <div>123456789</div>
-            </div></Col>
-            <Col span={12} className='border-l border-gray-200'><div style={{ padding: "10px" }} className='text-center'>
-              <div className="flex flex-col w-full items-center justify-center">
-                <div className='flex flex-col items-center justify-center bg-red-700 h-[50px] w-[50px] text-white text-2xl font-bold rounded-full'>X</div>
-              </div>
-              <div className='text-2xl text-red-700 font-bold'>Wrong Item</div>
-              <p>Current order does not contain this item. Please remove this item from order.</p>
-              <Button color="red">Acknoledge</Button>
-            </div></Col>
-          </Row>
-        </div>
-        <div className='bg-red-700 h-5'></div>
-      </div>
+    <Modal open={showWrongItem} onCancel={() => set_showWrongItem(false)} title="Wrong Item" footer={false}
+      styles={{
+        container: {
+          backgroundColor: '#EC1C24'
+        },
+        title: {
+          color:"white"
+        }
+      }}
+      >
+      <WrongItem />
     </Modal>
     <Modal open={showExcessiveItem} onCancel={() => set_showExcessiveItem(false)} title='Excessive Item' footer={false}
       styles={{
@@ -1144,39 +1220,11 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession:any }) => {
         }
       }}
       >
-      <div className='bg-white rounded-lg'>
-        <div className='' style={{ padding: "20px" }}>
-          <Row align="middle">
-            <Col span={12}><div style={{ padding: "10px" }} className='flex flex-col w-full items-center justify-center'>
-              <div>title</div>
-              <div className='h-[150px] w-[100px] bg-blue-300'>picture</div>
-              <div>attributes</div>
-              <div>123456789</div>
-            </div></Col>
-            <Col span={12} className='border-l border-gray-200'><div style={{ padding: "10px" }} className='text-center'>
-              <div className="flex flex-col w-full items-center justify-center">
-                <div className='flex flex-col items-center justify-center bg-red-700 h-[50px] w-[50px] text-white text-2xl font-bold rounded-full'>X</div>
-              </div>
-              <div className='text-2xl text-red-700 font-bold'>Excessive Item</div>
-              <p>this item is already scanned in full quantity</p>
-              <Button color="red">Acknoledge</Button>
-            </div></Col>
-          </Row>
-        </div>
-      </div>
+      <ExcessiveItem />
     </Modal>
     
     <Modal open={showSupervisorLogin} onCancel={() => set_showSupervisorLogin(false)} title='Supervisor Login' footer={false}>
-      <div className='' style={{ padding: "20px" }}>
-        <div style={{ padding: "10px" }} className='text-center'>
-          <div className="flex flex-col w-full items-center justify-center">
-            <div className='flex flex-col items-center justify-center bg-yellow-300 h-[60px] w-[60px] text-red-500 text-2xl font-bold rounded-full'>Alert</div>
-          </div>
-          <div className='text-lg font-bold'>Scan Supervisor Card or Enter Security Key</div>
-          <div style={{ padding: "10px 0" }}><Input placeholder="************" type={'password'} /></div>
-          <Button color="green">Approve</Button>
-        </div>
-      </div>
+      <SupervisorLogin />
     </Modal>
 
     <Modal open={showReadyToDispatch} onCancel={() => set_showReadyToDispatch(false)} title='Ready to dispatch' footer={false}>

@@ -13,9 +13,9 @@ import { usePathname, useRouter } from "next/navigation"
 import { store_topMenuArray } from './menus';
 
 
-function CommonSearchBar({ onFocus, onSearch=console.log }){
-    return (<SearchBar onFocus={onFocus} style={{ margin: "0px", maxWidth: "200px" }} onSearch={onSearch} />)
-}
+// function CommonSearchBar({ onFocus, onSearch=console.log }){
+//     return (<SearchBar onFocus={onFocus} style={{ margin: "0px", maxWidth: "200px" }} onSearch={onSearch} />)
+// }
 
 
 
@@ -66,16 +66,18 @@ export function StoreHeader({ baseUrl, store }) {
     }
 
     return (<>
-        <div className='top-bar'>
+        <div className='top-bar' style={{ backgroundColor:"rgb(0, 119, 135)"}}>
             <Row align="middle" gutter={[20]} className='nowrap'>
                 <Col>
                     <Link href={adminRoot}><Image src="/box-logo-green.png" priority="high" alt="BOX" width={70} height={22} /></Link>
                     <div style={{ fontSize: "10px" }}>{store && store.title}</div>
                 </Col>
                 <Col><TopBar menuArray={store_topMenuArray({ baseUrl })} session={session} /></Col>
-                <Col flex="auto" align="center"><CommonSearchBar onFocus={() => set_showGlobalResults(true)} /></Col>
+                <Col flex="auto" align="center">
+                    {/* <CommonSearchBar onFocus={() => set_showGlobalResults(true)} /> */}
+                </Col>
                 <Col align="right" className='menu-bar'>
-                    <Space separator={<div style={{ width: "1px", height: "30px", backgroundColor: "#000" }} />} size={0}>
+                    <Space separator={<div style={{ width: "1px", height: "30px", }} />} size={0}>
                         <div style={{ fontSize: "24px" }}><Space size={0}>
                             <div className='menu-bar-item' style={{ padding: "10px 15px" }} onClick={() => set_showDrawer('alerts')}><Icon icon="bell" color="white" /></div>
                             <div className='menu-bar-item' style={{ padding: "10px 15px" }} onClick={() => set_showDrawer('messages')}><Icon icon="message" color="white" /></div>
@@ -83,7 +85,7 @@ export function StoreHeader({ baseUrl, store }) {
                         <Popover title={false} trigger="hover"
                             styles={{ body: { padding: "0px" } }}
                             content={PopContents()}>
-                            <Space className='menu-bar-item' style={{ display: "inline-flex" }}>
+                            <Space className='-menu-bar-item' style={{ display: "inline-flex", padding:"0 10px" }}>
                                 <Avatar size={30}>{String(session.user.name).charAt(0).toUpperCase()}</Avatar>
                                 <div style={{ maxWidth: "50px" }} className='ellipsis'>{session.user.name}</div>
                             </Space>
@@ -93,13 +95,13 @@ export function StoreHeader({ baseUrl, store }) {
             </Row>
         </div>
 
-        <div className={`global-search-results ${showGlobalResults ? 'visible' : ''}`}>
+        {/* <div className={`global-search-results ${showGlobalResults ? 'visible' : ''}`}>
             <Row>
                 <Col flex="auto"><h2>Results</h2></Col>
                 <Col><IconButton icon="close" onClick={() => set_showGlobalResults(false)} /></Col>
             </Row>
             <p>0 Search result(s) found</p>
-        </div>
+        </div> */}
 
         <Drawer open={showDrawer == 'alerts'} title="Alerts" onClose={() => set_showDrawer(false)}>
             {showDrawer == 'alerts' && <></>}

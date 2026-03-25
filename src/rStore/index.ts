@@ -69,8 +69,8 @@ const persistConfig = {
     key: 'root',
     storage: storageSession, // Use session storage
     blacklist: [], // Array
-    whitelist: ['session', 'system'], // Array - Added tillVerification for persistence
-    version: 2, // Updated to trigger migration for tillVerification structure fix
+    whitelist: ['session', 'system', 'tillVerification'],
+    version: 3,
     // throttle: 0, // number
     debug: process.env.NODE_ENV==='development', // boolean
     // serialize: true, // boolean

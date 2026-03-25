@@ -3,12 +3,13 @@
  * Updated for shift-based system
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client/react';
 import { useAppDispatch, useAppSelector } from '@/rStore/hooks';
 import {
   setActiveShift,
   clearShift,
+  resetTillVerification,
   setCurrentOrder,
   setQueueLoading,
   setLoading,
@@ -88,15 +89,13 @@ export const useTillVerificationQueue = (
 export const useMyActiveTillShift = () => {
   const dispatch = useAppDispatch();
   const activeShift = useAppSelector(getActiveShift);
-  const [ready, setReady] = useState(false)
 
   const { data, loading, error, refetch } = useQuery<any>(GET_MY_ACTIVE_SHIFT, {
     fetchPolicy: "network-only", // 'cache-and-network',
   });
 
-  // Auto-update Redux when shift data changes (in useEffect to avoid setState during render)
   React.useEffect(() => {
-    if (loading || ready) return;
+    if (loading) return;
 
     console.log('🔄 useMyActiveTillShift useEffect triggered', {
       hasData: !!data?.getMyActiveTillShift?.session,
@@ -106,32 +105,23 @@ export const useMyActiveTillShift = () => {
 
     if (data?.getMyActiveTillShift?.session) {
       const session = data.getMyActiveTillShift.session;
-      const new_activeShift = {
-        _id: session._id,
-        session_started_at: session.session_started_at,
-        performance: session.performance,
-      }
-      console.log('✅ Dispatching setActiveShift to Redux', new_activeShift);
+      console.log('✅ Dispatching setActiveShift to Redux', session);
 
-      if (JSON.stringify(activeShift) !== JSON.stringify(new_activeShift)) {
-        dispatch(setActiveShift(new_activeShift));
-        setReady(true)
+      if (JSON.stringify(activeShift) !== JSON.stringify(session)) {
+        dispatch(setActiveShift(session));
       }
-
     } else if (!data?.getMyActiveTillShift?.session) {
       console.log('❌ No active shift found, dispatching null to Redux');
-      dispatch(setActiveShift(null));
-      setReady(true)
+      if (activeShift) {
+        dispatch(resetTillVerification());
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, loading, dispatch]);
+  }, [activeShift, data, dispatch, loading]);
 
-  if (!ready) return { loading:true }
-
-  console.log("useMyActiveTillShift.ready")
+  const session = data?.getMyActiveTillShift?.session || activeShift || null;
   return {
-    session: activeShift, // data?.getMyActiveTillShift?.session,
-    loading,
+    session,
+    loading: loading && !session,
     error: error || data?.getMyActiveTillShift?.error,
     refetch,
   };
@@ -185,13 +175,7 @@ export const useOpenTillShift = () => {
     }
     
     if (response?.session) {
-      dispatch(
-        setActiveShift({
-          _id: response.session._id,
-          session_started_at: response.session.session_started_at,
-          performance: response.session.performance,
-        })
-      );
+      dispatch(setActiveShift(response.session));
     }
 
     return response;
@@ -252,6 +236,7 @@ export const useCloseTillShift = () => {
  */
 export const useStartOrderVerification = () => {
   const dispatch = useAppDispatch();
+  const activeShift = useAppSelector(getActiveShift);
 
   const [startOrderMutation, { loading, called }] = useMutation<any>(START_ORDER_VERIFICATION, {
     refetchQueries: [GET_TILL_QUEUE],
@@ -275,6 +260,12 @@ export const useStartOrderVerification = () => {
         dispatch(upsertHeldOrder(response.order));
         dispatch(setCurrentOrder(_id_order));
       }
+      if (response?.session) {
+        dispatch(setActiveShift({
+          ...(activeShift || {}),
+          ...response.session,
+        }));
+      }
 
       return response;
     } catch (error) {
@@ -293,6 +284,7 @@ export const useStartOrderVerification = () => {
  */
 export const useCompleteOrderVerification = () => {
   const dispatch = useAppDispatch();
+  const activeShift = useAppSelector(getActiveShift);
   const [completeOrderMutation, { loading }] = useMutation<any>(COMPLETE_ORDER_VERIFICATION, {
     refetchQueries: [GET_TILL_QUEUE, GET_MY_ACTIVE_SHIFT],
   });
@@ -317,6 +309,12 @@ export const useCompleteOrderVerification = () => {
       // Remove order from held orders and clear current
       dispatch(removeHeldOrder(_id_order));
       dispatch(setCurrentOrder(null));
+      if (response?.session) {
+        dispatch(setActiveShift({
+          ...(activeShift || {}),
+          ...response.session,
+        }));
+      }
 
       return response;
     } catch (error) {

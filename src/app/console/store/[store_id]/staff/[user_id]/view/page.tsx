@@ -2,7 +2,7 @@
 
 import { __error, __yellow } from '@/lib/consoleHelper';
 
-import { StaffWrapper, StaffView } from "@/modules/staff";
+import { StaffWrapper } from "@/modules/staff";
 import { StaffProfile } from './components';
 
 function Wrapper(props: any){

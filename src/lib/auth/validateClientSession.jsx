@@ -1,9 +1,9 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 
-import { cleanStore } from '@/rStore';
 import { useDispatch, useSelector } from 'react-redux';
 import { setSession, clearSession, getSession } from '@/rStore/slices/sessionSlice';
+import { getActiveShift, resetTillVerification } from '@/rStore/slices/tillVerificationSlice';
 import { Loader } from '@/components';
 import { useAppSelector } from '@/rStore/hooks';
 import { getCurrentUser, getSessionToken, clearSessionToken } from '.';
@@ -14,6 +14,7 @@ function ValidateClientSession({ children }) {
   
   const token = getSessionToken();
   const session = useAppSelector(getSession)
+  const activeShift = useAppSelector(getActiveShift)
   // const session = useSelector((state) => state.session);
 
   const dispatch = useDispatch();
@@ -23,7 +24,7 @@ function ValidateClientSession({ children }) {
 
     // clear store session if no cookies token exists
     if (!token && session && session.token) {
-      cleanStore();
+      dispatch(clearSession());
       clearSessionToken().then(r=>{
         setReady(true);
       })
@@ -43,7 +44,13 @@ function ValidateClientSession({ children }) {
     // Refresh store session if token is found
     if (token) {
       getCurrentUser().then(user => {
-        if (user && !user.error) dispatch(setSession({ user, token }));
+        if (user && !user.error) {
+          dispatch(setSession({ user, token }));
+
+          if (activeShift?._id_staff && activeShift._id_staff !== user._id) {
+            dispatch(resetTillVerification());
+          }
+        }
         setReady(true)
       })
       return;
@@ -51,7 +58,7 @@ function ValidateClientSession({ children }) {
 
 
     setReady(true);
-  }, [ready, token, session])
+  }, [activeShift, dispatch, ready, session, token])
   
   if (!ready) return <Loader loading={true}>Validating Session....</Loader>
 
@@ -74,7 +81,7 @@ function ValidateClientSession_BK2({ children }) {
 
     if (!token){
       if (session && session.token) { // clear store if no session not found!
-        cleanStore();
+        dispatch(clearSession());
       }
       setReady(true)
     }
@@ -116,7 +123,7 @@ function ValidateClientSession_BK({ children, user }) {
       if (validating) return;
 
       if(!token){
-        if (session && session.token) cleanStore();
+        if (session && session.token) dispatch(clearSession());
         return;
       }
 
@@ -147,7 +154,7 @@ function ValidateClientSession_BK({ children, user }) {
       
       if (user && user.error) {
         alert("User Session is invalid!");
-        cleanStore();
+        dispatch(clearSession());
         clearSessionToken()
         setValidating(false)
         return;
