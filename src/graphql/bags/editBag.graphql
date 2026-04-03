@@ -1,0 +1,7 @@
+#import "../_fragment/bags.graphql"
+
+mutation editBag($input: Edit_BagInput!) {
+    editBag(input: $input) {
+        ... BagsInfo
+    }
+}

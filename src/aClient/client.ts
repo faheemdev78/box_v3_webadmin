@@ -4,8 +4,8 @@ import { SetContextLink } from "@apollo/client/link/context";
 // import { onError } from "@apollo/client/link/error";
 import { ErrorLink } from "@apollo/client/link/error";
 import { CombinedGraphQLErrors, CombinedProtocolErrors } from "@apollo/client/errors";
-import { clearSessionToken, getSessionToken } from "@/lib/auth";
-import { handleRedirectLogin } from "@/lib/redirect";
+import { getSessionToken } from "@/lib/auth";
+import { isUnauthenticatedGraphQLError, logoutUnauthenticatedUser } from "@/lib/auth/sessionCleanup";
 import { app_ver } from "@/configs";
 
 
@@ -15,6 +15,10 @@ const errorLink = new ErrorLink(({ error, operation }) => {
     console.log("ErrorLink >> error: ", error)
 
     if (CombinedGraphQLErrors.is(error)) {
+        if (isUnauthenticatedGraphQLError(error)) {
+            logoutUnauthenticatedUser();
+        }
+
         error.errors.forEach(({ message, locations, path }) =>
             console.log(
                 `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`

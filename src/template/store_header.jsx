@@ -47,13 +47,13 @@ export function StoreHeader({ baseUrl, store }) {
                 </Row>
             </div>
 
-            <div style={{ padding: "20px" }}>
+            {/* <div style={{ padding: "20px" }}>
                 <h4>Theme</h4>
                 <Space>
-                    {/* <Icon icon="circle" /> */}
+                    <Icon icon="circle" />
                     <div style={{ borderRadius:"50%", width:"30px", height:"30px", backgroundColor:"red" }} />
                 </Space>
-            </div>
+            </div> */}
 
             <div style={{ padding: "0px" }}>
                 <Space orientation='vertical' style={{ width: "100%" }} size={0}>
@@ -84,7 +84,7 @@ export function StoreHeader({ baseUrl, store }) {
                         </Space></div>
                         <Popover title={false} trigger="hover"
                             styles={{ body: { padding: "0px" } }}
-                            content={PopContents()}>
+                            content={PopContents}>
                             <Space className='-menu-bar-item' style={{ display: "inline-flex", padding:"0 10px" }}>
                                 <Avatar size={30}>{String(session.user.name).charAt(0).toUpperCase()}</Avatar>
                                 <div style={{ maxWidth: "50px" }} className='ellipsis'>{session.user.name}</div>

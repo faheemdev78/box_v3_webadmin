@@ -3,6 +3,7 @@ fragment OrderTotalsInfo on OrderTotals {
   totalQuantity
   subtotal
   discountTotal
+  bagTotal
   shipping
   taxRate
   taxAmount

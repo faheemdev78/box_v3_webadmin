@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Card, Skeleton, Avatar, Menu, Dropdown, Popconfirm, Row, Col, Modal, message, Space } from 'antd';
 import { Icon, Button, Loader } from '@/components';
 import { __error } from '@/lib/consoleHelper';
+import { useAppSelector } from '@/rStore/hooks';
+import { getSettings } from '@/rStore/slices/systemSlice';
 
 const { Meta } = Card;
 const { confirm } = Modal;
@@ -23,6 +25,8 @@ function showDeleteConfirm(props) {
 }
 
 export const ProductGridItem = props => {
+    const settings = useAppSelector(getSettings);
+
     const [busy, setBusy] = React.useState(false)
 
     const onDeleteClick = async args => {
@@ -93,7 +97,7 @@ export const ProductGridItem = props => {
                             <div style={{ textAlign: "right", color: "#999", fontSize: 10 }}>{props._id}</div>
                             <div className='_title'>{props.title}</div>
                             <Row>
-                                <Col span={12}><div className='_price'>{props.price} RS</div></Col>
+                                <Col span={12}><div className='_price'>{props.price} {settings.currency}</div></Col>
                                 <Col span={12} align="right"><div className='_price'>Qty: {props.available_qty}</div></Col>
                             </Row>
                             <div><Icon icon="barcode" /><span style={{ marginLeft: 5 }}>{props.barcode}</span></div>

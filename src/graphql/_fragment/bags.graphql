@@ -1,0 +1,16 @@
+fragment BagsInfo on Bags {
+  _id
+  _id_store
+  
+  barcode
+  size
+  qty
+  price
+
+  status
+    
+  createdAt
+  updatedAt
+
+  error{ message }
+}

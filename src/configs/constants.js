@@ -8,6 +8,11 @@ export const NOIMAGE = '/images/no-image.jpg';
 
 export const publishStatus = [{ label: "Online", value: 'online' }, { label: "Offline", value: 'offline' }];
 
+export const activeStatus = [
+    { label: "Active", value: 'active' }, 
+    { label: "In-active", value: 'inactive' }, 
+];
+
 export const userStatus = [
     { label: "Active", value: 'active' }, 
     { label: "In-active", value: 'inactive' }, 

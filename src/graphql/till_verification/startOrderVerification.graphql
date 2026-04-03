@@ -15,10 +15,26 @@ mutation StartOrderVerification($_id_order: ID!) {
       zone { ...GeoZoneReffInfo }
       customer { _id name phone email }
 
-      # original_order: OriginalOrder
+      original_order {
+        totals {
+          grandTotal
+          totalQuantity
+        }
+      }
 
       current_order { ...ProcessingDataInfo }
       # processing_stages: Order_ProcessingStages
+      processing_stages{
+        picking{
+          handled_by{ name }
+          baskets{ title color }
+          items{
+            _id_product
+            qty
+            processed_qty
+          }
+        }
+      }
 
       delivery_slot { ...OrderDeliverySlotInfo }
       delivery_note

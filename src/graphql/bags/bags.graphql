@@ -1,0 +1,7 @@
+#import "../_fragment/bags.graphql"
+
+query bags($filter: String, $others:String) {
+    bags(filter: $filter, others:$others) {
+        ... BagsInfo
+    }
+}

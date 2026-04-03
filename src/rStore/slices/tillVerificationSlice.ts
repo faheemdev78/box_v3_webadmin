@@ -54,6 +54,7 @@ export interface OrderItem {
 export interface OrderTotals {
   subtotal: number;
   discountTotal: number;
+  bagTotal?: number;
   taxAmount: number;
   grandTotal: number;
   // Legacy fields for backward compatibility
@@ -74,6 +75,20 @@ export interface HeldOrder {
   current_order?: {
     items: OrderItem[];
     totals: OrderTotals;
+    baskets?: Array<{
+      _id: string;
+      title: string;
+      barcode: string;
+      color?: string;
+      status?: string;
+    }>;
+    bags?: Array<{
+      _id: string;
+      barcode: string;
+      size: string;
+      qty: number;
+      price: number;
+    }>;
     stage?: string;
     handled_by?: {
       _id: string;
@@ -234,6 +249,47 @@ export const tillVerificationSlice = createSlice({
     },
 
     /**
+     * Update order baskets after till basket assignment
+     */
+    updateOrderBaskets: (
+      state,
+      action: PayloadAction<{
+        orderId: string;
+        baskets: NonNullable<HeldOrder['current_order']>['baskets'];
+      }>
+    ) => {
+      const { orderId, baskets } = action.payload;
+
+      if (!state.heldOrders) {
+        state.heldOrders = {};
+      }
+
+      if (state.heldOrders[orderId]?.current_order) {
+        state.heldOrders[orderId].current_order!.baskets = baskets || [];
+        state.heldOrders[orderId].last_updated_at = new Date();
+      }
+    },
+
+    updateOrderBags: (
+      state,
+      action: PayloadAction<{
+        orderId: string;
+        bags: NonNullable<HeldOrder['current_order']>['bags'];
+      }>
+    ) => {
+      const { orderId, bags } = action.payload;
+
+      if (!state.heldOrders) {
+        state.heldOrders = {};
+      }
+
+      if (state.heldOrders[orderId]?.current_order) {
+        state.heldOrders[orderId].current_order!.bags = bags || [];
+        state.heldOrders[orderId].last_updated_at = new Date();
+      }
+    },
+
+    /**
      * Update a single item in an order (optimistic update)
      */
     updateOrderItem: (
@@ -350,6 +406,8 @@ export const {
   upsertHeldOrder,
   updateOrderItems,
   updateOrderTotals,
+  updateOrderBaskets,
+  updateOrderBags,
   updateOrderItem,
   removeHeldOrder,
   clearHeldOrders,

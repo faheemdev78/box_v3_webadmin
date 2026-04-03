@@ -1,0 +1,28 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+#import "../order/_fragment/OrderItems.graphql"
+
+mutation DropOrderItem(
+  $_id_order: ID!
+  $_id_product: ID!
+) {
+  dropOrderItem(
+    _id_order: $_id_order
+    _id_product: $_id_product
+  ) {
+    order {
+      _id
+      current_order {
+        items {
+          ...OrderItemsInfo
+        }
+      }
+    }
+    success {
+      ...SuccessInfo
+    }
+    error {
+      ...ErrorInfo
+    }
+  }
+}

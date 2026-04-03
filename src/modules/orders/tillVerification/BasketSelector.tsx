@@ -4,17 +4,18 @@
  * Allows till operators to select delivery baskets for verified orders
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Row, Col, Space, Typography, Tag, Empty, Alert } from 'antd';
 import { CheckCircleOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useQuery } from '@apollo/client/react';
 import { Loader } from '@/components';
+import { sleep } from '@/lib';
 
 import GET_AVAILABLE_BASKETS from '@/graphql/baskets/getAvailableBaskets.graphql';
 
 
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface Basket {
   _id: string;
@@ -24,47 +25,117 @@ interface Basket {
   status: string;
 }
 
+const BasketWrapper = ({ basket, toggleBasket, selected=false, async=false }: 
+  { basket: Basket; toggleBasket: Function; selected?: boolean; async?: boolean; }
+) => {
+  const [busy, setBusy] = useState(false)
+
+  async function onBasketClick(){
+    if (busy) return;
+
+    if (async) {
+      setBusy(true)
+      await toggleBasket(basket)
+      setBusy(false)
+    }
+    else toggleBasket(basket)
+  }
+
+  return (<Card
+    loading={busy}
+    hoverable
+    // onClick={() => toggleBasket(basket._id)}
+    onClick={() => onBasketClick(basket)}
+    style={{
+      borderWidth: 2,
+      borderColor: selected ? '#009316' : '#d9d9d9',
+      backgroundColor: selected ? '#bfffbf' : '#FFFFFF',
+      cursor: 'pointer',
+      transition: 'all 0.3s',
+      maxHeight: '70px',
+    }}
+    styles={{
+      body: {
+        padding: 12,
+      }
+    }}
+  >
+    <div className='text-center'>
+      <div className='font-medium text-lg'>{basket.title}</div>
+      <div className='text-xs text-gray-500'>{basket.barcode}</div>
+      {/* {selected && (<Tag color="success" icon={<CheckCircleOutlined />} style={{ margin: 0, fontSize: 10 }}>Selected</Tag>)} */}
+    </div>
+  </Card>)
+}
+
 interface BasketSelectorProps {
   storeId: string;
-  onSelectionChange: (selectedIds: string[]) => void;
+  onSelectionChange: (basket: Basket, action: 'add' | 'remove') => Promise<void> | void;
   minRequired?: number;
   category: 'pickup' | 'dispatch';
+  async?: boolean;
+  initialSelectedBaskets?: Basket[];
 }
 
 export const BasketSelector: React.FC<BasketSelectorProps> = ({
   storeId,
   onSelectionChange,
   minRequired = 1,
-  category
+  category,
+  async = false,
+  initialSelectedBaskets = [],
 }) => {
   const [selectedBaskets, setSelectedBaskets] = useState<string[]>([]);
 
   // Query available delivery baskets
-  const { data, loading, error, refetch } = useQuery<any>(GET_AVAILABLE_BASKETS, {
+  const { data, loading, error } = useQuery<any>(GET_AVAILABLE_BASKETS, {
     variables: { _id_store: storeId, category, limit: 50 },
     skip: !storeId,
   });
 
-  const baskets: Basket[] = data?.getAvailableBaskets?.baskets || [];
+  const availableBaskets: Basket[] = data?.getAvailableBaskets?.baskets || [];
+
+  useEffect(() => {
+    setSelectedBaskets(initialSelectedBaskets.map((basket) => basket._id));
+  }, [initialSelectedBaskets]);
+
+  const baskets: Basket[] = [
+    ...initialSelectedBaskets,
+    ...availableBaskets.filter(
+      (basket) => !initialSelectedBaskets.some((selected) => selected._id === basket._id)
+    ),
+  ];
 
   // Notify parent when selection changes
-  useEffect(() => {
-    onSelectionChange(selectedBaskets);
-  }, [selectedBaskets, onSelectionChange]);
+  // useEffect(() => {
+  //   onSelectionChange(selectedBaskets);
+  // }, [selectedBaskets, onSelectionChange]);
 
-  const toggleBasket = (basketId: string) => {
-    if (selectedBaskets.includes(basketId)) {
-      setSelectedBaskets(selectedBaskets.filter(id => id !== basketId));
-    } else {
-      setSelectedBaskets([...selectedBaskets, basketId]);
+  // const toggleBasket = (basketId: string) => {
+  //   if (selectedBaskets.includes(basketId)) {
+  //     setSelectedBaskets(selectedBaskets.filter(id => id !== basketId));
+  //   } else {
+  //     setSelectedBaskets([...selectedBaskets, basketId]);
+  //   }
+  // };
+
+  const onBasketClick = async (basket:Basket) => {
+    if (async) await sleep(1500);
+
+    const action = isSelected(basket._id) ? 'remove' : 'add';
+    await onSelectionChange(basket, action);
+
+    if (action === 'remove') {
+      setSelectedBaskets((current) => current.filter((id) => id !== basket._id));
+      return;
     }
-  };
+
+    setSelectedBaskets((current) => [...current, basket._id]);
+  }
 
   const isSelected = (basketId: string) => selectedBaskets.includes(basketId);
 
-  if (loading) {
-    return <Loader loading={true}>Loading available baskets...</Loader>;
-  }
+  if (loading) return <Loader loading={true}>Loading available baskets...</Loader>;
 
   if (error || data?.getAvailableBaskets?.error) {
     return (
@@ -96,82 +167,42 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
   return (
     <div>
       <Space orientation="vertical" size={16} style={{ width: '100%' }}>
-        {/* Header */}
-        <div>
-          <Title level={5} style={{ marginBottom: 4 }}>Select Delivery Baskets</Title>
-          <Text type="secondary">Choose at least {minRequired} basket(s) for delivery</Text>
-        </div>
-
         {/* Selection count */}
         <Alert
-          description={
-            <Space>
-              <Text strong>{selectedBaskets.length}</Text>
-              <Text>basket(s) selected</Text>
-              {selectedBaskets.length < minRequired && (
-                <Tag color="warning">{minRequired - selectedBaskets.length} more required</Tag>
-              )}
-              {selectedBaskets.length >= minRequired && (
-                <Tag color="success" icon={<CheckCircleOutlined />}>Ready</Tag>
-              )}
-            </Space>
-          }
+          description={<Space>
+            <Text strong>{selectedBaskets.length}</Text>
+            <Text>basket(s) selected</Text>
+            {selectedBaskets.length < minRequired && (
+              <Tag color="warning">{minRequired - selectedBaskets.length} more required</Tag>
+            )}
+            {selectedBaskets.length >= minRequired && (
+              <Tag color="success" icon={<CheckCircleOutlined />}>Ready</Tag>
+            )}
+          </Space>}
           type={selectedBaskets.length >= minRequired ? 'success' : 'info'}
         />
 
         {/* Baskets grid */}
+        {/* <Grid listData={baskets} onClick={(basket) => toggleBasket(basket._id)} buttonColor='green' buttonText='Add' /> */}
+
         <Row gutter={[12, 12]}>
           {baskets.map((basket) => {
             const selected = isSelected(basket._id);
+
             return (
-              <Col xs={12} sm={8} md={6} lg={6} key={basket._id}>
-                <Card
-                  hoverable
-                  onClick={() => toggleBasket(basket._id)}
-                  style={{
-                    borderWidth: 2,
-                    borderColor: selected ? basket.color || '#1890ff' : '#d9d9d9',
-                    backgroundColor: selected ? `${basket.color}10` : 'white',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s',
-                  }}
-                  styles={{
-                    body:{
-                      padding: 12
-                    }
-                  }}
-                >
-                  <Space orientation="vertical" size={4} style={{ width: '100%' }}>
-                    {/* Color indicator */}
-                    <div style={{ width: '100%', height: 8, backgroundColor: basket.color || '#d9d9d9', borderRadius: 4, }} />
-
-                    {/* Basket info */}
-                    <Title level={5} style={{ margin: 0, fontSize: 14 }}>{basket.title}</Title>
-                    <Text type="secondary" style={{ fontSize: 11 }}>{basket.barcode}</Text>
-
-                    {/* Selected indicator */}
-                    {selected && (<Tag color="success" icon={<CheckCircleOutlined />} style={{ margin: 0, fontSize: 10 }}>Selected</Tag>)}
-                  </Space>
-                </Card>
+              <Col xs={12} sm={8} md={8} lg={8} key={basket._id}>
+                <BasketWrapper 
+                  basket={basket}
+                  selected={selected}
+                  toggleBasket={onBasketClick}
+                  async={true}
+                  // toggleBasket={(b:any) => toggleBasket(b._id)}
+                />
               </Col>
             );
           })}
         </Row>
 
-        {/* Selected baskets summary */}
-        {selectedBaskets.length > 0 && (
-          <Card size="small" title="Selected Baskets">
-            <Space wrap>
-              {selectedBaskets.map((id) => {
-                const basket = baskets.find((b) => b._id === id);
-                if (!basket) return null;
-                return (<Tag key={id} closable onClose={() => toggleBasket(id)} color={basket.color} style={{ margin: 4, fontSize: 13, padding: '4px 8px' }}>
-                  {basket.title} ({basket.barcode})
-                </Tag>);
-              })}
-            </Space>
-          </Card>
-        )}
       </Space>
     </div>
   );

@@ -119,8 +119,8 @@ export const DeleteButton = (props:any) => {
 
     if (props.skipConfirm) return <Wrapper><Button disabled={props.disabled} onClick={throttledHandlePress} loading={props.loading || busy} icon={<DeleteOutlined />} danger type="primary" size={props.size} shape={props.shape || "circle"} /></Wrapper>
 
-    let _children = <Button icon={<DeleteOutlined />} disabled={props.disabled} loading={props.loading || busy} color={props.color || "red"} type="primary" size={props.size} shape={props.shape || "circle"} />;
-    if (props.children && _.isString(props.children)) _children = <Button disabled={props.disabled} loading={props.loading || busy} color={props.color || "red"} type="primary" size={props.size}>{props.children}</Button>;
+    let _children = <Button icon={<DeleteOutlined />} disabled={props.disabled} loading={props.loading || busy} color={props.color || "red"} type="primary" size={props.size} shape={props.shape || "circle"} block={!!props.block} />;
+    if (props.children && _.isString(props.children)) _children = <Button disabled={props.disabled} loading={props.loading || busy} color={props.color || "red"} type="primary" size={props.size} block={!!props.block}>{props.children}</Button>;
     else if (props.children) _children = props.children;
 
     

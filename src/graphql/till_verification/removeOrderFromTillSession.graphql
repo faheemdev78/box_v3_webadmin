@@ -1,22 +1,21 @@
 #import "../_fragment/error.graphql"
 #import "../_fragment/success.graphql"
 
-mutation CompleteOrderVerification(
+mutation RemoveOrderFromTillSession(
   $_id_order: ID!
-  $notes: String
+  $reason: String
 ) {
-  completeOrderVerification(
+  removeOrderFromTillSession(
     _id_order: $_id_order
-    notes: $notes
+    reason: $reason
   ) {
-    order {
-      _id
-      serial
-      current_stage
-      locked_by
-    }
     session {
       _id
+      till_verification_orders {
+        _id_order
+        order_serial
+        order_status
+      }
       performance {
         total_units_processed
         successful_units

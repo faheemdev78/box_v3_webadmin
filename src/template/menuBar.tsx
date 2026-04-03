@@ -93,6 +93,7 @@ export function PageBar({ menuArray, _session, pop_item_style }: {
                     //     </Popover>
                     // </ConfigProvider>)
 
+
                     return (<Popover
                         placement="bottom"
                         classNames={{
@@ -106,7 +107,10 @@ export function PageBar({ menuArray, _session, pop_item_style }: {
                         content={filterPermissions(item.children, session)?.map((ch: any, ii: number) => (<LinkComp style={pop_item_style} className={`${matchUrl(ch.href) ? 'active' : ''}`} href={ch.href} key={ii}>{ch.title}</LinkComp>))}
                         arrow={true}
                         key={i}>
-                        <Link className={`${matchUrl(item.href) ? 'active' : ''}`} href={item.href} key={i}>{item.title} <Icon className="more-icon" icon="angle-down" /></Link>
+                        {!item.href ? 
+                            <div className={`${matchUrl(item.href) ? 'active' : ''}`} key={i}>{item.title} <Icon className="more-icon" icon="angle-down" /></div> :
+                            <Link className={`${matchUrl(item.href) ? 'active' : ''}`} href={item.href} key={i}>{item.title} <Icon className="more-icon" icon="angle-down" /></Link>
+                        }
                     </Popover>)
                 }
 

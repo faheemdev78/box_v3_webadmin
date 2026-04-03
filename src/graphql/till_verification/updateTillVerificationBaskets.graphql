@@ -1,0 +1,37 @@
+mutation UpdateTillVerificationBaskets(
+  $_id_order: ID!
+  $basket_id: ID!
+  $action: String!
+) {
+  updateTillVerificationBaskets(
+    _id_order: $_id_order
+    basket_id: $basket_id
+    action: $action
+  ) {
+    order {
+      _id
+      current_order {
+        baskets {
+          _id
+          title
+          barcode
+          color
+          status
+        }
+      }
+    }
+    session {
+      _id
+      till_verification_orders {
+        _id_order
+        delivery_baskets
+      }
+    }
+    success {
+      message
+    }
+    error {
+      message
+    }
+  }
+}

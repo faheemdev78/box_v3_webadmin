@@ -90,7 +90,7 @@ export function Header({  }) {
                         </Space></div>
                         <Popover title={false} trigger="hover"
                             styles={{ body: { padding: "0px" } }}
-                            content={<PopContents />}>
+                            content={PopContents}>
                             <Space className='menu-bar-item' style={{ display: "inline-flex" }}>
                                 <Avatar size={30}>{String(session.user.name).charAt(0).toUpperCase()}</Avatar>
                                 <div style={{ maxWidth: "50px" }} className='ellipsis'>{session.user.name}</div>

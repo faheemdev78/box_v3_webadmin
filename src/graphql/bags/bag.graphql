@@ -1,0 +1,7 @@
+#import "../_fragment/bags.graphql"
+
+query bag($id: ID!) {
+    bag(id: $id) {
+        ... BagsInfo
+    }
+}

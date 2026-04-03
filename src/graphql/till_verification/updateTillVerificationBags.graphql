@@ -1,0 +1,44 @@
+mutation UpdateTillVerificationBags(
+  $_id_order: ID!
+  $bag_id: ID!
+  $action: String!
+) {
+  updateTillVerificationBags(
+    _id_order: $_id_order
+    bag_id: $bag_id
+    action: $action
+  ) {
+    order {
+      _id
+      current_order {
+        bags {
+          _id
+          barcode
+          size
+          qty
+          price
+        }
+        totals {
+          saved
+          totalQuantity
+          subtotal
+          discountTotal
+          bagTotal
+          shipping
+          taxRate
+          taxAmount
+          grandTotal
+        }
+      }
+    }
+    session {
+      _id
+    }
+    success {
+      message
+    }
+    error {
+      message
+    }
+  }
+}

@@ -80,6 +80,7 @@ function ActiveSession({ store, onSessionUpdate }:{
     message.success('Shift closed successfully');
     setShowCloseShiftModal(false);
     setCloseNotes('');
+    if (refetchShift) await refetchShift();
     onSessionUpdate();
   };
 

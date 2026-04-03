@@ -1,13 +1,15 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client/react';
-import { Popconfirm, Alert, message, Row, Col, Modal, Space } from 'antd';
+import { Popconfirm, Alert, message, Row, Col, Modal, Space, Tabs } from 'antd';
 import { Barcode, Loader, Icon, Button, IconButton, Table, Avatar, ListHeader, DevBlock, DeleteButton } from '@/components';
 import { __error } from '@/lib/consoleHelper';
-import BasketFilter from './BasketFilter'
 import { catchApolloError, checkApolloRequestErrors, lightOrDark, utcToDate } from '@/lib/utill';
 import BasketForm from './basket_form';
 import { defaultDateTimeFormat } from '@/configs';
+import { useAppSelector } from '@/rStore/hooks';
+import security from '@/lib/security';
+import type { RootState } from '@/rStore';
 
 import LIST_DATA from '@/graphql/baskets/baskets.graphql';
 import RECORD_DELETE from '@/graphql/baskets/deleteBasket.graphql';
@@ -35,6 +37,8 @@ const ReleaseBasketButton = ({ basket, onSuccess }) => {
 
 
 const ListComp = ({ store }) => {
+    const session = useAppSelector((state: RootState) => state.session);
+
     const [get_baskets, { called, loading, error, data }] = useLazyQuery(LIST_DATA, { fetchPolicy: "no-cache" });
     const [deleteBasket, del_details] = useMutation(RECORD_DELETE, {});
     // const { data, loading } = useSubscription(QUERY_SUBSCRIPTION, { variables: { postID } });
@@ -42,6 +46,7 @@ const ListComp = ({ store }) => {
     const [busy, setBusy] = useState(false)
     const [baskets, setBaskets] = useState(null)
     const [showForm, set_showForm] = useState(false);
+    const [activeCategory, setActiveCategory] = useState<'dispatch' | 'pickup'>('dispatch');
 
     const handleDelete = async(id) => {
         setBusy(true);
@@ -74,20 +79,25 @@ const ListComp = ({ store }) => {
 
     const renderActions = (text, record) => {
         return (<Space>
-            <IconButton onClick={() => onEditRecord(record)} icon="pen" />
-            <DeleteButton onConfirm={() => handleDelete(record._id)} />
+            {security.verifyRole('1005.2', session.user.permissions) && <IconButton onClick={() => onEditRecord(record)} icon="pen" />}
+            {security.verifyRole('1005.3', session.user.permissions) && <DeleteButton onConfirm={() => handleDelete(record._id)} />}
         </Space>)
     }
 
     const onSuccess = (val) => fetchData();
     const onEditRecord = (item) => set_showForm(item)
-    const onAddClick = () => set_showForm(true)
+    const onAddClick = security.verifyRole('1005.1', session.user.permissions) ? () => set_showForm(true) : false;
 
 
     useEffect(() => {
         if (called) return;
-        fetchData()
+        fetchData({ category: activeCategory })
     }, [])
+
+    useEffect(() => {
+        if (!called) return;
+        fetchData({ category: activeCategory })
+    }, [activeCategory])
 
     const columns = [
         { title: 'Basket', dataIndex: 'barcode', render:(txt, record) => (<div>
@@ -109,7 +119,7 @@ const ListComp = ({ store }) => {
                 <ReleaseBasketButton basket={rec} onSuccess={() => fetchData({})} />
             </>)
         } },
-        { title: 'Category', dataIndex: 'category', width: 100, align:"center" },
+        { title: 'Category', dataIndex: 'category', width: 120, align:"center" },
         { title: 'Status', dataIndex: 'status', width: 120, align: "center" },
         { title: 'Actions', dataIndex: '', render: renderActions, className: 'actions-column', align: 'right', width: '100px' },
     ];
@@ -121,7 +131,14 @@ const ListComp = ({ store }) => {
                 sub={<>Total {(baskets && baskets?.length) || '0'} records found</>}
                 right={onAddClick ? <><Button onClick={onAddClick} size="small">Add New Basket</Button></> : false}
             />
-            <BasketFilter onSearch={(val)=>{ fetchData(val) }} />
+            <Tabs
+                activeKey={activeCategory}
+                onChange={(key) => setActiveCategory(key as 'dispatch' | 'pickup')}
+                items={[
+                    { key: 'dispatch', label: 'Dispatch' },
+                    { key: 'pickup', label: 'Pickup' },
+                ]}
+            />
 
             <Table loading={busy}
                 columns={columns}

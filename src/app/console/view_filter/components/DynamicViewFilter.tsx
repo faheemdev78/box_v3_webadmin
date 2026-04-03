@@ -169,17 +169,17 @@ export const DynamicViewFilter: React.FC<DynamicViewFilterProps> = ({
     });
   };
 
-  const handleDeleteView = (viewId: string) => {
-    Modal.confirm({
-      title: 'Delete View', content: 'Are you sure you want to delete this view?',
-      onOk: () => {
-        deleteView({ variables: { _id: viewId } });
-        if (activeViewId === viewId) {
-          setActiveViewId(views[0]?._id || null);
-        }
-      }
-    });
-  };
+  // const handleDeleteView = (viewId: string) => {
+  //   Modal.confirm({
+  //     title: 'Delete View', content: 'Are you sure you want to delete this view?',
+  //     onOk: () => {
+  //       deleteView({ variables: { _id: viewId } });
+  //       if (activeViewId === viewId) {
+  //         setActiveViewId(views[0]?._id || null);
+  //       }
+  //     }
+  //   });
+  // };
 
   const handleApplyColumns = (selectedColumns: string[]) => {
     if (!activeView) return;

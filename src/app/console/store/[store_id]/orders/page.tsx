@@ -7,15 +7,17 @@ import { adminRoot, defaultPageSize, defaultPagination } from "@/configs";
 import { Alert, Card, message, Popover, Row, Space, Tag, Tooltip, Typography } from "antd";
 import { UserOutlined, ShoppingOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { catchApolloError, checkApolloRequestErrors } from "@/lib/utill_apollo";
-import { Button, DevBlock, Icon, OrderTable, usePageProps } from '@/components';
+import { Button, DevBlock, Icon, OrderTable, usePageProps, PopMenu } from '@/components';
 import { Page } from "@/template";
 import { DynamicViewFilter } from "@/app/console/view_filter/components/DynamicViewFilter";
 import Link from "next/link";
 import { useAppSelector } from "@/rStore/hooks";
+import type { RootState } from '@/rStore';
 import { getSettings } from "@/rStore/slices/systemSlice";
 import { utcToDate } from "@/lib/utill";
 import { ResetButton } from "./components";
 import { getSession } from "@/rStore/slices/sessionSlice";
+import security from '@/lib/security';
 
 import LIST_DATA from '@/graphql/order/ordersQuery.graphql'
 import RESET_ORDER from '@/graphql/order/resetOrderToZero.graphql'
@@ -26,6 +28,9 @@ const { Title, Text } = Typography;
 const defaultFilter = {}; // { status: 'online' }
 
 function OrdersListPage(props:any) {
+    const session = useAppSelector((state: RootState) => state.session);
+    const canView = security.verifyRole('106.0', session.user.permissions); // Manage Product Fields
+
     const { store } = usePageProps() as unknown as { store: any }
     const settings = useAppSelector(getSettings);
     const userSession = useAppSelector(getSession);
@@ -46,6 +51,8 @@ function OrdersListPage(props:any) {
     const [ordersQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
     const [resetOrder, resetOrder_results] = useMutation<any>(RESET_ORDER);
     const [revertOrderStage, { loading: reverting }] = useMutation<any>(REVERT_ORDER_STAGE);
+
+    if (!canView) return <Alert title="Access Denied!" type="error" showIcon />
 
     const fetchData = async ({ filter = {}, pagination = {} }: { filter?: any; pagination?: { pageSize?: number; current?: number } } = {}) => {
         setFatelError(false);
@@ -234,6 +241,26 @@ function OrdersListPage(props:any) {
         // Can only revert backwards
         return targetIndex < currentIndex && !['cancelled', 'completed'].includes(currentStage);
     };
+
+    const renderActions = (_: any, record: any) => {
+        let returnArr = []
+
+        if (record.locked_by){
+            if (record.locked_by === userSession.user._id) returnArr.push(<span style={{ color: "green" }}><Tooltip title="Locked by you"><Icon icon="lock" /></Tooltip></span>)
+            else returnArr.push(<span style={{ color: "red" }}><Tooltip title="Locked by someone else"><Icon icon="lock" /></Tooltip></span>)
+        }
+        // if (record.current_stage !== 'pending') returnArr.push(<ResetButton size="small" handleResetOrder={() => handleResetOrder(record)} />)
+
+        // Set popup Menu
+        let popArray = []
+        if (record.current_stage !== 'pending') popArray.push({ onClick: () => handleResetOrder(record), label: "Reset to New", confirm })
+        if (canRevertTo(record, 'pending')) popArray.push({ onClick: () => handleRevertOrder(record, 'pending'), label: "To Pending", confirm })
+        if (canRevertTo(record, 'picking-complete')) popArray.push({ onClick: () => handleRevertOrder(record, 'picking-complete'), label: "To Picking Complete", confirm })
+        if (canRevertTo(record, 'ready-to-dispatch')) popArray.push({ onClick: () => handleRevertOrder(record, 'ready-to-dispatch'), label: "To Ready to Dispatch", confirm })
+        if (popArray.length) returnArr.push(<PopMenu orientation="vertical" placement="left" items={popArray} ></PopMenu>);
+
+        return (<Space size="small" wrap style={{ width: '100%' }}>{returnArr}</Space>);
+    }
     
 
 /*
@@ -361,7 +388,7 @@ function OrdersListPage(props:any) {
                             </Space>)
                         }
                     },
-                   store: {
+                    store: {
                         render: (_: any, rec: any) => (<div>
                             <div>{rec?.store?.title}</div>
                             <div><b>ZONE:</b> {rec?.zone?.title}</div>
@@ -381,8 +408,7 @@ function OrdersListPage(props:any) {
                             <div>{String(delivery_slot.day).toUpperCase()}</div>
                         </div>)
                     },
-                    createdAt: {
-                        width: 130,
+                    createdAt: { width: 100,
                         render: (createdAt: string) => (<Space orientation="vertical" size={0}>
                             <Text type="secondary" style={{ fontSize: 12 }}><ClockCircleOutlined /> {utcToDate(createdAt).format('HH:mm A')}</Text>
                             <Text type="secondary" style={{ fontSize: 11 }}>{utcToDate(createdAt).fromNow()}</Text>
@@ -401,52 +427,8 @@ function OrdersListPage(props:any) {
                     // Note: If "status" is configured but hidden in view, it stays hidden
                     // But "actions" is not in config, so it will always appear
                     actions: {
-                        title: 'Actions', width: 150, fixed: 'right',
-                        render: (_: any, record: any) => {
-                            return (<div>
-                                {/* {(record.locked_by && !record.is_locked_by_me) && <div><Icon icon="lock" /> by someone else</div>} */}
-                                {/* {(record.locked_by && record.locked_by === userSession.user._id) && <div><Tooltip title="Locked by someone else"><Icon icon="lock" /></Tooltip></div>} */}
-
-                                <Space size="small" wrap style={{ width: '100%' }}>
-                                    {record.locked_by && <span>
-                                        {record.locked_by === userSession.user._id ? 
-                                            <span style={{ color:"green" }}><Tooltip title="Locked by you"><Icon icon="lock" /></Tooltip></span> :
-                                            <span style={{ color: "red" }}><Tooltip title="Locked by someone else"><Icon icon="lock" /></Tooltip></span>
-                                        }
-                                    </span>}
-                                    
-                                    {(record.current_stage !== 'pending') && (
-                                        <ResetButton size="small" handleResetOrder={() => handleResetOrder(record)} />
-                                    )}
-
-                                    {/* {((record.locked_by && record.is_locked_by_me) || !record.locked_by) && <span>
-                                        <Button size="small" color="blue"
-                                            onClick={() => router.push(`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`)}
-                                            icon={<PlayCircleOutlined />}>{record.is_locked_by_me ? 'Resume' : 'Start'}</Button>
-                                    </span>} */}
-
-                                    {/* {(record.locked_by) && <>
-                                        <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`}><Space size={2}>
-                                            <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
-                                        </Space></Link>
-                                    </>} */}
-
-                                    {/* Revert Buttons */}
-                                    <Popover 
-                                        content={<div>
-                                            <Space size="small" wrap orientation="vertical" style={{ width:"100%" }}>
-                                                {canRevertTo(record, 'pending') && (<Button size="small" danger block onClick={() => handleRevertOrder(record, 'pending')}>to Pending</Button>)}
-                                                {canRevertTo(record, 'picking-complete') && (<Button block size="small" onClick={() => handleRevertOrder(record, 'picking-complete')}>to Picking Complete</Button>)}
-                                                {canRevertTo(record, 'ready-to-dispatch') && (<Button block size="small" onClick={() => handleRevertOrder(record, 'ready-to-dispatch')}>to Ready to Dispatch</Button>)}
-                                            </Space>
-                                        </div>} 
-                                        title="Title" trigger="click"><Button size="small">Undo</Button></Popover>
-
-                                </Space>
-
-                            </div>)
-
-                        },
+                        title: 'Actions', width: 120, fixed: 'right',
+                        render: renderActions,
                     },
 
                 }}

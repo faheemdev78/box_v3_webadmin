@@ -7,6 +7,7 @@ fragment ProcessingDataInfo on ProcessingData {
   stage
   handled_by { _id name }
   baskets { _id title barcode color }
+  bags { _id barcode size qty price }
   notes
 
   items { ...OrderItemsInfo }
@@ -22,5 +23,4 @@ fragment ProcessingDataInfo on ProcessingData {
 
   error { ...ErrorInfo }
 }
-
 

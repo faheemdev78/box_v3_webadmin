@@ -18,6 +18,8 @@ import {
   upsertHeldOrder,
   updateOrderItem,
   updateOrderItems,
+  updateOrderBaskets,
+  updateOrderBags,
   updateOrderTotals,
   removeHeldOrder,
 } from '@/rStore/slices/tillVerificationSlice';
@@ -31,11 +33,15 @@ import OPEN_TILL_SHIFT from '@/graphql/till_verification/openTillShift.graphql';
 import CLOSE_TILL_SHIFT from '@/graphql/till_verification/closeTillShift.graphql';
 import START_ORDER_VERIFICATION from '@/graphql/till_verification/startOrderVerification.graphql';
 import COMPLETE_ORDER_VERIFICATION from '@/graphql/till_verification/completeOrderVerification.graphql';
+import UPDATE_TILL_VERIFICATION_BASKETS from '@/graphql/till_verification/updateTillVerificationBaskets.graphql';
+import UPDATE_TILL_VERIFICATION_BAGS from '@/graphql/till_verification/updateTillVerificationBags.graphql';
 import VERIFY_ORDER_ITEM from '@/graphql/till_verification/verifyOrderItem.graphql';
+import DROP_ORDER_ITEM from '@/graphql/till_verification/dropOrderItem.graphql';
 import MARK_ORDER_ITEM_MISSING from '@/graphql/till_verification/markOrderItemMissing.graphql';
 import MARK_ORDER_ITEM_DAMAGED from '@/graphql/till_verification/markOrderItemDamaged.graphql';
 import MARK_ORDER_ITEM_MISMATCH from '@/graphql/till_verification/markOrderItemMismatch.graphql';
 import PRINT_TILL_RECEIPT from '@/graphql/till_verification/printTillReceipt.graphql';
+import REMOVE_ORDER_FROM_TILL_SESSION from '@/graphql/till_verification/removeOrderFromTillSession.graphql';
 
 interface GetTillVerificationQueueData {
   getTillVerificationQueue?: {
@@ -291,13 +297,12 @@ export const useCompleteOrderVerification = () => {
 
   const completeOrder = async (
     _id_order: string,
-    delivery_basket_ids: string[],
     notes?: string
   ) => {
     dispatch(setLoading(true));
     try {
       const result = await completeOrderMutation({
-        variables: { _id_order, delivery_basket_ids, notes },
+        variables: { _id_order, notes },
       });
 
       const response = result.data?.completeOrderVerification;
@@ -306,9 +311,6 @@ export const useCompleteOrderVerification = () => {
         throw new Error(response.error.message);
       }
 
-      // Remove order from held orders and clear current
-      dispatch(removeHeldOrder(_id_order));
-      dispatch(setCurrentOrder(null));
       if (response?.session) {
         dispatch(setActiveShift({
           ...(activeShift || {}),
@@ -326,6 +328,150 @@ export const useCompleteOrderVerification = () => {
   };
 
   return { completeOrder, loading };
+};
+
+export const useRemoveOrderFromTillSession = () => {
+  const dispatch = useAppDispatch();
+  const activeShift = useAppSelector(getActiveShift);
+  const [removeOrderMutation, { loading }] = useMutation<any>(REMOVE_ORDER_FROM_TILL_SESSION, {
+    refetchQueries: [GET_TILL_QUEUE, GET_MY_ACTIVE_SHIFT],
+  });
+
+  const removeOrderFromSession = async (_id_order: string, reason?: string) => {
+    dispatch(setLoading(true));
+    try {
+      const result = await removeOrderMutation({
+        variables: { _id_order, reason },
+      });
+
+      const response = result.data?.removeOrderFromTillSession;
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      dispatch(removeHeldOrder(_id_order));
+      dispatch(setCurrentOrder(null));
+      if (response?.session) {
+        dispatch(setActiveShift({
+          ...(activeShift || {}),
+          ...response.session,
+        }));
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error removing order from till session:', error);
+      throw error;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  return { removeOrderFromSession, loading };
+};
+
+export const useUpdateTillVerificationBaskets = () => {
+  const dispatch = useAppDispatch();
+  const activeShift = useAppSelector(getActiveShift);
+  const [updateBasketsMutation, { loading }] = useMutation<any>(UPDATE_TILL_VERIFICATION_BASKETS);
+
+  const updateTillVerificationBaskets = async (
+    _id_order: string,
+    basket_id: string,
+    action: 'add' | 'remove'
+  ) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await updateBasketsMutation({
+        variables: { _id_order, basket_id, action },
+      })
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.updateTillVerificationBaskets }))
+        .catch(catchApolloError);
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      if (response?.order?.current_order?.baskets) {
+        dispatch(updateOrderBaskets({
+          orderId: _id_order,
+          baskets: response.order.current_order.baskets,
+        }));
+      }
+
+      if (response?.session) {
+        dispatch(setActiveShift({
+          ...(activeShift || {}),
+          ...response.session,
+        }));
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error updating till verification baskets:', error);
+      throw error;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  return { updateTillVerificationBaskets, loading };
+};
+
+export const useUpdateTillVerificationBags = () => {
+  const dispatch = useAppDispatch();
+  const activeShift = useAppSelector(getActiveShift);
+  const [updateBagsMutation, { loading }] = useMutation<any>(UPDATE_TILL_VERIFICATION_BAGS);
+
+  const updateTillVerificationBags = async (
+    _id_order: string,
+    bag_id: string,
+    action: 'add' | 'remove'
+  ) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await updateBagsMutation({
+        variables: { _id_order, bag_id, action },
+      })
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.updateTillVerificationBags }))
+        .catch(catchApolloError);
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      if (response?.order?.current_order?.bags) {
+        dispatch(updateOrderBags({
+          orderId: _id_order,
+          bags: response.order.current_order.bags,
+        }));
+      }
+
+      if (response?.order?.current_order?.totals) {
+        dispatch(updateOrderTotals({
+          orderId: _id_order,
+          totals: response.order.current_order.totals,
+        }));
+      }
+
+      if (response?.session) {
+        dispatch(setActiveShift({
+          ...(activeShift || {}),
+          ...response.session,
+        }));
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error updating till verification bags:', error);
+      throw error;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  return { updateTillVerificationBags, loading };
 };
 
 // ===================================
@@ -450,6 +596,50 @@ export const useMarkOrderItemMissing = () => {
   };
 
   return { markMissing, loading };
+};
+
+export const useDropOrderItem = () => {
+  const dispatch = useAppDispatch();
+  const [dropOrderItemMutation, { loading }] = useMutation<any>(DROP_ORDER_ITEM);
+
+  const dropOrderItem = async (_id_order: string, _id_product: string) => {
+    dispatch(updateOrderItem({
+      orderId: _id_order,
+      productId: _id_product,
+      updates: {
+        processed_qty: 0,
+        status: 'picked',
+        issue_reason: undefined,
+        verified_at: null,
+      },
+    }));
+
+    try {
+      const response = await dropOrderItemMutation({
+        variables: { _id_order, _id_product },
+      })
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.dropOrderItem }))
+        .catch(catchApolloError);
+
+      if (response?.error) {
+        throw new Error(response.error.message);
+      }
+
+      if (response?.order?.current_order?.items) {
+        dispatch(updateOrderItems({
+          orderId: _id_order,
+          items: response.order.current_order.items,
+        }));
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error dropping order item:', error);
+      throw error;
+    }
+  };
+
+  return { dropOrderItem, loading };
 };
 
 /**

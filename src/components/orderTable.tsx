@@ -159,28 +159,30 @@ export function OrderTable({
 
                 return (<div>
                     {/* totals.saved */}
-                    <div><ShoppingOutlined /> {odr?.totals?.totalQuantity} items</div>
+                    <div><span className='text-gray-400'><ShoppingOutlined /></span> {odr?.totals?.totalQuantity} items</div>
                     {/* totals.subtotal */}
                     {/* totals.discountTotal */}
                     {/* totals.shipping */}
                     {/* totals.taxRate */}
                     {/* totals.taxAmount */}
-                    <div><b>{settings.currency}</b> {odr?.totals?.grandTotal}</div>
+                    <div><span className='text-gray-400'>{settings.currency}</span> {odr?.totals?.grandTotal}</div>
                 </div>)
             }
         },
         { title: 'Slot', dataIndex: 'delivery_slot', key: 'delivery_slot', width: 120, align: 'left', 
             render: (delivery_slot: any, rec: any) => {
                 return (<div>
-                    <div>{String(delivery_slot.start_time).padStart(4, '0')} ~ {String(delivery_slot.end_time).padStart(4, '0')}</div>
-                    <div>{String(delivery_slot.day).toUpperCase()}</div>
+                    {/* <div>{String(delivery_slot.start_time).padStart(4, '0')} ~ {String(delivery_slot.end_time).padStart(4, '0')}</div>
+                    <div>{String(delivery_slot.day).toUpperCase()}</div> */}
+                    <div>{utcToDate(delivery_slot.start_date).format("ddd Do")}</div>
+                    <div>{utcToDate(delivery_slot.start_date).format("HHmm")} ~ {String(delivery_slot.end_time).padStart(4, '0')}</div>
                 </div>)
             }
         },
         { title: 'Status', dataIndex: ['status', 'order'], key: 'status', width: 220, align: 'left', 
             render: (__: any, { current_stage, status, locked_by, lock_type, is_locked_by_me, handledBy }: any) => (<div>
-                <div><b>Stage:</b> {current_stage}</div>
-                <div><b>Status:</b> {status.order}</div>
+                <div><b className='text-gray-400'>Stage:</b> {current_stage}</div>
+                <div><b className='text-gray-400'>Status:</b> {status.order}</div>
                 {locked_by && <>
                     <div><Icon icon="lock" /> {lock_type}</div>
                     <Space>

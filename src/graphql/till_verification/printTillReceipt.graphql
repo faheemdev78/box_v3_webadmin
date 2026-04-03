@@ -33,6 +33,7 @@ mutation PrintTillReceipt($_id_order: ID!) {
         taxAmount
         shipping
         discountTotal
+        bagTotal
       }
       paymentMethod
       notes

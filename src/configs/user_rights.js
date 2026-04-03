@@ -162,4 +162,13 @@ export const UserRightsArray = [
         ]
     },
 
+    { _id: 1009, title: 'Bags',
+        rules: [
+            { title: 'View Bag', key: '1009.0' },
+            { title: 'Add Bag', key: '1009.1' },
+            { title: 'Edit Bag', key: '1009.2' },
+            { title: 'Delete Bag', key: '1009.3' },
+        ]
+    },
+
 ];

@@ -1,0 +1,6 @@
+mutation deleteBag($id: ID!) {
+    deleteBag(id: $id) {
+        _id
+        error{ message }
+    }
+}

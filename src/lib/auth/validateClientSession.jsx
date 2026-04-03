@@ -7,6 +7,7 @@ import { getActiveShift, resetTillVerification } from '@/rStore/slices/tillVerif
 import { Loader } from '@/components';
 import { useAppSelector } from '@/rStore/hooks';
 import { getCurrentUser, getSessionToken, clearSessionToken } from '.';
+import { isUnauthenticatedGraphQLError, logoutUnauthenticatedUser } from './sessionCleanup';
 // import { sleep } from '..';
 
 function ValidateClientSession({ children }) {
@@ -43,16 +44,29 @@ function ValidateClientSession({ children }) {
 
     // Refresh store session if token is found
     if (token) {
-      getCurrentUser().then(user => {
-        if (user && !user.error) {
-          dispatch(setSession({ user, token }));
+      getCurrentUser()
+        .then(user => {
+          if (user && !user.error) {
+            dispatch(setSession({ user, token }));
 
-          if (activeShift?._id_staff && activeShift._id_staff !== user._id) {
-            dispatch(resetTillVerification());
+            if (activeShift?._id_staff && activeShift._id_staff !== user._id) {
+              dispatch(resetTillVerification());
+            }
           }
-        }
-        setReady(true)
-      })
+
+          setReady(true)
+        })
+        .catch(async (error) => {
+          const message = String(error?.message || "").toLowerCase();
+
+          if (message.includes('not authenticated') || isUnauthenticatedGraphQLError(error)) {
+            await logoutUnauthenticatedUser();
+            return;
+          }
+
+          console.error('ValidateClientSession failed:', error);
+          setReady(true);
+        })
       return;
     }
 

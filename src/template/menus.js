@@ -84,6 +84,7 @@ export const store_topMenuArray = ({ baseUrl="" }) => ([
             { title: 'Delivery Slots', href: `${baseUrl}/delivery_slots`, rolePermessions: '107.0' },
             { title: 'Baskets', href: `${baseUrl}/baskets`, rolePermessions: '1005.0' },
             { title: 'Banners', href: `${baseUrl}/banners`, rolePermessions: '1007.0' },
+            { title: 'Bags', href: `${baseUrl}/bags`, rolePermessions: '1009.0' },
         ]
     },
 ])

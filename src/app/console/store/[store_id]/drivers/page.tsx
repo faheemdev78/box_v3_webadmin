@@ -8,6 +8,8 @@ import { PageHeader } from '@/template';
 import { Button, usePageProps } from '@/components';
 import { Page } from '@/template/page';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { useAppSelector } from '@/rStore/hooks';
+import { getSettings } from '@/rStore/slices/systemSlice';
 
 import GET_DRIVERS_WITH_PENDING_SETTLEMENT from '@/graphql/drivers/getDriversWithPendingSettlement.graphql'
 import SETTLE_DRIVER_WALLET from '@/graphql/drivers/settleDriverWallet.graphql'
@@ -47,6 +49,8 @@ interface DriverSettlement {
 }
 
 function DriverSettlements() {
+  const settings = useAppSelector(getSettings);
+
   const { store } = usePageProps() as unknown as { store: any }
 
   const [drivers, setDrivers] = useState<DriverSettlement[]>([]);
@@ -342,7 +346,7 @@ function DriverSettlements() {
                   style={{ width: '100%' }}
                   value={depositAmount}
                   onChange={(value) => setDepositAmount(value || 0)}
-                  prefix="RS"
+                  prefix={settings.currency}
                   precision={2}
                   min={0}
                   max={selectedDriver.pending_deposit}
