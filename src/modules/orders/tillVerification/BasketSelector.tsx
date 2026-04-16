@@ -91,6 +91,9 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
   const { data, loading, error } = useQuery<any>(GET_AVAILABLE_BASKETS, {
     variables: { _id_store: storeId, category, limit: 50 },
     skip: !storeId,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
   });
 
   const availableBaskets: Basket[] = data?.getAvailableBaskets?.baskets || [];

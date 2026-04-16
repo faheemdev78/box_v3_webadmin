@@ -28,6 +28,10 @@ query ordersQuery($limit: Int, $page: Int, $filter: String, $others: String, $_i
             }
 
             # current_order: ProcessingData
+            current_order {
+                baskets{ title }
+                # bags{ title }
+            }
             # processing_stages: Order_ProcessingStages
 
             delivery_slot { ...OrderDeliverySlotInfo }

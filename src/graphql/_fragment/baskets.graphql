@@ -1,14 +1,15 @@
 fragment BasketInfo on Basket {
   _id
   # _id_store: ID
-  # _id_order: ID
+  _id_order
 
   title
   barcode
   color
   category
   
-  # locked_by: ID
+  locked_by
+  locked_user { _id name }
   locked_at
   lock_expires_at
   

@@ -5,8 +5,9 @@ import { Popconfirm, Alert, message, Row, Col, Modal, Space, Tabs } from 'antd';
 import { Barcode, Loader, Icon, Button, IconButton, Table, Avatar, ListHeader, DevBlock, DeleteButton } from '@/components';
 import { __error } from '@/lib/consoleHelper';
 import { catchApolloError, checkApolloRequestErrors, lightOrDark, utcToDate } from '@/lib/utill';
+import Link from 'next/link';
+import { adminRoot, defaultDateTimeFormat } from '@/configs';
 import BasketForm from './basket_form';
-import { defaultDateTimeFormat } from '@/configs';
 import { useAppSelector } from '@/rStore/hooks';
 import security from '@/lib/security';
 import type { RootState } from '@/rStore';
@@ -58,7 +59,7 @@ const ListComp = ({ store }) => {
 
         if (!results || results.error) return message.error((results && results?.error?.message) || "Unable to delete record")
         message.success("Record deleted")
-        fetchData();
+        fetchData({ category: activeCategory });
     }
 
     const fetchData = async(_filter={}) => {
@@ -84,7 +85,7 @@ const ListComp = ({ store }) => {
         </Space>)
     }
 
-    const onSuccess = (val) => fetchData();
+    const onSuccess = (val) => fetchData({ category: activeCategory });
     const onEditRecord = (item) => set_showForm(item)
     const onAddClick = security.verifyRole('1005.1', session.user.permissions) ? () => set_showForm(true) : false;
 
@@ -112,11 +113,24 @@ const ListComp = ({ store }) => {
             />
         </div>)},
         { title: 'In Use', dataIndex: 'record', render:(__, rec) => {
+            const isLocked = Boolean(rec?.locked_by || rec?.locked_at || rec?.lock_expires_at || rec?._id_order || rec?.status === 'taken');
+            const orderPreviewHref = rec?._id_order ? `${adminRoot}/store/${store._id}/orders/preview/${rec._id_order}` : '';
+            const lockedByName = rec?.locked_user?.name || rec?.taken_by?.name || '';
+
             return (<>
                 {rec?.taken_by?.name  && <div>Taken By: {rec?.taken_by?.name}</div>}
+                {isLocked && rec?.locked_by && <div>Locked By: {lockedByName || rec?.locked_by}</div>}
                 {rec.locked_at && <div>Locked At: {utcToDate(rec.locked_at).format(defaultDateTimeFormat)}</div>}
                 {rec.lock_expires_at && <div>Auto unlock at: {utcToDate(rec.lock_expires_at).format(defaultDateTimeFormat)}</div>}
-                <ReleaseBasketButton basket={rec} onSuccess={() => fetchData({})} />
+                {isLocked && rec?._id_order && (
+                    <div>
+                        Order ID:{' '}
+                        <Link href={orderPreviewHref}>
+                            {rec._id_order}
+                        </Link>
+                    </div>
+                )}
+                {isLocked && <ReleaseBasketButton basket={rec} onSuccess={() => fetchData({ category: activeCategory })} />}
             </>)
         } },
         { title: 'Category', dataIndex: 'category', width: 120, align:"center" },

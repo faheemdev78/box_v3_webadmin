@@ -1046,17 +1046,19 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
 
   const initializeOrder = async (targetOrderId: string) => {
     console.log(__yellow("initializeOrder()"))
+    initializedOrderIdRef.current = targetOrderId;
+
     try {
       // Always re-sync from backend on page load/refresh so persisted Redux
       // does not hide external order changes from another device/session.
       const result = await startOrder(targetOrderId);
-      initializedOrderIdRef.current = targetOrderId;
 
       if (result?.success?.message?.includes('Resuming')) message.info('Resuming order verification');
       else message.success('Order verification started');
 
     } catch (error: any) {
       console.error('Failed to start order:', error);
+      initializedOrderIdRef.current = null;
       setFatelError(error.message || 'Failed to start order verification');
     }
   };

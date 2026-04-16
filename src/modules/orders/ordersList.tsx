@@ -44,6 +44,12 @@ const OrdersList: React.FC<OrdersListProps> = ({
   const session = useAppSelector((state: any) => state.session);
   const settings = useAppSelector(getSettings)
   const isStoreUser = !!(session?.user?.store?._id);
+  const getOrderPreviewHref = (order: any) => {
+    const storeId = order?.store?._id || order?._id_store || session?.user?.store?._id;
+    return storeId
+      ? `${adminRoot}/store/${storeId}/orders/preview/${order?.serial}`
+      : `${adminRoot}/orders/preview/${order?.serial}`;
+  };
 
   const [resetOrder, resetOrder_results] = useMutation<any>(RESET_ORDER);
   const canResetOrder = security.verifyRole('106.9', session.user.permissions); // Order reset permission
@@ -104,9 +110,10 @@ const OrdersList: React.FC<OrdersListProps> = ({
   };
 
   const _columns = [
-    { title: 'Serial', _dataIndex: 'serial', key: 'serial', align: 'left', render: (__:any, { serial, current_stage, customer }:any) => {
+    { title: 'Serial', _dataIndex: 'serial', key: 'serial', align: 'left', render: (__:any, rec:any) => {
+      const { serial, customer } = rec;
       return (<>
-        <Link href={`${adminRoot}/orders/preview/${serial}`}>{serial}</Link>
+        <Link href={getOrderPreviewHref(rec)}>{serial}</Link>
         <div><b>Customer:</b> {customer.name}</div>
       </>)
     } },
@@ -179,7 +186,7 @@ const OrdersList: React.FC<OrdersListProps> = ({
 
           <IconButton
             icon="eye"
-            onClick={() => router.push(`${adminRoot}/orders/preview/${record.serial}`)}
+            onClick={() => router.push(getOrderPreviewHref(record))}
             tooltip="View order details"
           />
         </Space>

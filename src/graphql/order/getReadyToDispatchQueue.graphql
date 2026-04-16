@@ -37,6 +37,7 @@ query getReadyToDispatchQueue($limit: Int, $page: Int, $filter: String, $others:
                 }
             }
 
+            current_stage
             status { order }
 
             shippingAddress { ...UserAddressesRefInfo }

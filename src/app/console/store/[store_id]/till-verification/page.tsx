@@ -265,7 +265,7 @@ function TillOrders(){
           busy={false}
           columns={['serial', 'customer', 'picker', 'order', 'delivery_slot', 'status', 'createdAt', {
             key: 'actions',
-            options: { reset: true, till_verification: true }
+            options: { reset: false, till_verification: true }
           }]}
           dataSource={state.dataSource}
           pagination={state.pagination}

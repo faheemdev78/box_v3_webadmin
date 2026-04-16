@@ -83,6 +83,12 @@ export function OrderTable({
     const settings = useAppSelector(getSettings);
 
     const router = useRouter()
+    const getOrderPreviewHref = (order: any) => {
+        const storeId = order?.store?._id || order?._id_store;
+        return storeId
+            ? `${adminRoot}/store/${storeId}/orders/preview/${order?.serial}`
+            : `${adminRoot}/orders/preview/${order?.serial}`;
+    };
 
     const [resetOrder, resetOrder_results] = useMutation<any>(RESET_ORDER);
 
@@ -128,9 +134,13 @@ export function OrderTable({
 
     const _columns = [
         { title: 'Serial', _dataIndex: 'serial', key: 'serial', align: 'left', 
-            render: (__: any, { serial, current_stage, customer }: any) => {
+            render: (__: any, rec: any) => {
+                const { current_order, serial } = rec;
                 return (<>
-                    <Link href={`${adminRoot}/orders/preview/${serial}`}>{serial}</Link>
+                    <Link href={getOrderPreviewHref(rec)}>{serial}</Link>
+                    {(current_order && current_order.baskets) && <div>
+                        {current_order?.baskets?.map((basket: any, i: number) => (<Tag key={i}>{basket.title}</Tag>))}
+                    </div>}
                     {/* <div><b>Customer:</b> {customer.name}</div> */}
                 </>)
             }

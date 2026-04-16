@@ -104,6 +104,8 @@ function DispatchedList(props:any) {
             </Card>
         </Page>
 
+        <DevBlock obj={state.dataSource} />
+
     </>)
 }
 

@@ -39,6 +39,21 @@ const migrations = {
             },
         };
     },
+    3: (state: any) => {
+        return {
+            ...state,
+            tillVerification: {
+                activeShift: null,
+                heldOrders: {},
+                currentOrderId: null,
+                queueLoading: false,
+                ui: {
+                    is_loading: false,
+                    show_held_orders: true,
+                },
+            },
+        };
+    },
   };
 
 // State reconciler to ensure tillVerification structure always exists
@@ -69,8 +84,8 @@ const persistConfig = {
     key: 'root',
     storage: storageSession, // Use session storage
     blacklist: [], // Array
-    whitelist: ['session', 'system', 'tillVerification'],
-    version: 3,
+    whitelist: ['session', 'system'],
+    version: 4,
     // throttle: 0, // number
     debug: process.env.NODE_ENV==='development', // boolean
     // serialize: true, // boolean

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Alert, Card, Col, message, Popconfirm, Row, Space, Table, Tag, Typography, Modal, InputNumber, Statistic, Divider
 } from 'antd';
+import { Input, Tabs } from 'antd';
 import { DollarOutlined, ShoppingOutlined, CheckCircleOutlined, ClockCircleOutlined, WarningOutlined } from '@ant-design/icons';
 import { PageHeader } from '@/template';
 import { Button, usePageProps } from '@/components';
@@ -48,6 +49,8 @@ interface DriverSettlement {
   }>;
 }
 
+type DriverSettlementTab = 'pending_settlements' | 'pending_basket_collections' | 'settlements_completed';
+
 function DriverSettlements() {
   const settings = useAppSelector(getSettings);
 
@@ -58,6 +61,8 @@ function DriverSettlements() {
   const [selectedDriver, setSelectedDriver] = useState<DriverSettlement | null>(null);
   const [settlementModalVisible, setSettlementModalVisible] = useState(false);
   const [depositAmount, setDepositAmount] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<DriverSettlementTab>('pending_settlements');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [getDrivers] = useLazyQuery<any>(GET_DRIVERS_WITH_PENDING_SETTLEMENT, {
     fetchPolicy: 'network-only'
@@ -147,6 +152,44 @@ function DriverSettlements() {
     return basketsReturned && walletSettled;
   };
 
+  const getSessionTimestamp = (driver: DriverSettlement) => {
+    return new Date(driver.session.session_started_at).getTime() || 0;
+  };
+
+  const sortedDrivers = [...drivers].sort((a, b) => getSessionTimestamp(b) - getSessionTimestamp(a));
+
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+
+  const searchedDrivers = normalizedSearch
+    ? sortedDrivers.filter((record) => {
+      const name = record.driver.name?.toLowerCase() || '';
+      const phone = record.driver.phone?.toLowerCase() || '';
+      const email = record.driver.email?.toLowerCase() || '';
+      return (
+        name.includes(normalizedSearch) ||
+        phone.includes(normalizedSearch) ||
+        email.includes(normalizedSearch)
+      );
+    })
+    : sortedDrivers;
+
+  const pendingSettlementDrivers = searchedDrivers.filter((record) => {
+    const wallet = record.session.driver_wallet;
+    if (!wallet) return false;
+    return !wallet.is_settled || wallet.pending_deposit > 0;
+  });
+
+  const pendingBasketCollectionDrivers = searchedDrivers.filter((record) => !record.session.all_baskets_returned);
+
+  const settlementCompletedDrivers = searchedDrivers.filter((record) => record.session.driver_wallet?.is_settled);
+
+  const activeTabDrivers =
+    activeTab === 'pending_settlements'
+      ? pendingSettlementDrivers
+      : activeTab === 'pending_basket_collections'
+        ? pendingBasketCollectionDrivers
+        : settlementCompletedDrivers;
+
   const columns = [
     {
       title: 'Driver',
@@ -157,6 +200,15 @@ function DriverSettlements() {
           <div style={{ fontSize: '12px', color: '#888' }}>{record.driver.phone}</div>
         </div>
       ),
+    },
+    {
+      title: 'Session Date',
+      key: 'session_started_at',
+      align: 'center' as const,
+      render: (record: DriverSettlement) => {
+        const startedAt = record.session.session_started_at;
+        return startedAt ? new Date(startedAt).toLocaleString() : '-';
+      },
     },
     {
       title: 'Delivered Orders',
@@ -275,26 +327,52 @@ function DriverSettlements() {
     </PageHeader>
 
       <Page>
-        {drivers.length === 0 && !loading ? (
-          <Card>
-            <Alert
-              title="No Pending Settlements"
-              description="There are no drivers with pending settlements at the moment."
-              type="info"
-              showIcon
+        <Card>
+          <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
+            <Input
+              allowClear
+              placeholder="Search by driver name, phone, or email"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-          </Card>
-        ) : (
-          <Card>
-            <Table
-              dataSource={drivers}
-              columns={columns}
-              rowKey={(record) => record.driver._id}
-              loading={loading}
-              pagination={false}
+
+            <Tabs
+              activeKey={activeTab}
+              onChange={(key) => setActiveTab(key as DriverSettlementTab)}
+              items={[
+                {
+                  key: 'pending_settlements',
+                  label: `Pending Settlements (${pendingSettlementDrivers.length})`,
+                },
+                {
+                  key: 'pending_basket_collections',
+                  label: `Pending Basket Collections (${pendingBasketCollectionDrivers.length})`,
+                },
+                {
+                  key: 'settlements_completed',
+                  label: `Settlements Completed (${settlementCompletedDrivers.length})`,
+                },
+              ]}
             />
-          </Card>
-        )}
+
+            {drivers.length === 0 && !loading ? (
+              <Alert
+                title="No Pending Settlements"
+                description="There are no drivers with pending settlements at the moment."
+                type="info"
+                showIcon
+              />
+            ) : (
+              <Table
+                dataSource={activeTabDrivers}
+                columns={columns}
+                rowKey={(record) => record.session._id}
+                loading={loading}
+                pagination={false}
+              />
+            )}
+          </Space>
+        </Card>
 
         {/* Settlement Modal */}
         <Modal

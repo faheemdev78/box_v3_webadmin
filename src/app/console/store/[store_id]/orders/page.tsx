@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { __error } from '@/lib/consoleHelper';
-import { adminRoot, defaultPageSize, defaultPagination } from "@/configs";
-import { Alert, Card, message, Popover, Row, Space, Tag, Tooltip, Typography } from "antd";
+import { adminRoot, defaultDateTimeFormat, defaultPageSize, defaultPagination } from "@/configs";
+import { Alert, Card, message, Modal, Popover, Row, Space, Tag, Tooltip, Typography } from "antd";
 import { UserOutlined, ShoppingOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { catchApolloError, checkApolloRequestErrors } from "@/lib/utill_apollo";
 import { Button, DevBlock, Icon, OrderTable, usePageProps, PopMenu } from '@/components';
@@ -18,6 +18,7 @@ import { utcToDate } from "@/lib/utill";
 import { ResetButton } from "./components";
 import { getSession } from "@/rStore/slices/sessionSlice";
 import security from '@/lib/security';
+import { usePrintTillReceipt } from "@/hooks/useTillVerification";
 
 import LIST_DATA from '@/graphql/order/ordersQuery.graphql'
 import RESET_ORDER from '@/graphql/order/resetOrderToZero.graphql'
@@ -38,6 +39,9 @@ function OrdersListPage(props:any) {
     
     const [busy, setBusy] = useState(false)
     const [fatelError, setFatelError] = useState(false)
+    const [showReceiptModal, setShowReceiptModal] = useState(false);
+    const [receiptText, setReceiptText] = useState('');
+    const [receiptOrderSerial, setReceiptOrderSerial] = useState('');
     // const [savedViews, setSavedViews] = useState<ViewConfig[]>(INITIAL_ORDER_VIEWS)
     // const [activeView, setActiveView] = useState<ViewConfig | null>(null)
 
@@ -51,6 +55,7 @@ function OrdersListPage(props:any) {
     const [ordersQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
     const [resetOrder, resetOrder_results] = useMutation<any>(RESET_ORDER);
     const [revertOrderStage, { loading: reverting }] = useMutation<any>(REVERT_ORDER_STAGE);
+    const { printReceipt } = usePrintTillReceipt();
 
     if (!canView) return <Alert title="Access Denied!" type="error" showIcon />
 
@@ -219,7 +224,8 @@ function OrdersListPage(props:any) {
         setBusy(false);
 
         if (processedResult.error) {
-            message.error(`Failed to revert order: ${processedResult.error.message}`);
+            message.error("Failed to revert order: " + processedResult.error.details || processedResult.error.message || '');
+            // message.error(`Failed to revert order: ${processedResult.error.message}`);
             return;
         }
 
@@ -239,7 +245,79 @@ function OrdersListPage(props:any) {
         const targetIndex = stageOrder.indexOf(targetStage);
 
         // Can only revert backwards
-        return targetIndex < currentIndex && !['cancelled', 'completed'].includes(currentStage);
+        return targetIndex < currentIndex && !['cancelled', 'delivered', 'completed'].includes(currentStage);
+    };
+
+    const canPrintTillReceipt = (order: any) => {
+        const normalize = (value: any) => String(value || '').toLowerCase().replace(/[_\s]+/g, '-');
+        const currentStage = normalize(order?.current_stage);
+        const orderStatus = normalize(order?.status?.order);
+
+        // "dispatched" orders are represented as "delivering" in current stage.
+        return ['ready-to-dispatch', 'dispatched', 'delivering'].includes(currentStage)
+            || ['ready-to-dispatch', 'dispatched'].includes(orderStatus);
+    };
+
+    const handlePrintTillReceipt = async (order: any) => {
+        setBusy(true);
+        try {
+            const result = await printReceipt(order._id);
+            if (!result?.receiptText) {
+                message.error('Receipt content is not available');
+                return;
+            }
+
+            setReceiptText(result.receiptText);
+            setReceiptOrderSerial(order?.serial || '');
+            setShowReceiptModal(true);
+        } catch (error: any) {
+            message.error(error?.message || 'Failed to print receipt');
+        } finally {
+            setBusy(false);
+        }
+    };
+
+    const escapeHtml = (text: string) => {
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
+
+    const handlePrintFromModal = () => {
+        if (!receiptText) {
+            message.error('Receipt content is not available');
+            return;
+        }
+
+        const printWindow = window.open('', '_blank', 'width=420,height=800');
+        if (!printWindow) {
+            message.error('Unable to open print window');
+            return;
+        }
+
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Receipt ${receiptOrderSerial || ''}</title>
+              <style>
+                body {
+                  margin: 0;
+                  padding: 12px;
+                  background: #fff;
+                  font-family: monospace;
+                  white-space: pre-wrap;
+                }
+              </style>
+            </head>
+            <body>${escapeHtml(receiptText)}</body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
     };
 
     const renderActions = (_: any, record: any) => {
@@ -257,6 +335,7 @@ function OrdersListPage(props:any) {
         if (canRevertTo(record, 'pending')) popArray.push({ onClick: () => handleRevertOrder(record, 'pending'), label: "To Pending", confirm })
         if (canRevertTo(record, 'picking-complete')) popArray.push({ onClick: () => handleRevertOrder(record, 'picking-complete'), label: "To Picking Complete", confirm })
         if (canRevertTo(record, 'ready-to-dispatch')) popArray.push({ onClick: () => handleRevertOrder(record, 'ready-to-dispatch'), label: "To Ready to Dispatch", confirm })
+        if (canPrintTillReceipt(record)) popArray.push({ onClick: () => handlePrintTillReceipt(record), label: "Print Receipt" })
         if (popArray.length) returnArr.push(<PopMenu orientation="vertical" placement="left" items={popArray} ></PopMenu>);
 
         return (<Space size="small" wrap style={{ width: '100%' }}>{returnArr}</Space>);
@@ -266,7 +345,7 @@ function OrdersListPage(props:any) {
 /*
     const _columns = [
         { title: 'Serial', _dataIndex: 'serial', key: 'serial', align: 'left',
-            render: (__: any, { serial, current_stage, customer }: any) => (<Link href={`${adminRoot}/orders/preview/${serial}`}>{serial}</Link>)
+            render: (__: any, { serial, current_stage, customer }: any) => (<Link href={`${adminRoot}/store/${store._id}/orders/preview/${serial}`}>{serial}</Link>)
         },
         { title: 'Customer', dataIndex: 'customer', key: 'customer',
             render: (customer: any) => (<Space>
@@ -372,7 +451,20 @@ function OrdersListPage(props:any) {
                     serial: {
                         width: 180,
                         ellipsis: true,
-                        render: (__: any, { serial, current_stage, customer }: any) => (<Link href={`${adminRoot}/orders/preview/${serial}`}>{serial}</Link>)
+                        // render: (__: any, { serial, current_stage, customer }: any) => (<Link href={`${adminRoot}/store/${store._id}/orders/preview/${serial}`}>{serial}</Link>)
+                        render: (__: any, { current_order, serial, current_stage, customer }: any) => {
+                            return (<>
+                                <Link href={`${adminRoot}/store/${store._id}/orders/preview/${serial}`}>{serial}</Link>
+                                {(current_order && current_order.baskets) && <div>
+                                    {current_order?.baskets?.map((basket: any, i: number) => (<Tag styles={{
+                                        root: {
+                                            fontSize:"10px"
+                                        }
+                                    }} key={i}>{basket.title}</Tag>))}
+                                </div>}
+                                {/* <div><b>Customer:</b> {customer.name}</div> */}
+                            </>)
+                        }
                     },
                     customer: {
                         render: (customer: any, rec: any) => (<Space>
@@ -408,10 +500,12 @@ function OrdersListPage(props:any) {
                             <div>{String(delivery_slot.day).toUpperCase()}</div>
                         </div>)
                     },
-                    createdAt: { width: 100,
+                    createdAt: { width: 110,
                         render: (createdAt: string) => (<Space orientation="vertical" size={0}>
-                            <Text type="secondary" style={{ fontSize: 12 }}><ClockCircleOutlined /> {utcToDate(createdAt).format('HH:mm A')}</Text>
-                            <Text type="secondary" style={{ fontSize: 11 }}>{utcToDate(createdAt).fromNow()}</Text>
+                            <Tooltip title={utcToDate(createdAt).format(defaultDateTimeFormat)}>
+                                <Text type="secondary" style={{ fontSize: 12 }}><ClockCircleOutlined /> {utcToDate(createdAt).format('HH:mm A')}</Text>
+                                <div><Text type="secondary" style={{ fontSize: 11 }}>{utcToDate(createdAt).fromNow()}</Text></div>
+                            </Tooltip>
                         </Space>)
                     },
                     "status.order": {
@@ -422,10 +516,33 @@ function OrdersListPage(props:any) {
                         width: 130,
                         // render: (status: string) => (status)
                     },
+                    // "status": {
+                    //     width: 220, align: 'left', title: "Status",
+                    //     render: (__: any, { current_stage, status, locked_by, lock_type, is_locked_by_me, handledBy }: any) => (<div>
+                    //         <div><b className='text-gray-400'>Stage:</b> {current_stage}</div>
+                    //         <div><b className='text-gray-400'>Status:</b> {status.order}</div>
+                    //         {locked_by && <>
+                    //             <Space>
+                    //                 <div><Icon icon="lock" /> {lock_type}</div>
+                    //                 {/* <UserOutlined style={{ color: '#52c41a' }} /> */}
+                    //                 {is_locked_by_me && <Tag color="orange">Locked by you</Tag>}
+                    //             </Space>
+                    //         </>}
+                    //     </div>)
+                    // },
+
                     // Example of unconfigured column - this will be added automatically
                     // even if it's not in the view configuration (will appear at the end)
                     // Note: If "status" is configured but hidden in view, it stays hidden
                     // But "actions" is not in config, so it will always appear
+                    // "current_order.baskets": {
+                    //     title: 'Baskets', width: 120,
+                    //     render: (_: any, rec: any) => {
+                    //         const baskets = rec?.current_order?.baskets || [];
+                    //         if (!baskets.length) return null;
+                    //         return baskets.map((basket, i) => (<Tag key={i}>{basket.title}</Tag>))
+                    //     },
+                    // },
                     actions: {
                         title: 'Actions', width: 120, fixed: 'right',
                         render: renderActions,
@@ -463,6 +580,29 @@ function OrdersListPage(props:any) {
                     />
                 </Card>
             </div> */}
+
+            <Modal
+                open={showReceiptModal}
+                onCancel={() => setShowReceiptModal(false)}
+                title={`Receipt${receiptOrderSerial ? ` - ${receiptOrderSerial}` : ''}`}
+                width={420}
+                footer={[
+                    <Button key="close" onClick={() => setShowReceiptModal(false)}>Close</Button>,
+                    <Button key="print" type="primary" onClick={handlePrintFromModal}>Print</Button>,
+                ]}
+            >
+                <pre style={{
+                    margin: 0,
+                    maxHeight: 500,
+                    overflow: 'auto',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-word',
+                    fontFamily: 'monospace',
+                    fontSize: 12
+                }}>
+                    {receiptText}
+                </pre>
+            </Modal>
 
         </Page>
 
