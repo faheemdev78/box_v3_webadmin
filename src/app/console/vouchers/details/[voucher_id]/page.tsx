@@ -17,7 +17,6 @@ function VoucherDetails() {
     useEffect(() => {
         if (called) return;
         getVoucher({ variables: { id: voucher_id } })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [voucher_id])
     
     

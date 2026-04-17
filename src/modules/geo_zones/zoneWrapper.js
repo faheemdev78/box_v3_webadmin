@@ -19,12 +19,6 @@ function ZoneWrapper({ render, ...props }) {
     const [get_geoZone, { loading, data, called }] = useLazyQuery(GET_ZONE, { fetchPolicy: "network-only" });
     const [editGeoZone, edit_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
-    useEffect(() => {
-        if (called || loading || !zone_id) return;
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [zone_id])
-
     const fetchData = async () => {
         let resutls = await get_geoZone({ variables: { _id: zone_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZone }))
@@ -37,6 +31,12 @@ function ZoneWrapper({ render, ...props }) {
 
         return resutls;
     }
+    
+    useEffect(() => {
+        if (called || loading || !zone_id) return;
+        fetchData();
+        
+    }, [zone_id])
 
     const onStatusUpdate = async (values) => {
         let resutls = await editGeoZone({ variables: { input: { _id: zone_id, status: values.status } } })

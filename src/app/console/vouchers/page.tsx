@@ -34,12 +34,6 @@ function Vouchers(props:any) {
     const [deleteVoucher, del_results] = useMutation<any>(RECORD_DELETE); // { data, loading, error }
     const [vouchersQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called) return;
-        fetchData({ filter: state.filter })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props])
-
     const fetchData = async ({ filter, pagination = {} }: { filter: any; pagination?: { pageSize?: number; current?: number } }) => {
         const variables = {
             limit: pagination?.pageSize || state.pagination.pageSize,
@@ -136,6 +130,13 @@ function Vouchers(props:any) {
         },
     ];
     
+
+    useEffect(() => {
+        if (called) return;
+        fetchData({ filter: state.filter })
+    }, [props])
+
+
 
     return (<>
         <PageHeader title={"Discount Vouchers"} sub={<div>{(state?.pagination?.total) || 0} records found</div>}>

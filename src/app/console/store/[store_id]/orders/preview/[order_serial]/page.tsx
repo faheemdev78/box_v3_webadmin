@@ -33,12 +33,6 @@ function OrderPreview() {
     const [getOrignalOrder, { called, loading, data }] = useLazyQuery<any>(ORDER, { fetchPolicy: 'network-only' });
     const [revertOrderStage, { loading: reverting }] = useMutation<any>(REVERT_ORDER_STAGE);
 
-    useEffect(() => {
-        if (!order_serial || called) return;
-        getchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [order_serial, called])
-
     async function getchData(){
         setError(null)
         const orderIdentifier = Array.isArray(order_serial) ? order_serial[0] : order_serial;
@@ -116,6 +110,11 @@ function OrderPreview() {
         // Can only revert backwards
         return targetIndex < currentIndex && !['cancelled', 'delivered', 'completed'].includes(currentStage);
     };
+
+    useEffect(() => {
+        if (!order_serial || called) return;
+        getchData();
+    }, [order_serial, called])
 
     if (loading) return <Loader loading={true} />
     if (!data?.order) return <Alert title="Error" description="Order not found!" type="error" showIcon />

@@ -14,7 +14,7 @@ const ListComp = ({ pageSettings, onEditRecord }) => {
     useEffect(() => {
         if(called) return;
         get_pageSettings({ variables: { filter: "" } })
-    }, [called])
+    }, [called, get_pageSettings])
     
     
     const renderActions = (text, record) => {

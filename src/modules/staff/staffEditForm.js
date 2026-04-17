@@ -94,12 +94,6 @@ export const StaffEditForm = ({ user_id, onSuccess, ...props }) => {
     const [initialValues, set_initialValues] = useState(props.initialValues || false);
     const [get_user, { loading, data, called }] = useLazyQuery(GET_RECORD, { fetchPolicy: "no-cache" });
 
-    useEffect(() => {
-        if (called || loading || !user_id || initialValues) return;
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user_id])
-
     const fetchData = async () => {
         setError(null)
 
@@ -123,8 +117,13 @@ export const StaffEditForm = ({ user_id, onSuccess, ...props }) => {
             // },
         })
     }
-
     
+    useEffect(() => {
+        if (called || loading || !user_id || initialValues) return;
+        fetchData();
+        
+    }, [user_id])
+   
     if (fatelError) return <Alert title="Error" description={fatelError} type="error" showIcon />
     if (user_id && (loading || !initialValues)) return <Loader loading={true} />
     

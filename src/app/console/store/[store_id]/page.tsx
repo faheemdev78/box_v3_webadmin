@@ -5,9 +5,9 @@
 
 import { redirect } from "next/navigation";
 
-async function StoreHome({ params, searchParams }:{
-    // params: Promise<{ store_id: string }>;
-    // searchParams: Promise<{ store_id: string }>;
+async function StoreHome({ params, searchParams }: {
+    params: Promise<{ store_id: string }>;
+    searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
     // const _searchParams = await searchParams;
     // console.log({ _searchParams })

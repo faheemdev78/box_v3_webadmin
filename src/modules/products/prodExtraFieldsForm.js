@@ -144,12 +144,6 @@ export function ProdExtraFieldsForm (props) {
 
     const [fieldsDefinations, { called, loading, data }] = useLazyQuery(GET_EXTRA_FIELDS, { fetchPolicy: "network-only" });
 
-    useEffect(() => {
-        if (called) return;
-        fetchExtraFields()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props])
-
     async function fetchExtraFields() {
         let results = await fieldsDefinations({
             variables: { 
@@ -165,6 +159,12 @@ export function ProdExtraFieldsForm (props) {
             return;
         }
     }
+
+    useEffect(() => {
+        if (called) return;
+        fetchExtraFields()
+
+    }, [props])
 
     let initialValues = {...props.initialValues};
 

@@ -930,7 +930,7 @@ function CreateProductFormWrapper (props: any) {
     useEffect(() => {
         if (called) return;
         fetchExtraFields()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
     }, [called])
 
     async function fetchExtraFields() {

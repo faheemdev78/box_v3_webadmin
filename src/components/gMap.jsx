@@ -141,96 +141,67 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
     const [newShape, setNewShape] = useState()
     const newShapeRef = useRef(newShape); // Create a ref for newShape
 
-    const onLoad = useCallback(function callback(_map) {
-        // This is just an example of getting and using the map instance!!! don't just blindly copy!
-        // const bounds = new window.google.maps.LatLngBounds(center);
-        // map.fitBounds(bounds);
 
-        if (!maps.current){
-            maps.current = window.google.maps;
-            map.current = _map;
-            // _map.setCenter(mapCenter);
+    const panToPolygon = (polygon) => {
+        // console.log(__yellow("panToPolygon()"))
+        if (!map.current) return;
 
-            if (enableDrawing) initilizeDrawing()
-            draw_editableShape()
-            onMapLoad()
+        if (map.current) {
+            let polygonPath = polygon;
+            if (polygon.getPath) polygonPath = polygon.getPath()
+
+            const bounds = new window.google.maps.LatLngBounds();
+            // let polygonPath = polygonReff.current.getPath()
+            polygonPath.forEach((coord) => {
+                bounds.extend(coord)
+            });
+            map.current.fitBounds(bounds); // Fit the polygon within the map's bounds
         }
-
-    }, [])
-
-    const onUnmount = React.useCallback(function callback(_map) {
-        map.current = null;
-        // setMap(null)
-    }, [])
-
-
-    useEffect(() => {
-        // Sync the ref with the state whenever newShape changes
-        newShapeRef.current = newShape;
-    }, [newShape]);
-
-    useEffect(() => {
-        centerMap(center)
-    }, [center])
-
-    function onPolygonupdated(polygon) {
-        // console.log(__yellow("onPolygonupdated()"))
-
-        if (polygon) polygonReff.current = polygon;
-        
-        if (polygon===false){
-            if (onPolygonUpdate) onPolygonUpdate(null);    
-            return;
-        }
-
-        if (!polygonReff.current) return;
-
-        const paths = polygonReff.current.getPath().getArray()
-            .map((latLng) => [latLng.lng(), latLng.lat()]); // Correct structure
-        // const closedPaths = [...paths, paths[0]]; // Ensure the ring closes
-        // console.log("paths: ", paths)
-        if (onPolygonUpdate) onPolygonUpdate(paths);
-    }
-
-    const initilizeDrawing = () =>{
-        const drawingManager = new maps.current.drawing.DrawingManager({
-            drawingMode: maps.current.drawing.OverlayType.POLYGON,
-            drawingControl: true,
-            drawingControlOptions: {
-                position: maps.current.ControlPosition.TOP_CENTER,
-                drawingModes: [maps.current.drawing.OverlayType.POLYGON],
-            },
-            polygonOptions: editable_polygonOptions,
-        });
-        drawingManager.setMap(map.current);
-        drawingManagerRef.current = drawingManager;
-
-        // maps.current.event.addListener(drawingManager, 'polygoncomplete', (event) => {
-        //     handlePolygonComplete(event)
-        // });
-        maps.current.event.addListener(drawingManager, 'polygoncomplete', (event) => {
-            handlePolygonComplete(event)
-        });
-    }
-
-    const handlePolygonComplete = (polygon) => {
-        if (newShapeRef.current) {
-            message.error("You can add only 1 shape")
-            polygon.setMap(null)
-            return;
-        }
-
-        polygon.setMap(null)
-        addShape(polygon)
-
-        // const paths = polygon.getPath().getArray()
-        //     .map((latLng) => [latLng.lng(), latLng.lat()]); // Correct structure
-
-        // const closedPaths = [...paths, paths[0]]; // Ensure the ring closes
-        // setNewShape(polygon);
-        // addDragListeners(polygon)
-        // if (onPolygonUpdate) onPolygonUpdate(closedPaths);
     };
+
+    function panToCoordinates(coordinates) {
+        if (!map.current) return;
+
+        const bounds = new window.google.maps.LatLngBounds();
+
+        // Convert coordinates and extend bounds
+        coordinates[0].forEach(([lng, lat]) => {
+            bounds.extend(new window.google.maps.LatLng(lat, lng));
+        });
+
+        // Fit map to bounds
+        map.current.fitBounds(bounds);
+    }
+
+
+    function draw_editableShape() {
+        // console.log(__yellow("draw_editableShape()"))
+
+        if (!editableShape) return;
+
+        const coordinates = editableShape.coordinates[0].map(([lng, lat]) => ({ lat, lng }));
+        // set_editableShape(coordinates)
+
+        let polygon = new maps.current.Polygon({
+            ...editable_polygonOptions,
+            paths: coordinates
+        })
+        setNewShape(polygon)
+        polygon.setMap(map.current);
+
+        const path = polygon.getPath();
+
+        path.addListener("set_at", () => onPolygonupdated(polygon));
+        path.addListener("insert_at", () => onPolygonupdated(polygon));
+        path.addListener("remove_at", () => onPolygonupdated(polygon));
+
+        onPolygonupdated(polygon)
+        panToPolygon(polygonReff.current)
+    }
+
+    function onMapLoad() {
+        if (props.onMapLoad) props.onMapLoad({ panToPolygon, panToCoordinates })
+    }
 
     const addDragListeners = polygon => {
         maps.current.event.addListener(polygon, "dragstart", () => {
@@ -254,6 +225,110 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         // });
     };
 
+    function onPolygonupdated(polygon) {
+        // console.log(__yellow("onPolygonupdated()"))
+
+        if (polygon) polygonReff.current = polygon;
+
+        if (polygon === false) {
+            if (onPolygonUpdate) onPolygonUpdate(null);
+            return;
+        }
+
+        if (!polygonReff.current) return;
+
+        const paths = polygonReff.current.getPath().getArray()
+            .map((latLng) => [latLng.lng(), latLng.lat()]); // Correct structure
+        // const closedPaths = [...paths, paths[0]]; // Ensure the ring closes
+        // console.log("paths: ", paths)
+        if (onPolygonUpdate) onPolygonUpdate(paths);
+    }
+
+    function addShape(polygon) {
+        setNewShape(polygon);
+        addDragListeners(polygon)
+
+        // const paths = polygon.getPath().getArray()
+        //     .map((latLng) => [latLng.lng(), latLng.lat()]); // Correct structure
+
+        // const closedPaths = [...paths, paths[0]]; // Ensure the ring closes
+        // if (onPolygonUpdate) onPolygonUpdate(closedPaths);
+
+        polygon.setMap(map.current);
+        onPolygonupdated(polygon)
+    }
+
+    const handlePolygonComplete = (polygon) => {
+        if (newShapeRef.current) {
+            message.error("You can add only 1 shape")
+            polygon.setMap(null)
+            return;
+        }
+
+        polygon.setMap(null)
+        addShape(polygon)
+
+        // const paths = polygon.getPath().getArray()
+        //     .map((latLng) => [latLng.lng(), latLng.lat()]); // Correct structure
+
+        // const closedPaths = [...paths, paths[0]]; // Ensure the ring closes
+        // setNewShape(polygon);
+        // addDragListeners(polygon)
+        // if (onPolygonUpdate) onPolygonUpdate(closedPaths);
+    };
+
+
+
+    const initilizeDrawing = () => {
+        const drawingManager = new maps.current.drawing.DrawingManager({
+            drawingMode: maps.current.drawing.OverlayType.POLYGON,
+            drawingControl: true,
+            drawingControlOptions: {
+                position: maps.current.ControlPosition.TOP_CENTER,
+                drawingModes: [maps.current.drawing.OverlayType.POLYGON],
+            },
+            polygonOptions: editable_polygonOptions,
+        });
+        drawingManager.setMap(map.current);
+        drawingManagerRef.current = drawingManager;
+
+        // maps.current.event.addListener(drawingManager, 'polygoncomplete', (event) => {
+        //     handlePolygonComplete(event)
+        // });
+        maps.current.event.addListener(drawingManager, 'polygoncomplete', (event) => {
+            handlePolygonComplete(event)
+        });
+    }
+
+
+    const onLoad = useCallback(function callback(_map) {
+        // This is just an example of getting and using the map instance!!! don't just blindly copy!
+        // const bounds = new window.google.maps.LatLngBounds(center);
+        // map.fitBounds(bounds);
+
+        if (!maps.current){
+            maps.current = window.google.maps;
+            map.current = _map;
+            // _map.setCenter(mapCenter);
+
+            if (enableDrawing) initilizeDrawing()
+            draw_editableShape()
+            onMapLoad()
+        }
+
+    }, [])
+
+    const onUnmount = React.useCallback(function callback(_map) {
+        map.current = null;
+        // setMap(null)
+    }, [])
+
+    function centerMap(_center) {
+        if (!map?.current?.panTo) return;
+
+        map.current.panTo(_center); //({ lat: 40.7128, lng: -74.006 });
+    }
+
     const getShapeRef = polygon => {
         // const shapes = this.state.shapes || [];
         // const currPoints = polygon
@@ -271,20 +346,6 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         // const shapes = this.state.shapes || [];
         // this.activePolygon.points = polygon.getPath().getArray().map(p => ({ lat: p.lat(), lng: p.lng() }));
     };
-
-    function addShape(polygon){
-        setNewShape(polygon);
-        addDragListeners(polygon)
-
-        // const paths = polygon.getPath().getArray()
-        //     .map((latLng) => [latLng.lng(), latLng.lat()]); // Correct structure
-
-        // const closedPaths = [...paths, paths[0]]; // Ensure the ring closes
-        // if (onPolygonUpdate) onPolygonUpdate(closedPaths);
-
-        polygon.setMap(map.current);
-        onPolygonupdated(polygon)
-    }
 
     const handleDeleteVertex = () => {
         const polygon = polygonRef.current;
@@ -319,68 +380,6 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         
         setMapCenter(_center)
         if (onCenterChange) onCenterChange(_center)
-    }
-
-    function draw_editableShape(){
-        // console.log(__yellow("draw_editableShape()"))
-
-        if (!editableShape) return;
-
-        const coordinates = editableShape.coordinates[0].map(([lng, lat]) => ({ lat, lng }));
-        // set_editableShape(coordinates)
-
-        let polygon = new maps.current.Polygon({
-            ...editable_polygonOptions,
-            paths: coordinates
-        })
-        setNewShape(polygon)
-        polygon.setMap(map.current);
-
-        const path = polygon.getPath();
-
-        path.addListener("set_at", () => onPolygonupdated(polygon));
-        path.addListener("insert_at", () => onPolygonupdated(polygon));
-        path.addListener("remove_at", () => onPolygonupdated(polygon));
-        
-        onPolygonupdated(polygon)
-        panToPolygon(polygonReff.current)
-    }
-
-    function centerMap(_center){
-        if (!map?.current?.panTo) return;
-
-        map.current.panTo(_center); //({ lat: 40.7128, lng: -74.006 });
-    }
-
-    const panToPolygon = (polygon) => {
-        // console.log(__yellow("panToPolygon()"))
-        if (!map.current) return;
-
-        if (map.current) {
-            let polygonPath = polygon;
-            if (polygon.getPath) polygonPath = polygon.getPath() 
-
-            const bounds = new window.google.maps.LatLngBounds();
-            // let polygonPath = polygonReff.current.getPath()
-            polygonPath.forEach((coord) => {
-                bounds.extend(coord)
-            });
-            map.current.fitBounds(bounds); // Fit the polygon within the map's bounds
-        }
-    };
-
-    function panToCoordinates(coordinates){
-        if (!map.current) return;
-
-        const bounds = new window.google.maps.LatLngBounds();
-
-        // Convert coordinates and extend bounds
-        coordinates[0].forEach(([lng, lat]) => {
-            bounds.extend(new window.google.maps.LatLng(lat, lng));
-        });
-
-        // Fit map to bounds
-        map.current.fitBounds(bounds);
     }
 
     // const panToAllPolygons = (polygons) => {
@@ -434,10 +433,6 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         setTooltipPosition(null); // Hide tooltip
     };
 
-    function onMapLoad(){
-        if (props.onMapLoad) props.onMapLoad({ panToPolygon, panToCoordinates })
-    }
-
     const fitBoundsToPolygons = () => {
         if (map.current) {
             const bounds = new window.google.maps.LatLngBounds();
@@ -479,6 +474,17 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         })
     }
 
+    useEffect(() => {
+        // Sync the ref with the state whenever newShape changes
+        newShapeRef.current = newShape;
+    }, [newShape]);
+
+
+    useEffect(() => {
+        centerMap(center)
+    }, [center])
+
+
     /*
     panTo
     setMapCallback
@@ -513,6 +519,7 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         </MapComponent>
     </>)
 });
+TheMap.displayName = 'TheMap';
 
 export const GMap = (props) => {
     return (<>

@@ -28,12 +28,6 @@ function PagesHome() {
 
     const [deleteAppPage, del_details] = useMutation<any>(DEL_PAGE); // { data, loading, error }
 
-    useEffect(() => {
-        if (called || loading) return;
-        fetchData(filter, { page: 0, pageSize: 0 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [called, loading, filter])
-
     const fetchData = async (__filter = {}, __pagination: { page?: number, pageSize?: number } = {}) => {
         let _filter = { ...__filter, draft:true }
         setBusy(true);
@@ -122,6 +116,11 @@ function PagesHome() {
         { title: 'Created by', dataIndex: 'created_by', align: "left" as const, width: 180, render: (created_by: string) => utcToDate(created_by).format(defaultDateTimeFormat) },
         { title: 'Last Updated', dataIndex: 'updatedAt', align: "left" as const, width: 180, render: (updatedAt: string) => utcToDate(updatedAt).format(defaultDateTimeFormat)},
     ];
+
+    useEffect(() => {
+        if (called || loading) return;
+        fetchData(filter, { page: 0, pageSize: 0 });
+    }, [called, loading, filter])
 
 
     return (<>

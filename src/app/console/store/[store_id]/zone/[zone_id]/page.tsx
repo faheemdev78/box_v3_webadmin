@@ -33,25 +33,6 @@ function EditStoreZone({ store }: { store: any }) {
     const [geoZone, { loading, data, called }] = useLazyQuery<any>(GET_RECORD, { fetchPolicy: 'network-only' });
     const [geoZones, zones_resutls] = useLazyQuery<any>(GEO_ZONES, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called || loading || !zone_id) return;
-        fetchZone();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [zone_id, called, loading])
-
-    useEffect(() => {
-    }, [showServiceZones])
-    
-    useEffect(() => {
-    }, [showDeliveryZones])
-
-    useEffect(() => {
-        if (relatedZones || !zoneData) return;
-        loadRelatedZones()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [zoneData, relatedZones])
-    
-
     async function loadRelatedZones(){
         // geoZones({ variables: { filter: JSON.stringify({  }) } })
         const { city, store, type } = zoneData as any;
@@ -90,6 +71,25 @@ function EditStoreZone({ store }: { store: any }) {
 
         set_zoneData({ ...resutls })
     }
+
+
+    useEffect(() => {
+        if (called || loading || !zone_id) return;
+        fetchZone();
+    }, [zone_id, called, loading])
+
+    useEffect(() => {
+    }, [showServiceZones])
+
+    useEffect(() => {
+    }, [showDeliveryZones])
+
+    useEffect(() => {
+        if (relatedZones || !zoneData) return;
+        loadRelatedZones()
+    }, [zoneData, relatedZones])
+
+
 
     if (fatelError) return <Alert title="Error" description={fatelError} type="error" showIcon />
     if (loading || (data && !zoneData)) return <Loader loading={true} />
@@ -283,12 +283,6 @@ function Wrapper(props:any){
     const [geoZone, { loading, data, called }] = useLazyQuery<any>(GET_RECORD, { fetchPolicy: 'network-only' });
     const [geoZones, zones_resutls] = useLazyQuery<any>(GEO_ZONES, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called || loading || !zone_id) return;
-        fetchZone();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [zone_id, called, loading])
-
     const fetchZone = async () => {
         let resutls = await geoZone({ variables: { _id: zone_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.geoZone }))
@@ -326,6 +320,11 @@ function Wrapper(props:any){
         // set_relatedZones(results)
         return results;
     }
+
+    useEffect(() => {
+        if (called || loading || !zone_id) return;
+        fetchZone();
+    }, [zone_id, called, loading])
 
     if (!zone_id) return <Alert title="Error" description="Missing Zone ID" showIcon type='error' />
     if (fatelError) return <Alert title="Error" description={fatelError} showIcon type='error' />

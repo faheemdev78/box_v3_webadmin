@@ -291,7 +291,7 @@ export const MenuButton = (props: any) => {
 export const ActionButton = ({ style, size, items, disabled, placement, color }: { style:any, size:string | number, items:any, disabled:boolean, placement?: import('antd').DropdownProps['placement'], color:string }) => {
     // let _items = items ? items.map((item, i) => ({ ...item, key:i })) : []
 
-    let _items = items ? items.map(({ onClick, label, ...item }: { onClick: () => void, label: String }, i: number) => {
+    let _items = items ? items.map(({ onClick, label, ...item }: { onClick: () => void, label: string }, i: number) => {
         // Create throttled handler directly without useCallback inside map
         const throttledHandlePress = throttle(onClick as () => void, CLICK_TIMEOUT, {
             leading: true,  // Fire on the first click.

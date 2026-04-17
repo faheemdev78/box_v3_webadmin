@@ -1090,14 +1090,14 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
 
   //   // setInitAttempted(true)
   //   initializeOrder();
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   
   // }, [orderId, calledStart]);
   useEffect(() => {
     if (!orderId) return;
     if (initializedOrderIdRef.current === orderId) return;
 
     initializeOrder(orderId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [orderId, orderData?._id]);
 
 
@@ -1911,7 +1911,7 @@ function TillVerificationPOS_Wrapper() {
       attemptOpenShift();
     }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, [shiftSession, shiftLoading]);
 
 

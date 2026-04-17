@@ -194,7 +194,7 @@ const OrdersList: React.FC<OrdersListProps> = ({
     },
 
   ].map(o=>{
-    let col = columns.find(c => (c.key === o.key || c === o.key))
+    const col = columns.find(c => (c.key === o.key || c === o.key))
     
     if (!col) return null;
     if (col === true || col === false || _.isString(col)) return o;

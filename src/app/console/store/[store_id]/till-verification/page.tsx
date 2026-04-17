@@ -164,12 +164,6 @@ function TillOrders(){
       }
   );
 
-  useEffect(() => {
-      if (called || loading) return;
-      fetchData({})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [called, loading])  
-
   // const { orders: lockedOrders, loading: lockedLoading } = useMyLockedOrders();
   
   const fetchData = async ({ filter={}, pagination={} }: { filter?: any; pagination?: { pageSize?: number; current?: number } }) => {
@@ -210,6 +204,11 @@ function TillOrders(){
 
   }
   
+  useEffect(() => {
+    if (called || loading) return;
+    fetchData({})
+  }, [called, loading])
+
 
   return (<>
     {/* Shift Status Banner */}

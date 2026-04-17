@@ -143,7 +143,7 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
         Object.keys(values?.meta).forEach((key: string) => meta.push({ name: key, val: values?.meta && values?.meta[key] }));
         Object.assign(input, { meta })
 
-        var results;
+        let results;
         if (initialValues && initialValues._id){
             Object.assign(input, { _id: initialValues._id })
             results = await _editProductVarient(input);

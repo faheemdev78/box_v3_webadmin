@@ -78,7 +78,6 @@ function ProductsListPage() {
     useEffect(() => {
         if (called || loading) return
         fetchData({ filter: defaultFilter })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [called, loading])
 
 

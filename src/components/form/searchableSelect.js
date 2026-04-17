@@ -9,7 +9,7 @@ import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
 
-/* eslint-disable react-hooks/exhaustive-deps */
+// /* eslint-disable react-hooks/exhaustive-deps */
 const DebounceSelect = ({ fetchOptions, defaultData, debounceTimeout = 800, ...props }) => {
 
     const [fetching, setFetching] = useState((props.preload===true));

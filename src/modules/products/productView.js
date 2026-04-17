@@ -34,24 +34,7 @@ export function ProductView({ session, store, refresh, ...props }) {
     const [get_varients, { loading, data, called }] = useLazyQuery(GET_VARIENTS, { fetchPolicy: "network-only" });
     const [editStoreProductStatus, edit_status_details] = useMutation(UPDATE_PROD_STATUS); // { data, loading, error }
 
-    useEffect(() => {
-        if (!initialValues) return; // skip this for the frist time
-        set_initialValues(props.initialValues)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.initialValues])
-
-    useEffect(() => {
-        if (initialValues && initialValues._id) set_initialValues(initialValues)
-        if (!initialValues || !initialValues._id || loading || called) return;
-        fetchVarients();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [initialValues])
-
-    if (!session || !session?.user?._id) return <Alert title="Error" description="Invalid session provided" showIcon type='error' />
-    if (isStoreUser && String(session?.user?.store?._id) !== String(store._id)) return <Alert title="Error" description="Unauthorized Store Access" showIcon type='error' />
-
-
-    async function fetchVarients(){
+    async function fetchVarients() {
         let resutls = await get_varients({ variables: { filter: JSON.stringify({ _id_parent: initialValues._id }) } })
             .then(r => (r?.data?.products))
             .catch(err => {
@@ -65,6 +48,23 @@ export function ProductView({ session, store, refresh, ...props }) {
         }
         set_variations(resutls)
     }
+
+    useEffect(() => {
+        if (!initialValues) return; // skip this for the frist time
+        set_initialValues(props.initialValues)
+        
+    }, [props.initialValues])
+
+    useEffect(() => {
+        if (initialValues && initialValues._id) set_initialValues(initialValues)
+        if (!initialValues || !initialValues._id || loading || called) return;
+        fetchVarients();
+        
+    }, [initialValues])
+
+    if (!session || !session?.user?._id) return <Alert title="Error" description="Invalid session provided" showIcon type='error' />
+    if (isStoreUser && String(session?.user?.store?._id) !== String(store._id)) return <Alert title="Error" description="Unauthorized Store Access" showIcon type='error' />
+
 
     const drawerProps = {
         onClose: () => set_editMode(false),

@@ -193,7 +193,6 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
                 callbacks.onApplyView(defaultView);
             }
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Sync with external views

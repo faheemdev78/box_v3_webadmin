@@ -31,12 +31,6 @@ function CategoriesPage () {
     const [get_productCats, { data, called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'cache-and-network' });
     const [deleteProductCat, del_details] = useMutation<any>(RECORD_DELETE); // { data, loading, error }
 
-    useEffect(() => {
-        if (called) return;
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [called])
-
     const fetchData = async () => {
         console.log(__yellow("fetchData()"));
         
@@ -94,6 +88,11 @@ function CategoriesPage () {
             }
         },
     ];
+
+    useEffect(() => {
+        if (called) return;
+        fetchData()
+    }, [called])
 
     return (<>
         <PageHeader title="Product Categories" 

@@ -26,7 +26,7 @@ function ZoneDeliverySlots() {
     useEffect(() => {
         if (called || loading || !zone_id) return;
         fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
     }, [zone_id, called, loading])
     
     const fetchData = async () => {

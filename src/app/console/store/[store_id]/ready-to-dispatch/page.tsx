@@ -92,7 +92,6 @@ function ReadytoDispatchList(props:any) {
   useEffect(() => {
       if (called || loading) return
       fetchData({})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [called, loading])
     
 

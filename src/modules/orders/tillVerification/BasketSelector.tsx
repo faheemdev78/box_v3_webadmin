@@ -21,8 +21,8 @@ interface Basket {
   _id: string;
   title: string;
   barcode: string;
-  color: string;
-  status: string;
+  color?: string;
+  status?: string;
 }
 
 const BasketWrapper = ({ basket, toggleBasket, selected=false, async=false }: 
@@ -45,7 +45,7 @@ const BasketWrapper = ({ basket, toggleBasket, selected=false, async=false }:
     loading={busy}
     hoverable
     // onClick={() => toggleBasket(basket._id)}
-    onClick={() => onBasketClick(basket)}
+    onClick={() => onBasketClick()}
     style={{
       borderWidth: 2,
       borderColor: selected ? '#009316' : '#d9d9d9',

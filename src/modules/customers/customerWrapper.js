@@ -25,12 +25,6 @@ export function CustomerWrapper({ render, ...props }) {
     const [getUser, { loading, called }] = useLazyQuery(GET_USER, { fetchPolicy: "network-only" });
     const [updateUserStatus, status_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
-    useEffect(() => {
-        if (called || loading || !user_id) return;
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user_id])
-
     const fetchData = async () => {
         let resutls = await getUser({ variables: { _id: user_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.user }))
@@ -57,6 +51,11 @@ export function CustomerWrapper({ render, ...props }) {
         setData((prev) => ({ ...prev, status: values.status }))
         return values.status;
     }
+
+    useEffect(() => {
+        if (called || loading || !user_id) return;
+        fetchData();
+    }, [user_id])
 
 
     if (!user_id || fatelError) return <Alert title="Error fetching user" description={fatelError || "No User ID found!"} type='error' showIcon />

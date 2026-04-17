@@ -221,7 +221,6 @@ function ProductsFilterPage() {
     }
 
     return result;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeView, products]);
 
   // Handle filter change (defined before useMemo)
@@ -297,7 +296,6 @@ function ProductsFilterPage() {
 
       return column;
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeView, views, handleFilterChange]);
 
   const handleCreateView = () => {

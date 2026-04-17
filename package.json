@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prebuild:typecheck": "npm run type-check -- --pretty false > ./build_logs/ts-errors.log 2>&1 || true",
+    "prebuild:lint": "npm run lint -- --format stylish > ./build_logs/lint-errors.log 2>&1 || true",
+    "prebuild:checkboth": "npm run type-check -- --pretty false || true; npm run lint || true"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^2.0.1",

@@ -387,7 +387,7 @@ const ProductHolder = ({ item, orderData }: {
     </Modal>
   </div>)
 }
-const LeftColumn = ({ onNavClick }) => {
+const LeftColumn = ({ onNavClick }: { onNavClick: (key: string) => void }) => {
   {/* C1: 100px fixed width */}
   return (<div className='w-[100px] flex flex-col shrink-0 border-r border-gray-300 bg-white'>
     <div className="flex-1 bg-gray-50/50">
@@ -409,7 +409,21 @@ const LeftColumn = ({ onNavClick }) => {
     </div>
   </div>)
 }
-const RightColumn = ({ showBags, showBaskets, showPrint, orderData, orderId, onShowExcessiveItem }) => {
+const RightColumn = ({
+  showBags,
+  showBaskets,
+  showPrint,
+  orderData,
+  orderId,
+  onShowExcessiveItem
+}: {
+  showBags: () => void;
+  showBaskets: () => void;
+  showPrint: () => void;
+  orderData: any;
+  orderId: string;
+  onShowExcessiveItem: (item: any, qty: number) => void;
+}) => {
   {/* C4: 300px fixed width */}
   // flex flex-1 flex-col items-start w-full bg-gray-50/50 overflow-y-auto
   const [barcodeQuery, setBarcodeQuery] = useState('');
@@ -1034,16 +1048,6 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const { printReceipt, loading: printingReceipt } = usePrintTillReceipt();
 
 
-  // Initialize order verification on mount
-  useEffect(() => {
-    if (!orderId) return;
-    if (initializedOrderIdRef.current === orderId) return;
-
-    initializeOrder(orderId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [orderId, orderData?._id]);
-
-
   const initializeOrder = async (targetOrderId: string) => {
     console.log(__yellow("initializeOrder()"))
     initializedOrderIdRef.current = targetOrderId;
@@ -1200,6 +1204,15 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     printWindow.print();
   };
 
+  // Initialize order verification on mount
+  useEffect(() => {
+    if (!orderId) return;
+    if (initializedOrderIdRef.current === orderId) return;
+
+    initializeOrder(orderId);
+  }, [orderId, orderData?._id]);
+
+
   if (fatelError) {
     const canRemoveFromSession = fatelError.includes('Order is not ready for till verification');
 
@@ -1276,9 +1289,9 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
           <div className='p-10 w-full'><Space wrap>
             <IconButton onClick={() => router.back()} icon='arrow-left' />
             <div>Order {orderData.serial}</div>
-            <Button onClick={() => setActiveTab('unscanned')} color={activeTab ==='unscanned' ? 'blue' : null}>Unscanned ({unscannedItems.length})</Button>
-            <Button onClick={() => setActiveTab('scanned')} color={activeTab === 'scanned' ? 'blue' : null}>Scanned ({scannedItems.length})</Button>
-            <Button onClick={() => setActiveTab('unavailable')} color={activeTab === 'unavailable' ? 'blue' : null}>Unavailable ({missingItems.length})</Button>
+            <Button onClick={() => setActiveTab('unscanned')} color={activeTab ==='unscanned' ? 'blue' : undefined}>Unscanned ({unscannedItems.length})</Button>
+            <Button onClick={() => setActiveTab('scanned')} color={activeTab === 'scanned' ? 'blue' : undefined}>Scanned ({scannedItems.length})</Button>
+            <Button onClick={() => setActiveTab('unavailable')} color={activeTab === 'unavailable' ? 'blue' : undefined}>Unavailable ({missingItems.length})</Button>
           </Space></div>
         </div>
 
@@ -1387,7 +1400,6 @@ function TillVerificationPOS_Wrapper() {
       attemptOpenShift();
     }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shiftSession, shiftLoading]);
 
 

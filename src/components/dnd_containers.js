@@ -98,13 +98,11 @@ export function DndContainers({ containers, onUpdate, itemParser, gutter, contai
     useEffect(() => {
         if (updateCounter < 2 || !validateParams()) return;
         onUpdate(items)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateCounter])
 
     useEffect(() => {
         if (!validateParams()) return;
         setItems(containers)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [containers])
 
 

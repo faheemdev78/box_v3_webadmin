@@ -178,17 +178,11 @@ export function VehicleForm({ store, ...props }) {
 
     const [get_vehicle, { loading, data, called }] = useLazyQuery(RECORD_GET, { fetchPolicy: "no-cache" });
 
-    useEffect(() => {
-        if (called || loading || !props?.initialValues?._id) return;
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.initialValues])
-
     const fetchData = async () => {
         setError(null)
 
-        let resutls = await get_vehicle({ 
-                variables: { _id: props.initialValues._id },
+        let resutls = await get_vehicle({
+            variables: { _id: props.initialValues._id },
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.vehicle }))
             .catch(catchApolloError)
@@ -200,12 +194,18 @@ export function VehicleForm({ store, ...props }) {
 
         Object.assign(resutls, {
             zones_ids: resutls?.zones?.map(o => (o._id_zone)),
-            drivers_ids: resutls?.drivers?.map(o=>(o._id)),
+            drivers_ids: resutls?.drivers?.map(o => (o._id)),
         })
 
 
         set_initialValues(resutls)
     }
+    
+    useEffect(() => {
+        if (called || loading || !props?.initialValues?._id) return;
+        fetchData();
+        
+    }, [props.initialValues])
 
     const onSuccess = (val) => router.push(`${adminRoot}/store/${store_id}/vehicles`);
 

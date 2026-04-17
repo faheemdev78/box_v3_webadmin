@@ -128,12 +128,6 @@ function StoreZones() {
     const [deleteGeoZone, del_results] = useMutation<any>(RECORD_DELETE); // { data, loading, error }
     const [geoZoneQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called || loading) return
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [store._id, called, loading])
-
     const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
@@ -183,7 +177,6 @@ function StoreZones() {
         return false;
     }
   
-
     const columns: ColumnsType<any> = [
         { title: 'Zone Name', dataIndex: 'title', key: 'title', render:(__: any, rec: any) => {
             return <Link href={`${adminRoot}/store/${store._id}/zone/${rec._id}`}>{rec.title}</Link>
@@ -214,6 +207,11 @@ function StoreZones() {
             }
         },
     ];
+
+    useEffect(() => {
+        if (called || loading) return
+        fetchData()
+    }, [store._id, called, loading])
 
     if (loading) return <Loader loading={true} />
 

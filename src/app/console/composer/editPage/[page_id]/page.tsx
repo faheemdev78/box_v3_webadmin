@@ -203,12 +203,6 @@ function EditAppPage() {
     const [appPagesModulesQuery, modules_load] = useLazyQuery<any>(FETCH_MODULES, { fetchPolicy: 'network-only' });
 
 
-    useEffect(() => {
-        if (called) return;
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page_id, called])
-
     const fetchData = async () => {
         console.log(__yellow("fetchData()"));
 
@@ -443,8 +437,6 @@ function EditAppPage() {
         if (showScheduleEdit) toggleSchedule()
     }
 
-
-
     // Initialize sensors
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -453,6 +445,7 @@ function EditAppPage() {
             },
         })
     );
+
     const handleDragEnd = (fields: any) => (event: any) => {
         set_sortDragging(null);
 
@@ -471,6 +464,13 @@ function EditAppPage() {
 
     const onItemClick = (vals: any) => set_showProps(vals)
     const handleDragStart = (event: any) => set_sortDragging(event.active.id);
+
+    useEffect(() => {
+        if (called) return;
+        fetchData();
+    }, [page_id, called])
+
+
 
     if (fatelError) return <Alert title="Error" description={fatelError} type='error' showIcon />
     if (loading && !pageData) return <Loader loading={true} />

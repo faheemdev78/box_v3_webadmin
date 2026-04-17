@@ -170,7 +170,6 @@ const FormComponent = ({ fields = {}, onSuccess, initialValues }) => {
                                     </GMap>
                                     <div style={{ position: "absolute", top: "50%", zIndex: 100, width: "100%", borderBottom: "1px solid rgba(255, 255, 255, 0.2)" }} />
                                     <div style={{ position: "absolute", top: 0, left: "50%", zIndex: 100, height: "100%", borderRight: "1px solid rgba(255, 255, 255, 0.2)" }} />
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <div style={{ position: "absolute", top: "50%", marginTop: "-40px", left: "50%", marginLeft: "-15px", zIndex: 100, }}><img src={icon_location_red} alt="You" width="30px" /></div>
                                 </div>
                             </Col>
@@ -208,19 +207,13 @@ export const StoreForm = (props) => {
     const [initialValues, set_initialValues] = useState(false);
     const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE, { fetchPolicy: "no-cache" });
 
-    useEffect(() => {
-        if (called || loading || !props.store_id) return;
-        fetchZone();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.store_id])
-
     const fetchZone = async () => {
         setError(null)
 
         let resutls = await get_store({ variables: { _id: props.store_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.store }))
             .catch(catchApolloError)
-        
+
 
         if (!resutls || resutls.error) {
             set_fatelError((resutls && resutls?.error?.message) || "Store not found!")
@@ -252,6 +245,12 @@ export const StoreForm = (props) => {
             // }
         })
     }
+    
+    useEffect(() => {
+        if (called || loading || !props.store_id) return;
+        fetchZone();
+        
+    }, [props.store_id])
 
     const onSuccess = () => {
 

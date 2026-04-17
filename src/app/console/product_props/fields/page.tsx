@@ -107,7 +107,6 @@ function ProductFields() {
     useEffect(() => {
         if (called || loading) return
         fetchData({ filter: state.filter })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [called, loading])
 
 

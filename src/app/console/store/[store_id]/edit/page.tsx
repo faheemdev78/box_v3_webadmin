@@ -28,12 +28,6 @@ function StoreWrapper(props: any) {
 
   const [get_store, { loading, data, called }] = useLazyQuery<any>(GET_STORE, { fetchPolicy: 'network-only' });
 
-  useEffect(() => {
-    if (called || loading || !store_id) return;
-    fetchZone();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [store_id, called, loading])
-
   const fetchZone = async () => {
     let resutls = await get_store({ variables: { _id: store_id } })
       .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.store }))
@@ -49,6 +43,11 @@ function StoreWrapper(props: any) {
 
     return resutls;
   }
+
+  useEffect(() => {
+    if (called || loading || !store_id) return;
+    fetchZone();
+  }, [store_id, called, loading])
 
   if (!store_id || fatelError) return <Alert title="Error" description={fatelError || "No Store ID found!"} type='error' showIcon />
   if (loading) return <Loader loading={true}>Fetching store...</Loader>

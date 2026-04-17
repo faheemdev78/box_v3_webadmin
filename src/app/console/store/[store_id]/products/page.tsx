@@ -35,13 +35,6 @@ function StoreProductsHome(props:any) {
 
     const [productsQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called || loading) return
-        fetchData({ filter: defaultFilter })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [called, loading])
-
-    
     const fetchData = async ({ filter, pagination = {} }: { filter?: any; pagination?: any } = {}) => {
         // console.log(__yellow("fetchData()"), { filter, pagination })
         
@@ -92,6 +85,11 @@ function StoreProductsHome(props:any) {
         }))
 
     }
+
+    useEffect(() => {
+        if (called || loading) return
+        fetchData({ filter: defaultFilter })
+    }, [called, loading])
 
     if (!session) return <Loader loading={true}>Fetching session...</Loader>
 

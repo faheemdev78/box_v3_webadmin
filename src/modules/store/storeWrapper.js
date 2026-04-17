@@ -22,12 +22,6 @@ function StoreWrapper({ render, ...props }) {
     const [get_store, { loading, data, called }] = useLazyQuery(GET_STORE, { fetchPolicy: "no-cache" });
     const [editStore, edit_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
-    useEffect(() => {
-        if (called || loading || !store_id) return;
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [store_id])
-
     const fetchData = async () => {
         let resutls = await get_store({ variables: { _id: store_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.store }))
@@ -40,6 +34,12 @@ function StoreWrapper({ render, ...props }) {
 
         return resutls;
     }
+    
+    useEffect(() => {
+        if (called || loading || !store_id) return;
+        fetchData();
+        
+    }, [store_id])
 
     const onStatusUpdate = async (values) => {
         let resutls = await editStore({ variables: { input: { _id: store_id, status: values.status } } })

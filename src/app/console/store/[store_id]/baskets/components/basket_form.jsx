@@ -89,7 +89,7 @@ FormComp.propTypes = {
     onSuccess: PropTypes.func.isRequired,
 }
 
-const WithDrawer = ({ store, open, initialValues, onClose }) => {
+const WithDrawer = ({ store, open, initialValues, onClose, onSuccess }) => {
     return (<Modal 
         width={"500px"} 
         open={open} 
@@ -100,7 +100,14 @@ const WithDrawer = ({ store, open, initialValues, onClose }) => {
         title={`${(initialValues && initialValues._id) ? 'Edit' : 'Add'} Basket`}
         footer={false}
     >
-        {open && <FormComp store={store} initialValues={initialValues} onSuccess={onClose} />}
+        {open && <FormComp
+            store={store}
+            initialValues={initialValues}
+            onSuccess={(results) => {
+                if (onSuccess) onSuccess(results);
+                onClose();
+            }}
+        />}
     </Modal>)
 }
 export default WithDrawer;

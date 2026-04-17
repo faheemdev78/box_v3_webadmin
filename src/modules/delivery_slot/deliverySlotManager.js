@@ -35,12 +35,6 @@ export function DeliverySlotManager({ store, zone }) {
 
     const [deliverySlots, { called, loading, ...slots_details }] = useLazyQuery(LIST_DATA, { fetchPolicy: 'no-cache' });
 
-    useEffect(() => {
-        if (called) return;
-        fetchData()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [store])
-
     const fetchData = async (args = {}) => {
         // console.log(__yellow("Fetching Delivery Slots..."));
 
@@ -267,6 +261,13 @@ export function DeliverySlotManager({ store, zone }) {
         { label: "Thu", data: dataArray && dataArray.filter(o => o.day == 'thu') },
         { label: "Fri", data: dataArray && dataArray.filter(o => o.day == 'fri') },
     ]
+
+    useEffect(() => {
+        if (called) return;
+        fetchData()
+    }, [store])
+
+
 
     return (<>
         <PageHeader title={`Delivery Slots`}

@@ -18,22 +18,14 @@ export const ProductAttributesSelector = props => {
 
     const [get_prodType, { called, loading }] = useLazyQuery(GET_TYPE, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (!prodType || props._id_type != prodType._id) {
-            getProdType(props._id_type);
-            // sleep(2000)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props._id_type])
-
     const getProdType = async (_id_type) => {
         if (!_id_type) return;
 
         let results = await get_prodType({ variables: { id: _id_type } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.prodType }))
             .catch(catchApolloError)
-        
-        if (results && results.error){
+
+        if (results && results.error) {
             message.error(results.error.message)
             setProdType(null)
             return false;
@@ -48,6 +40,14 @@ export const ProductAttributesSelector = props => {
         })
         setAttributesList(_attr);
     }
+    
+    useEffect(() => {
+        if (!prodType || props._id_type != prodType._id) {
+            getProdType(props._id_type);
+            // sleep(2000)
+        }
+        
+    }, [props._id_type])
 
     const onAttributeSelection = (__1, __2) => {
         const item_data = __2["item-data"];

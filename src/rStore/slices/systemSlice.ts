@@ -2,13 +2,13 @@ import { defaultTZ } from '@/configs';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface SettingsState {
-    firstRun: Boolean | null;
-    timezone: String | null;
-    currency: String | 'Rs';
+    firstRun: boolean | null;
+    timezone: string | null;
+    currency: string | 'Rs';
 }
 interface SystemState {
     settings: SettingsState,
-    fmc_token: String | null
+    fmc_token: string | null
 }
 const initialState: SystemState = {
     settings: {
@@ -57,4 +57,4 @@ export default systemSlice.reducer;
 
 export const getSystemState = ({ system }: { system: SystemState }): SystemState => system;
 export const getSettings = ({ system }: {system: SystemState}): SettingsState => system.settings;
-export const getFmcToken = ({ system }: {system: SystemState}): String | null => system.fmc_token;
+export const getFmcToken = ({ system }: {system: SystemState}): string | null => system.fmc_token;

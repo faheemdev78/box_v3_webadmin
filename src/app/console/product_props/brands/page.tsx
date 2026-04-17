@@ -32,12 +32,6 @@ function Brands(props: any) {
     
     const [brandsQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'cache-and-network' });
 
-    useEffect(() => {
-        if (called) return;
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [called])
-
     const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
@@ -113,6 +107,11 @@ function Brands(props: any) {
             }
         },
     ];
+
+    useEffect(() => {
+        if (called) return;
+        fetchData()
+    }, [called])
 
     return (<>
         <PageHeader title="Brands" 

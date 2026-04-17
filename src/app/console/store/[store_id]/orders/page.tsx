@@ -110,7 +110,6 @@ function OrdersListPage(props:any) {
     // useEffect(() => {
     //     if (called || loading) return
     //     // fetchData({})
-    // // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, [called, loading])
 
     // Helper function to convert view filter groups to GraphQL filter format
@@ -331,10 +330,10 @@ function OrdersListPage(props:any) {
 
         // Set popup Menu
         let popArray = []
-        if (record.current_stage !== 'pending') popArray.push({ onClick: () => handleResetOrder(record), label: "Reset to New", confirm })
-        if (canRevertTo(record, 'pending')) popArray.push({ onClick: () => handleRevertOrder(record, 'pending'), label: "To Pending", confirm })
-        if (canRevertTo(record, 'picking-complete')) popArray.push({ onClick: () => handleRevertOrder(record, 'picking-complete'), label: "To Picking Complete", confirm })
-        if (canRevertTo(record, 'ready-to-dispatch')) popArray.push({ onClick: () => handleRevertOrder(record, 'ready-to-dispatch'), label: "To Ready to Dispatch", confirm })
+        if (record.current_stage !== 'pending') popArray.push({ onClick: () => handleResetOrder(record), label: "Reset to New", confirm: true })
+        if (canRevertTo(record, 'pending')) popArray.push({ onClick: () => handleRevertOrder(record, 'pending'), label: "To Pending", confirm: true })
+        if (canRevertTo(record, 'picking-complete')) popArray.push({ onClick: () => handleRevertOrder(record, 'picking-complete'), label: "To Picking Complete", confirm: true })
+        if (canRevertTo(record, 'ready-to-dispatch')) popArray.push({ onClick: () => handleRevertOrder(record, 'ready-to-dispatch'), label: "To Ready to Dispatch", confirm: true })
         if (canPrintTillReceipt(record)) popArray.push({ onClick: () => handlePrintTillReceipt(record), label: "Print Receipt" })
         if (popArray.length) returnArr.push(<PopMenu orientation="vertical" placement="left" items={popArray} ></PopMenu>);
 

@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { Popover, Space, Popconfirm } from 'antd'
-import type { PopconfirmProps, PopoverProps, SpaceProps } from 'antd';
+import type { ButtonProps, PopoverProps, SpaceProps } from 'antd';
 import _ from 'lodash';
 import { Button, DeleteButton } from './button'
 import { Icon } from './icon'
@@ -20,23 +20,24 @@ interface PopMenuItemProps {
     label:string;
     confirm?: boolean | string;
     href?: string;
-    onClick?: Function;
+    onClick?: () => any;
     hide?: boolean;
+    type?: 'delete';
 }
 interface PopMenuProps extends PopoverProps {
     items: PopMenuItemProps[];
-    orientation: string;
-    size: string;
-    shape: string;
+    orientation?: SpaceProps['orientation'];
+    size?: ButtonProps['size'];
+    shape?: ButtonProps['shape'];
 }
 
 
-export function PopMenu({ placement = "topRight", trigger = "click", title = false, items, orientation = 'vertical', size = "default", shape = 'default', ...props }: PopMenuProps) {
+export function PopMenu({ placement = "topRight", trigger = "click", title = false, items, orientation = 'vertical', size = "middle", shape = 'default', ...props }: PopMenuProps) {
     const [open, setOpen] = useState(false)
 
     return (<>
         <Popover
-            content={<Space orientation={orientation} style={{width:"100%"}}>{items.filter(o=>!o.hide).map((item, i) => (<div key={i}>
+            content={<Space orientation={orientation} style={{width:"100%"}}>{items.filter(o=>!o.hide).map((item:any, i:number) => (<div key={i}>
                 {item.type == 'delete' ? <>
                     <DeleteButton block size={size} 
                         {...props}

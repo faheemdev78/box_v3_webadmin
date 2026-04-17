@@ -66,25 +66,25 @@ export const ProdCatTreeSelection = (props) => {
 
     const [productCats, { called, loading }] = useLazyQuery(SEARCH_QUERY, { fetchPolicy: "network-only" });
 
+    const fetchData = async () => {
+        let resutls = await productCats()
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productCats }))
+            .catch(catchApolloError)
+
+        if (!resutls || resutls.error) {
+            message.error((resutls && resutls?.error?.message) || "No categories found!")
+            return false;
+        }
+        resutls = resutls.map(o => ({ ...o, key: o._id }))
+
+        set_arrayData(constructCategoryArray(resutls))
+    }
+
     useEffect(() => {
         if (called || loading) return;
         fetchData()
     }, [props, called, loading])
 
-    const fetchData = async() => {
-        let resutls = await productCats()
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.productCats }))
-            .catch(catchApolloError)
-        
-        if (!resutls || resutls.error){
-            message.error((resutls && resutls?.error?.message) || "No categories found!")
-            return false;
-        }
-        resutls = resutls.map(o=>({ ...o, key:o._id }))
-
-        set_arrayData(constructCategoryArray(resutls))
-    }
-    
     return (<>
         <Field name={props.name} disabled={!!props.disabled} validate={props.validate}>
             {({ input, meta }) => {

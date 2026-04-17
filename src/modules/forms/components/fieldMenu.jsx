@@ -8,7 +8,7 @@ import { PlusOutlined, TableOutlined, PicCenterOutlined, EyeInvisibleFilled, Eye
 } from '@ant-design/icons';
 import { forms_fieldDefinations, forms_validationTypes } from '../constants';
 
-/* eslint-disable react-hooks/exhaustive-deps */
+// /* eslint-disable react-hooks/exhaustive-deps */
 export const FieldMenu = ({ field, onUpdate, onDelete, onDuplicate, onMove, float, form, mode }) => {
     const [activeTab, setActiveTab] = useState('field');
     const [isOpen, set_isOpen] = useState(false);

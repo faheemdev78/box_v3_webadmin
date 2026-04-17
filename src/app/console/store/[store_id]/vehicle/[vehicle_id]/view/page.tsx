@@ -25,13 +25,6 @@ function VehicleDetails() {
 
     const [getVehicle, { loading, data, called }] = useLazyQuery<any>(GET_RECORD, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (loading || called) return;
-
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [vehicle_id, loading, called])
-
     const fetchData = async() => {
         let results = await getVehicle({ variables: { _id: vehicle_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.vehicle }))
@@ -47,10 +40,18 @@ function VehicleDetails() {
 
         set_thisNode(results)
     }
+
     function onSuccess(){
         set_showForm(false)
         fetchData()
     }
+
+    useEffect(() => {
+        if (loading || called) return;
+
+        fetchData()
+    }, [vehicle_id, loading, called])
+
 
     
     if (fatelError) return <Alert title="Error" description={fatelError} type="error" showIcon />

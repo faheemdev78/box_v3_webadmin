@@ -28,12 +28,6 @@ function Locations() {
     
     const [get_locations, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called) return;
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [called])
-
     const fetchData = async () => {
         setBusy(true)
 
@@ -97,6 +91,12 @@ function Locations() {
             }
         },
     ];
+
+    useEffect(() => {
+        if (called) return;
+        fetchData()
+    }, [called])
+
 
     return (<>
         <PageHeader title="Locations" sub={<div>{(data && data.length) || 0} records found</div>}>

@@ -37,12 +37,6 @@ function StoreZones() {
         // { variables: { filter: JSON.stringify({}) } }
     );
 
-    useEffect(() => {
-        if (called || loading) return
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [store._id, called, loading])
-
     const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
@@ -92,6 +86,11 @@ function StoreZones() {
         return false;
     }
   
+    useEffect(() => {
+        if (called || loading) return
+        fetchData()
+    }, [store._id, called, loading])
+
 
     const columns: ColumnsType<any> = [
         { title: 'Zone Name', dataIndex: 'title', key: 'title', render:(__: any, rec: any) => {

@@ -274,7 +274,6 @@ export const UploadImage = props => {
         } = args;
 
         // EXAMPLE: post form-data with 'axios'
-        // eslint-disable-next-line no-undef
         const formData = new FormData();
         if (data) {
             Object.keys(data).forEach(key => {
@@ -395,12 +394,7 @@ const Thumbnail = ({ handlePreview, file, actions, onEdit }) => {
     const [thumb_url, set_thumb_url] = useState(file)
     const [busy, setBusy] = useState(false)
 
-    useEffect(() => {
-        if (!file || !file.originFileObj || file.image) return;
-        fetchSourceFile()
-    }, [file])
-
-    const fetchSourceFile = async() => {
+    const fetchSourceFile = async () => {
         if (!file || !file.originFileObj) return;
 
         setBusy(true)
@@ -409,6 +403,11 @@ const Thumbnail = ({ handlePreview, file, actions, onEdit }) => {
         })
         setBusy(false)
     }
+
+    useEffect(() => {
+        if (!file || !file.originFileObj || file.image) return;
+        fetchSourceFile()
+    }, [file])
 
     const onDelClick = () => {
         console.log(__yellow("onDelClick()"))

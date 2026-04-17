@@ -33,7 +33,7 @@ function VehicleDetails() {
         if (loading || called) return;
 
         fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
     }, [vehicle_id, loading, called])
 
     const fetchData = async() => {

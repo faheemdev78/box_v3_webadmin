@@ -39,12 +39,6 @@ function Staff() {
 
     const [staffQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called || loading) return
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [store._id, called, loading])
-
     const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
@@ -122,6 +116,13 @@ function Staff() {
             console.log('Deleting view:', viewId);
         }
     };
+
+    useEffect(() => {
+        if (called || loading) return
+        fetchData()
+    }, [store._id, called, loading])
+
+
 
     return (<>
         <PageHeader title={`Staff`}>

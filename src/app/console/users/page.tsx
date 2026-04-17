@@ -33,12 +33,6 @@ function Users(props:any) {
 
     const [adminQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called) return;
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [called])
-
     const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit:number = args?.pageSize || defaultPageSize;
         let current:number = args?.current || 1;
@@ -83,6 +77,12 @@ function Users(props:any) {
 
         // message.success("Record deleted")
     }
+
+    useEffect(() => {
+        if (called) return;
+        fetchData()
+    }, [called])
+
 
     return (<>
         <PageHeader title={"Users"} sub={<div>{(dataArray && dataArray?.pagination?.totalDocs) || 0} records found</div>}>

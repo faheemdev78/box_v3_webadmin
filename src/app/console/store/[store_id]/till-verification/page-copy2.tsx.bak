@@ -169,7 +169,7 @@ function TillOrders(){
   useEffect(() => {
       if (called || loading) return;
       fetchData({})
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, [called, loading])  
 
   // const { orders: lockedOrders, loading: lockedLoading } = useMyLockedOrders();

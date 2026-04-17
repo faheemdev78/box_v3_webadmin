@@ -35,12 +35,6 @@ function Tags(props:any) {
     
     const [productTagsQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called) return;
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [called])
-
     const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
@@ -106,6 +100,13 @@ function Tags(props:any) {
             }
         },
     ];
+
+    useEffect(() => {
+        if (called) return;
+        fetchData()
+    }, [called])
+
+
 
     return (<>
         <PageHeader title="Product Tags" sub={<div>

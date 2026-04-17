@@ -35,22 +35,12 @@ const FormComponent = ({ onSubmit, ...props }) => {
 
     const [get_location, location_results] = useLazyQuery(GET_LOCATION, { fetchPolicy: "network-only" });
 
-    useEffect(() => {
-        if (!props?.initialValues?._id || location_results.called || location_results.loading) return;
-        fetchInitialValues()
-
-        return () => {
-            set_initialValues(null)
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.initialValues])
-
     const fetchInitialValues = async () => {
         let results = await get_location({ variables: { _id: props.initialValues._id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.location }))
             .catch(catchApolloError)
-        
-        .then(r => (r?.data?.location))
+
+            .then(r => (r?.data?.location))
             .catch(err => {
                 console.log(__error("Error: "), err)
                 return { error: { message: "No records found!" } }
@@ -71,6 +61,16 @@ const FormComponent = ({ onSubmit, ...props }) => {
             }
         })
     }
+
+    useEffect(() => {
+        if (!props?.initialValues?._id || location_results.called || location_results.loading) return;
+        fetchInitialValues()
+
+        return () => {
+            set_initialValues(null)
+        };
+        
+    }, [props.initialValues])
 
     if (error) return <Alert title="Error" description={error} showIcon type='error' />
     if (props?.initialValues?._id && !initialValues) return <Loader loading={true} />
@@ -120,7 +120,6 @@ const FormComponent = ({ onSubmit, ...props }) => {
                                     </GMap>
                                     <div style={{ position: "absolute", top: "50%", zIndex: 100, width: "100%", borderBottom: "1px solid rgba(255, 255, 255, 0.2)" }} />
                                     <div style={{ position: "absolute", top: 0, left: "50%", zIndex: 100, height: "100%", borderRight: "1px solid rgba(255, 255, 255, 0.2)" }} />
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <div style={{ position: "absolute", top: "50%", marginTop: "-40px", left: "50%", marginLeft: "-15px", zIndex: 100, }}><img src={icon_location_red} alt="" width="30px" /></div>
                                 </div>
                             </Col>

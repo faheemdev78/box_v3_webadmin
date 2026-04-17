@@ -7,7 +7,7 @@ import ImgCrop from 'antd-img-crop';
 import styles from './Avatar.module.scss'
 import { __error } from '@/lib/consoleHelper';
 
-/* eslint-disable react-hooks/exhaustive-deps */
+// /* eslint-disable react-hooks/exhaustive-deps */
 export const Avatar = (_props) => {
     const [fileList, setFileList] = useState([]);
     const [src, setSrc] = useState(null);

@@ -11,7 +11,7 @@ import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 import LIST_ROLES from '@/graphql/user_role/userRoles.graphql'
 import EDIT_USER_ROLE from '@/graphql/user_role/editUserRole.graphql'
 
-/* eslint-disable react-hooks/exhaustive-deps */
+// /* eslint-disable react-hooks/exhaustive-deps */
 function UserPermissions(props:any) {
   const [userRoles, set_userRoles] = useState<any[] | null>(null)
   const [selectedType, set_selectedType] = useState<string | null>(null)

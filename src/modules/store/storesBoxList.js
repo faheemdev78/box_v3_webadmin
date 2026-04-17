@@ -19,12 +19,6 @@ function StoresBoxList(props) {
 
     const [get_stores, { called, loading, data }] = useLazyQuery(LIST_DATA, { fetchPolicy: "no-cache" });
 
-    useEffect(() => {
-        if (called || loading) return;
-        fetchData()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props])
-
     const fetchData = async (args = {}) => {
         const results = await get_stores({
             variables: {
@@ -34,7 +28,7 @@ function StoresBoxList(props) {
         })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.stores }))
             .catch(catchApolloError)
-        
+
 
         if (results && results.error) {
             setError((results && results?.error?.message) || "No records found!")
@@ -43,6 +37,12 @@ function StoresBoxList(props) {
 
         return results;
     }
+
+    useEffect(() => {
+        if (called || loading) return;
+        fetchData()
+        
+    }, [props])
 
     if (loading) return <Loader loading={true}>Fetching online stores...</Loader>
 

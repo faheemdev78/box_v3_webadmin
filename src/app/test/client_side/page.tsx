@@ -15,7 +15,6 @@ function ClientSide() {
         if (called) return;
         loadGreeting({ variables: { args: "english" } });
         Promise.resolve(getSessionToken()).then(token => setSession(token as any)).catch(() => setSession(null))
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 

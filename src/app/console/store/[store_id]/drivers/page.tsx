@@ -88,7 +88,6 @@ function DriverSettlements() {
 
   useEffect(() => {
     fetchDrivers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSettleWallet = async (driver: DriverSettlement) => {

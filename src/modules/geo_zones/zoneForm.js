@@ -220,18 +220,12 @@ function GeoZoneForm({ zone_id, store, ...props }) {
         fetchPolicy: "no-cache"
     });
 
-    useEffect(() => {
-        if (called || loading || !zone_id) return;
-        fetchZone();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [zone_id])
-
     const fetchZone = async () => {
         setError(null)
 
-        let resutls = await get_geoZone({ 
-                variables: { _id: zone_id }
-            })
+        let resutls = await get_geoZone({
+            variables: { _id: zone_id }
+        })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.geoZone }))
             .catch(catchApolloError)
 
@@ -242,7 +236,7 @@ function GeoZoneForm({ zone_id, store, ...props }) {
 
         // let coordinates = resutls.polygon.coordinates.slice();
         let inner_coordinates = resutls.polygon.coordinates[0].slice()
-            inner_coordinates.pop()
+        inner_coordinates.pop()
 
         set_initialValues({
             ...resutls,
@@ -253,6 +247,12 @@ function GeoZoneForm({ zone_id, store, ...props }) {
             }
         })
     }
+
+    
+    useEffect(() => {
+        if (called || loading || !zone_id) return;
+        fetchZone();
+    }, [zone_id])
 
     const onSuccess = (val) => router.push(`${adminRoot}/store/${store._id}/zones`);
 

@@ -20,11 +20,9 @@ export function StaffWrapper({ render, ...props }) {
     const [get_user, { loading, data, called }] = useLazyQuery(GET_STAFF, { fetchPolicy: "no-cache" });
     const [updateUserStatus, edit_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
-    useEffect(() => {
-        if (called || loading || !user_id) return;
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user_id])
+    const onUpdate = (data) => {
+        fetchData()
+    }
 
     const fetchData = async () => {
         let resutls = await get_user({ variables: { _id: user_id } })
@@ -39,9 +37,13 @@ export function StaffWrapper({ render, ...props }) {
         return resutls;
     }
 
-    const onUpdate = (data) => {
-        fetchData()
-    }
+    
+    useEffect(() => {
+        if (called || loading || !user_id) return;
+        fetchData();
+        
+    }, [user_id])
+
 
     const onStatusUpdate = async (values) => {
         let resutls = await updateUserStatus({ 

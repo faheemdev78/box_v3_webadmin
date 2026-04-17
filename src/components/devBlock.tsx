@@ -12,7 +12,7 @@ export const DevBlock = ({ force=false, obj, title, ...props }:{
   obj: any;
   title?: string | null;
   children?: ReactElement
-}) => { // eslint-disable-line react/prefer-stateless-function
+}) => {
   if (process.env.NODE_ENV !== 'development' && !force) return null;
   // const {obj, title} = props;
 

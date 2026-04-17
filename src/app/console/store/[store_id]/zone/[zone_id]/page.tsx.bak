@@ -37,7 +37,7 @@ function EditStoreZone({ store }: { store: any }) {
     useEffect(() => {
         if (called || loading || !zone_id) return;
         fetchZone();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
     }, [zone_id, called, loading])
 
     useEffect(() => {
@@ -49,7 +49,7 @@ function EditStoreZone({ store }: { store: any }) {
     useEffect(() => {
         if (relatedZones || !zoneData) return;
         loadRelatedZones()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
     }, [zoneData, relatedZones])
     
 
@@ -285,7 +285,7 @@ function Wrapper(props:any){
     useEffect(() => {
         if (called || loading || !zone_id) return;
         fetchZone();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
     }, [zone_id, called, loading])
 
     const fetchZone = async () => {

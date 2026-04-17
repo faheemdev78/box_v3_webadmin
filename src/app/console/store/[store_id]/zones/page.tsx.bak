@@ -132,7 +132,7 @@ function StoreZones() {
     useEffect(() => {
         if (called || loading) return
         fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
     }, [store._id, called, loading])
 
     const fetchData = async (args: { pageSize?: number; current?: number; filter?: any } = {}) => {

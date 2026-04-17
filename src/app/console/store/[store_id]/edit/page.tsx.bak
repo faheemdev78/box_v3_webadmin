@@ -31,7 +31,7 @@ function StoreWrapper(props: any) {
   useEffect(() => {
     if (called || loading || !store_id) return;
     fetchZone();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   }, [store_id, called, loading])
 
   const fetchZone = async () => {

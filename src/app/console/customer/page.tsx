@@ -35,12 +35,6 @@ function Users(props: any) {
 
     const [customerQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA);
 
-    useEffect(() => {
-        if (called) return;
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [called])
-
     const fetchData = async (args: FetchArgs = {}) => {
         let limit = args?.pageSize || defaultPageSize;
         let current = args?.current || 1;
@@ -85,6 +79,11 @@ function Users(props: any) {
 
         // message.success("Record deleted")
     }
+
+    useEffect(() => {
+        if (called) return;
+        fetchData()
+    }, [called])
 
     return (<>
         <PageHeader title={"Customers"} sub={<div>{(dataArray && dataArray?.pagination?.totalDocs) || 0} records found</div>}>

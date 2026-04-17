@@ -130,7 +130,7 @@ const StaffProfileView = ({ staff, onProfileEditComplete }: { staff: any; onProf
     }
 
     return (<>
-        <Card _title="Staff Information">
+        <Card title="Staff Information">
             <Row gutter={[10, 10]} className='nowrap'>
                 <Col style={{ textAlign:"center" }}><Space orientation='vertical'>
                     <Avatar src={staff.avatarUrl} size={120} icon={<UserOutlined />} />
@@ -233,7 +233,7 @@ const StaffProfileView = ({ staff, onProfileEditComplete }: { staff: any; onProf
     // </>)
 }
 
-export function StaffProfile(props) {
+export function StaffProfile(props: any) {
     // const { user_id, ...params } = useParams();
     // const [get_product, { loading, called }] = useLazyQuery(GET_PRODUCT, { fetchPolicy: 'network-only' });
     // const { data: user, loading, error } = useQuery<any>(GET_USER, {
@@ -343,7 +343,7 @@ export function StaffProfile(props) {
         }
     ];
 
-    function onProfileEditComplete(args){}
+    function onProfileEditComplete(args: any){}
 
     // if (loading) return <Loader loading={true} />
     // if (error) return <Alert title={"Error fetching user"} description={error.message} type="error" showIcon />

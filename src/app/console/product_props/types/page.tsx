@@ -19,12 +19,6 @@ function ProductTypesPage () {
     const [get_prodTypes, { data, called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'cache-and-network' });
     const [deleteProductType, del_details] = useMutation<any>(RECORD_DELETE); // { data, loading, error }
 
-    useEffect(() => {
-        if (called) return;
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [called])
-
     const fetchData = async () => {
         let results = await get_prodTypes({})
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.prodTypes }))
@@ -79,6 +73,11 @@ function ProductTypesPage () {
         },
     ];
     
+    useEffect(() => {
+        if (called) return;
+        fetchData()
+    }, [called])
+
     return (<>
         <PageHeader title="Product Types">
             <Button onClick={() => set_showForm({ show: true, fields: undefined })} color="orange">Add New Type</Button>

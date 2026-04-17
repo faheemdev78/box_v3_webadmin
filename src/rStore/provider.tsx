@@ -12,9 +12,9 @@ import { initSettings } from './slices/systemSlice';
 // }
 
 interface SettingsState {
-    firstRun: Boolean | null;
-    timezone: String | null;
-    currency: String | 'Rs';
+    firstRun: boolean | null;
+    timezone: string | null;
+    currency: string | 'Rs';
 }
 
 function ReduxProvider({ children, settings }: { children: React.ReactNode, settings: SettingsState }) {

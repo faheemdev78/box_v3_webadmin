@@ -56,6 +56,17 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
     const [thumb_url, set_thumb_url] = useState(config?.file?.thumbnails && config.file.thumbnails[0])
     const [busy, setBusy] = useState(false)
 
+    const fetchSourceFile = async () => {
+        if (!config?.file?.originFileObj) return;
+
+        setBusy(true)
+        await getSrcFromFile(config?.file?.originFileObj).then(r => {
+            set_thumb_url(r)
+        })
+        setBusy(false)
+    }
+
+
     useEffect(() => {
         if (config?.file?.originFileObj){
             fetchSourceFile();
@@ -66,18 +77,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
             set_thumb_url(config.file.thumbnails[0])
             return;
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [config.file])
-
-    const fetchSourceFile = async() => {
-        if (!config?.file?.originFileObj) return;
-
-        setBusy(true)
-        await getSrcFromFile(config?.file?.originFileObj).then(r => {
-            set_thumb_url(r)
-        })
-        setBusy(false)
-    }
 
     const onDelClick = async () => {
         // setBusy(true)
@@ -192,12 +192,10 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
     useEffect(() => {
         if (JSON.stringify(fileList) === JSON.stringify(props.value || [])) return;
         setFileList(props.value || [])
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.value])
 
     useEffect(() => {
         set_maxCount(_maxCount - ((fileList && fileList.length) || 0))
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fileList])
 
     const handlePreview = async(file: any) => {

@@ -19,12 +19,6 @@ function ZoneDeliverySlots() {
 
     const [get_geoZone, { loading, data, called }] = useLazyQuery<any>(GET_ZONE, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called || loading || !zone_id) return;
-        fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [zone_id, called, loading])
-    
     const fetchData = async () => {
         let resutls = await get_geoZone({ variables: { _id: zone_id } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.geoZone }))
@@ -38,6 +32,10 @@ function ZoneDeliverySlots() {
         return resutls;
     }
 
+    useEffect(() => {
+        if (called || loading || !zone_id) return;
+        fetchData();
+    }, [zone_id, called, loading])
 
     return (<>
         {loading && <Loader loading={true} />}

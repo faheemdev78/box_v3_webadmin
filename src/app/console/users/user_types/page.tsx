@@ -40,7 +40,7 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }: { onSuccess: () 
       allowed_apps: values.allowed_apps,
     };
 
-    var results;
+    let results;
 
     if (initialValues && initialValues._id) {
       Object.assign(input, { _id: initialValues._id })
@@ -128,7 +128,7 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }: { onSuccess: () 
 
 
 
-/* eslint-disable react-hooks/exhaustive-deps */
+// /* eslint-disable react-hooks/exhaustive-deps */
 function UserTypes() {
   const [showForm, set_showForm] = useState<Record<string, any> | false>(false);
   const [busy, setBusy] = useState(false);
@@ -139,12 +139,6 @@ function UserTypes() {
 
   const [deleteUserRole, del_details] = useMutation<any>(DEL_REC); // { data, loading, error }
   
-
-  useEffect(() => {
-    if (called || loading) return;
-    fetchData();
-  }, [])
-
   const fetchData = async () => {
     setBusy(true);
 
@@ -188,6 +182,12 @@ function UserTypes() {
   ];
 
   // if (!security.verifyRole("200.1", session_user)) return <Alert title="Error" description="Access Denied!" showIcon type='error' />
+
+  useEffect(() => {
+    if (called || loading) return;
+    fetchData();
+  }, [])
+
 
   return (<>
     <PageHeader title="Users Types">

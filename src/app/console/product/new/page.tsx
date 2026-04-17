@@ -905,12 +905,6 @@ function CreateProductFormWrapper (props: any) {
 
     const [fieldsDefinations, { called, loading, data }] = useLazyQuery<any>(GET_EXTRA_FIELDS, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called) return;
-        fetchExtraFields()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [called])
-
     async function fetchExtraFields() {
         let results = await fieldsDefinations({
             variables: {
@@ -929,6 +923,11 @@ function CreateProductFormWrapper (props: any) {
         }
     }
 
+    useEffect(() => {
+        if (called) return;
+        fetchExtraFields()
+    }, [called])
+    
     let initialValues = props.initialValues || defaultValues;
 
     if (loading || !called) return <Loader loading={true} />

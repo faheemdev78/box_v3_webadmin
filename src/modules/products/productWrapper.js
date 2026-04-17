@@ -34,12 +34,6 @@ export function ProductWrapper({ render, store, ...props }) {
     const [get_product, { loading, called }] = useLazyQuery(GET_PRODUCT, { fetchPolicy: 'network-only' });
     const [updateProductStatus, status_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
-    useEffect(() => {
-        if (called || loading || !prod_id) return;
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [prod_id])
-
     const fetchData = async () => {
         // console.log(__yellow("fetchData()"))
 
@@ -56,6 +50,12 @@ export function ProductWrapper({ render, store, ...props }) {
         setData(resutls)
         return resutls;
     }
+    
+    useEffect(() => {
+        if (called || loading || !prod_id) return;
+        fetchData();
+        
+    }, [prod_id])
 
     const onStatusUpdate = async (values) => {
         let resutls = await updateProductStatus({ variables: { _id: data._id, status: values.status } })

@@ -24,7 +24,7 @@ export default async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     type StoreJwtPayload = JwtPayload & { _id_store?: string };
 
-    let token = await getSessionToken()
+    const token = await getSessionToken()
     let decoded: StoreJwtPayload | undefined;
     if (token) {
         try {
@@ -41,7 +41,7 @@ export default async function proxy(request: NextRequest) {
 
     // Restrict store user access
     if (decoded && decoded._id_store && pathname.startsWith("/console")) {
-        let requriedStorePath = `/console/store/${decoded._id_store}`;
+        const requriedStorePath = `/console/store/${decoded._id_store}`;
 
         if (pathname !== requriedStorePath && !pathname.startsWith(`/console/store/${decoded._id_store}/`)) {
             console.error("Invalid store access")

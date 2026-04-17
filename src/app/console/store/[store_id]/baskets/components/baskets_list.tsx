@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client/react';
 import { Popconfirm, Alert, message, Row, Col, Modal, Space, Tabs } from 'antd';
+import { ColumnsType } from 'antd/es/table';
 import { Barcode, Loader, Icon, Button, IconButton, Table, Avatar, ListHeader, DevBlock, DeleteButton } from '@/components';
 import { __error } from '@/lib/consoleHelper';
 import { catchApolloError, checkApolloRequestErrors, lightOrDark, utcToDate } from '@/lib/utill';
@@ -16,14 +17,14 @@ import LIST_DATA from '@/graphql/baskets/baskets.graphql';
 import RECORD_DELETE from '@/graphql/baskets/deleteBasket.graphql';
 import RELEASE_BASKET from '@/graphql/baskets/releaseBasket.graphql';
 
-const ReleaseBasketButton = ({ basket, onSuccess }) => {
+const ReleaseBasketButton = ({ basket, onSuccess }: { basket: any; onSuccess?: (results: any) => void }) => {
     const [busy, setBusy] = useState(false)
     const [do_releaseBasket, release_details] = useMutation(RELEASE_BASKET, {});
     
     const releaseBasket = async() => {        
         setBusy(true);
         let results = await do_releaseBasket({ variables: { filter: JSON.stringify({ barcode: basket.barcode }) } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.releaseBasket }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr:any) => rr?.data?.releaseBasket }))
             .catch(catchApolloError)
         setBusy(false);
             
@@ -37,22 +38,22 @@ const ReleaseBasketButton = ({ basket, onSuccess }) => {
 }
 
 
-const ListComp = ({ store }) => {
+const ListComp = ({ store }: { store: any }) => {
     const session = useAppSelector((state: RootState) => state.session);
 
-    const [get_baskets, { called, loading, error, data }] = useLazyQuery(LIST_DATA, { fetchPolicy: "no-cache" });
-    const [deleteBasket, del_details] = useMutation(RECORD_DELETE, {});
+    const [get_baskets, { called, loading, error, data }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: "no-cache" });
+    const [deleteBasket, del_details] = useMutation<any>(RECORD_DELETE, {});
     // const { data, loading } = useSubscription(QUERY_SUBSCRIPTION, { variables: { postID } });
 
     const [busy, setBusy] = useState(false)
-    const [baskets, setBaskets] = useState(null)
-    const [showForm, set_showForm] = useState(false);
+    const [baskets, setBaskets] = useState<any[]>([])
+    const [showForm, set_showForm] = useState<any | false>(false);
     const [activeCategory, setActiveCategory] = useState<'dispatch' | 'pickup'>('dispatch');
 
-    const handleDelete = async(id) => {
+    const handleDelete = async(id:string) => {
         setBusy(true);
         let results = await deleteBasket({ variables: { id } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.deleteBasket }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.deleteBasket }))
             .catch(catchApolloError)
 
         setBusy(false);
@@ -62,7 +63,7 @@ const ListComp = ({ store }) => {
         fetchData({ category: activeCategory });
     }
 
-    const fetchData = async(_filter={}) => {
+    const fetchData = async(_filter: Record<string, any> = {}) => {
         const filter = {
             ..._filter,
             _id_store: store._id,
@@ -70,7 +71,7 @@ const ListComp = ({ store }) => {
 
         setBusy(true);
         let results = await get_baskets({ variables: { filter: JSON.stringify(filter) } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.baskets }))
+            .then((r:any) => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.baskets }))
             .catch(catchApolloError)
         setBusy(false);
         
@@ -78,16 +79,16 @@ const ListComp = ({ store }) => {
         setBaskets(results)
     }
 
-    const renderActions = (text, record) => {
+    const renderActions = (_text: any, record: any) => {
         return (<Space>
-            {security.verifyRole('1005.2', session.user.permissions) && <IconButton onClick={() => onEditRecord(record)} icon="pen" />}
-            {security.verifyRole('1005.3', session.user.permissions) && <DeleteButton onConfirm={() => handleDelete(record._id)} />}
+            {security.verifyRole('1005.2', session?.user?.permissions || []) && <IconButton onClick={() => onEditRecord(record)} icon="pen" />}
+            {security.verifyRole('1005.3', session?.user?.permissions || []) && <DeleteButton onConfirm={() => handleDelete(record._id)} />}
         </Space>)
     }
 
-    const onSuccess = (val) => fetchData({ category: activeCategory });
-    const onEditRecord = (item) => set_showForm(item)
-    const onAddClick = security.verifyRole('1005.1', session.user.permissions) ? () => set_showForm(true) : false;
+    const onSuccess = (_val: any) => fetchData({ category: activeCategory });
+    const onEditRecord = (item: any) => set_showForm(item)
+    const onAddClick = security.verifyRole('1005.1', session?.user?.permissions || []) ? () => set_showForm(true) : false;
 
 
     useEffect(() => {
@@ -100,8 +101,8 @@ const ListComp = ({ store }) => {
         fetchData({ category: activeCategory })
     }, [activeCategory])
 
-    const columns = [
-        { title: 'Basket', dataIndex: 'barcode', render:(txt, record) => (<div>
+    const columns: ColumnsType<any> = [
+        { title: 'Basket', dataIndex: 'barcode', render:(_txt: any, record: any) => (<div>
             {/* <div className="label" style={{ backgroundColor: record.color || "#FFFFFF", color: lightOrDark(record.color) == 'light' ? "#000000" : "#FFFFFF", fontSize: '14px' }}>{record.title}</div> */}
             <h3>{record.title}</h3>
             <Barcode 
@@ -112,7 +113,7 @@ const ListComp = ({ store }) => {
                 displayValue={true}
             />
         </div>)},
-        { title: 'In Use', dataIndex: 'record', render:(__, rec) => {
+        { title: 'In Use', dataIndex: 'record', render:(__: any, rec: any) => {
             const isLocked = Boolean(rec?.locked_by || rec?.locked_at || rec?.lock_expires_at || rec?._id_order || rec?.status === 'taken');
             const orderPreviewHref = rec?._id_order ? `${adminRoot}/store/${store._id}/orders/preview/${rec._id_order}` : '';
             const lockedByName = rec?.locked_user?.name || rec?.taken_by?.name || '';
@@ -156,7 +157,7 @@ const ListComp = ({ store }) => {
 
             <Table loading={busy}
                 columns={columns}
-                dataSource={baskets ? baskets : null}
+                dataSource={baskets}
                 pagination={false}
                 scroll={{ y: -220 }}
             />

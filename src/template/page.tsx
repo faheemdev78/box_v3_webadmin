@@ -7,7 +7,7 @@ interface PageTemplateProps {
 }
 
 export function Page({ children, className, style }: PageTemplateProps) {
-    let pageStyle = {
+    const pageStyle = {
         padding: "10px",
         ...style
     }

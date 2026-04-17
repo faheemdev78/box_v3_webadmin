@@ -7,7 +7,7 @@ import { PlusOutlined, TableOutlined, PicCenterOutlined } from '@ant-design/icon
 import { forms_fieldDefinations, forms_validationTypes } from '../constants';
 
 
-/* eslint-disable react-hooks/exhaustive-deps */
+// /* eslint-disable react-hooks/exhaustive-deps */
 export const FieldMenu = ({ field, onUpdate, onDelete }) => {
     const [isOpen, set_isOpen] = useState(false)
     const [state, setState] = useState({ ...field })

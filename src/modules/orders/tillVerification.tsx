@@ -70,7 +70,7 @@ function TillVerification({ serial }: { serial:string }) {
         if (serial && store?._id) {
             fetchOrderDetails();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        
     }, [serial, store]);
 
     const handleVerificationComplete = async (status: string) => {

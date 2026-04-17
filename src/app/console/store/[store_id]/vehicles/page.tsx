@@ -35,12 +35,6 @@ function Vehicles() {
 
     const [vehiclesQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
 
-    useEffect(() => {
-        if (called || loading) return
-        fetchData()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [store._id, called, loading])
-
     const fetchData = async (args: any = {}) => {
         let limit = (args as any)?.pageSize || defaultPageSize;
         let current = (args as any)?.current || 1;
@@ -87,6 +81,11 @@ function Vehicles() {
 
         message.success("Record deleted")
     }
+
+    useEffect(() => {
+        if (called || loading) return
+        fetchData()
+    }, [store._id, called, loading])
 
 
     return (<>

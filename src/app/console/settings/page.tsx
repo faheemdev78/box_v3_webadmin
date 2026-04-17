@@ -336,17 +336,6 @@ function SettingsPage () {
     const [enableSort, set_enableSort] = useState<string | false>(false)
     const [error, setError] = useState(null)
 
-
-    useEffect(() => {
-        if (settingsArray || called) return;
-        fetchData();
-
-        return () => {
-            set_settings(null)
-        };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [settingsArray, called])
-
     const fetchData = async () => {
         // set_enableSort(false)
         setBusy(true)
@@ -452,7 +441,17 @@ function SettingsPage () {
         fetchData();
     }
 
-    
+
+    useEffect(() => {
+        if (settingsArray || called) return;
+        fetchData();
+
+        return () => {
+            set_settings(null)
+        };
+    }, [settingsArray, called])
+
+
     if (busy || loading) return <Loader loading={true} center />
     if (!settingsArray) return <Alert title="Error" description="Empty settingsArray" type='error' showIcon />
 

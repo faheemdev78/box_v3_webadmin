@@ -88,7 +88,6 @@ function OrdersListClient({ searchParams, searchFilterConfig }: OrdersListClient
     useEffect(() => {
         if (called || loading) return
         fetchData({})
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [called, loading])
 
 
