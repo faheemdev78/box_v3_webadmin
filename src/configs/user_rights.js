@@ -56,7 +56,7 @@ export const UserRightsArray = [
     { _id: 106, title: 'Orders Management',
         rules: [
             { title: 'View Order', key: '106.0' },
-            { title: 'Cancel Order', key: '106.1' },
+            { title: 'Cancel or Decline Order', key: '106.1' },
             { title: 'Delete Order', key: '106.2' },
 
             { title: 'View On-Till', key: '106.11' },

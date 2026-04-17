@@ -1,0 +1,25 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+
+mutation cancelOrDeclineOrder($input: CancelOrDeclineOrderInput!) {
+  cancelOrDeclineOrder(input: $input) {
+    success { ...SuccessInfo }
+    error { ...ErrorInfo }
+    data {
+      _id
+      serial
+      current_stage
+      baskets_released
+      status {
+        order
+        payment
+        fulfillment
+      }
+      cancellation_record {
+        cancelled_at
+        cancelled_by
+        reason
+      }
+    }
+  }
+}

@@ -23,6 +23,7 @@ import { usePrintTillReceipt } from "@/hooks/useTillVerification";
 import LIST_DATA from '@/graphql/order/ordersQuery.graphql'
 import RESET_ORDER from '@/graphql/order/resetOrderToZero.graphql'
 import REVERT_ORDER_STAGE from '@/graphql/order/revertOrderStage.graphql'
+import CANCEL_OR_DECLINE_ORDER from '@/graphql/order/cancelOrDeclineOrder.graphql'
 
 const { Title, Text } = Typography;
 
@@ -31,6 +32,7 @@ const defaultFilter = {}; // { status: 'online' }
 function OrdersListPage(props:any) {
     const session = useAppSelector((state: RootState) => state.session);
     const canView = security.verifyRole('106.0', session.user.permissions); // Manage Product Fields
+    const canCancelOrders = security.verifyRole('106.1', session.user.permissions);
 
     const { store } = usePageProps() as unknown as { store: any }
     const settings = useAppSelector(getSettings);
@@ -55,6 +57,7 @@ function OrdersListPage(props:any) {
     const [ordersQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
     const [resetOrder, resetOrder_results] = useMutation<any>(RESET_ORDER);
     const [revertOrderStage, { loading: reverting }] = useMutation<any>(REVERT_ORDER_STAGE);
+    const [cancelOrDeclineOrderMutation, { loading: cancellingOrDeclining }] = useMutation<any>(CANCEL_OR_DECLINE_ORDER);
     const { printReceipt } = usePrintTillReceipt();
 
     if (!canView) return <Alert title="Access Denied!" type="error" showIcon />
@@ -257,6 +260,54 @@ function OrdersListPage(props:any) {
             || ['ready-to-dispatch', 'dispatched'].includes(orderStatus);
     };
 
+    const canMarkOrderAsTerminal = (order: any) => {
+        const normalize = (value: any) => String(value || '').toLowerCase().replace(/[_\s]+/g, '-');
+        const currentStage = normalize(order?.current_stage);
+        const orderStatus = normalize(order?.status?.order);
+        const terminalStates = ['cancelled', 'declined', 'delivered', 'completed'];
+
+        return !terminalStates.includes(currentStage) && !terminalStates.includes(orderStatus);
+    };
+
+    const handleCancelOrDeclineOrder = async (order: any, action: 'cancelled' | 'declined') => {
+        const actionLabel = action === 'cancelled' ? 'Cancelled' : 'Declined';
+        const confirmed = window.confirm(`Are you sure you want to mark order ${order.serial} as ${actionLabel}?\n\nThis will release all assigned baskets.`);
+        if (!confirmed) return;
+
+        const reason = window.prompt(`Please provide a reason for marking as ${actionLabel}:`);
+        if (!reason || !reason.trim()) {
+            message.warning(`${actionLabel} action requires a reason`);
+            return;
+        }
+
+        setBusy(true);
+        const processedResult = await cancelOrDeclineOrderMutation({
+            variables: {
+                input: {
+                    _id_order: order._id,
+                    action,
+                    reason: reason.trim(),
+                    notes: ''
+                }
+            }
+        })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.cancelOrDeclineOrder }))
+            .catch(catchApolloError);
+        setBusy(false);
+
+        if (processedResult?.error) {
+            const errorDetails = processedResult?.error?.details || processedResult?.error?.message || 'Unknown error';
+            message.error(`Failed to mark order as ${actionLabel}: ${errorDetails}`);
+            return;
+        }
+
+        if (processedResult?.success) {
+            const releasedCount = processedResult?.data?.baskets_released || 0;
+            message.success(`Order ${order.serial} marked as ${actionLabel}. Released ${releasedCount} basket(s).`);
+            fetchData({});
+        }
+    };
+
     const handlePrintTillReceipt = async (order: any) => {
         setBusy(true);
         try {
@@ -329,11 +380,13 @@ function OrdersListPage(props:any) {
         // if (record.current_stage !== 'pending') returnArr.push(<ResetButton size="small" handleResetOrder={() => handleResetOrder(record)} />)
 
         // Set popup Menu
-        let popArray = []
+        let popArray: any[] = []
         if (record.current_stage !== 'pending') popArray.push({ onClick: () => handleResetOrder(record), label: "Reset to New", confirm: true })
         if (canRevertTo(record, 'pending')) popArray.push({ onClick: () => handleRevertOrder(record, 'pending'), label: "To Pending", confirm: true })
         if (canRevertTo(record, 'picking-complete')) popArray.push({ onClick: () => handleRevertOrder(record, 'picking-complete'), label: "To Picking Complete", confirm: true })
         if (canRevertTo(record, 'ready-to-dispatch')) popArray.push({ onClick: () => handleRevertOrder(record, 'ready-to-dispatch'), label: "To Ready to Dispatch", confirm: true })
+        if (canCancelOrders && canMarkOrderAsTerminal(record)) popArray.push({ onClick: () => handleCancelOrDeclineOrder(record, 'cancelled'), label: "To Cancelled", confirm: true })
+        if (canCancelOrders && canMarkOrderAsTerminal(record)) popArray.push({ onClick: () => handleCancelOrDeclineOrder(record, 'declined'), label: "To Declined", confirm: true })
         if (canPrintTillReceipt(record)) popArray.push({ onClick: () => handlePrintTillReceipt(record), label: "Print Receipt" })
         if (popArray.length) returnArr.push(<PopMenu orientation="vertical" placement="left" items={popArray} ></PopMenu>);
 
