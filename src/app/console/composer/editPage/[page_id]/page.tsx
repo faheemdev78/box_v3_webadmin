@@ -121,7 +121,7 @@ const SortableField = ({ id, name, remove, index, children, onClick, onEdit, onR
             <div className={styles.data_row_menu}>
                 <Space>
                     {/* <IconButton onClick={onEdit} size="small" icon="pen" shape="circle" /> */}
-                    <DeleteButton onClick={onRemoveClick} loading={busy} disabled={!onRemove} size="small" />
+                    <DeleteButton color="white" onClick={onRemoveClick} loading={busy} disabled={!onRemove} size="small" />
                     <span />
                 </Space>
                 {/* <Row gutter={[10, 10]} className='nowrap'>
