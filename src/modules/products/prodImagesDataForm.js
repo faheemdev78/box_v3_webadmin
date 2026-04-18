@@ -17,6 +17,8 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
     const [error, setError] = useState(null)
     const [messageApi, contextHolder] = message.useMessage();
 
+    console.log({ initialValues })
+
     useEffect(() => {
         if (initialValues) return;
         let gallery = ensureArrayLength(props?.initialValues?.gallery?.slice() || [], PROD_GAL_SIZE)
@@ -26,6 +28,7 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
     }, [props.initialValues])
 
     async function onSubmit({ picture, video, gallery }){
+        console.log(__yellow("ProdImagesDataForm > onSubmit()"))
         setError(false);
 
         if (!(picture || video || gallery)){

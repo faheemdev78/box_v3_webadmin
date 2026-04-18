@@ -35,7 +35,7 @@ export function ProductImageManager({ session, ...props }) {
     const [uploadProductVideo, vdoup_updates] = useMutation(UPDATE_VDO); // { data, loading, error }
     const [deleteProductVideo, vdodel_updates] = useMutation(DEL_VDO); // { data, loading, error }
 
-
+    console.log({ initialValues })
 
     useEffect(() => {
         if (!initialValues) return; // skip this for the frist time

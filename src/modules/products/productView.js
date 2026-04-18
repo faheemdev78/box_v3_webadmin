@@ -63,7 +63,7 @@ export function ProductView({ session, store, refresh, ...props }) {
     }, [initialValues])
 
     if (!session || !session?.user?._id) return <Alert title="Error" description="Invalid session provided" showIcon type='error' />
-    if (isStoreUser && String(session?.user?.store?._id) !== String(store._id)) return <Alert title="Error" description="Unauthorized Store Access" showIcon type='error' />
+    if (isStoreUser && String(session?.user?.store?._id) !== String(store?._id)) return <Alert title="Error" description="Unauthorized Store Access" showIcon type='error' />
 
 
     const drawerProps = {
@@ -76,6 +76,10 @@ export function ProductView({ session, store, refresh, ...props }) {
 
     async function onProdStatusChange({ status }){
         console.log(__yellow("onProdStatusChange()"), status)
+        if (!initialValues?._id || !store?._id) {
+            message.error("Invalid product/store state");
+            return false;
+        }
 
         let resutls = await editStoreProductStatus({ variables: {
             _id_product: initialValues._id, 
@@ -449,5 +453,4 @@ export function ProductView({ session, store, refresh, ...props }) {
 //     initialValues: PropTypes.object.isRequired,
 //     refresh: PropTypes.func,
 // }
-
 

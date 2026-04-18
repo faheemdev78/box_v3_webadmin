@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { Alert, Card, Col, message, Row, Space } from 'antd';
 import { Button, DevBlock, Loader, StatusTag } from '@/components';
@@ -23,18 +23,22 @@ export function ProductWrapper({ render, store, ...props }) {
     const session = useAppSelector(({ session }) => session);
     const { prod_id, ...params } = useParams()
     // const { prod_id, store_id } = useParams < { prod_id: string, store_id: string } > ()
-    let variables = { _id: prod_id }
 
     const store_id = params.store_id || session?.user?.store?._id;
-    if (store_id) Object.assign(variables, { _id_store: store_id })
+    const variables = useMemo(() => {
+        const vars = { _id: prod_id }
+        if (store_id) Object.assign(vars, { _id_store: store_id })
+        return vars
+    }, [prod_id, store_id])
 
     const [fatelError, set_fatelError] = useState(null)
     const [data, setData] = useState(null)
 
-    const [get_product, { loading, called }] = useLazyQuery(GET_PRODUCT, { fetchPolicy: 'network-only' });
+    const [get_product, { loading }] = useLazyQuery(GET_PRODUCT, { fetchPolicy: 'network-only' });
     const [updateProductStatus, status_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
+        if (!prod_id) return;
         // console.log(__yellow("fetchData()"))
 
         let resutls = await get_product({ variables })
@@ -49,15 +53,19 @@ export function ProductWrapper({ render, store, ...props }) {
 
         setData(resutls)
         return resutls;
-    }
+    }, [get_product, prod_id, variables])
     
     useEffect(() => {
-        if (called || loading || !prod_id) return;
-        fetchData();
-        
-    }, [prod_id])
+        if (!prod_id) return;
+        void fetchData();
+    }, [fetchData, prod_id])
 
     const onStatusUpdate = async (values) => {
+        if (!data?._id) {
+            message.error("Invalid product state");
+            return false;
+        }
+
         let resutls = await updateProductStatus({ variables: { _id: data._id, status: values.status } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.updateProductStatus }))
             .catch(catchApolloError)
@@ -76,18 +84,18 @@ export function ProductWrapper({ render, store, ...props }) {
 
     // if (status == 'loading') return <Loader loading={true} />
     if (!prod_id || fatelError) return <Alert title="Error" description={fatelError || "No Product ID found!"} type='error' showIcon />
-    if (loading || !data) return <Loader loading={true}>Fetching product...</Loader>
+    if (loading || !data || !data?._id) return <Loader loading={true}>Fetching product...</Loader>
     
     const isStoreUser = !!(session?.user?.store?._id);
     // if (isStoreUser && store && store._id !== session?.user?.store?._id) return <Alert title="Error" description="Unauthorized store access!" type='error' showIcon />
 
-    const canEdit = security.verifyRole('104.4', session.user.permissions);
+    const canEdit = security.verifyRole('104.4', session?.user?.permissions);
 
     return (<>
         <PageHeader 
             title={data.title}
             sub={<Space separator="|">
-                <div>ID: {data._id}</div>
+                <div>ID: {data?._id}</div>
                 <div><StatusTag value={data.status} editable={canEdit && !isStoreUser} options={publishStatus} onSubmit={onStatusUpdate} /></div>
                 <Button onClick={()=>fetchData()}>Refresh</Button>
             </Space>}
@@ -105,7 +113,7 @@ export function ProductWrapper({ render, store, ...props }) {
             {render({
                 product: data,
                 session,
-                store: store_id && session.user.store,
+                store: store_id ? (session?.user?.store || null) : null,
                 refresh: fetchData
             })}
         </Page>
@@ -114,4 +122,3 @@ export function ProductWrapper({ render, store, ...props }) {
 
 }
 export default ProductWrapper
-
