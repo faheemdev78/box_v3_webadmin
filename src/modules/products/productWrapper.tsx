@@ -19,20 +19,38 @@ import GET_PRODUCT from '@/graphql/product/product.graphql';
 import UPDATE_STATUS from '@/graphql/product/updateProductStatus.graphql'
 
 
-export function ProductWrapper({ render, store, ...props }) {
-    const session = useAppSelector(({ session }) => session);
-    const { prod_id, ...params } = useParams()
+interface ProductWrapperRenderArgs {
+    product: any;
+    session: any;
+    store: any;
+    refresh: () => Promise<any>;
+}
+
+interface ProductWrapperProps {
+    render: (args: ProductWrapperRenderArgs) => React.ReactNode;
+    store?: any;
+    [key: string]: unknown;
+}
+
+interface StatusUpdateValues {
+    status: string;
+    status_notes?: string;
+}
+
+export function ProductWrapper({ render, store, ...props }: ProductWrapperProps) {
+    const session = useAppSelector((state: any) => state.session) as any;
+    const { prod_id, store_id: route_store_id } = useParams<{ prod_id: string, store_id?: string }>()
     // const { prod_id, store_id } = useParams < { prod_id: string, store_id: string } > ()
 
-    const store_id = params.store_id || session?.user?.store?._id;
+    const store_id = route_store_id || session?.user?.store?._id;
     const variables = useMemo(() => {
         const vars = { _id: prod_id }
         if (store_id) Object.assign(vars, { _id_store: store_id })
         return vars
     }, [prod_id, store_id])
 
-    const [fatelError, set_fatelError] = useState(null)
-    const [data, setData] = useState(null)
+    const [fatelError, set_fatelError] = useState<string | null>(null)
+    const [data, setData] = useState<any>(null)
 
     const [get_product, { loading }] = useLazyQuery(GET_PRODUCT, { fetchPolicy: 'network-only' });
     const [updateProductStatus, status_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
@@ -42,7 +60,7 @@ export function ProductWrapper({ render, store, ...props }) {
         // console.log(__yellow("fetchData()"))
 
         let resutls = await get_product({ variables })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.product }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.product }))
             .catch(catchApolloError)
         // console.log("resutls: ", resutls)
 
@@ -60,19 +78,19 @@ export function ProductWrapper({ render, store, ...props }) {
         void fetchData();
     }, [fetchData, prod_id])
 
-    const onStatusUpdate = async (values) => {
+    const onStatusUpdate = async (values: StatusUpdateValues) => {
         if (!data?._id) {
             message.error("Invalid product state");
-            return false;
+            return;
         }
 
         let resutls = await updateProductStatus({ variables: { _id: data._id, status: values.status } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.updateProductStatus }))
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.updateProductStatus }))
             .catch(catchApolloError)
 
         if (!resutls || resutls.error) {
             message.error((resutls && resutls?.error?.message) || "Unable to update product!");
-            return false;
+            return;
         }
 
         setData(resutls)
