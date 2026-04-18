@@ -542,6 +542,8 @@ function EditAppPage() {
                                     <div className={styles.mob_view} style={{ textAlign: 'left' }}>
                                         <FieldArray name="rows">
                                             {({ fields }) => {
+                                                console.log("fields?.value: ", fields?.value);
+
                                                 return (<>
                                                     <DndContext
                                                         sensors={sensors}
@@ -551,7 +553,7 @@ function EditAppPage() {
                                                         onDragEnd={handleDragEnd(fields)}
                                                         modifiers={[restrictToVerticalAxis]}
                                                     >
-                                                        <SortableContext items={fields?.value?.map(({ id }) => id)} strategy={verticalListSortingStrategy}>
+                                                        <SortableContext items={fields?.value?.map(({ id }) => id) || []} strategy={verticalListSortingStrategy}>
                                                             {fields.map((name, index) => {
                                                                 const thisNode = fields.value[index];
 
