@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler } from '@/components/form';
 import { Alert, Card, Col, ColorPicker, Divider, Modal, Row, Skeleton, Space } from 'antd';
 import { Heading } from '../../typography';
-import { useForm } from 'react-final-form';
+import { useForm, Field } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays';
 import { ProductListSelector } from '@/modules/products/components';
 import cssStyles from './productList.module.scss'
@@ -214,7 +214,42 @@ function ProductProps({ item: { name, data, values } }) {
         </Space>
 
         <Modal title="Select products" onCancel={() => set_showProdSelection(false)} footer={false} open={showProdSelection} width={'1000px'} destroyOnHidden>
-            <ProductListSelector 
+            <Field name={`${name}.values.num_products`} subscription={{ value: true }}>
+                {({ input })=>{
+                    let limit = input.value || 3;
+
+                    return (<>
+                        <Field name={`${name}.values.products`} subscription={{ value: true }}>
+                            {(products)=>{
+                                return (<>
+                                    <ProductListSelector
+                                        selected_products={products.input.value}
+                                        limit={limit}
+                                        onSubmit={(selectdProds) => {
+                                            let num = Number(limit || 0)
+                                            if (num < 1) {
+                                                set_showProdSelection(false)
+                                                form.change(`${name}.values.products`, selectdProds);
+                                                return;
+                                            }
+
+                                            let arr = new Array(num).fill({});
+                                            arr = arr.map((o, i) => (selectdProds[i] || {}))
+
+                                            set_showProdSelection(false)
+                                            form.change(`${name}.values.products`, arr)
+                                        }}
+                                    />
+                                </>)
+                            }}
+                        </Field>
+
+
+                    </>)
+                }}
+            </Field>
+
+            {/* <ProductListSelector 
                 selected_products={getFieldValue(`values.products`)?.value}
                 limit={getFieldValue('values.num_products')?.value || 3}
                 onSubmit={(selectdProds)=>{
@@ -232,7 +267,7 @@ function ProductProps({ item: { name, data, values } }) {
                     set_showProdSelection(false)
                     form.change(`${name}.values.products`, arr)
                 }}
-            />
+            /> */}
             {/* <p>showProdSelection</p>
             <p>Number of Products: {getFieldValue('values.num_products')?.value}</p>
             <DevBlock obj={getFieldValue(`values.products`)?.value} /> */}

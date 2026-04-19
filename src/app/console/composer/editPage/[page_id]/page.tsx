@@ -36,8 +36,10 @@ import PUBLISH_PAGE from '@/graphql/app_pages/publishAppPage.graphql'
 function ItemRender({ item, item: { data, value, name } }: { item: any }) {
     let found = components.find(o => o.type == data?.type)
     if (!found) return <Alert type="error" title="Error!" description={`Invalid field (${data?.type})`} />
+    if (!found.renderer) return <p>NO renderor</p>
 
-    return found.renderer ? found.renderer({ item }) : <p>NO renderor</p>
+    const Renderer = found.renderer;
+    return <Renderer key={`renderer-${data?.type || "unknown"}`} item={item} />
 }
 
 const RowRender = ({ item }: { item: any }) => {
@@ -586,7 +588,7 @@ function EditAppPage() {
                                     </div>
                                 </div>
 
-                                <DevBlock obj={values?.rows} title="values.rows" />
+                                {/* <DevBlock obj={values?.rows} title="values.rows" /> */}
 
                             </Col>
 
@@ -629,7 +631,7 @@ function EditAppPage() {
 
 
 
-        <DevBlock obj={pageData} />
+        {/* <DevBlock obj={pageData} /> */}
     </>)
 }
 

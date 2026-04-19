@@ -113,7 +113,7 @@ export const ProductListSelector = ({ limit, onSubmit, selected_products }) => {
                     className: styles.container,
                 },
                 selected: {
-                    title: <h3>Selected Items ({containers?.selected?.length || 0} / 6)</h3>,
+                    title: <h3>Selected Items ({containers?.selected?.length || 0} / {limit})</h3>,
                     className: styles.container,
                     limit: Number(limit || 0),
                 }

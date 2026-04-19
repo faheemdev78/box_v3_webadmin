@@ -10,8 +10,10 @@ const RenderProps = ({ item, item: { name, data, value } }) => {
     // Render Text Components
     let found = components.find(o => o.type == data?.type)
     if (!found) return <Alert type="error" title="Error" description="Props not deifned" />
+    if (!found.propsRender) return <Alert type="error" title="Error" description="Props renderer not defined" />
 
-    return found.propsRender({ item })
+    const PropsRenderer = found.propsRender;
+    return <PropsRenderer key={`props-${data?.type || "unknown"}`} item={item} />
 }
 
 export const PropsWindow = ({ item, onClose }) => {
