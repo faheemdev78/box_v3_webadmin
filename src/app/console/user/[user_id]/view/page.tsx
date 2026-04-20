@@ -45,11 +45,11 @@ function UserViewPage() {
         setUser(results);
     };
 
-    const onStatusUpdate = async (values: { status?: string } | string | null) => {
+    const onStatusUpdate = async (values: { status?: string } | string | null): Promise<string | undefined> => {
         const status = typeof values === 'string' ? values : values?.status;
         const targetUserId = user?._id || currentUserId;
 
-        if (!targetUserId || !status) return false;
+        if (!targetUserId || !status) return;
 
         const results = await updateUserStatus({ variables: { _id_user: targetUserId, status } })
             .then((r) => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.updateUserStatus }))
@@ -57,7 +57,7 @@ function UserViewPage() {
 
         if (!results || results?.error) {
             message.error((results && results?.error?.message) || 'Unable to update user status');
-            return false;
+            return;
         }
 
         setUser((prev: any) => (prev ? { ...prev, status } : prev));

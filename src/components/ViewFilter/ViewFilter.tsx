@@ -579,7 +579,7 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
         <Drawer title={`${showAddNewForm === true ? 'Create' : 'Edit'} View`} footer={false} open={showAddNewForm !== false} destroyOnHidden={true} onClose={() => set_showAddNewForm(false)} styles={{ body:{ padding:"15px" } }} size={600}>
             {showAddNewForm !== false && <>
                 <FitlerForm
-                    initialValues={showAddNewForm === true || showAddNewForm === false ? {} : {
+                    initialValues={showAddNewForm === true ? {} : {
                         ...showAddNewForm,
                         _id: showAddNewForm.id,
                         columns: Array.isArray(showAddNewForm.columns)
