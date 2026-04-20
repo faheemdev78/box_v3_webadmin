@@ -83,8 +83,14 @@ function StaffForm () {
 
                                 <div><Space>
                                     <AccTypesDD
-                                        // resultParser={(options) => options.filter(o=>!(o.acc_type=='admin'))}
-                                        filter={{ acc_type: { $ne: "admin" } }}
+                                        resultParser={(options: any[]) => options
+                                            .filter((o: any) => !["admin", "customer"].includes(String(o?.acc_type || "").toLowerCase()))
+                                            .map((o: any) => ({
+                                                value: o._id,
+                                                title: o.title,
+                                                raw: o
+                                            }))}
+                                        filter={{ acc_type: { $nin: ["admin", "customer"] } }}
                                         onChange={(___: any, raw: any) => form.mutators.onTypeChanged(raw)}
                                         label="Account Type" preload name="acc_type._id" validate={rules.required}
                                     />
