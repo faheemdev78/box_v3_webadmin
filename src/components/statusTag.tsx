@@ -93,6 +93,6 @@ interface StatusTagProps {
     value: string;
     editable?: boolean;
     options: Option[];
-    onSubmit: (values: FormValues) => Promise<string | undefined>;
+    onSubmit: (values: FormValues) => Promise<string | any | undefined>;
     type?: 'tag' | string;
 }
