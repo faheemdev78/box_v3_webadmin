@@ -92,8 +92,8 @@ interface TabBarProps {
     setShowFilterDetails: (val: boolean) => void;
     showAllViews: boolean;
     setShowAllViews: (val: boolean) => void;
-    showAddNewForm: boolean;
-    set_showAddNewForm: (val: boolean) => void;
+    showAddNewForm: boolean | ViewConfig;
+    set_showAddNewForm: (val: boolean | ViewConfig) => void;
 }
 
 const TabBar = ({ 
@@ -113,6 +113,7 @@ const TabBar = ({
             label: 'Add View',
             icon: <PlusOutlined />,
             onClick: () => {
+                setEditingViewId(null)
                 set_showAddNewForm(true)
                 if (showAllViews) setShowAllViews(false);
                 // setShowBuilder(true);
@@ -167,7 +168,7 @@ const TabBar = ({
 
 export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
 
-    const [showAddNewForm, set_showAddNewForm] = useState(false);
+    const [showAddNewForm, set_showAddNewForm] = useState<boolean | ViewConfig>(false);
     const [showAllViews, setShowAllViews] = useState(false);
 
     const [localViews, setLocalViews] = useState<ViewConfig[]>(views);
@@ -337,13 +338,10 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
     const loadView = (view: ViewConfig) => {
         // Set editing mode
         setEditingViewId(view.id);
-
-        // Set pending view to load
-        setPendingViewLoad(view);
-
-        // Switch to builder (useEffect will handle loading the data)
-        setShowBuilder(true);
+        setPendingViewLoad(null);
+        setShowBuilder(false);
         setShowAllViews(false);
+        set_showAddNewForm(view);
     };
 
     // Apply a view (click on tab or from list)
@@ -396,6 +394,74 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
         const clonedView = cloneView(view, config.currentUser.id);
         setLocalViews([...localViews, clonedView]);
         message.success(`View "${clonedView.name}" created`);
+    };
+
+    const handleFormSave = async (values: any) => {
+        const mapColumns = (keys: string[]) => keys
+            .map((key) => config.availableColumns.find((col) => col.key === key))
+            .filter((col): col is (typeof config.availableColumns)[number] => Boolean(col));
+
+        const valuesColumns = Array.isArray(values?.columns) && values.columns.length > 0
+            ? values.columns
+            : config.defaultColumns;
+        const columns = mapColumns(valuesColumns);
+        const fallbackColumns = mapColumns(config.defaultColumns);
+        const normalizedColumns = columns.length > 0 ? columns : fallbackColumns;
+        const normalizedFilterGroups = Array.isArray(values?.filterGroups)
+            ? values.filterGroups
+            : [{ logic: 'AND', conditions: [] }];
+
+        const editingView = (showAddNewForm !== false && showAddNewForm !== true) ? showAddNewForm : null;
+
+        try {
+            if (editingView) {
+                const updatedView: ViewConfig = {
+                    ...editingView,
+                    name: values?.name || editingView.name || 'Untitled View',
+                    description: values?.description,
+                    visibility: values?.visibility || editingView.visibility || 'private',
+                    filterGroups: normalizedFilterGroups,
+                    columns: normalizedColumns,
+                    sort: values?.sort ?? editingView.sort ?? null,
+                    updatedAt: new Date().toISOString()
+                };
+
+                await handleUpdateView(updatedView);
+                setActiveViewId(updatedView.id);
+            }
+            else {
+                const newView: ViewConfig = {
+                    id: 'view_' + Date.now(),
+                    name: values?.name || 'Untitled View',
+                    description: values?.description,
+                    filterGroups: normalizedFilterGroups,
+                    columns: normalizedColumns,
+                    sort: values?.sort || null,
+                    visibility: values?.visibility || 'private',
+                    createdBy: config.currentUser.id,
+                    createdAt: new Date().toISOString(),
+                    isFavorite: false,
+                    isPinned: false,
+                    isDefault: false,
+                    isHidden: false,
+                    order: localViews.length
+                };
+
+                if (callbacks.onSaveView) {
+                    await callbacks.onSaveView(newView);
+                }
+                setLocalViews(prev => [...prev, newView]);
+                setActiveViewId(newView.id);
+                message.success(`View "${newView.name}" saved successfully`);
+            }
+
+            setEditingViewId(null);
+            set_showAddNewForm(false);
+            return false;
+        } catch (error) {
+            message.error('Unable to save view');
+            return false;
+        }
     };
 
     // Get the current active view
@@ -512,7 +578,21 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
 
         <Drawer title={`${showAddNewForm === true ? 'Create' : 'Edit'} View`} footer={false} open={showAddNewForm !== false} destroyOnHidden={true} onClose={() => set_showAddNewForm(false)} styles={{ body:{ padding:"15px" } }} size={600}>
             {showAddNewForm !== false && <>
-                <FitlerForm initialValues={{}} config={config} />
+                <FitlerForm
+                    initialValues={showAddNewForm === true || showAddNewForm === false ? {} : {
+                        ...showAddNewForm,
+                        _id: showAddNewForm.id,
+                        columns: Array.isArray(showAddNewForm.columns)
+                            ? showAddNewForm.columns.map((c: any) => (typeof c === 'string' ? c : c.key))
+                            : config.defaultColumns
+                    }}
+                    config={config}
+                    onSubmit={handleFormSave}
+                    onCancel={() => {
+                        setEditingViewId(null);
+                        set_showAddNewForm(false);
+                    }}
+                />
             </>}
         </Drawer>
 

@@ -2,9 +2,9 @@ import React from 'react'
 import { Form as FinalForm } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays';
 import arrayMutators from 'final-form-arrays';
-import { submitHandler, FormField } from '@/components/form';
+import { submitHandler, FormField, SubmitButton, rules } from '@/components/form';
 import { Card, Col, Divider, Row, Space, Tag } from 'antd';
-import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import DevBlock from '../devBlock';
 // import { FilterBuilder } from './FilterBuilder';
 import { Button, IconButton } from '../button';
@@ -14,12 +14,23 @@ import { Icon } from '../icon';
 interface FilterBuilderProps {
     initialValues?: any;
     config: ViewFilterConfig;
+    onSubmit?: (values: any) => Promise<any> | any;
+    onCancel?: () => void;
 }
 
-function FitlerForm({ initialValues = {}, config }: FilterBuilderProps) {
+function FitlerForm({ initialValues = {}, config, onSubmit, onCancel }: FilterBuilderProps) {
     const isEditing = !!initialValues._id;
+    const formInitialValues = {
+        name: '',
+        description: '',
+        visibility: 'private',
+        filterGroups: [{ logic: 'AND', conditions: [] }],
+        ...initialValues
+    };
 
     async function onFormSubmit(values:any){
+        if (!values?.name) return false;
+        if (onSubmit) return onSubmit(values);
         return false;
     }
 
@@ -83,13 +94,35 @@ function FitlerForm({ initialValues = {}, config }: FilterBuilderProps) {
 
         <FinalForm
             onSubmit={onFormSubmit}
-            initialValues={initialValues}
+            initialValues={formInitialValues}
             mutators={{ ...arrayMutators }}
             render={(formArgs) => {
                 const { handleSubmit, form, values, submitting } = formArgs;
 
                 return (<>
                     <form {...submitHandler(formArgs)}>
+                        <Row gutter={[10, 10]} style={{ marginBottom: 12 }}>
+                            <Col span={12}>
+                                <FormField name="name" type="text" label="View Name" validate={rules.required} />
+                            </Col>
+                            <Col span={12}>
+                                <FormField
+                                    name="visibility"
+                                    type="select"
+                                    label="Visibility"
+                                    options={[
+                                        { label: 'Private', value: 'private' },
+                                        { label: 'Team', value: 'team' },
+                                        { label: 'Everyone', value: 'everyone' }
+                                    ]}
+                                    validate={rules.required}
+                                />
+                            </Col>
+                            <Col span={24}>
+                                <FormField name="description" type="textarea" label="Description" placeholder="Optional description" />
+                            </Col>
+                        </Row>
+
                         <FieldArray name="filterGroups">
                             {({ fields: groupFields }) => (<>
                                 {groupFields.map((groupName, groupIndex) => {
@@ -108,8 +141,7 @@ function FitlerForm({ initialValues = {}, config }: FilterBuilderProps) {
                                                             console.log("group.logic: ", group.logic)
                                                             const newLogic = group.logic === 'AND' ? 'OR' : 'AND';
                                                             console.log("newLogic: ", newLogic)
-                                                            // form.change(`${groupName}.logic`, newLogic);
-                                                            groupFields.update(groupIndex, { logic: newLogic })
+                                                            groupFields.update(groupIndex, { ...group, logic: newLogic })
                                                         }}
                                                     >
                                                         {group.logic || 'AND'}
@@ -180,6 +212,11 @@ function FitlerForm({ initialValues = {}, config }: FilterBuilderProps) {
                                 <Button type="dashed" icon={<PlusOutlined />} block size="large" onClick={() => groupFields.push({ logic: 'AND', conditions: [] })}>Add Filter Group (OR)</Button>
                             </>)}
                         </FieldArray>
+
+                        <div style={{ marginTop: 18, textAlign: "right" }}>
+                            <Button onClick={onCancel} style={{ marginRight: 8 }}>Cancel</Button>
+                            <SubmitButton loading={submitting} label={isEditing ? "Update View" : "Save View"} color="primary" />
+                        </div>
 
                     </form>
 

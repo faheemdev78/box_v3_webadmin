@@ -23,6 +23,8 @@ const defaultFilter = {}; // { status: 'online' }
 
 function Staff() {
     const { store } = usePageProps() as unknown as { store: any }
+    const storeId = store?._id;
+    const viewsStorageKey = `staff.savedViews.${storeId || 'unknown'}`
 
     const [state, setState] = useState({
         pagination: { current: 1 },
@@ -102,25 +104,48 @@ function Staff() {
         },
         onSaveView: async (view: ViewConfig) => {
             // TODO: Save to database via GraphQL mutation
-            setSavedViews([...savedViews, view]);
+            setSavedViews(prev => [...prev, view]);
             console.log('Saving view:', view);
         },
         onUpdateView: async (view: ViewConfig) => {
             // TODO: Update in database via GraphQL mutation
-            setSavedViews(savedViews.map(v => v.id === view.id ? view : v));
+            setSavedViews(prev => prev.map(v => v.id === view.id ? view : v));
             console.log('Updating view:', view);
         },
         onDeleteView: async (viewId: string) => {
             // TODO: Delete from database via GraphQL mutation
-            setSavedViews(savedViews.filter(v => v.id !== viewId));
+            setSavedViews(prev => prev.filter(v => v.id !== viewId));
             console.log('Deleting view:', viewId);
         }
     };
 
     useEffect(() => {
+        if (!storeId) return;
+        try {
+            const raw = localStorage.getItem(viewsStorageKey);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+                setSavedViews(parsed);
+            }
+        } catch (error) {
+            console.error('Failed to load saved staff views', error);
+        }
+    }, [storeId, viewsStorageKey]);
+
+    useEffect(() => {
+        if (!storeId) return;
+        try {
+            localStorage.setItem(viewsStorageKey, JSON.stringify(savedViews));
+        } catch (error) {
+            console.error('Failed to persist staff views', error);
+        }
+    }, [savedViews, storeId, viewsStorageKey]);
+
+    useEffect(() => {
         if (called || loading) return
         fetchData()
-    }, [store._id, called, loading])
+    }, [storeId, called, loading])
 
 
 
