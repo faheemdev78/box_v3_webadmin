@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { Form as FinalForm } from 'react-final-form';
 // import { useQuery, useLazyQuery, useMutation } from '@apollo/client/react';
-import { Card, Col, Row, Descriptions, Tag, Table, Statistic, Progress, Avatar, Space, Button, Timeline, Alert } from 'antd';
+import { Card, Col, Row, Descriptions, Tag, Table, Statistic, Progress, Avatar, Space, Button, Timeline, Alert, Modal, message } from 'antd';
 import {
     UserOutlined,
     PhoneOutlined,
@@ -17,12 +18,15 @@ import {
     ShoppingCartOutlined,
     BankOutlined, BarcodeOutlined,
 } from '@ant-design/icons';
+import { useMutation } from '@apollo/client/react';
 import { usePageProps, Drawer, Loader, DevBlock, IconButton, PopMenu } from '@/components';
+import { FormField, SubmitButton, rules } from '@/components/form';
 import { StaffEditForm } from '@/modules/staff';
 
 
 // box_v3_webadmin/src/graphql/users/user.graphql
 import GET_USER from '@/graphql/users/user.graphql';
+import UPDATE_USER_PWD from '@/graphql/users/updateUserPassword.graphql';
 
 // Dummy Staff Data
 const DUMMY_STAFF = {
@@ -123,10 +127,40 @@ const PERFORMANCE_HISTORY = [
 
 const StaffProfileView = ({ staff, onProfileEditComplete }: { staff: any; onProfileEditComplete: any; }) => {
     const [openProfileEditor, set_openProfileEditor] = useState(false)
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
+    const [updateUserPassword] = useMutation(UPDATE_USER_PWD);
 
     function _onProfileEditComplete(args: any){
         onProfileEditComplete(args)
         set_openProfileEditor(false)
+    }
+
+    const onPasswordUpdate = async (values: any) => {
+        if (!staff?._id) {
+            message.error("Unable to update password: user reference is missing");
+            return false;
+        }
+
+        if (!values?.password || values.password !== values?.password_confirm) {
+            message.error("Password and confirmation do not match");
+            return false;
+        }
+
+        const input = {
+            _id: staff._id,
+            password: values.password,
+        };
+
+        const results = await updateUserPassword({ variables: { input } }).then((r: any) => r?.data?.updateUserPassword);
+
+        if (!results || results.error) {
+            message.error((results && results.error?.message) || "Unable to update password");
+            return false;
+        }
+
+        message.success("Password updated successfully");
+        setIsPasswordModalOpen(false);
+        return "reset";
     }
 
     return (<>
@@ -152,7 +186,8 @@ const StaffProfileView = ({ staff, onProfileEditComplete }: { staff: any; onProf
             <div style={{ position:"absolute", top:10, right:10 }}>
                 <PopMenu orientation="vertical" size="small" shape="round" placement="leftTop" items={[
                     { onClick: () => set_openProfileEditor(true), label: "Edit" },
-                    { onClick: () => console.log("field._id"), label: "Reset Password", type: 'delete' }
+                    { onClick: () => setIsPasswordModalOpen(true), label: "Change Password" },
+                    // { onClick: () => console.log("field._id"), label: "Reset Password", type: 'delete' }
                 ]} />
             </div>
             {/* <div style={{ textAlign: 'center', marginBottom: 20 }}></div> */}
@@ -177,6 +212,58 @@ const StaffProfileView = ({ staff, onProfileEditComplete }: { staff: any; onProf
         <Drawer open={openProfileEditor} onClose={() => set_openProfileEditor(false)}>
             {openProfileEditor && <><StaffEditForm user_id={staff._id} onSuccess={_onProfileEditComplete} /></>}
         </Drawer>
+
+        <Modal
+            title="Update User Password"
+            open={isPasswordModalOpen}
+            footer={null}
+            onCancel={() => setIsPasswordModalOpen(false)}
+            width={500}
+        >
+            {isPasswordModalOpen && (
+                <FinalForm
+                    onSubmit={onPasswordUpdate}
+                    render={(formargs: any) => {
+                        const { handleSubmit, submitting, invalid } = formargs;
+
+                        return (
+                            <form id="staff_password_reset_form" onSubmit={handleSubmit}>
+                                <Row gutter={[10, 20]}>
+                                    <Col span={24}>
+                                        <FormField
+                                            name="password"
+                                            label="New Password"
+                                            type="password"
+                                            validate={rules.required}
+                                        />
+                                    </Col>
+                                    <Col span={24}>
+                                        <FormField
+                                            name="password_confirm"
+                                            label="Confirm Password"
+                                            type="password"
+                                            validate={rules.required}
+                                        />
+                                    </Col>
+                                </Row>
+
+                                <div style={{ marginTop: 24, textAlign: "right" }}>
+                                    <Button onClick={() => setIsPasswordModalOpen(false)} style={{ marginRight: 8 }}>
+                                        Cancel
+                                    </Button>
+                                    <SubmitButton
+                                        loading={submitting}
+                                        disabled={invalid || submitting}
+                                        color="primary"
+                                        label="Update Password"
+                                    />
+                                </div>
+                            </form>
+                        );
+                    }}
+                />
+            )}
+        </Modal>
 
 
     </>)
