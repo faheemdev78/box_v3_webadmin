@@ -525,6 +525,8 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
             }
         }
     ];
+    const isCreatingView = showAddNewForm === true;
+    const editingViewConfig = showAddNewForm && typeof showAddNewForm === 'object' ? showAddNewForm : null;
 
     return (<>
         <TabBar
@@ -576,14 +578,14 @@ export function ViewFilter({ config, views, callbacks }: ViewFilterProps) {
             />
         </Drawer>
 
-        <Drawer title={`${showAddNewForm === true ? 'Create' : 'Edit'} View`} footer={false} open={showAddNewForm !== false} destroyOnHidden={true} onClose={() => set_showAddNewForm(false)} styles={{ body:{ padding:"15px" } }} size={600}>
+        <Drawer title={`${isCreatingView ? 'Create' : 'Edit'} View`} footer={false} open={showAddNewForm !== false} destroyOnHidden={true} onClose={() => set_showAddNewForm(false)} styles={{ body:{ padding:"15px" } }} size={600}>
             {showAddNewForm !== false && <>
                 <FitlerForm
-                    initialValues={showAddNewForm === true ? {} : {
-                        ...showAddNewForm,
-                        _id: showAddNewForm.id,
-                        columns: Array.isArray(showAddNewForm.columns)
-                            ? showAddNewForm.columns.map((c: any) => (typeof c === 'string' ? c : c.key))
+                    initialValues={!editingViewConfig ? {} : {
+                        ...editingViewConfig,
+                        _id: editingViewConfig.id,
+                        columns: Array.isArray(editingViewConfig.columns)
+                            ? editingViewConfig.columns.map((c: any) => (typeof c === 'string' ? c : c.key))
                             : config.defaultColumns
                     }}
                     config={config}
