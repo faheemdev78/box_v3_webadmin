@@ -136,7 +136,8 @@ function OrderPreview() {
     // Format currency
     const formatCurrency = (amount: number) => {
         const safeAmount = Number.isFinite(amount) ? amount : 0;
-        return `${settings?.currency || '$'} ${(safeAmount / 100).toFixed(2)}`;
+        return `${settings?.currency || 'RS'} ${(safeAmount).toFixed(2)}`;
+        // return `${settings?.currency || 'RS'} ${(safeAmount / 100).toFixed(2)}`;
     };
 
     // Order items table columns
