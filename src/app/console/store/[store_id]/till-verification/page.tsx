@@ -36,7 +36,7 @@ import { getActiveShift, getTillVerification } from '@/rStore/slices/tillVerific
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import duration from 'dayjs/plugin/duration';
-import { Loader, OrderTable, Button, usePageProps, DevBlock, Icon } from '@/components';
+import { Loader, OrderTable, Button, usePageProps, DevBlock, Icon, BarcodeScanner } from '@/components';
 import { adminRoot, defaultPageSize, defaultPagination } from '@/configs';
 import Link from 'next/link';
 import { Page } from '@/template';
@@ -209,6 +209,23 @@ function TillOrders(){
     fetchData({})
   }, [called, loading])
 
+  const handleScan = (barcode:string) => {
+    console.log("********** Till List Scanned *******", barcode);
+    // if (!this.props.ordersQuery.edges) return;
+
+    // // match basket
+    // const found = this.props.ordersQuery.edges.find(o => {
+    //   return o.picker_baskets.find(oo => oo.barcode == barcode);
+    // })
+
+    // if (!found) {
+    //   message.error(`Invalid barcode scanned for picker basket (${barcode})!`);
+    //   return;
+    // }
+
+    // this.props.history.push(`${this.props.path}/id/${found._id}`);
+  }
+
 
   return (<>
     {/* Shift Status Banner */}
@@ -249,6 +266,7 @@ function TillOrders(){
       </Card>
     )} */}
 
+    <BarcodeScanner onScan={handleScan} onError={console.log} />
     
     <Page>
 

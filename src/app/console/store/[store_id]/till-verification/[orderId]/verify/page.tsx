@@ -7,6 +7,7 @@
 
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { Card, Row, Col, Space, Typography, Modal, Input, message, Progress, Tag, Alert, InputNumber, Tooltip } from 'antd';
+import BarcodePackage from 'react-barcode';
 import { 
   CloseCircleOutlined, WarningOutlined, ClockCircleOutlined, EditOutlined,
   CheckCircleOutlined, LeftOutlined, ExclamationCircleOutlined, PrinterOutlined } from '@ant-design/icons';
@@ -20,7 +21,7 @@ import { useStartOrderVerification, useCompleteOrderVerification,
   useMyActiveTillShift, usePrintTillReceipt, useOpenTillShift, useUpdateTillVerificationBaskets, useUpdateTillVerificationBags, useRemoveOrderFromTillSession
 } from '@/hooks/useTillVerification';
 import { adminRoot } from '@/configs';
-import { Avatar, DevBlock, Button, IconButton, Loader, Table, usePageProps, Icon, Drawer, PopMenu } from '@/components';
+import { Avatar, DevBlock, Button, IconButton, Loader, Table, usePageProps, Icon, Drawer, PopMenu, BarcodeScanner } from '@/components';
 import { Page } from '@/template';
 // import { ItemVerificationRow } from '@/modules/orders/tillVerification/ItemVerificationRow';
 import dayjs from 'dayjs';
@@ -287,7 +288,7 @@ const ProductHolder = ({ item, orderData }: {
     }
   };
 
-  console.log({ pickedItem })
+  // console.log({ pickedItem })
 
   return (<div className='relative flex flex-col overflow-hidden w-full h-[230px] bg-white border border-gray-200 rounded-2xl shadow-md'>
     <div className='absolute top-2 right-2 z-999'><PopMenu orientation="vertical" placement="leftTop"
@@ -300,6 +301,13 @@ const ProductHolder = ({ item, orderData }: {
       <Row className='nowrap'>
         <Col flex="130px">
           <div className='bg-blue-300 w-[130px] h-[150px] flex justify-center' style={{ marginRight:"10px" }}>pic</div>
+          <BarcodePackage
+            value={item.barcode} //{`doReadyForDispatch`}
+            width={1.2}
+            height={20}
+            format={"CODE128"}
+            displayValue={item.barcode}
+          />
           {/* <Tag color={item.status =='out_of_stock' ? "red" : "gray"} variant="solid">{item.status}</Tag> */}
           {/* <div style={{ padding:"2px 0 0 0"}}>{!!item.issue_reason && <Tooltip trigger='click' title={item.issue_reason} placement='top'><Button size="small" color="red" icon={<Icon icon="exclamation" />}>Mismatch</Button></Tooltip>}</div> */}
         </Col>
@@ -437,6 +445,8 @@ const RightColumn = ({
   const { verifyItem, loading: verifyLoading } = useVerifyOrderItem();
   const { markMissing, loading: missingLoading } = useMarkOrderItemMissing();
   const { markMismatch, loading: mismatchLoading } = useMarkOrderItemMismatch();
+
+  const [scaned, setScaned] = useState(null)
 
   const orderItems = orderData?.current_order?.items || [];
   const totalBaskets = (orderData?.current_order?.baskets || []).length;
@@ -587,6 +597,12 @@ const RightColumn = ({
     }
   };
 
+  const handleScan = (barcode:string) => {
+    console.log("********** Till List Scanned *******", barcode);
+    if (barcode) setScaned(barcode)
+    // selectItem(item)
+  }
+
   return (<div className='w-120 border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
     <div className="flex-1 w-full p-4 bg-gray-50/50 overflow-y-auto">
       <div className='flex flex-col p-10'>
@@ -597,6 +613,8 @@ const RightColumn = ({
             onChange={(e) => setBarcodeQuery(e.target.value)}
             onPressEnter={handleBarcodeSearch}
           />
+          <BarcodeScanner onScan={handleScan} onError={console.log} />
+          <div>scaned: {scaned}</div>
         </div>
         {normalizedQuery && (
           <div className='flex flex-wrap gap-2 mt-10'>

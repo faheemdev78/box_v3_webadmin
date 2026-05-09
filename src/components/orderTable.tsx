@@ -4,6 +4,7 @@ import { Table } from './table';
 import Link from 'next/link';
 import { adminRoot, defaultDateTimeFormat } from '@/configs';
 import { useAppSelector } from '@/rStore/hooks';
+import BarcodePackage from 'react-barcode';
 import { getSettings } from '@/rStore/slices/systemSlice';
 import { Icon } from './icon';
 import { message, Popconfirm, Space, Tag, Typography } from 'antd';
@@ -137,7 +138,14 @@ export function OrderTable({
             render: (__: any, rec: any) => {
                 const { current_order, serial } = rec;
                 return (<>
-                    <Link href={getOrderPreviewHref(rec)}>{serial}</Link>
+                    {/* <Link href={getOrderPreviewHref(rec)}>{serial}</Link> */}
+                    <div><Link href={getOrderPreviewHref(rec)}><BarcodePackage
+                        value={serial} //{`doReadyForDispatch`}
+                        width={2}
+                        height={30}
+                        format={"CODE128"}
+                        displayValue={serial}
+                    /></Link></div>
                     {(current_order && current_order.baskets) && <div>
                         {current_order?.baskets?.map((basket: any, i: number) => (<Tag key={i}>{basket.title}</Tag>))}
                     </div>}
