@@ -436,6 +436,7 @@ const RightColumn = ({
   // flex flex-1 flex-col items-start w-full bg-gray-50/50 overflow-y-auto
   const [barcodeQuery, setBarcodeQuery] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [scaned, setScaned] = useState<string | null>(null)
   const [selectedQty, setSelectedQty] = useState(0);
   const [showMismatchModal, setShowMismatchModal] = useState(false);
   const [mismatchQty, setMismatchQty] = useState(0);
@@ -446,7 +447,6 @@ const RightColumn = ({
   const { markMissing, loading: missingLoading } = useMarkOrderItemMissing();
   const { markMismatch, loading: mismatchLoading } = useMarkOrderItemMismatch();
 
-  const [scaned, setScaned] = useState(null)
 
   const orderItems = orderData?.current_order?.items || [];
   const totalBaskets = (orderData?.current_order?.baskets || []).length;
