@@ -600,8 +600,11 @@ const RightColumn = ({
   const handleScan = (barcode:string) => {
     console.log("********** Till List Scanned *******", barcode);
     if (barcode) setScaned(barcode)
-    const item = orderItems.find(o => o.barcode == barcode)
-    if (!item) return;
+    const item = orderItems.find((o:any) => o.barcode === barcode)
+    if (!item) {
+      console.log("Item not found: ", barcode)
+      return;
+    }
     selectItem(item)
   }
 

@@ -277,8 +277,11 @@ export function OrderTable({
 
         <BarcodeScanner onScan={(val:string) => {
             if (!val) return;
-            const thisOrder = dataSource?.find(o=>o.serial == val)
-            if (!thisOrder) return;
+            const thisOrder = dataSource?.find((o:any) => o.serial === val)
+            if (!thisOrder) {
+                console.log("Order not found: ", val)
+                return;
+            }
             const url = `${adminRoot}/store/${thisOrder.store._id}/till-verification/${thisOrder._id}/verify`;
             router.push(url)
         }} onError={console.log} />
