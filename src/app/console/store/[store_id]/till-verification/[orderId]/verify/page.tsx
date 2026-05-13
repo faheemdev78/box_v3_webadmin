@@ -600,7 +600,9 @@ const RightColumn = ({
   const handleScan = (barcode:string) => {
     console.log("********** Till List Scanned *******", barcode);
     if (barcode) setScaned(barcode)
-    // selectItem(item)
+    const item = orderItems.find(o => o.barcode == barcode)
+    if (!item) return;
+    selectItem(item)
   }
 
   return (<div className='w-120 border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
@@ -614,7 +616,7 @@ const RightColumn = ({
             onPressEnter={handleBarcodeSearch}
           />
           <BarcodeScanner onScan={handleScan} onError={console.log} />
-          <div>scaned: {scaned}</div>
+          {/* <div>scaned: {scaned}</div> */}
         </div>
         {normalizedQuery && (
           <div className='flex flex-wrap gap-2 mt-10'>

@@ -6,6 +6,7 @@ import { adminRoot, defaultDateTimeFormat } from '@/configs';
 import { useAppSelector } from '@/rStore/hooks';
 import BarcodePackage from 'react-barcode';
 import { getSettings } from '@/rStore/slices/systemSlice';
+import { BarcodeScanner } from './BarcodeScanner';
 import { Icon } from './icon';
 import { message, Popconfirm, Space, Tag, Typography } from 'antd';
 import moment from 'moment';
@@ -223,7 +224,6 @@ export function OrderTable({
         { title: 'Updated', dataIndex: ['updatedAt'], key: 'updatedAt', width: 115, align: 'left', 
             render: (updatedAt: string, rec: any) => (<div>{moment(updatedAt).format(defaultDateTimeFormat)}</div>)
         },
-
         { title: 'Actions', key: 'actions', width: 100, align: 'center',
             render: (_: any, record: any) => {
                 let hasActiosn = columns.find(o=>o.key=='actions')
@@ -274,6 +274,14 @@ export function OrderTable({
             >
             {refresh && <Button onClick={() => refresh()}>Refresh</Button>}
         </ PageHeader> */}
+
+        <BarcodeScanner onScan={(val:string) => {
+            if (!val) return;
+            const thisOrder = dataSource?.find(o=>o.serial == val)
+            if (!thisOrder) return;
+            const url = `${adminRoot}/store/${thisOrder.store._id}/till-verification/${thisOrder._id}/verify`;
+            router.push(url)
+        }} onError={console.log} />
 
         <Table
             bordered
