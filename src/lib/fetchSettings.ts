@@ -17,10 +17,10 @@ export async function fetchSettings() {
         query: GET_CONFIGS,
         fetchPolicy: 'network-only',
     })
-    // .then(r=>{
-    //     console.log("R: ", r)
-    //     return r;
-    // })
+    .then(r=>{
+        console.log("fetchSettings > R: ", r)
+        return r;
+    })
         .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: { data?: { getSystemConfigs?: any[] } }) => rr?.data?.getSystemConfigs }))
         .catch(catchApolloError)
 
