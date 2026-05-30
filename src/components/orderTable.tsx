@@ -84,6 +84,8 @@ export function OrderTable({
     const [loading, setLoading] = useState(false)
     const settings = useAppSelector(getSettings);
 
+    // console.log("OrderTable: ", dataSource)
+
     const router = useRouter()
     const getOrderPreviewHref = (order: any) => {
         const storeId = order?.store?._id || order?._id_store;
@@ -159,6 +161,13 @@ export function OrderTable({
                 <UserOutlined />
                 <Text>{customer?.name || 'N/A'}</Text>
             </Space>),
+        },
+        { title: 'Baskets', width: 180, key: 'baskets', dataIndex: ['processing_stages', 'picking', 'handled_by'],
+            render:(___:string, rec:any) => {
+                if (rec?.processing_stages?.till_verification?.baskets?.length)
+                    return <Space>{rec.processing_stages.till_verification.baskets.map((basket: any, i: number) => (<Tag color='gray' key={i}>{basket.title}</Tag>))}</Space>
+                return <Space>{rec?.processing_stages?.picking?.baskets?.map((basket: any, i: number) => (<Tag color='gray' key={i}>{basket.title}</Tag>))}</Space>
+            }
         },
         { title: 'Picker', width: 180, key: 'picker', dataIndex: ['processing_stages', 'picking', 'handled_by'],
             render: (handledBy: any) => (<Space>
@@ -241,13 +250,13 @@ export function OrderTable({
 
                         {((record.locked_by && record.is_locked_by_me) || !record.locked_by) && <>
                             <Button size="small" color="blue"
-                                onClick={() => router.push(`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`)}
+                                onClick={() => router.push(`${adminRoot}/store/${record.store._id}/till-verification/${record.barcode}/verify`)}
                                 icon={<PlayCircleOutlined />}>{record.is_locked_by_me ? 'Resume' : 'Start'}</Button>
                         </>}
                     </>}
 
                     {(record.locked_by && hasActiosn?.options?.till_verification) && <>
-                        <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`}><Space size={2}>
+                        <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record.barcode}/verify`}><Space size={2}>
                             <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
                         </Space></Link>
                     </>}
@@ -275,16 +284,16 @@ export function OrderTable({
             {refresh && <Button onClick={() => refresh()}>Refresh</Button>}
         </ PageHeader> */}
 
-        <BarcodeScanner onScan={(val:string) => {
+        {/* <BarcodeScanner onScan={(val:string) => {
             if (!val) return;
             const thisOrder = dataSource?.find((o:any) => o.serial === val)
             if (!thisOrder) {
                 console.log("Order not found: ", val)
                 return;
             }
-            const url = `${adminRoot}/store/${thisOrder.store._id}/till-verification/${thisOrder._id}/verify`;
+            const url = `${adminRoot}/store/${thisOrder.store._id}/till-verification/${thisOrder.barcode}/verify`;
             router.push(url)
-        }} onError={console.log} />
+        }} onError={console.log} /> */}
 
         <Table
             bordered

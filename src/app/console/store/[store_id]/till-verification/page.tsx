@@ -22,7 +22,7 @@
  * Updated for shift-based system
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Card, Table, Tag, Space, Typography, Empty, message, Modal, Input, Alert, Row, Col } from 'antd';
 import { LogoutOutlined, LoginOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
@@ -114,7 +114,7 @@ function ActiveSession({ store, onSessionUpdate }:{
           {activeShift?.till_verification_orders?.length > 0 && <>
             <Text strong>Orders on Hold: </Text>
             <Space>{activeShift.till_verification_orders.map((order:any, i:number) => {
-              return <Link href={`${adminRoot}/store/${activeShift._id_store}/till-verification/${order._id_order}/verify`} key={i}><Tag color="yellow">{order.order_serial}</Tag></Link>
+              return <Link href={`${adminRoot}/store/${activeShift._id_store}/till-verification/${order.order_serial}/verify`} key={i}><Tag color="yellow">{order.order_serial}</Tag></Link>
             })}</Space>
           </>}
         
@@ -147,22 +147,38 @@ function TillOrders(){
   const router = useRouter();
   const settings = useAppSelector(getSettings);
   const tillVerification = useAppSelector(getTillVerification);
-  // console.log("tillVerification: ", tillVerification)
+  const storeRef = useRef(store);
+  console.log("store: ", store)
 
-  const [state, setState] = useState({
+  const [state, setState] = useState<any>({
       pagination: defaultPagination,
       dataSource: null,
       filter: { },
       others: { },
   })
+  const stateRef = useRef<any>(state);
+  console.log("--- state.dataSource: ", state.dataSource)
   // const [showCloseShiftModal, setShowCloseShiftModal] = useState(false);
   // const [closeNotes, setCloseNotes] = useState('');
 
-  const [ordersOnTillQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { 
+  const [ordersOnTillQuery, { called, loading, ...orderQueryData }] = useLazyQuery<any>(LIST_DATA, { 
         fetchPolicy: 'network-only',
         pollInterval: 60 * 1000, // Refresh every 10 seconds
       }
   );
+  const orderQueryDataRef = useRef(orderQueryData);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  useEffect(() => {
+    storeRef.current = store;
+  }, [store]);
+
+  useEffect(() => {
+    orderQueryDataRef.current = orderQueryData;
+  }, [orderQueryData]);
 
   // const { orders: lockedOrders, loading: lockedLoading } = useMyLockedOrders();
   
@@ -190,44 +206,54 @@ function TillOrders(){
           return;
       }
 
-      setState({
-          ...state,
-          pagination: { 
-              ...state.pagination,
+      setState((currentState) => {
+        const nextState = {
+          ...currentState,
+          pagination: {
+              ...currentState.pagination,
               current: resutls.pagination.page,
               total: resutls.pagination.totalDocs,
               pageSize: resutls.pagination.limit,
           },
           filter: variables.filter,
           dataSource: resutls?.edges,
+        };
+
+        stateRef.current = nextState;
+        return nextState;
       })
 
   }
+
+  const handleScan = useCallback((barcode: string) => {
+    const orderSerial = String(barcode || '').trim();
+    const orders = stateRef.current.dataSource || [];
+    const currentStore = storeRef.current;
+
+    console.log("********** Till List Scanned *******", orderSerial);
+    console.log("state.dataSource: ", orders);
+    console.log("orderQueryData: ", orderQueryDataRef.current);
+
+    if (!orderSerial) return;
+
+    const order = orders.find((o: any) => String(o?.serial || '').trim() === orderSerial);
+    if (!order) {
+      message.error(`Order ${orderSerial} is not in the current till list`);
+      return;
+    }
+
+    router.push(`${adminRoot}/store/${order?.store?._id || currentStore._id}/till-verification/${order.serial}/verify`);
+  }, [router])
+
   
   useEffect(() => {
     if (called || loading) return;
     fetchData({})
   }, [called, loading])
 
-  const handleScan = (barcode:string) => {
-    console.log("********** Till List Scanned *******", barcode);
-    // if (!this.props.ordersQuery.edges) return;
-
-    // // match basket
-    // const found = this.props.ordersQuery.edges.find(o => {
-    //   return o.picker_baskets.find(oo => oo.barcode == barcode);
-    // })
-
-    // if (!found) {
-    //   message.error(`Invalid barcode scanned for picker basket (${barcode})!`);
-    //   return;
-    // }
-
-    // this.props.history.push(`${this.props.path}/id/${found._id}`);
-  }
-
-
   return (<>
+    <BarcodeScanner onScan={handleScan} debugLabel="TillOrdersScanner" />
+
     {/* Shift Status Banner */}
     <ActiveSession store={store} onSessionUpdate={() => fetchData({})} />
 
@@ -266,8 +292,6 @@ function TillOrders(){
       </Card>
     )} */}
 
-    <BarcodeScanner onScan={handleScan} onError={console.log} />
-    
     <Page>
 
       <Card
@@ -280,7 +304,7 @@ function TillOrders(){
       >
         <OrderTable
           busy={false}
-          columns={['serial', 'customer', 'picker', 'order', 'delivery_slot', 'status', 'createdAt', {
+          columns={['serial', 'customer', 'baskets', 'picker', 'order', 'delivery_slot', 'status', 'createdAt', {
             key: 'actions',
             options: { reset: false, till_verification: true }
           }]}

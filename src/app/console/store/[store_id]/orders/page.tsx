@@ -477,13 +477,13 @@ function OrdersListPage(props:any) {
 
                         {((record.locked_by && record.is_locked_by_me) || !record.locked_by) && <>
                             <Button size="small" color="blue"
-                                onClick={() => router.push(`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`)}
+                                onClick={() => router.push(`${adminRoot}/store/${record.store._id}/till-verification/${record.barcode}/verify`)}
                                 icon={<PlayCircleOutlined />}>{record.is_locked_by_me ? 'Resume' : 'Start'}</Button>
                         </>}
                     </>}
 
                     {(record.locked_by && hasActiosn?.options?.till_verification) && <>
-                        <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record._id}/verify`}><Space size={2}>
+                        <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record.barcode}/verify`}><Space size={2}>
                             <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
                         </Space></Link>
                     </>}

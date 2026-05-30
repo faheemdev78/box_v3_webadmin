@@ -233,6 +233,7 @@ export function ProductImageManager({ session, ...props }) {
                             },
                         }}
                         folder={`prod/${initialValues._id}`}
+                        uploadMode='immediate'
                         disabled={!canEdit}
                         onUpload={e => {
                             on_uploadMainImage(e)
@@ -259,6 +260,7 @@ export function ProductImageManager({ session, ...props }) {
                             },
                         }}
                         folder={`prod/${initialValues._id}`}
+                        uploadMode='immediate'
                         disabled={!canEdit}
                         onUpload={e => {
                             on_uploadVideo(e)
@@ -286,6 +288,7 @@ export function ProductImageManager({ session, ...props }) {
                         },
                     }}
                     folder={`prod/${initialValues._id}`}
+                    uploadMode='immediate'
                     disabled={!canEdit}
                     onUpload={e => {
                         on_uploadGallImages(e)

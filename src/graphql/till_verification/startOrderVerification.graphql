@@ -6,8 +6,8 @@
 #import "../order/_fragment/OrderDeliverySlot.graphql"
 #import "../order/_fragment/ProcessingData.graphql"
 
-mutation StartOrderVerification($_id_order: ID!) {
-  startOrderVerification(_id_order: $_id_order) {
+mutation StartOrderVerification($_id_order: ID, $order_barcode: String) {
+  startOrderVerification(_id_order: $_id_order, order_barcode: $order_barcode) {
     order {
       _id
       serial

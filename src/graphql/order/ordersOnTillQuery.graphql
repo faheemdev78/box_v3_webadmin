@@ -18,6 +18,18 @@ query ordersOnTillQuery($limit: Int, $page: Int, $filter: String, $others:String
             original_order {
                 totals { ...OrderTotalsInfo }
             }
+            processing_stages {
+                picking {
+                    baskets {
+                        title
+                    }
+                }
+                till_verification {
+                    baskets {
+                        title
+                    }
+                }
+            }
             # current_order: ProcessingData
             # processing_stages {
             #     picking: ProcessingData

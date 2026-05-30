@@ -7,7 +7,7 @@ import { message, Row, Col, Modal } from 'antd';
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client/react';
 import { basketCategories } from '@/configs';
 import { __error } from '@/lib/consoleHelper';
-import { checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
 import RECORD_ADD from '@/graphql/baskets/addBasket.graphql';
 import RECORD_EDIT from '@/graphql/baskets/editBasket.graphql';
@@ -35,18 +35,13 @@ function FormComp({ initialValues = defaultFields, onSuccess, store, ...props })
             
             results = await editBasket({ variables: { input } })
                 .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.editBasket }))
-            .catch(error => {
-                console.log(error);
-                return { error:{ message: "Request Error!" } }
-            });
+                .catch(catchApolloError);
         } else {
             Object.assign(input, { _id_store: store._id, })
 
-            results = await addBasket({ variables: { input } }).then((r) => (r?.data?.addBasket))
-            .catch(error => {
-                console.log(error);
-                return { error: { message: "Request Error!" } }
-            });
+            results = await addBasket({ variables: { input } })
+                .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr) => rr?.data?.addBasket }))
+                .catch(catchApolloError);
         }
 
         if (!results || results.error){
@@ -68,6 +63,7 @@ function FormComp({ initialValues = defaultFields, onSuccess, store, ...props })
 
                         <Row gutter={[10, 10]}>
                             <Col span={24}><FormField type="text" name="title" label="Title" validate={rules.required} /></Col>
+                            <Col span={24}><FormField type="text" name="barcode" label="Barcode" validate={rules.required} /></Col>
                             <Col span={10}><FormField type="text" name="color" label="Color (#FFFFFF)" validate={[rules.required, rules.minChar(7)]} /></Col>
                             <Col span={14}><FormField type="select" options={basketCategories} name="category" label="Category" validate={rules.required} /></Col>
 

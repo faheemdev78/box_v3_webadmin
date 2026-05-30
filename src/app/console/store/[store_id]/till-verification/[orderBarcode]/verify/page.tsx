@@ -6,8 +6,9 @@
  */
 
 import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { Card, Row, Col, Space, Typography, Modal, Input, message, Progress, Tag, Alert, InputNumber, Tooltip } from 'antd';
+import { Card, Row, Col, Space, Typography, Modal, Input, message, Progress, Tag, Alert, InputNumber, Tooltip, Popover } from 'antd';
 import BarcodePackage from 'react-barcode';
+import { useQuery } from '@apollo/client/react';
 import { 
   CloseCircleOutlined, WarningOutlined, ClockCircleOutlined, EditOutlined,
   CheckCircleOutlined, LeftOutlined, ExclamationCircleOutlined, PrinterOutlined } from '@ant-design/icons';
@@ -31,6 +32,8 @@ import Link from 'next/link';
 import { utcToDate } from '@/lib/utill';
 import { AddBaskets } from './components/AddBaskets';
 import AddBags from './components/AddBags';
+import GET_AVAILABLE_BASKETS from '@/graphql/baskets/getAvailableBaskets.graphql';
+import GET_BAGS from '@/graphql/bags/bags.graphql';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -81,6 +84,19 @@ const getVerificationStatusFromItem = (item: any) => ({
   notes: item.issue_reason || '',
   verified_at: item.verified_at || null,
 });
+
+const normalizeBarcode = (barcode: any) => String(barcode || '').trim();
+
+const findByBarcode = <T extends { barcode?: string }>(items: T[] = [], barcode: string) => {
+  const targetBarcode = normalizeBarcode(barcode);
+  if (!targetBarcode) return undefined;
+
+  return items.find((item) => normalizeBarcode(item?.barcode) === targetBarcode);
+};
+
+const getScanLabel = (item: any, fallback = 'item') => {
+  return item?.title || item?.size || item?.barcode || fallback;
+};
 
 const getPickedQtyFromProcessingStage = (orderData: any, item: any) => {
   const pickedItem = orderData?.processing_stages?.picking?.items?.find(
@@ -291,23 +307,32 @@ const ProductHolder = ({ item, orderData }: {
   // console.log({ pickedItem })
 
   return (<div className='relative flex flex-col overflow-hidden w-full h-[230px] bg-white border border-gray-200 rounded-2xl shadow-md'>
-    <div className='absolute top-2 right-2 z-999'><PopMenu orientation="vertical" placement="leftTop"
-      items={[
-        { onClick: handleDropItem, label: "Drop Item", confirm: "Are you sure to drop this item?", hide: item.processed_qty < 1 && !!item.issue_reason==false },
-        { onClick: () => setShowMissingModal(true), label: 'Unavailable' }
-      ]}
-    ></PopMenu></div>
+    <div className='absolute top-2 right-2 z-999'>
+      <PopMenu orientation="vertical" placement="leftTop"
+        items={[
+          { onClick: handleDropItem, label: "Drop Item", confirm: "Are you sure to drop this item?", hide: item.processed_qty < 1 && !!item.issue_reason==false },
+          { onClick: () => setShowMissingModal(true), label: 'Unavailable' }
+        ]}
+      ></PopMenu>
+      {/* <Popover content={<BarcodePackage
+        value={item.barcode} //{`doReadyForDispatch`}
+        width={2.0}
+        height={30}
+        format={"CODE128"}
+        displayValue={item.barcode}
+      />} title={false}><IconButton icon={<Icon icon="barcode" />} /></Popover> */}
+    </div>
     <div className='flex-full flex flex-col flex-1 min-w-0 p-10'>
       <Row className='nowrap'>
         <Col flex="130px">
           <div className='bg-blue-300 w-[130px] h-[150px] flex justify-center' style={{ marginRight:"10px" }}>pic</div>
-          <BarcodePackage
+          {/* <BarcodePackage
             value={item.barcode} //{`doReadyForDispatch`}
             width={1.2}
             height={20}
             format={"CODE128"}
             displayValue={item.barcode}
-          />
+          /> */}
           {/* <Tag color={item.status =='out_of_stock' ? "red" : "gray"} variant="solid">{item.status}</Tag> */}
           {/* <div style={{ padding:"2px 0 0 0"}}>{!!item.issue_reason && <Tooltip trigger='click' title={item.issue_reason} placement='top'><Button size="small" color="red" icon={<Icon icon="exclamation" />}>Mismatch</Button></Tooltip>}</div> */}
         </Col>
@@ -423,6 +448,7 @@ const RightColumn = ({
   showPrint,
   orderData,
   orderId,
+  productScanRequest,
   onShowExcessiveItem
 }: {
   showBags: () => void;
@@ -430,11 +456,13 @@ const RightColumn = ({
   showPrint: () => void;
   orderData: any;
   orderId: string;
+  productScanRequest?: { barcode: string; key: number } | null;
   onShowExcessiveItem: (item: any, qty: number) => void;
 }) => {
   {/* C4: 300px fixed width */}
   // flex flex-1 flex-col items-start w-full bg-gray-50/50 overflow-y-auto
   const [barcodeQuery, setBarcodeQuery] = useState('');
+  const [submittedBarcodeQuery, setSubmittedBarcodeQuery] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [scaned, setScaned] = useState<string | null>(null)
   const [selectedQty, setSelectedQty] = useState(0);
@@ -443,6 +471,8 @@ const RightColumn = ({
   const [mismatchNotes, setMismatchNotes] = useState('');
   const [mismatchItem, setMismatchItem] = useState<any>(null);
   const [mismatchExpectedQty, setMismatchExpectedQty] = useState(0);
+  const selectedProductIdRef = useRef<string | null>(null);
+  const selectedQtyRef = useRef(0);
   const { verifyItem, loading: verifyLoading } = useVerifyOrderItem();
   const { markMissing, loading: missingLoading } = useMarkOrderItemMissing();
   const { markMismatch, loading: mismatchLoading } = useMarkOrderItemMismatch();
@@ -467,7 +497,7 @@ const RightColumn = ({
   ).length;
   const originalOrderTotal = orderData?.original_order?.totals?.grandTotal ?? orderData?.current_order?.totals?.grandTotal ?? 0;
   const originalOrderQty = orderData?.original_order?.totals?.totalQuantity ?? orderData?.current_order?.totals?.totalQuantity ?? 0;
-  const normalizedQuery = barcodeQuery.trim().toLowerCase();
+  const normalizedQuery = submittedBarcodeQuery.trim().toLowerCase();
   const matchedItems = normalizedQuery
     ? orderItems.filter((item: any) => {
         const barcode = String(item.barcode || '').toLowerCase();
@@ -492,33 +522,57 @@ const RightColumn = ({
   useEffect(() => {
     if (!selectedItem) {
       setSelectedQty(0);
+      selectedQtyRef.current = 0;
       return;
     }
 
-    setSelectedQty(selectedItem.processed_qty ?? 0);
+    if (selectedProductIdRef.current === String(selectedItem._id_product)) {
+      return;
+    }
+
+    const nextQty = selectedItem.processed_qty ?? 0;
+    setSelectedQty(nextQty);
+    selectedQtyRef.current = nextQty;
   }, [selectedItem?.processed_qty, selectedProductId]);
 
   const selectItem = (item: any) => {
-    setSelectedProductId(String(item._id_product));
-    setSelectedQty(item.processed_qty ?? 0);
+    const productId = String(item._id_product);
+    const nextQty = item.processed_qty ?? 0;
+    selectedProductIdRef.current = productId;
+    selectedQtyRef.current = nextQty;
+    setSelectedProductId(productId);
+    setSelectedQty(nextQty);
   };
 
   const clearBarcodeSelection = () => {
     setBarcodeQuery('');
+    setSubmittedBarcodeQuery('');
+    selectedProductIdRef.current = null;
+    selectedQtyRef.current = 0;
     setSelectedProductId(null);
     setSelectedQty(0);
   };
 
   const handleBarcodeSearch = () => {
-    if (!normalizedQuery) {
+    const nextQuery = barcodeQuery.trim();
+    const nextNormalizedQuery = nextQuery.toLowerCase();
+
+    setSubmittedBarcodeQuery(nextQuery);
+
+    if (!nextNormalizedQuery) {
       setSelectedProductId(null);
       return;
     }
 
-    const exactMatch = matchedItems.find(
-      (item: any) => String(item.barcode || '').toLowerCase() === normalizedQuery
+    const nextMatchedItems = orderItems.filter((item: any) => {
+      const barcode = String(item.barcode || '').toLowerCase();
+      const title = String(item.title || '').toLowerCase();
+      return barcode.includes(nextNormalizedQuery) || title.includes(nextNormalizedQuery);
+    });
+    const exactMatch = nextMatchedItems.find(
+      (item: any) => String(item.barcode || '').toLowerCase() === nextNormalizedQuery
     );
-    const nextItem = exactMatch || matchedItems[0];
+    const nextItem = exactMatch || nextMatchedItems[0];
 
     if (!nextItem) {
       message.error('No item in this order matches that barcode');
@@ -531,38 +585,80 @@ const RightColumn = ({
 
   const updateSelectedQty = (delta: number) => {
     if (!selectedItem) return;
-    setSelectedQty((prev) => Math.max(0, prev + delta));
+    setSelectedQty((prev) => {
+      const nextQty = Math.max(0, prev + delta);
+      selectedQtyRef.current = nextQty;
+      return nextQty;
+    });
   };
 
-  const applySelectedQty = async () => {
-    if (!selectedItem) {
+  const applySelectedQty = async (_selectedItem?:any) => {
+    console.log("_selectedItem: ", _selectedItem)
+    // return;
+
+    if (!_selectedItem) {
       message.error('Select an item first');
       return;
     }
 
+    const _requestedQty = _selectedItem?.qty ?? 0;
+    const _selectedQty = _selectedItem?.selectedQty ?? 0;
+
     try {
-      if (selectedQty > requestedQty) {
-        onShowExcessiveItem(selectedItem, selectedQty);
+      if (_selectedQty > _requestedQty) {
+        onShowExcessiveItem(_selectedItem, _selectedQty);
         clearBarcodeSelection();
         return;
       }
 
-      if (selectedQty === requestedQty) {
-        await verifyItem(orderId, selectedItem._id_product, selectedQty);
-        message.success(`${selectedItem.title} verified`);
+      if (_selectedQty === _requestedQty) {
+        await verifyItem(orderId, _selectedItem._id_product, _selectedQty);
+        message.success(`${_selectedItem.title} verified`);
         clearBarcodeSelection();
         return;
       }
 
-      setMismatchItem(selectedItem);
-      setMismatchExpectedQty(requestedQty);
-      setMismatchQty(selectedQty);
+      setMismatchItem(_selectedItem);
+      setMismatchExpectedQty(_requestedQty);
+      setMismatchQty(_selectedQty);
       setShowMismatchModal(true);
       clearBarcodeSelection();
     } catch (error: any) {
       message.error(error.message || 'Failed to update scanned quantity');
     }
   };
+
+  // const applySelectedQty = async (_selectedItem?:any) => {
+  //   if (!_selectedItem && !selectedItem) {
+  //     message.error('Select an item first');
+  //     return;
+  //   }
+
+  //   const __selectedItem = _selectedItem || selectedItem;
+
+  //   try {
+  //     if (selectedQty > requestedQty) {
+  //       onShowExcessiveItem(selectedItem, selectedQty);
+  //       clearBarcodeSelection();
+  //       return;
+  //     }
+
+  //     if (selectedQty === requestedQty) {
+  //       await verifyItem(orderId, selectedItem._id_product, selectedQty);
+  //       message.success(`${selectedItem.title} verified`);
+  //       clearBarcodeSelection();
+  //       return;
+  //     }
+
+  //     setMismatchItem(selectedItem);
+  //     setMismatchExpectedQty(requestedQty);
+  //     setMismatchQty(selectedQty);
+  //     setShowMismatchModal(true);
+  //     clearBarcodeSelection();
+  //   } catch (error: any) {
+  //     message.error(error.message || 'Failed to update scanned quantity');
+  //   }
+  // };
 
   const handleMismatch = () => {
     if (!selectedItem) {
@@ -598,15 +694,39 @@ const RightColumn = ({
   };
 
   const handleScan = (barcode:string) => {
-    console.log("********** Till List Scanned *******", barcode);
-    if (barcode) setScaned(barcode)
-    const item = orderItems.find((o:any) => o.barcode === barcode)
+    const scannedBarcode = normalizeBarcode(barcode);
+
+    console.log("********** Till List Scanned *******", scannedBarcode);
+    if (scannedBarcode) setScaned(scannedBarcode)
+
+    const item = orderItems.find((o:any) => String(o.barcode || '').trim() === scannedBarcode)
     if (!item) {
-      console.log("Item not found: ", barcode)
+      console.log("Item not found: ", scannedBarcode)
       return;
     }
-    selectItem(item)
+
+    const productId = String(item._id_product);
+    const requestedQty = Number(item.qty ?? 0);
+    const currentQty = selectedProductIdRef.current === productId
+      ? selectedQtyRef.current
+      : Number(item.processed_qty ?? 0);
+    const nextQty = currentQty + 1;
+
+    selectedProductIdRef.current = productId;
+    selectedQtyRef.current = nextQty;
+    setSelectedProductId(productId);
+    setSelectedQty(nextQty);
+
+    if (requestedQty <= 1 || nextQty >= requestedQty) {
+      applySelectedQty({ ...item, selectedQty: nextQty });
+    }
   }
+
+  useEffect(() => {
+    if (!productScanRequest?.barcode) return;
+
+    handleScan(productScanRequest.barcode);
+  }, [productScanRequest?.key]);
 
   return (<div className='w-120 border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
     <div className="flex-1 w-full p-4 bg-gray-50/50 overflow-y-auto">
@@ -616,9 +736,12 @@ const RightColumn = ({
             placeholder="Search barcode of items in order"
             value={barcodeQuery}
             onChange={(e) => setBarcodeQuery(e.target.value)}
-            onPressEnter={handleBarcodeSearch}
+            onPressEnter={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleBarcodeSearch();
+            }}
           />
-          <BarcodeScanner onScan={handleScan} onError={console.log} />
           {/* <div>scaned: {scaned}</div> */}
         </div>
         {normalizedQuery && (
@@ -663,7 +786,7 @@ const RightColumn = ({
               </div>
               <IconButton icon="plus" onClick={() => updateSelectedQty(1)} disabled={!selectedItem || actionLoading} />
               <Button icon={<WarningOutlined />} onClick={handleMismatch} disabled={!selectedItem || actionLoading}>Qty Issue</Button>
-              <Button color='green' onClick={applySelectedQty} loading={actionLoading} disabled={!selectedItem}>OK</Button>
+              <Button color='green' onClick={() => applySelectedQty({ ...selectedItem, selectedQty })} loading={actionLoading} disabled={!selectedItem}>OK</Button>
             </Space>
           </div>
         </div>
@@ -1033,7 +1156,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const router = useRouter();
   const params = useParams()
 
-  const orderId = params.orderId as string
+  const orderBarcode = params.orderBarcode as string
 
   const settings = useAppSelector(getSettings);
   // const tillVerification = useAppSelector(getTillVerification);
@@ -1059,11 +1182,27 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const [showBaskets, set_showBaskets] = useState<boolean>(false);
   const [showPrint, set_showPrint] = useState<boolean>(false);
 
-  const initializedOrderIdRef = useRef<string | null>(null);
+  const initializedOrderBarcodeRef = useRef<string | null>(null);
   const invoicePreviewRef = useRef<HTMLDivElement | null>(null);
+  const productScanSeqRef = useRef(0);
+  const liveAttachmentScanRef = useRef<Set<string>>(new Set());
+  const [productScanRequest, setProductScanRequest] = useState<{ barcode: string; key: number } | null>(null);
+
+  const { data: availableBasketsData, loading: availableBasketsLoading, error: availableBasketsError, refetch: refetchAvailableBaskets } = useQuery<any>(GET_AVAILABLE_BASKETS, {
+    variables: { _id_store: store_id, category: 'dispatch', limit: 100 },
+    skip: !store_id,
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'cache-first',
+  });
+
+  const { data: bagsData, loading: bagsLoading, error: bagsError, refetch: refetchBags } = useQuery<any>(GET_BAGS, {
+    variables: { filter: JSON.stringify({ status: 'active' }) },
+    fetchPolicy: 'network-only',
+    nextFetchPolicy: 'cache-first',
+  });
 
   // Mutations
-  const { startOrder, called: calledStart } = useStartOrderVerification();
+  const { startOrder, called: calledStart, loading: verificationLoading } = useStartOrderVerification();
   const { completeOrder, loading: completingOrder } = useCompleteOrderVerification();
   const { removeOrderFromSession, loading: removingOrderFromSession } = useRemoveOrderFromTillSession();
   const { updateTillVerificationBaskets, loading: updatingBaskets } = useUpdateTillVerificationBaskets();
@@ -1071,21 +1210,21 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const { printReceipt, loading: printingReceipt } = usePrintTillReceipt();
 
 
-  const initializeOrder = async (targetOrderId: string) => {
+  const initializeOrder = async (targetOrderBarcode: string) => {
     console.log(__yellow("initializeOrder()"))
-    initializedOrderIdRef.current = targetOrderId;
+    initializedOrderBarcodeRef.current = targetOrderBarcode;
 
     try {
       // Always re-sync from backend on page load/refresh so persisted Redux
       // does not hide external order changes from another device/session.
-      const result = await startOrder(targetOrderId);
+      const result = await startOrder(undefined, targetOrderBarcode);
 
       if (result?.success?.message?.includes('Resuming')) message.info('Resuming order verification');
       else message.success('Order verification started');
 
     } catch (error: any) {
       console.error('Failed to start order:', error);
-      initializedOrderIdRef.current = null;
+      initializedOrderBarcodeRef.current = null;
       setFatelError(error.message || 'Failed to start order verification');
     }
   };
@@ -1100,7 +1239,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     }
 
     try {
-      await completeOrder(orderId, completeNotes);
+      await completeOrder(orderData._id, completeNotes);
       message.success('Order verification completed successfully!');
       setShowCompleteModal(false);
       setCompleteNotes('');
@@ -1114,7 +1253,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
         icon: <PrinterOutlined />,
         onOk: async () => {
           try {
-            const result = await printReceipt(orderId);
+            const result = await printReceipt(orderData._id);
             if (result?.receiptText) {
               setReceiptText(result.receiptText);
               setShowReceiptModal(true);
@@ -1139,7 +1278,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     basket: { _id: string; title: string },
     action: 'add' | 'remove'
   ) => {
-    const response = await updateTillVerificationBaskets(orderId, basket._id, action);
+    const response = await updateTillVerificationBaskets(orderData._id, basket._id, action);
     message.success(response?.success?.message || `Basket ${action}ed successfully`);
   };
 
@@ -1147,8 +1286,82 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     bag: { _id: string; size: string },
     action: 'add' | 'remove'
   ) => {
-    const response = await updateTillVerificationBags(orderId, bag._id, action);
+    const response = await updateTillVerificationBags(orderData._id, bag._id, action);
     message.success(response?.success?.message || `Bag ${action}ed successfully`);
+  };
+
+  const queueProductScan = (barcode: string) => {
+    productScanSeqRef.current += 1;
+    setProductScanRequest({ barcode, key: productScanSeqRef.current });
+  };
+
+  const runAttachmentScan = async (scanKey: string, task: () => Promise<void>) => {
+    if (liveAttachmentScanRef.current.has(scanKey)) return;
+
+    liveAttachmentScanRef.current.add(scanKey);
+    try {
+      await task();
+    } finally {
+      liveAttachmentScanRef.current.delete(scanKey);
+    }
+  };
+
+  const handleVerificationScan = async (rawBarcode: string) => {
+    const barcode = normalizeBarcode(rawBarcode);
+    if (!barcode) return;
+
+    console.log('Till verification scanned:', barcode);
+
+    if (!orderData?._id) {
+      message.error('Order is not loaded yet');
+      return;
+    }
+
+    try {
+      const product = findByBarcode(orderData?.current_order?.items || [], barcode);
+      if (product) {
+        queueProductScan(barcode);
+        return;
+      }
+
+      const attachedBasket = findByBarcode(orderData?.current_order?.baskets || [], barcode);
+      if (attachedBasket) {
+        message.info(`Basket ${getScanLabel(attachedBasket, 'basket')} is already attached`);
+        return;
+      }
+
+      if (availableBasketsLoading || bagsLoading) {
+        message.info('Basket and bag scanner data is still loading');
+        return;
+      }
+
+      if (availableBasketsError || bagsError) {
+        message.error(availableBasketsError?.message || bagsError?.message || 'Failed to load basket or bag scanner data');
+        return;
+      }
+
+      const availableBasket = findByBarcode(availableBasketsData?.getAvailableBaskets?.baskets || [], barcode);
+      if (availableBasket) {
+        await runAttachmentScan(`basket:${availableBasket._id}`, async () => {
+          await handleLiveBasketAction(availableBasket, 'add');
+          await refetchAvailableBaskets();
+        });
+        return;
+      }
+
+      const bag = findByBarcode(bagsData?.bags || [], barcode);
+      if (bag) {
+        await runAttachmentScan(`bag:${bag._id}`, async () => {
+          await handleLiveBagAction(bag, 'add');
+          await refetchBags();
+        });
+        return;
+      }
+
+      message.error(`No product, delivery basket, or bag found for ${barcode}`);
+    } catch (error: any) {
+      message.error(error.message || `Failed to process scan ${barcode}`);
+    }
   };
 
   const handleBack = () => {
@@ -1157,14 +1370,14 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   };
 
   const navigateToTillQueue = () => {
-    dispatch(removeHeldOrder(orderId));
+    dispatch(removeHeldOrder(orderData._id));
     dispatch(setCurrentOrder(null));
     router.push(`${adminRoot}/store/${store_id}/till-verification`);
   };
 
   const handleRemoveStuckOrder = async () => {
     try {
-      await removeOrderFromSession(orderId, 'Order removed from till session after stale verification state');
+      await removeOrderFromSession(orderData._id, 'Order removed from till session after stale verification state');
       message.success('Order removed from till session and reverted to picking complete');
       navigateToTillQueue();
     } catch (error: any) {
@@ -1229,11 +1442,11 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
 
   // Initialize order verification on mount
   useEffect(() => {
-    if (!orderId) return;
-    if (initializedOrderIdRef.current === orderId) return;
+    if (!orderBarcode) return;
+    if (initializedOrderBarcodeRef.current === orderBarcode) return;
 
-    initializeOrder(orderId);
-  }, [orderId, orderData?._id]);
+    initializeOrder(orderBarcode);
+  }, [orderBarcode, orderData?._id]);
 
 
   if (fatelError) {
@@ -1257,12 +1470,12 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       </>}
     />
   }
-  if (!orderId || !activeShift) {
+  if (!orderBarcode || !activeShift) {
     let eInfo = { title: "", description: "" }
-    if (!orderId) Object.assign(eInfo, {
-      title: "Missing order ID", description: "Unable to find target order ID"
+    if (!orderBarcode) Object.assign(eInfo, {
+      title: "Missing order barcode", description: "Unable to find target order barcode"
     })
-    if (!activeShift && !orderId) Object.assign(eInfo, {
+    if (!activeShift && !orderBarcode) Object.assign(eInfo, {
       title: "No Active Shift", description: "You must have an active shift to verify orders."
     })
 
@@ -1273,7 +1486,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
 
   // Loading state - show what's happening
   if (!orderData) {
-    if (!calledStart) return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Loader loading={true}>Initializing...</Loader></div>);
+    if (!calledStart || verificationLoading) return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Loader loading={true}>Initializing...</Loader></div>);
 
     return <ErrorComp title="Failed to Load Order" description="Could not load order data. The order might not be available for verification."
       buttons={<><Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Back to Queue</Button></>}
@@ -1303,6 +1516,8 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   if (activeTab === 'unavailable') displayItems = missingItems;
 
   return (<>
+    <BarcodeScanner onScan={handleVerificationScan} debugLabel="TillVerificationScanner" />
+
     <div className="flex h-[calc(100vh-50px)] w-full overflow-hidden">
       {/* <LeftColumn onNavClick={onNavClick} /> */}
 
@@ -1333,7 +1548,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
         <PageFooter orderData={orderData} />
       </div>
 
-      <RightColumn orderData={orderData} orderId={orderId} onShowExcessiveItem={handleShowExcessiveItem} showBags={() => set_showBags(true)} showBaskets={() => set_showBaskets(true)} showPrint={() => set_showPrint(true)} />
+      <RightColumn orderData={orderData} orderId={orderData._id} productScanRequest={productScanRequest} onShowExcessiveItem={handleShowExcessiveItem} showBags={() => set_showBags(true)} showBaskets={() => set_showBaskets(true)} showPrint={() => set_showPrint(true)} />
     </div>
 
 
@@ -1342,6 +1557,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       {/* <h1>Add Bags</h1> */}
       <AddBags currentBags={orderData?.current_order?.bags || []} onBagAction={handleLiveBagAction} />
     </Modal>
+
     <Modal open={showBaskets} onCancel={() => set_showBaskets(false)} title='Add Baskets' footer={false} destroyOnHidden confirmLoading={updatingBaskets}>
       {showBaskets && (
         <AddBaskets
@@ -1352,6 +1568,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
         />
       )}
     </Modal>
+
     <Modal
       open={showPrint}
       onCancel={() => set_showPrint(false)}
@@ -1377,6 +1594,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     >
       <WrongItem />
     </Modal>
+
     <Modal open={showExcessiveItem} onCancel={() => set_showExcessiveItem(false)} title='Excessive Item' footer={false}
       styles={{
         container: {
@@ -1402,7 +1620,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
 function TillVerificationPOS_Wrapper() {
   const router = useRouter();
   const params = useParams();
-  const orderId = params.orderId as string
+  const orderBarcode = params.orderBarcode as string
   const { store, store_id }: any = usePageProps();
 
   const [activity, setActivity] = useState("Loading session...")
@@ -1468,10 +1686,10 @@ function TillVerificationPOS_Wrapper() {
     </Space>
   </Card></div></Page>);
 
-  if (!orderId) return (<Page><div style={{ textAlign: 'center', padding: '100px 0' }}><Card>
+  if (!orderBarcode) return (<Page><div style={{ textAlign: 'center', padding: '100px 0' }}><Card>
     <Space orientation="vertical" align="center">
       <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
-      <Title level={4}>Order ID not found!</Title>
+      <Title level={4}>Order Barcode not found!</Title>
       <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Go to Till Queue</Button>
     </Space>
   </Card></div></Page>);

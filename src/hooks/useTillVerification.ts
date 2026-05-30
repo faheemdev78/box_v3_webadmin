@@ -248,11 +248,11 @@ export const useStartOrderVerification = () => {
     refetchQueries: [GET_TILL_QUEUE],
   });
 
-  const startOrder = async (_id_order: string) => {
+  const startOrder = async (_id_order?: string, order_barcode?: string) => {
     dispatch(setLoading(true));
     try {
       const response = await startOrderMutation({
-        variables: { _id_order },
+        variables: { _id_order, order_barcode },
       })
         .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr:any) => rr?.data?.startOrderVerification }))
         .catch(catchApolloError)
@@ -264,7 +264,7 @@ export const useStartOrderVerification = () => {
       // Add order to held orders cache and set as current
       if (response?.order) {
         dispatch(upsertHeldOrder(response.order));
-        dispatch(setCurrentOrder(_id_order));
+        dispatch(setCurrentOrder(response.order._id));
       }
       if (response?.session) {
         dispatch(setActiveShift({

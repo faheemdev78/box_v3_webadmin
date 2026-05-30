@@ -29,7 +29,7 @@ interface ThumbnailProps {
     disabled?: boolean; 
     placeholder?: string;
     handlePreview?: Function;
-    file?: { _id?: string, url: string, thumbnails: string | string[], originFileObj?: File, loading?: boolean };
+    file?: { _id?: string, url?: string, thumbnails?: string | string[], originFileObj?: File, loading?: boolean };
     loading?: boolean; 
     style?: any;
     type?: 'image' | 'video';
@@ -61,7 +61,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
 
         setBusy(true)
         await getSrcFromFile(config?.file?.originFileObj).then(r => {
-            set_thumb_url(r)
+            set_thumb_url(r?.image)
         })
         setBusy(false)
     }
@@ -93,7 +93,7 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
         else set_showPreview(target)
     }
 
-    const URL = thumb_url ? `${process.env.NEXT_PUBLIC_CDN_URL}/${thumb_url}` : '';
+    const URL = thumb_url ? (String(thumb_url).startsWith('data:') ? thumb_url : `${process.env.NEXT_PUBLIC_CDN_URL}/${thumb_url}`) : '';
     const resolvedSrc = URL || config.placeholder || '';
 
     return (<>
@@ -110,9 +110,16 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
                     width={config.display.width} 
                     height={config.display.height}
                 />}
+                {!resolvedSrc && (
+                    <div className="flex h-full w-full items-center justify-center text-blue-500">
+                        {config.type === 'video'
+                            ? <PlaySquareOutlined style={{ fontSize: 52 }} />
+                            : <PictureOutlined style={{ fontSize: 52 }} />}
+                    </div>
+                )}
 
                 <div className={styles.hover_layer}>
-                    {config?.file?._id && <Space wrap>
+                    {(config?.file?._id || config?.file?.originFileObj || config?.file?.url) && <Space wrap>
                         {(config?.actions?.remove && !config?.disabled) && <DeleteButton onClick={onDelClick} />}
                         {(config.handlePreview || config.file?.url) && <IconButton onClick={() => onPreviewClick(config.file)} icon="eye" />}
                     </Space>}
@@ -133,15 +140,17 @@ interface FileUploaderProps {
     folder?: string;
     thumbnail?: { 
         resize: { width: number, height: number }[], 
-        display: { width: number, height: number },
+        display?: { width: number, height: number },
+        displaySize?: { width: number, height: number },
         actions?: { remove: Function },
         // onDeletePress?: (args: any) => void,
     };
     disabled?: boolean;
     onUpload?: (args: any) => void;
+    uploadMode?: 'immediate' | 'deferred';
     // Relax prop surface for legacy callers
     defaultValues?: { _id?: string; url?: string; thumbnails?: string[]; originFileObj?: File; loading?: boolean }[];
-    value?: { _id?: string; url: string; thumbnails: string[]; originFileObj?: File; loading?: boolean }[]; // can replace with specific type like File[] or {name: string, url: string}[]
+    value?: { _id?: string; url?: string; thumbnails?: string[]; originFileObj?: File; loading?: boolean }[]; // can replace with specific type like File[] or {name: string, url: string}[]
     multiple?: boolean;
     maxCount?: number;
     type?: 'image' | 'video';
@@ -167,18 +176,21 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
         type: 'image',
         hideList: false,
         debounceTime: 100,
+        uploadMode: undefined as 'immediate' | 'deferred' | undefined,
     }
     const config = { 
         ...defaultProps, 
         ...props,
+        value: props.value || props.defaultValues || defaultProps.value,
+        uploadMode: props.uploadMode || (props.onUpdateFiles ? 'deferred' : 'immediate'),
         thumbnail: {
             resize: props?.thumbnail?.resize || defaultProps.thumbnail.resize,
-            display: props?.thumbnail?.display || defaultProps.thumbnail.display,
+            display: props?.thumbnail?.display || props?.thumbnail?.displaySize || defaultProps.thumbnail.display,
             actions: props?.thumbnail?.actions,
         }
     };
         
-    const accept = allowedExtensations[config.type as keyof typeof allowedExtensations] // ".jpg,.jpeg,.png";
+    const accept = config.accept || allowedExtensations[config.type as keyof typeof allowedExtensations] // ".jpg,.jpeg,.png";
     const [previewImg, setPreviewImg] = useState<string | null>(null)
     const [busy, setBusy] = useState(false)
     const [uploading, setUploading] = useState(false)
@@ -190,13 +202,14 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
 
     
     useEffect(() => {
-        if (JSON.stringify(fileList) === JSON.stringify(props.value || [])) return;
-        setFileList(props.value || [])
-    }, [props.value])
+        const nextValue = props.value || props.defaultValues || [];
+        if (JSON.stringify(fileList) === JSON.stringify(nextValue)) return;
+        setFileList(nextValue)
+    }, [props.value, props.defaultValues])
 
     useEffect(() => {
-        set_maxCount(_maxCount - ((fileList && fileList.length) || 0))
-    }, [fileList])
+        set_maxCount(Math.max(0, config.maxCount - ((fileList && fileList.length) || 0)))
+    }, [fileList, config.maxCount])
 
     const handlePreview = async(file: any) => {
         if(!file) return;
@@ -216,16 +229,19 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
     const handelUploadRequest = async(files: UploadFile<any>[]) => {
         console.log("handelUploadRequest()", files);
 
-        if (!files) {
-            message.error("No picture file found to uplaod")
+        if (!files || files.length < 1) {
+            message.error("No file found to upload")
             return false;
         }
 
         const formData = new FormData();
             formData.append('folder', config.folder);
-            formData.append('thumbnails', JSON.stringify(config.thumbnail.resize));
+            if (config.type === 'image' && config.thumbnail.resize?.length) {
+                formData.append('thumbnails', JSON.stringify(config.thumbnail.resize));
+            }
 
         messageApi.open({ key: "on_uploadMainImage", type: 'loading', content: "Preparing files to upload...." })
+        setUploading(true);
 
         let fileErrors:any = false;
         files.forEach(file => {
@@ -240,6 +256,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
         if (fileErrors) {
             console.error(files)
             messageApi.open({ key: "on_uploadMainImage", type: 'error', content: fileErrors, duration: 3 });
+            setUploading(false);
             return false;
         }
 
@@ -255,6 +272,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
                 console.error(err);
                 return { error: { message:"upload Failed!" } }
             });
+        setUploading(false);
         
         if (results.error) {
             messageApi.open({ key: "on_uploadMainImage", type: 'error', content: results?.error?.message, duration: 3 });
@@ -285,13 +303,19 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
         },
 
         itemRender(originNode: React.ReactNode, file: UploadFile, fileList: UploadFile[], actions){
-            return <Thumbnail file={file as any} actions={actions} handlePreview={handlePreview} display={config.thumbnail.display} />
+            return <Thumbnail file={file as any} actions={actions} handlePreview={handlePreview} display={config.thumbnail.display} type={config.type as any} />
         },
 
         // previewFile(file){ },
         // action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
         onChange(info: UploadChangeParam<UploadFile<any>>) {
             console.log("onChange()", info)
+            if (config.uploadMode === 'deferred') {
+                const action = info.file.status === 'removed' ? 'remove' : 'add';
+                setFileList(info.fileList as any);
+                config.onUpdateFiles?.(info.fileList, action);
+                return;
+            }
             _handelUploadRequest(info.fileList)
             // const { status } = info.file;
             // if (status !== 'uploading') console.log(info.file, info.fileList);
@@ -309,10 +333,23 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
         <Space wrap size={7}>
 
             {(!config.hideList && fileList) && fileList.map((file, i) => {
+                const removeSelectedFile = async (targetFile: any) => {
+                    const nextFileList = fileList.filter((item: any) => item.uid !== targetFile.uid);
+                    setFileList(nextFileList);
+                    config.onUpdateFiles?.([targetFile], 'remove');
+                    return false;
+                };
+
                 return (<Thumbnail key={i}
                     {...props.thumbnail}
+                    display={config.thumbnail.display}
                     // size={{ width: config.thumbnail.display.width, height: config.thumbnail.display.height}}
                     file={file}
+                    type={config.type as any}
+                    actions={{
+                        ...props.thumbnail?.actions,
+                        remove: props.thumbnail?.actions?.remove || (config.onUpdateFiles ? removeSelectedFile : undefined),
+                    }}
                     disabled={config.disabled}
                     loading={!!file.loading}
                     handlePreview={handlePreview} 
@@ -331,7 +368,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
 
         <Modal open={previewImg !== null} onCancel={() => setPreviewImg(null)} width={'1000px'} title={false} footer={false} destroyOnHidden style={{ textAlign: "center" }}>
             {/* {(previewImg && !busy) && <Image src={previewImg} style={{ width: "100%" }} width={0} height={0} alt="" />} */}
-            {(previewImg && !busy) && <Image unoptimized src={process.env.NEXT_PUBLIC_CDN_URL+'/'+previewImg} width={500} height={500} alt="" />}
+            {(previewImg && !busy) && <Image unoptimized src={String(previewImg).startsWith('data:') ? previewImg : `${process.env.NEXT_PUBLIC_CDN_URL}/${previewImg}`} width={500} height={500} alt="" />}
             {busy && <Loader loading={true} />}
         </Modal>
 

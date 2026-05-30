@@ -9,6 +9,11 @@ import { FieldArray } from 'react-final-form-arrays';
 import axios from 'axios';
 import { ensureArrayLength } from '@/lib/utill';
 import { PROD_GAL_SIZE } from '@/configs';
+import { useMutation } from '@apollo/client/react';
+import { checkApolloRequestErrors } from '@/lib/utill_apollo';
+import UPDATE_MAIN_IMG from '@/graphql/product/uploadProductImg.graphql';
+import UPDATE_GALL_IMG from '@/graphql/product/uploadGalleryItems.graphql';
+import UPDATE_VDO from '@/graphql/product/uploadProductVideo.graphql';
 
 
 
@@ -16,6 +21,9 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
     const [initialValues, set_initialValues] = useState(null)
     const [error, setError] = useState(null)
     const [messageApi, contextHolder] = message.useMessage();
+    const [uploadProductImg] = useMutation(UPDATE_MAIN_IMG);
+    const [uploadGalleryItems] = useMutation(UPDATE_GALL_IMG);
+    const [uploadProductVideo] = useMutation(UPDATE_VDO);
 
     console.log({ initialValues })
 
@@ -78,6 +86,25 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
         return false;
     }
 
+    const uploadFilesToCdn = async (files, { folder, thumbnailSizes }) => {
+        if (!files || files.length < 1) return { error: { message: 'No files to upload' } };
+
+        const formData = new FormData();
+        formData.append('folder', folder);
+        if (thumbnailSizes) formData.append('thumbnails', JSON.stringify(thumbnailSizes));
+        files.forEach((file) => formData.append('files', file));
+
+        try {
+            return await axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/upload_files`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
+                .then((r) => ((r.data.error) ? r.data : r.data));
+        } catch (error) {
+            console.error('Upload failed:', error.response?.data || error.message);
+            return { error: { message: (error.response?.data?.error || error.response?.data || error.message) } }
+        }
+    }
+
     const onUpdateMainFile = async (files, _id) => {
         console.log(__yellow("onUpdateMainFile()"), files)
 
@@ -87,32 +114,34 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
             return false;
         }
 
-        const formData = new FormData();
-        const data = { uploadPath: "prod", uploadType: "prod-img", _id }
-        Object.keys(data).forEach(key => {
-            formData.append(key, data[key]);
-        });
-
-        // Append files, ensuring each is a File object
         if (!(file.originFileObj instanceof File)) {
             message.error("File object not found!")
             return false;
         }
-        formData.append('files', file.originFileObj); // Append each file
+
+        messageApi.open({ key: "onSubmit", type: 'loading', content: "Uploading product image" })
+        const uploadResult = await uploadFilesToCdn([file.originFileObj], {
+            folder: `prod/${_id}`,
+            thumbnailSizes: [{ width: 200, height: 200 }],
+        });
+        if (uploadResult?.error) return uploadResult;
+
+        const uploadedFile = uploadResult?.files?.[0];
+        if (!uploadedFile) return { error: { message: 'Invalid CDN upload response' } };
 
         messageApi.open({ key: "onSubmit", type: 'loading', content: "Saving product image" })
-
-        try {
-            const results = await axios.post(`${process.env.NEXT_PUBLIC_ADMIN_API_URI}/upload_files`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            })
-                .then(r => ((r.data.error) ? r.data : r?.data?.files));
-
-            return results.error ? results : [{ ...results, _id: data._id }]
-        } catch (error) {
-            console.error('Upload failed:', error.response?.data || error.message);
-            return { error: { message: (error.response?.data || error.message) } }
-        }
+        return uploadProductImg({
+            variables: {
+                _id_product: _id,
+                file: {
+                    url: uploadedFile.url,
+                    type: uploadedFile.type,
+                    thumbnails: uploadedFile.thumbnails || [],
+                },
+            },
+        })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadProductImg }))
+            .catch(error => ({ error: { message: error.message || 'Unable to save product image' } }));
 
     }
     const onUpdateVideoFile = async (files, _id) => {
@@ -124,32 +153,31 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
             return false;
         }
 
-        const formData = new FormData();
-        const data = { uploadPath: "prod", uploadType: "prod-video", _id }
-        Object.keys(data).forEach(key => {
-            formData.append(key, data[key]);
-        });
-
-        // Append files, ensuring each is a File object
         if (!(file.originFileObj instanceof File)) {
             message.error("File object not found!")
             return false;
         }
-        formData.append('files', file.originFileObj); // Append each file
+
+        messageApi.open({ key: "onSubmit", type: 'loading', content: "Uploading product video" })
+        const uploadResult = await uploadFilesToCdn([file.originFileObj], { folder: `prod/${_id}` });
+        if (uploadResult?.error) return uploadResult;
+
+        const uploadedFile = uploadResult?.files?.[0];
+        if (!uploadedFile) return { error: { message: 'Invalid CDN upload response' } };
 
         messageApi.open({ key: "onSubmit", type: 'loading', content: "Saving product video" })
-
-        try {
-            const results = await axios.post(`${process.env.NEXT_PUBLIC_ADMIN_API_URI}/upload_files`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            })
-                .then(r => ((r.data.error) ? r.data : r?.data?.files));
-
-            return results.error ? results : [{ ...results, _id: data._id }]
-        } catch (error) {
-            console.error('Upload failed:', error.response?.data || error.message);
-            return { error: { message: (error.response?.data || error.message) } }
-        }
+        return uploadProductVideo({
+            variables: {
+                _id_product: _id,
+                file: {
+                    url: uploadedFile.url,
+                    type: uploadedFile.type,
+                    thumbnails: uploadedFile.thumbnails || [],
+                },
+            },
+        })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadProductVideo }))
+            .catch(error => ({ error: { message: error.message || 'Unable to save product video' } }));
 
     }
     const onUpdateGalleryFiles = async (_files, _id) => {
@@ -164,35 +192,29 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
             return false;
         }
 
-        const formData = new FormData();
-        const data = { uploadPath: "prod", uploadType: "prod-gallery", _id }
-        Object.keys(data).forEach(key => {
-            formData.append(key, data[key]);
+        messageApi.open({ key: "onSubmit", type: 'loading', content: `Uploading product gallery (${files.length})` })
+        const uploadResult = await uploadFilesToCdn(files, {
+            folder: `prod/${_id}`,
+            thumbnailSizes: [{ width: 200, height: 200 }],
         });
+        if (uploadResult?.error) return uploadResult;
 
-        // // Append files, ensuring each is a File object
-        // if (!(file.originFileObj instanceof File)) {
-        //     message.error("File object not found!")
-        //     return false;
-        // }
-        // formData.append('files', files); // Append each file
-        files.forEach(file => {
-            formData.append('files', file); // Append each file
-        });
+        const uploadedFiles = uploadResult?.files || [];
+        if (uploadedFiles.length < 1) return { error: { message: 'Invalid CDN upload response' } };
 
-        messageApi.open({ key: "onSubmit", type: 'loading', content: `Saving product gallery (${files.length})` })
-
-        try {
-            const results = await axios.post(`${process.env.NEXT_PUBLIC_ADMIN_API_URI}/upload_files`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            })
-                .then(r => ((r.data.error) ? r.data : r?.data?.files));
-
-            return results.error ? results : [{ ...results, _id: data._id }]
-        } catch (error) {
-            console.error('Upload failed:', error.response?.data || error.message);
-            return { error: { message: (error.response?.data || error.message) } }
-        }
+        messageApi.open({ key: "onSubmit", type: 'loading', content: `Saving product gallery (${uploadedFiles.length})` })
+        return uploadGalleryItems({
+            variables: {
+                _id_product: _id,
+                files: uploadedFiles.map((file) => ({
+                    url: file.url,
+                    type: file.type,
+                    thumbnails: file.thumbnails || [],
+                })),
+            },
+        })
+            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadGalleryItems }))
+            .catch(error => ({ error: { message: error.message || 'Unable to save product gallery' } }));
 
     }
 
@@ -262,10 +284,11 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
                                 {/* {values?.picture?.thumb} */}
                                 <FileUploader // name="picture"
                                     // thumbnail={{ displaySize: { width: 190, height: 190 } }}
+                                    uploadMode="deferred"
                                     maxCount={1}
                                     multiple={false}
                                     debounceTime={100}
-                                    defaultValues={values?.picture && [{ ...values?.picture }]}
+                                    value={values?.picture ? [{ ...values?.picture }] : []}
                                     deleteFile={deleteMainImage}
                                     // uploadFiles={uploadProdImage}
                                     // deleteFile={onProdImageDelete}
@@ -277,11 +300,12 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
                                 <FileUploader //name="video"
                                     icon="video"
                                     accept=".mp4"
+                                    uploadMode="deferred"
                                     // thumbnail={{ displaySize: { width: 190, height: 190 } }}
                                     maxCount={1}
                                     multiple={false}
                                     debounceTime={100}
-                                    defaultValues={values?.video && [{ ...values?.video }]}
+                                    value={values?.video ? [{ ...values?.video }] : []}
                                     deleteFile={deleteVideo}
                                     // defaultValues={values?.picture && [{ ...values?.picture, _id: values._id, url: `${values?.picture?.url}`, thumb: `${values?.picture?.thumb}` }]}
                                     // uploadFiles={uploadProdImage}
@@ -300,11 +324,12 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
                                             return (<div key={index}align="center">
                                                 <FileUploader
                                                     name={name}
+                                                    uploadMode="deferred"
                                                     thumbnail={{ displaySize: { width: 190, height: 190 } }}
                                                     maxCount={1}
                                                     multiple={false}
                                                     debounceTime={100}
-                                                    defaultValues={(thisNode && (thisNode.uid || thisNode._id)) ? [thisNode] : []}
+                                                    value={(thisNode && (thisNode.uid || thisNode._id)) ? [thisNode] : []}
                                                     deleteFile={deleteGalleryItem}
                                                     // defaultValues={values?.picture && [{ ...values?.picture, _id: values._id, url: `${values?.picture?.url}`, thumb: `${values?.picture?.thumb}` }]}
                                                     // uploadFiles={uploadProdImage}
