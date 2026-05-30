@@ -1278,6 +1278,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     basket: { _id: string; title: string },
     action: 'add' | 'remove'
   ) => {
+    if (!orderData) return;
     const response = await updateTillVerificationBaskets(orderData._id, basket._id, action);
     message.success(response?.success?.message || `Basket ${action}ed successfully`);
   };
@@ -1286,6 +1287,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     bag: { _id: string; size: string },
     action: 'add' | 'remove'
   ) => {
+    if (!orderData) return;
     const response = await updateTillVerificationBags(orderData._id, bag._id, action);
     message.success(response?.success?.message || `Bag ${action}ed successfully`);
   };
