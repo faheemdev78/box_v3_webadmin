@@ -5,12 +5,12 @@ import onScan from 'onscan.js'
 
 export const BarcodeScanner = ({
   onScan: handleScan,
-  onError,
+  onError = undefined,
   enabled = true,
   debugLabel = 'BarcodeScanner',
   focusOnMount = true,
   ignoreIfFocusOn = 'input, textarea, select, [contenteditable="true"]',
-  options,
+  options = undefined,
 }) => {
   const focusRef = useRef(null)
   const scanRef = useRef(handleScan)

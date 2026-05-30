@@ -87,7 +87,15 @@ const getVerificationStatusFromItem = (item: any) => ({
 
 const normalizeBarcode = (barcode: any) => String(barcode || '').trim();
 
-const findByBarcode = <T extends { barcode?: string }>(items: T[] = [], barcode: string) => {
+type ScannableRecord = {
+  _id?: string;
+  barcode?: string;
+  title?: string;
+  size?: string;
+  [key: string]: any;
+};
+
+const findByBarcode = <T extends ScannableRecord>(items: T[] = [], barcode: string) => {
   const targetBarcode = normalizeBarcode(barcode);
   if (!targetBarcode) return undefined;
 
@@ -1275,19 +1283,29 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   };
 
   const handleLiveBasketAction = async (
-    basket: { _id: string; title: string },
+    basket: ScannableRecord,
     action: 'add' | 'remove'
   ) => {
     if (!orderData) return;
+    if (!basket?._id) {
+      message.error('Basket record is missing ID');
+      return;
+    }
+
     const response = await updateTillVerificationBaskets(orderData._id, basket._id, action);
     message.success(response?.success?.message || `Basket ${action}ed successfully`);
   };
 
   const handleLiveBagAction = async (
-    bag: { _id: string; size: string },
+    bag: ScannableRecord,
     action: 'add' | 'remove'
   ) => {
     if (!orderData) return;
+    if (!bag?._id) {
+      message.error('Bag record is missing ID');
+      return;
+    }
+
     const response = await updateTillVerificationBags(orderData._id, bag._id, action);
     message.success(response?.success?.message || `Bag ${action}ed successfully`);
   };
@@ -1372,12 +1390,19 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   };
 
   const navigateToTillQueue = () => {
+    if (!orderData?._id) return;
+
     dispatch(removeHeldOrder(orderData._id));
     dispatch(setCurrentOrder(null));
     router.push(`${adminRoot}/store/${store_id}/till-verification`);
   };
 
   const handleRemoveStuckOrder = async () => {
+    if (!orderData?._id) {
+      message.error('Order is not loaded yet');
+      return;
+    }
+
     try {
       await removeOrderFromSession(orderData._id, 'Order removed from till session after stale verification state');
       message.success('Order removed from till session and reverted to picking complete');

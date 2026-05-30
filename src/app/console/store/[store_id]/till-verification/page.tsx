@@ -206,7 +206,7 @@ function TillOrders(){
           return;
       }
 
-      setState((currentState) => {
+      setState((currentState: any) => {
         const nextState = {
           ...currentState,
           pagination: {
