@@ -1330,7 +1330,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     const barcode = normalizeBarcode(rawBarcode);
     if (!barcode) return;
 
-    console.log('Till verification scanned:', barcode);
+    // console.log('Till verification scanned:', barcode);
 
     if (!orderData?._id) {
       message.error('Order is not loaded yet');
