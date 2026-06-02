@@ -66,6 +66,7 @@ export interface OrderTotals {
 export interface HeldOrder {
   _id: string;
   serial: string;
+  barcode?: string;
   customer?: {
     _id: string;
     name: string;

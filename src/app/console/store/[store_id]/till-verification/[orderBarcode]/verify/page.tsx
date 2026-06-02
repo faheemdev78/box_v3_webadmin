@@ -1164,12 +1164,13 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const router = useRouter();
   const params = useParams()
 
-  const orderBarcode = params.orderBarcode as string
+  const orderBarcode = String(params.orderBarcode || '').trim()
 
   const settings = useAppSelector(getSettings);
   // const tillVerification = useAppSelector(getTillVerification);
-  const activeShift = useAppSelector(getActiveShift);
-  const orderData = useAppSelector(getCurrentOrder);
+  const activeShiftFromStore = useAppSelector(getActiveShift);
+  const activeShift = activeShiftFromStore || shiftSession;
+  const reduxOrderData = useAppSelector(getCurrentOrder);
 
   const [activeTab, setActiveTab] = useState('unscanned');
   const [showCompleteModal, setShowCompleteModal] = useState(false);
@@ -1189,6 +1190,8 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const [showBags, set_showBags] = useState<boolean>(false);
   const [showBaskets, set_showBaskets] = useState<boolean>(false);
   const [showPrint, set_showPrint] = useState<boolean>(false);
+  const [initializingOrderBarcode, setInitializingOrderBarcode] = useState<string | null>(null);
+  const [initialOrderData, setInitialOrderData] = useState<any>(null);
 
   const initializedOrderBarcodeRef = useRef<string | null>(null);
   const invoicePreviewRef = useRef<HTMLDivElement | null>(null);
@@ -1217,23 +1220,48 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const { updateTillVerificationBags, loading: updatingBags } = useUpdateTillVerificationBags();
   const { printReceipt, loading: printingReceipt } = usePrintTillReceipt();
 
+  const matchesRouteOrder = (order: any) => !!order && (
+    String(order?.serial || '').trim() === orderBarcode ||
+    String(order?.barcode || '').trim() === orderBarcode
+  );
+
+  const orderData = matchesRouteOrder(reduxOrderData)
+    ? reduxOrderData
+    : matchesRouteOrder(initialOrderData)
+      ? initialOrderData
+      : null;
+
 
   const initializeOrder = async (targetOrderBarcode: string) => {
     console.log(__yellow("initializeOrder()"))
-    initializedOrderBarcodeRef.current = targetOrderBarcode;
+    const normalizedOrderBarcode = String(targetOrderBarcode || '').trim();
+    initializedOrderBarcodeRef.current = normalizedOrderBarcode;
+    setInitializingOrderBarcode(normalizedOrderBarcode);
+    setInitialOrderData(null);
+    setFatelError(null);
 
     try {
       // Always re-sync from backend on page load/refresh so persisted Redux
       // does not hide external order changes from another device/session.
-      const result = await startOrder(undefined, targetOrderBarcode);
+      const result = await startOrder(undefined, normalizedOrderBarcode);
+
+      if (initializedOrderBarcodeRef.current !== normalizedOrderBarcode) return;
+      if (!result?.order) throw new Error('Order data was not returned from till verification');
+
+      setInitialOrderData(result.order);
 
       if (result?.success?.message?.includes('Resuming')) message.info('Resuming order verification');
       else message.success('Order verification started');
 
     } catch (error: any) {
+      if (initializedOrderBarcodeRef.current !== normalizedOrderBarcode) return;
       console.error('Failed to start order:', error);
       initializedOrderBarcodeRef.current = null;
       setFatelError(error.message || 'Failed to start order verification');
+    } finally {
+      if (initializedOrderBarcodeRef.current === normalizedOrderBarcode) {
+        setInitializingOrderBarcode(null);
+      }
     }
   };
 
@@ -1473,7 +1501,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     if (initializedOrderBarcodeRef.current === orderBarcode) return;
 
     initializeOrder(orderBarcode);
-  }, [orderBarcode, orderData?._id]);
+  }, [orderBarcode]);
 
 
   if (fatelError) {
@@ -1513,7 +1541,9 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
 
   // Loading state - show what's happening
   if (!orderData) {
-    if (!calledStart || verificationLoading) return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Loader loading={true}>Initializing...</Loader></div>);
+    if (initializingOrderBarcode === orderBarcode || !calledStart || verificationLoading) {
+      return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Loader loading={true}>Initializing...</Loader></div>);
+    }
 
     return <ErrorComp title="Failed to Load Order" description="Could not load order data. The order might not be available for verification."
       buttons={<><Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Back to Queue</Button></>}
