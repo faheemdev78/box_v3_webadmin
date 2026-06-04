@@ -107,10 +107,9 @@ function ReadytoDispatchList(props:any) {
       >
           <OrderTable
               busy={false} 
-              columns={['serial', 'customer', 'picker', 'order', 'delivery_slot', 'status', 'createdAt', {
-                key: 'actions',
-                options: { reset: true, till_verification: false }
-              }]} 
+              columns={['serial', 'customer', 'picker', 'order', 'delivery_slot', 'status', 'createdAt', 
+                // { key: 'actions', options: { reset: true, till_verification: false } }
+            ]} 
               dataSource={state.dataSource || []}
               pagination={state.pagination}
               scroll={{ x: 1200 }}

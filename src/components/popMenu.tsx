@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { Popover, Space, Popconfirm } from 'antd'
 import type { ButtonProps, PopoverProps, SpaceProps } from 'antd';
 import _ from 'lodash';
@@ -17,7 +17,7 @@ import { Icon } from './icon'
 */
 
 interface PopMenuItemProps {
-    label:string;
+    label: string | ReactNode;
     confirm?: boolean | string;
     href?: string;
     onClick?: () => any;
@@ -60,7 +60,7 @@ export function PopMenu({ placement = "topRight", trigger = "click", title = fal
                     </Popconfirm> : 
                      <Button block size={size}
                         onClick={() => {
-                            item.onClick();
+                            if (item.onClick) item.onClick();
                             setOpen(false)
                         }}>{item.label}</Button>}
                     

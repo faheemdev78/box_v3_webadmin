@@ -22,7 +22,7 @@ import GET_STORE from '@/graphql/stores/store.graphql';
 
 function StoreWrapper(props: any) {
   const { store_id } = useParams<{ store_id: string }>()
-  // const { store_id } = props.params;
+  // const { store_id } = await props.params;
 
   const [fatelError, set_fatelError] = useState(null)
 

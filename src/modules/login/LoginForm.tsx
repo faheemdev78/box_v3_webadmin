@@ -24,8 +24,8 @@ const LoginForm = () => {
     // const [error, setError] = useState(false)
     const [messageApi, contextHolder] = message.useMessage();
     const router = useRouter();
-    const searchParams = useSearchParams()
-    const redirectTo = searchParams.get('callbackUrl') || adminRoot;
+    const _searchParams = useSearchParams()
+    const redirectTo = _searchParams.get('callbackUrl') || adminRoot;
 
     // const { settings, fmc_token } = useAppSelector(getSystemState);
     const dispatch = useAppDispatch();

@@ -115,7 +115,8 @@ const ListComp = ({ store }: { store: any }) => {
         </div>)},
         { title: 'In Use', dataIndex: 'record', render:(__: any, rec: any) => {
             const isLocked = Boolean(rec?.locked_by || rec?.locked_at || rec?.lock_expires_at || rec?._id_order || rec?.status === 'taken');
-            const orderPreviewHref = rec?._id_order ? `${adminRoot}/store/${store._id}/orders/preview/${rec._id_order}` : '';
+            // const orderPreviewHref = rec?._id_order ? `${adminRoot}/store/${store._id}/orders/preview/${rec._id}` : '';
+            // `console/store/68755e0e245e63fc0f79a2f2/orders/preview/ORD202605160006`
             const lockedByName = rec?.locked_user?.name || rec?.taken_by?.name || '';
 
             return (<>
@@ -125,10 +126,8 @@ const ListComp = ({ store }: { store: any }) => {
                 {rec.lock_expires_at && <div>Auto unlock at: {utcToDate(rec.lock_expires_at).format(defaultDateTimeFormat)}</div>}
                 {isLocked && rec?._id_order && (
                     <div>
-                        Order ID:{' '}
-                        <Link href={orderPreviewHref}>
-                            {rec._id_order}
-                        </Link>
+                        Order ID:{` ${rec._id_order}`}
+                        {/* <Link href={orderPreviewHref}>{rec._id_order}</Link> */}
                     </div>
                 )}
                 {isLocked && <ReleaseBasketButton basket={rec} onSuccess={() => fetchData({ category: activeCategory })} />}

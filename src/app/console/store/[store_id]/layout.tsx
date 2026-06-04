@@ -11,7 +11,7 @@ import GET_STORE from '@/graphql/stores/store.graphql';
 // export default async function Layout(
 //     { children, params }: LayoutProps<'/console/store/[store_id]'>
 // ) {
-//     const { store_id } = params;
+//     const { store_id } = await params;
 //     return <div>{children}</div>;
 // }
 

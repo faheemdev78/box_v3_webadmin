@@ -32,6 +32,7 @@ import Link from 'next/link';
 import { utcToDate } from '@/lib/utill';
 import { AddBaskets } from './components/AddBaskets';
 import AddBags from './components/AddBags';
+
 import GET_AVAILABLE_BASKETS from '@/graphql/baskets/getAvailableBaskets.graphql';
 import GET_BAGS from '@/graphql/bags/bags.graphql';
 
@@ -314,12 +315,12 @@ const ProductHolder = ({ item, orderData }: {
 
   // console.log({ pickedItem })
 
-  return (<div className='relative flex flex-col overflow-hidden w-full h-[230px] bg-white border border-gray-200 rounded-2xl shadow-md'>
+  return (<div className='relative flex flex-col overflow-hidden w-full  h-[230px] min-w-fit bg-white border border-gray-200 rounded-2xl shadow-md'>
     <div className='absolute top-2 right-2 z-999'>
-      <PopMenu orientation="vertical" placement="leftTop"
+      <PopMenu orientation="vertical" placement="leftTop" shape="round"
         items={[
           { onClick: handleDropItem, label: "Drop Item", confirm: "Are you sure to drop this item?", hide: item.processed_qty < 1 && !!item.issue_reason==false },
-          { onClick: () => setShowMissingModal(true), label: 'Unavailable' }
+          { onClick: () => setShowMissingModal(true), label: 'Unavailable' },
         ]}
       ></PopMenu>
       {/* <Popover content={<BarcodePackage
@@ -364,21 +365,9 @@ const ProductHolder = ({ item, orderData }: {
             <Col>{!!item.issue_reason && <Tooltip trigger='click' title={item.issue_reason} placement='top'><IconButton shape="round" color="red" icon="exclamation" /></Tooltip>}</Col>
           </Row>
 
-          {/* <div style={{ margin: "5px 0" }} /> */}
-          <Row gutter={[10, 10]}>
-            {/* <Col flex={8}>
-              <div className='border-gray-300 rounded-md p-10 leading-5' style={{ padding: "5px 5px", backgroundColor:"#F5F5F5" }}>
-                <Space>
-                  <Icon icon="shopping-cart" size='2x' color='#4B5563' />
-                  <div style={{ color:"#374151"}}>
-                    <div className='text-sm' style={{ lineHeight: 1.2 }}>Requested</div>
-                    <div className='text-lg font-bold' style={{ lineHeight: 1.2 }}>{item.qty}</div>
-                  </div>
-                </Space>
-              </div>
-            </Col> */}
-            <Col flex={8}>
-              <div className='border-gray-300 rounded-md p-10 leading-5' style={{ padding: "5px 5px", backgroundColor:"#FFF3E8" }}>
+          <Row gutter={[5, 0]} className='nowrap'>
+            <Col flex={12}>
+              <div className='border-gray-300 rounded-md p-5' style={{ backgroundColor:"#FFF3E8" }}>
                 <Space>
                   <Icon icon="shopping-basket" size='2x' color='#C2410C' />
                   <div style={{ color:"#7C2D12"}}>
@@ -388,8 +377,8 @@ const ProductHolder = ({ item, orderData }: {
                 </Space>
               </div>
             </Col>
-            <Col flex={8}>
-              <div className='border-gray-300 rounded-md leading-5' style={{ padding: "5px 5px", backgroundColor:"#E8F1FD" }}>
+            <Col flex={12}>
+              <div className='border-gray-300 rounded-md p-5' style={{ backgroundColor:"#E8F1FD" }}>
                 <Space wrap={false}>
                   <Icon icon="barcode" size='2x' color="#2563EB" />
                   <div style={{ color: "#1E3A8A" }}>
@@ -400,12 +389,15 @@ const ProductHolder = ({ item, orderData }: {
               </div>
             </Col>
           </Row>
+
         </Col>
       </Row>
     </div>
     <div className='text-xs' style={{ padding: "0 10px", color:"#418895" }}>
       <Row>
-        <Col span={12}><span className='text-xs'>#{item.barcode}</span></Col>
+        <Col span={12}><Tooltip title={<BarcodePackage value={item.barcode} width={1.5} height={30} format={"CODE128"} displayValue={item.barcode} />} placement='topLeft'>
+          <span className='text-xs'>#{item.barcode}</span>
+        </Tooltip></Col>
         <Col span={12} className='text-right'><Tag>SKU: 000000</Tag></Col>
       </Row>
     </div>
@@ -601,9 +593,6 @@ const RightColumn = ({
   };
 
   const applySelectedQty = async (_selectedItem?:any) => {
-    console.log("_selectedItem: ", _selectedItem)
-    // return;
-
     if (!_selectedItem) {
       message.error('Select an item first');
       return;
@@ -615,58 +604,28 @@ const RightColumn = ({
     try {
       if (_selectedQty > _requestedQty) {
         onShowExcessiveItem(_selectedItem, _selectedQty);
-        clearBarcodeSelection();
+        // clearBarcodeSelection();
         return;
       }
 
       if (_selectedQty === _requestedQty) {
         await verifyItem(orderId, _selectedItem._id_product, _selectedQty);
         message.success(`${_selectedItem.title} verified`);
-        clearBarcodeSelection();
+        // clearBarcodeSelection();
         return;
       }
 
-      setMismatchItem(_selectedItem);
-      setMismatchExpectedQty(_requestedQty);
-      setMismatchQty(_selectedQty);
-      setShowMismatchModal(true);
-      clearBarcodeSelection();
+      await verifyItem(orderId, _selectedItem._id_product, _selectedQty);
+
+      // setMismatchItem(_selectedItem);
+      // setMismatchExpectedQty(_requestedQty);
+      // setMismatchQty(_selectedQty);
+      // setShowMismatchModal(true);
+      // clearBarcodeSelection();
     } catch (error: any) {
       message.error(error.message || 'Failed to update scanned quantity');
     }
   };
-
-  // const applySelectedQty = async (_selectedItem?:any) => {
-  //   if (!_selectedItem && !selectedItem) {
-  //     message.error('Select an item first');
-  //     return;
-  //   }
-
-  //   const __selectedItem = _selectedItem || selectedItem;
-
-  //   try {
-  //     if (selectedQty > requestedQty) {
-  //       onShowExcessiveItem(selectedItem, selectedQty);
-  //       clearBarcodeSelection();
-  //       return;
-  //     }
-
-  //     if (selectedQty === requestedQty) {
-  //       await verifyItem(orderId, selectedItem._id_product, selectedQty);
-  //       message.success(`${selectedItem.title} verified`);
-  //       clearBarcodeSelection();
-  //       return;
-  //     }
-
-  //     setMismatchItem(selectedItem);
-  //     setMismatchExpectedQty(requestedQty);
-  //     setMismatchQty(selectedQty);
-  //     setShowMismatchModal(true);
-  //     clearBarcodeSelection();
-  //   } catch (error: any) {
-  //     message.error(error.message || 'Failed to update scanned quantity');
-  //   }
-  // };
 
   const handleMismatch = () => {
     if (!selectedItem) {
@@ -723,11 +682,18 @@ const RightColumn = ({
     selectedProductIdRef.current = productId;
     selectedQtyRef.current = nextQty;
     setSelectedProductId(productId);
-    setSelectedQty(nextQty);
 
-    if (requestedQty <= 1 || nextQty >= requestedQty) {
-      applySelectedQty({ ...item, selectedQty: nextQty });
+    if (requestedQty < nextQty){
+      onShowExcessiveItem(item, nextQty);
+      return;
     }
+
+    setSelectedQty(nextQty);
+    applySelectedQty({ ...item, selectedQty: nextQty });
+
+    // if (requestedQty <= 1 || nextQty >= requestedQty) {
+    //   applySelectedQty({ ...item, selectedQty: nextQty });
+    // }
   }
 
   useEffect(() => {
@@ -736,7 +702,7 @@ const RightColumn = ({
     handleScan(productScanRequest.barcode);
   }, [productScanRequest?.key]);
 
-  return (<div className='w-120 border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
+  return (<div className='w-150 border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
     <div className="flex-1 w-full p-4 bg-gray-50/50 overflow-y-auto">
       <div className='flex flex-col p-10'>
         <div className=''>
@@ -771,7 +737,7 @@ const RightColumn = ({
           <div className='text-xl font-semibold mt-10 text-center' style={{ color:"#111827" }}>
             {selectedItem?.title || 'Scan or search an item'}
           </div>
-          <div className='w-[200px] h-[250px] bg-gray-200 overflow-hidden flex items-center justify-center rounded-md' style={{margin:"10px"}}>
+          <div className='w-[300px] h-[300px] bg-gray-200 overflow-hidden flex items-center justify-center rounded-md' style={{margin:"10px"}}>
             {imageSrc ? (
               <img src={imageSrc} alt={selectedItem?.title || 'Product'} className='h-full w-full object-cover' />
             ) : (
@@ -816,7 +782,7 @@ const RightColumn = ({
     </div>
     <div className="h-[80px] border-t border-gray-300 w-full flex flex-col p-10 font-semibold">
       <Row>
-        <Col span={12}>Total Bill</Col><Col span={12}>{scannedItemTotal.toFixed(2)}/{originalOrderTotal.toFixed(2)}</Col>
+        <Col span={12}>Total Bill <span className='text-sm'>({orderData.original_order.totals.grandTotal})</span></Col><Col span={12}>{scannedItemTotal.toFixed(2)}/{originalOrderTotal.toFixed(2)}</Col>
         <Col span={12}>Total Items</Col><Col span={12}>{scannedItemQty}/{originalOrderQty}</Col>
         <Col span={12}>Out of stock items</Col><Col span={12}>{unavailableItemCount}</Col>
       </Row>
@@ -1666,7 +1632,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       <SupervisorLogin />
     </Modal>
 
-    {/* <DevBlock obj={orderData} title="orderData" /> */}
+    <DevBlock obj={orderData} title="orderData" />
 
   </>)
 

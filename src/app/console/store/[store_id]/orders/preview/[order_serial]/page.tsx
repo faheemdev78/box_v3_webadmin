@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation';
 import { useLazyQuery, useMutation } from '@apollo/client/react'
-import { DevBlock, Loader, Icon, Button } from '@/components'
+import { DevBlock, Loader, Icon, Button, IconButton } from '@/components'
 import { PageHeader } from '@/template'
 import { Page } from '@/template/page'
 import { Alert, Card, Descriptions, Table, Tag, Space, Typography, Divider, Row, Col, Modal, Input, message } from 'antd'
@@ -271,7 +271,7 @@ function OrderPreview() {
 
 
     return (<div>
-        <PageHeader title={<>Order Details</>} sub={<div>Order #{order_serial}</div>}>
+        <PageHeader title={<><IconButton icon={<Icon icon="arrow-left" />} onClick={() => router.back()} /> Order Details</>} sub={<div>Order #{order_serial}</div>}>
             <Space>
                 {canRevertTo('pending') && (
                     <Button
@@ -301,7 +301,7 @@ function OrderPreview() {
                         Revert to Ready to Dispatch
                     </Button>
                 )}
-                <Button icon={<Icon icon="arrow-left" />} onClick={() => router.push(`${adminRoot}/store/${store_id}/orders`)}>Back to Orders</Button>
+                {/* <Button icon={<Icon icon="arrow-left" />} onClick={() => router.push(`${adminRoot}/store/${store_id}/orders`)}>Back to Orders</Button> */}
             </Space>
         </PageHeader>
 

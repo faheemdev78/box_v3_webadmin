@@ -11,7 +11,7 @@ mutation StartOrderVerification($_id_order: ID, $order_barcode: String) {
     order {
       _id
       serial
-      barcode
+      barcode: serial
       store { ...StoreReffInfo }
       zone { ...GeoZoneReffInfo }
       customer { _id name phone email }
