@@ -362,7 +362,10 @@ const ProductHolder = ({ item, orderData }: {
               <div className='text-sm'>Qty received: {item.qty}</div>
             </Col>
             {/* <Col><div>{!!item.issue_reason && <Tooltip trigger='click' title={item.issue_reason} placement='top'><Button size="small" color="red" icon={<Icon icon="exclamation" />}>Mismatch</Button></Tooltip>}</div></Col> */}
-            <Col>{!!item.issue_reason && <Tooltip trigger='click' title={item.issue_reason} placement='top'><IconButton shape="round" color="red" icon="exclamation" /></Tooltip>}</Col>
+            <Col>{!!item.issue_reason && <Tooltip trigger='click' title={<div>
+              <div>Unavailable: {Number(pickedQty - verificationStatus.qty_verified)}</div>
+              <div>{item.issue_reason}</div>
+            </div>}  placement='top'><IconButton shape="round" color="red" icon="exclamation" /></Tooltip>}</Col>
           </Row>
 
           <Row gutter={[5, 0]} className='nowrap'>
