@@ -122,6 +122,37 @@ const getPickedItem = (orderData: any, item: any) => {
 
 const formatMoney = (value: number | undefined | null) => Number(value || 0).toFixed(2);
 
+const playExcessiveItemBeep = () => {
+  if (typeof window === 'undefined') return;
+
+  const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+  if (!AudioContextClass) return;
+
+  try {
+    const audioContext = new AudioContextClass();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    const startTime = audioContext.currentTime;
+
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(880, startTime);
+    gainNode.gain.setValueAtTime(0.001, startTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.25, startTime + 0.02);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.start(startTime);
+    oscillator.stop(startTime + 0.28);
+    oscillator.onended = () => {
+      audioContext.close().catch(() => undefined);
+    };
+  } catch {
+    // Audio is non-critical; keep the scan flow running if the browser blocks sound.
+  }
+};
+
 function ErrorComp({ title, description, buttons }: { title:string, description:string, buttons?:ReactNode }){
   return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Card><Space orientation="vertical">
     <ExclamationCircleOutlined style={{ fontSize: 48, color: '#ff4d4f' }} />
@@ -1431,6 +1462,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   }
 
   const handleShowExcessiveItem = (item: any, qty: number) => {
+    playExcessiveItemBeep();
     setExcessiveItemData(item);
     setExcessiveQty(qty);
     set_showExcessiveItem(true);
