@@ -9,9 +9,9 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
     ({ orderData }, ref) => {
         const { current_order, zone, shippingAddress, customer, delivery_slot, barcode } = orderData;
 
-        const frozenItems = current_order.items.filter(o:any => o.temp_sensitivity === 'freezer')?.length;
-        const coldItems = current_order.items.filter(o:any => o.temp_sensitivity === 'fridge')?.length;
-        const unfitForboxItems = current_order.items.filter(o:any => o.unfit_for_dispatch)?.length;
+        const frozenItems = current_order.items.filter((o:any) => o.temp_sensitivity === 'freezer')?.length;
+        const coldItems = current_order.items.filter((o:any) => o.temp_sensitivity === 'fridge')?.length;
+        const unfitForboxItems = current_order.items.filter((o:any) => o.unfit_for_dispatch)?.length;
 
         const orderTotal = current_order.totals.grandTotal;
         // const zone = zone.title;
