@@ -10,6 +10,7 @@ import { message } from 'antd';
 export * from './utill_string';
 export * from './utill_color';
 export * from './utill_apollo';
+export * from './utill_sounds';
 
 // moment.tz.setDefault("Canada/Mountain");
 

@@ -186,14 +186,16 @@ export function ProductView({ session, store, refresh, ...props }) {
                             <Col span={16}>{initialValues?.attribute?.map((item, i) => {
                                 return <Tag key={i}>{`${item.title}: ${item.val}`}</Tag>
                             })}</Col>
-                            <Col span={8} align="right"><Label style={{ margin: 0 }}>Is this item temperature sensitive?</Label></Col>
-                            <Col span={16}>{initialValues.is_temp_sensitive ? "YES" : "NO"}</Col>
+                            {/* <Col span={8} align="right"><Label style={{ margin: 0 }}>Is this item temperature sensitive?</Label></Col>
+                            <Col span={16}>{initialValues.is_temp_sensitive ? "YES" : "NO"}</Col> */}
+                            <Col span={8} align="right"><Label style={{ margin: 0 }}>Temperature sensitivity</Label></Col>
+                            <Col span={16}>{initialValues.temp_sensitivity}</Col>
 
                             <Col span={8} align="right"><Label style={{ margin: 0 }}>Product Type</Label></Col>
                             <Col span={16}>{initialValues?.type?.title}</Col>
 
                             <Col span={8} align="right"><Label style={{ margin: 0 }}>Is this unfit for dispatch box?</Label></Col>
-                            <Col span={16}>{initialValues.fit_for_dispatch ? "YES" : "NO"}</Col>
+                            <Col span={16}>{initialValues.unfit_for_dispatch ===true ? "YES" : "NO"}</Col>
 
                         </Row>
                     </div>

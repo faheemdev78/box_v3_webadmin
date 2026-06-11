@@ -463,7 +463,7 @@ export const SwitchField = props => {
 
                 let _input = { ...input }
                 delete _input.checked;
-                delete _input.value;
+                // delete _input.value;
 
                 return (<div className={`${styles.field} ${styles.switch}`} style={props.wrapperStyle}>
                     <Row align="middle" gutter={props.gutter || [10, 10]}>

@@ -1,5 +1,6 @@
 #import "../../_fragment/error.graphql"
 #import "../../_fragment/DiscountReff.graphql"
+#import "../../_fragment/imageSchema.graphql"
 #import "./OrderTax.graphql"
 
 #import "../../product/_fragment/prod_AttributesSchemaReff.graphql"
@@ -16,11 +17,23 @@ fragment OrderItem_SubstituteForInfo on OrderItem_SubstituteFor {
 fragment OrderItemsInfo on OrderItems {
     _id_product
     title
+    picture {...ImageSchemaInfo}
     barcode
     attributes { ...Prod_AttributesSchemaReff_Info }
     categories { _id title }
     vouchers { ...DiscountReffInfo }
     qty
+
+    is_expirable
+    unfit_for_dispatch
+    temp_sensitivity
+
+    store {
+      # price
+      # status
+      available_qty
+      reserved_qty
+    }
 
     # /*********** Calculations ************* */
     price_was

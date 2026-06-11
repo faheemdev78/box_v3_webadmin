@@ -5,16 +5,16 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { Input, Card, Row, Col, Space, Typography, Tag, Empty, Alert } from 'antd';
+import { Card, Row, Col, Space, Typography, Tag, Empty, Alert } from 'antd';
 import { CheckCircleOutlined, ShoppingOutlined } from '@ant-design/icons';
-import { useQuery, useLazyQuery } from '@apollo/client/react';
+import { useQuery } from '@apollo/client/react';
 import { Loader } from '@/components';
 import { sleep } from '@/lib';
-import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
 import GET_AVAILABLE_BASKETS from '@/graphql/baskets/getAvailableBaskets.graphql';
 
-const { Search } = Input;
+
+
 const { Text } = Typography;
 
 interface Basket {
@@ -88,37 +88,13 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
   const [selectedBaskets, setSelectedBaskets] = useState<string[]>([]);
 
   // Query available delivery baskets
-  const [get_getAvailableBaskets, { data, loading, error }] = useLazyQuery<any>(GET_AVAILABLE_BASKETS, { 
+  const { data, loading, error } = useQuery<any>(GET_AVAILABLE_BASKETS, {
+    variables: { _id_store: storeId, category, limit: 50 },
+    skip: !storeId,
     fetchPolicy: 'network-only',
     nextFetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
   });
-
-  // const { data, loading, error } = useQuery<any>(GET_AVAILABLE_BASKETS, {
-  //   variables: { _id_store: storeId, category, limit: 50 },
-  //   skip: !storeId,
-  //   fetchPolicy: 'network-only',
-  //   nextFetchPolicy: 'network-only',
-  //   notifyOnNetworkStatusChange: true,
-  // });
-
-  const onSearch = async(txt:string) => {
-    console.log("onSearch(): ", txt)
-    const resutls = await get_getAvailableBaskets({
-      variables: {
-        _id_store: storeId, category, limit: 50,
-        filter: JSON.stringify({
-          search: {
-            keywords: txt,
-          }
-        })
-      }
-    })
-    .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.getAvailableBaskets }))
-    .catch(catchApolloError)
-
-    console.log("resutls: ", resutls)
-  }
 
   const availableBaskets: Basket[] = data?.getAvailableBaskets?.baskets || [];
 
@@ -175,58 +151,62 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
     );
   }
 
-  // if (!baskets || baskets.length === 0) {
-  //   return (
-  //     <Empty
-  //       image={<ShoppingOutlined style={{ fontSize: 48, color: '#d9d9d9' }} />}
-  //       description={
-  //         <Space orientation="vertical">
-  //           <Text>No delivery baskets available</Text>
-  //           <Text type="secondary" style={{ fontSize: 12 }}>
-  //             All baskets may be in use. Please wait or release locked baskets.
-  //           </Text>
-  //         </Space>
-  //       }
-  //     />
-  //   );
-  // }
+  if (!baskets || baskets.length === 0) {
+    return (
+      <Empty
+        image={<ShoppingOutlined style={{ fontSize: 48, color: '#d9d9d9' }} />}
+        description={
+          <Space orientation="vertical">
+            <Text>No delivery baskets available</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              All baskets may be in use. Please wait or release locked baskets.
+            </Text>
+          </Space>
+        }
+      />
+    );
+  }
 
-  return (<div>
-    <Space orientation="vertical" size={16} style={{ width: '100%' }}>
-      <Search placeholder="search basket" loading={loading} onSearch={onSearch} />
+  return (
+    <div>
+      <Space orientation="vertical" size={16} style={{ width: '100%' }}>
+        {/* Selection count */}
+        <Alert
+          description={<Space>
+            <Text strong>{selectedBaskets.length}</Text>
+            <Text>basket(s) selected</Text>
+            {selectedBaskets.length < minRequired && (
+              <Tag color="warning">{minRequired - selectedBaskets.length} more required</Tag>
+            )}
+            {selectedBaskets.length >= minRequired && (
+              <Tag color="success" icon={<CheckCircleOutlined />}>Ready</Tag>
+            )}
+          </Space>}
+          type={selectedBaskets.length >= minRequired ? 'success' : 'info'}
+        />
 
+        {/* Baskets grid */}
+        {/* <Grid listData={baskets} onClick={(basket) => toggleBasket(basket._id)} buttonColor='green' buttonText='Add' /> */}
 
-      {/* <Alert
-        description={<Space>
-          <Text strong>{selectedBaskets.length}</Text>
-          <Text>basket(s) selected</Text>
-          {selectedBaskets.length < minRequired && (<Tag color="warning">{minRequired - selectedBaskets.length} more required</Tag>)}
-          {selectedBaskets.length >= minRequired && (<Tag color="success" icon={<CheckCircleOutlined />}>Ready</Tag>)}
-        </Space>}
-        type={selectedBaskets.length >= minRequired ? 'success' : 'info'}
-      /> */}
+        <Row gutter={[12, 12]}>
+          {baskets.map((basket) => {
+            const selected = isSelected(basket._id);
 
-      {/* Baskets grid */}
-      {/* <Grid listData={baskets} onClick={(basket) => toggleBasket(basket._id)} buttonColor='green' buttonText='Add' /> */}
+            return (
+              <Col xs={12} sm={8} md={8} lg={8} key={basket._id}>
+                <BasketWrapper 
+                  basket={basket}
+                  selected={selected}
+                  toggleBasket={onBasketClick}
+                  async={true}
+                  // toggleBasket={(b:any) => toggleBasket(b._id)}
+                />
+              </Col>
+            );
+          })}
+        </Row>
 
-      <Row gutter={[12, 12]}>
-        {baskets.map((basket) => {
-          const selected = isSelected(basket._id);
-
-          return (
-            <Col xs={12} sm={8} md={8} lg={8} key={basket._id}>
-              <BasketWrapper 
-                basket={basket}
-                selected={selected}
-                toggleBasket={onBasketClick}
-                async={true}
-                // toggleBasket={(b:any) => toggleBasket(b._id)}
-              />
-            </Col>
-          );
-        })}
-      </Row>
-
-    </Space>
-  </div>);
+      </Space>
+    </div>
+  );
 };

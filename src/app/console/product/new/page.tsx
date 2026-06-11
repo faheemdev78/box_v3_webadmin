@@ -4,7 +4,7 @@ import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, DevBlock, Loader
 import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@/components/dropdowns';
 import { message, Row, Col, Drawer, Card, Divider, Alert, Space, Steps, Popconfirm, Tag, Input, Flex, Tooltip, theme, Layout } from 'antd';
 import { MenuFoldOutlined, MenuUnfoldOutlined, UploadOutlined, UserOutlined, VideoCameraOutlined, } from '@ant-design/icons';
-import { adminRoot, defaultDateTimeFormat, PROD_GAL_SIZE, publishStatus, tax_applition_on, tax_formula_types } from '@/configs';
+import { adminRoot, defaultDateTimeFormat, PROD_GAL_SIZE, publishStatus, tax_applition_on, tax_formula_types, tempSensitivityArray } from '@/configs';
 import { checkApolloRequestErrors, escapeText, sleep, string_to_slug, uploadFile, uploadFiles } from '@/lib/utill';
 import { __error, __yellow } from '@/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client/react'
@@ -59,7 +59,8 @@ const defaultValues = {
     gallery: Array.from({ length: PROD_GAL_SIZE }, () => ({})),
     is_expirable: false,
     temperature_sensitive: false,
-    is_temp_sensitive: false,
+    // is_temp_sensitive: false,
+    temp_sensitivity: 'normal',
     status: 'online',
     available_qty: 0,
     cart_limit: 10,
@@ -118,7 +119,8 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
                 slug: item.slug,
                 code: item.code,
             })),
-            is_temp_sensitive: (values.is_temp_sensitive ===true),
+            // is_temp_sensitive: (values.is_temp_sensitive ===true),
+            temp_sensitivity: values.temp_sensitivity,
             type: !values.type ? undefined : { _id: values.type._id, title: values.type.title, slug: values.type.slug },
             status: values.status || "draft",
             cart_limit: Number(values.cart_limit || 0),
@@ -156,7 +158,7 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
                 value: field.value
             })),
 
-            fit_for_dispatch: (values.fit_for_dispatch === true),
+            unfit_for_dispatch: (values.unfit_for_dispatch === true),
             tags: values?.tags?.join(), //?.toString(),
             meta: [
                 { name: 'keywords', val: values?.meta?.keywords || "" },  //values?.meta?.keywords?.toString() },
@@ -579,10 +581,11 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
                                                         </FieldArray>
                                                     </Col>
 
-                                                    <Col span={8} style={{ textAlign: "right" }}><Label style={{ margin: 0 }}>Is this item temperature sensitive?</Label></Col>
-                                                    <Col span={16}>
-                                                        <FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_temp_sensitive" />
-                                                    </Col>
+                                                    {/* <Col span={8} style={{ textAlign: "right" }}><Label style={{ margin: 0 }}>Is this item temperature sensitive?</Label></Col>
+                                                    <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_temp_sensitive" /></Col> */}
+
+                                                    <Col span={8} style={{ textAlign: "right" }}><Label>Temperature Senctivity</Label></Col>
+                                                    <Col span={16}><FormField options={tempSensitivityArray} type="select" name="temp_sensitivity" /></Col>
 
                                                     <Col span={8} style={{ textAlign: "right" }}><Label>Product Type</Label></Col>
                                                     <Col span={16}><ProdTypeDD name="type._id" validate={rules.required} preload onChange={form.mutators.onTypeChange} /></Col>
@@ -765,7 +768,7 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
                                             <div style={{ padding: "0 20px 20px 20px" }}>
                                                 <Row gutter={[10, 20]} align="top">
                                                     <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop: 0 }}>Is this unfit for dispatch box?</Label></Col>
-                                                    <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="fit_for_dispatch" /></Col>
+                                                    <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="unfit_for_dispatch" /></Col>
                                                 </Row>
                                             </div>
 

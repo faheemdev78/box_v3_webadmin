@@ -130,7 +130,7 @@ const PRODUCT_FIELDS: FieldDefinition[] = [
     render: (value) => <Tag color={value ? 'orange' : 'default'}>{value ? 'Yes' : 'No'}</Tag>
   },
   {
-    key: 'fit_for_dispatch',
+    key: 'unfit_for_dispatch',
     label: 'Fit for Dispatch',
     type: 'boolean',
     group: 'Product Properties',
@@ -332,7 +332,7 @@ const PRODUCT_COLUMNS: ColumnDefinition[] = [
     group: 'Product Properties'
   },
   {
-    key: 'fit_for_dispatch',
+    key: 'unfit_for_dispatch',
     label: 'Fit for Dispatch',
     visible: false,
     sortable: true,

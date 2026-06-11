@@ -31,6 +31,11 @@ export const basketCategories = [
     { label: 'Dispatch', value: 'dispatch' },
 ]
 
+export const tempSensitivityArray = [
+    { label: 'Normal', value: "normal" },
+    { label: 'Fridge', value: "fridge" },
+    { label: 'Freezer', value: "freezer" },
+]
 
 export const geoZoneTypes = [
     { label: 'Service Zones', value: "service" },

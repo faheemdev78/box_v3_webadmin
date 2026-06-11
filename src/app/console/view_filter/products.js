@@ -55,7 +55,7 @@ export const products = [
             "asdasdsad"
         ],
         "bullits": [],
-        "fit_for_dispatch": true,
+        "unfit_for_dispatch": true,
         "tags": "aaaaa,ssss",
         "meta": [
             {
@@ -228,7 +228,7 @@ export const products = [
         },
         "description": [],
         "bullits": [],
-        "fit_for_dispatch": false,
+        "unfit_for_dispatch": false,
         "meta": [
             {
                 "name": "keywords",
@@ -364,7 +364,7 @@ export const products = [
         },
         "description": [],
         "bullits": [],
-        "fit_for_dispatch": false,
+        "unfit_for_dispatch": false,
         "meta": [
             {
                 "name": "keywords",

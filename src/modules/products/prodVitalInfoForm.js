@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { __error, __yellow } from '@/lib/consoleHelper';
 import { Alert, Card, Col, Divider, message, Row, Space } from 'antd';
 import { escapeText, string_to_slug } from '@/lib/utill';
-import { Button, DrawerFooter, Icon, IconButton } from '@/components';
+import { Button, DrawerFooter, Icon, IconButton, DevBlock } from '@/components';
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
@@ -11,6 +11,7 @@ import { FormField, SubmitButton, rules, composeValidators, submitHandler, Exter
 import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@/components/dropdowns';
 
 import RECORD_EDIT from '@/graphql/product/editProduct.graphql'
+import { tempSensitivityArray } from '@/configs';
 
 
 const filterSlug = (e, onChange) => onChange(string_to_slug(e.target.value));
@@ -34,10 +35,12 @@ export function ProdVitalInfoForm({ initialValues, onSuccess, onCancel }) {
                 slug: item.slug,
                 code: item.code,
             })),
-            is_temp_sensitive: values.is_temp_sensitive === true,
+            // is_temp_sensitive: values.is_temp_sensitive === true,
+            temp_sensitivity: values.temp_sensitivity,
             type: !values.type ? undefined : { _id: values.type._id, title: values.type.title, slug: values.type.slug },
-            fit_for_dispatch: values.fit_for_dispatch === true,
+            unfit_for_dispatch: values.unfit_for_dispatch === true,
         }
+        console.log("input: ", input)
 
         let results = await editProduct({ variables: { input } }).then(r => (r?.data?.editProduct))
             .catch(err => {
@@ -78,7 +81,7 @@ export function ProdVitalInfoForm({ initialValues, onSuccess, onCancel }) {
                     <form id="ProdItendityForm" {...submitHandler(formargs)}>
 
                         <Space orientation='vertical' size={20} style={{ width: "100%" }}>
-                            <FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_expirable">Is product expirable?</FormField>
+                            <FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_expirable" label="Is product expirable?" />
                             <FormField label="Country/Regin or Origin" type="text" name="origon" validate={rules.required} />
                             <FieldArray name="attributes">
                                 {({ fields }) => {
@@ -106,9 +109,10 @@ export function ProdVitalInfoForm({ initialValues, onSuccess, onCancel }) {
                                     </>)
                                 }}
                             </FieldArray>
-                            <FormField label="Is this item temperature sensitive?" checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_temp_sensitive" />
+                            {/* <FormField label="Is this item temperature sensitive?" checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_temp_sensitive" /> */}
+                            <FormField options={tempSensitivityArray} label="Temperature Senctivity" type="select" name="temp_sensitivity" />
                             <ProdTypeDD label="Product Type" name="type._id" validate={rules.required} preload onChange={form.mutators.onTypeChange} />
-                            <FormField label="Is this unfit for dispatch box?" checkedChildren="Yes" unCheckedChildren="No" type="switch" name="fit_for_dispatch" />
+                            <FormField label="Is this unfit for dispatch box?" checkedChildren="Yes" unCheckedChildren="No" type="switch" name="unfit_for_dispatch" />
                         </Space>
 
                         <DrawerFooter><Row>

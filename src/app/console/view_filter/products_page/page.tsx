@@ -92,7 +92,7 @@ const INITIAL_PRODUCT_VIEWS: SavedView[] = [
         currentValue: ['online', 'offline']
       }
     ],
-    columns: [...productsConfig.defaultColumns, 'is_expirable', 'fit_for_dispatch'],
+    columns: [...productsConfig.defaultColumns, 'is_expirable', 'unfit_for_dispatch'],
     isPinned: true,
     visibility: 'private',
     owner: 'admin'

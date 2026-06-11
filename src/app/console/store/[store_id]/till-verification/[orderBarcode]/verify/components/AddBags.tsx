@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, Space } from 'antd';
 import { useQuery } from '@apollo/client/react';
 import { Button, Icon, IconButton, Loader } from '@/components';
@@ -26,8 +26,15 @@ function Addbags({
     currentBags?: Array<{ _id: string; qty: number }>;
     onBagAction: (bag: Bags, action: 'add' | 'remove') => Promise<void>;
 }){
+    const [busy, setBusy] = useState(false)
     const session = useAppSelector((state: RootState) => state.session);
     const settings = useAppSelector(getSettings);
+
+    const onAddBag = async (bag:any, action:string) => {
+        setBusy(true);
+        await onBagAction(bag, action)
+        setBusy(false);
+    }
 
     const { data, loading, error } = useQuery<any>(GET_BAGS, {
         variables: { filter: JSON.stringify({ status:'active' }) },
@@ -43,17 +50,13 @@ function Addbags({
                     const selectedQty = currentBags.find((currentBag) => currentBag._id === bag._id)?.qty || 0;
                     return (
                 <div className='flex flex-col items-center justify-center overflow-hidden w-full h-[200px] bg-white border border-gray-200 rounded-md p-5'>
-                    {/* <div className='h-[100px] w-[70px] bg-white-300 text-center text-blue-300'><Icon icon="shopping-bag" size="4x" /></div> */}
                     <div className='text-center text-blue-300'><Icon icon="shopping-bag" size="6x" /></div>
-                    {/* <div>{index}x{index} {bag.size}</div> */}
                     <div>{bag.size}</div>
                     <div className='text-2xl font-bold'>{settings.currency} {bag.price}</div>
                     <div className='text-sm'>Selected: {selectedQty}</div>
                     <Space>
-                        <IconButton onClick={() => onBagAction(bag, 'remove')} disabled={selectedQty < 1} icon="minus" />
-                        <IconButton color='green' onClick={() => onBagAction(bag, 'add')} icon="plus" />
-                        {/* <Button onClick={() => onBagAction(bag, 'remove')} disabled={selectedQty < 1}>-</Button>
-                        <Button color='green' onClick={() => onBagAction(bag, 'add')}>Add</Button> */}
+                        <IconButton loading={busy} onClick={() => onAddBag(bag, 'remove')} disabled={selectedQty < 1} icon="minus" />
+                        <IconButton loading={busy} color='green' onClick={() => onAddBag(bag, 'add')} icon="plus" />
                     </Space>
                 </div>
                     )

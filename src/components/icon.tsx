@@ -17,7 +17,11 @@ import {
   faLock,
   faPlay, faShoppingBasket, faShoppingBag,
   faTrash,
-  faExclamation} from '@fortawesome/free-solid-svg-icons'
+  faExclamation,
+  faSnowflake,
+  faBox,
+  faExclamationCircle,
+  faTemperatureLow} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { FontAwesomeIconProps } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
@@ -28,6 +32,7 @@ library.add(
   faStopwatch, faClock, faCog, faEye, faSquareCheck, faSquare, faBell, faMultiply, faMessage, faAngleDown,
   faPen, faTrashAlt, faTrash, faCopy, faRefresh, faAddressCard, faLocation, faInfoCircle, faMapLocation, faBasketShopping,
   faLock, faPlay, faArrowLeft, faCheckCircle, faShoppingBasket, faShoppingBag, faExclamation,
+  faSnowflake, faBox, faExclamationCircle, faTemperatureLow
 )
  
 

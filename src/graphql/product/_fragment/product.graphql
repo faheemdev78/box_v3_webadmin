@@ -39,7 +39,8 @@ fragment ProductInfo on Product {
   origon
     
   attributes {...Prod_AttributesSchemaReff_Info}
-  is_temp_sensitive
+  # is_temp_sensitive
+  temp_sensitivity
   type { _id title slug }
   status
     
@@ -60,7 +61,7 @@ fragment ProductInfo on Product {
   picture {...ImageSchemaInfo}
   video {...ImageSchemaInfo}
   gallery {...ImageSchemaInfo}
-  fit_for_dispatch
+  unfit_for_dispatch
   tags
   meta { name val }
   extra_fields {
