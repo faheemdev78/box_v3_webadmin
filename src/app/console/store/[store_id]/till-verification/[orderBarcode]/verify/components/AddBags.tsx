@@ -30,7 +30,7 @@ function Addbags({
     const session = useAppSelector((state: RootState) => state.session);
     const settings = useAppSelector(getSettings);
 
-    const onAddBag = async (bag:any, action:string) => {
+    const onAddBag = async (bag:any, action:any) => {
         setBusy(true);
         await onBagAction(bag, action)
         setBusy(false);
