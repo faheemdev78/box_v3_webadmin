@@ -3,59 +3,45 @@ import React from 'react';
 import Barcode from 'react-barcode';
 import { utcToDate } from '@/lib/utill';
 import { Icon } from '@/components';
-
+import { Styles } from '@/types/styles';
 
 const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
     ({ orderData }, ref) => {
         const { current_order, zone, shippingAddress, customer, delivery_slot, barcode } = orderData;
 
-        const frozenItems = current_order.items.filter((o:any) => o.temp_sensitivity === 'freezer')?.length;
-        const coldItems = current_order.items.filter((o:any) => o.temp_sensitivity === 'fridge')?.length;
-        const unfitForboxItems = current_order.items.filter((o:any) => o.unfit_for_dispatch)?.length;
+        const frozenItems = current_order.items.filter((o: any) => o.temp_sensitivity === 'freezer')?.length;
+        const coldItems = current_order.items.filter((o: any) => o.temp_sensitivity === 'fridge')?.length;
+        const unfitForboxItems = current_order.items.filter((o: any) => o.unfit_for_dispatch)?.length;
 
         const orderTotal = current_order.totals.grandTotal;
-        // const zone = zone.title;
-        // address = line1: orderData.shippingAddress.full_address,
-        // customer = { orderData.customer.name }
-        // phone = { orderData.customer.phone }
         const deliverySlot = `${utcToDate(delivery_slot.start_date).format('hh:mm A')} to ${utcToDate(delivery_slot.end_date).format('hh:mm A')}`;
-        const frozenBox = '3'
-        const notFitInBox = '2'
         const totalBoxes = current_order?.baskets?.length || 0;
         const boxCodes = current_order?.baskets?.map((item: any) => (item.barcode)) || [];
-        const pageInfo = '1 of 6';
 
         return (<div ref={ref}>
             <div style={styles.receipt}>
                 {/* ── Top Row: Order Total | Zone | Page ── */}
                 <div style={styles.topRow}>
-                    {/* Order total */}
                     <div style={styles.totalBox}>
                         <span style={styles.rsLabel}>RS</span>
                         <span style={styles.totalValue}>{orderTotal}</span>
                     </div>
 
-                    {/* Zone badge */}
                     <div style={styles.zoneBadge}>
-                        {/* <span style={styles.zoneText}>ZONE</span> */}
                         <span style={styles.zoneNumber}>{zone.title}</span>
                     </div>
 
-                    {/* Page indicator */}
                     <div style={styles.pageInfo}>1 of {totalBoxes}</div>
                 </div>
 
-                {/* ── Heavy top divider ── */}
                 <div style={styles.solidDivider} />
 
-                {/* ── Address ── */}
                 <div style={styles.addressSection}>
                     <p style={styles.addressLine}>{shippingAddress.full_address}</p>
                 </div>
 
                 <div style={styles.dashedDivider} />
 
-                {/* ── Customer details ── */}
                 <div style={styles.detailsSection}>
                     <div style={styles.detailRow}>
                         <span style={styles.detailLabel}>Customer</span>
@@ -75,10 +61,6 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
                         <span style={styles.detailValueBold}>{deliverySlot}</span>
                     </div>
                 </div>
-
-
-                {/* ── Box summary (frozen | not‑fit) ── */}
-
 
                 <div style={styles.dashedDivider} />
                 <div style={styles.boxSummary}>
@@ -106,45 +88,7 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
                 </div>
                 <div style={styles.dashedDivider} />
 
-
-                {/* <div style={styles.boxSummary}>
-                <div style={styles.boxItem}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.5">
-                        <path d="M3 7l9-4 9 4-9 4-9-4z" />
-                        <path d="M3 7v10l9 4 9-4V7" />
-                        <path d="M12 11v10" />
-                        <text x="17" y="20" fontSize="12" stroke="none" fill="#000">❄</text>
-                    </svg>
-                    <span style={styles.boxText}>
-                        Frozen Box: <strong>{frozenBox}</strong>
-                    </span>
-                </div>
-
-                <div style={styles.verticalDivider} />
-
-                <div style={styles.boxItem}>
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="1.5">
-                        <path d="M3 7l9-4 9 4-9 4-9-4z" />
-                        <path d="M3 7v10l9 4 9-4V7" />
-                        <path d="M12 11v10" />
-                        <circle cx="18" cy="18" r="4" fill="#000" />
-                        <text x="16.5" y="20.5" fontSize="6" stroke="none" fill="#fff">!</text>
-                    </svg>
-                    <span style={styles.boxText}>
-                        Not Fit in Box: <strong>{notFitInBox}</strong>
-                    </span>
-                </div>
-            </div> */}
-
-
-
-
-
-
-
-                {/* ── Bottom Row: Barcode | Boxes list ── */}
                 <div style={styles.bottomRow}>
-                    {/* Barcode */}
                     <div style={styles.barcodeBox}>
                         <Barcode
                             value={barcode}
@@ -157,10 +101,8 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
                         />
                     </div>
 
-                    {/* Vertical divider */}
                     <div style={styles.verticalDashedDivider} />
 
-                    {/* Boxes column */}
                     <div style={styles.boxesColumn}>
                         <div style={styles.boxesLabel}>BOXES: {totalBoxes}</div>
                         <div style={styles.boxCodes}>
@@ -179,9 +121,8 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
 OrderReceipt.displayName = 'OrderReceipt';
 
 
-
 /* ─────────────────────────  STYLES  ───────────────────────── */
-const styles = {
+const styles: Styles = {
     receipt: {
         width: '80mm',
         minHeight: '50mm',
@@ -196,7 +137,6 @@ const styles = {
         margin: '0 auto',
     },
 
-    /* Top row (total | zone | page) */
     topRow: {
         display: 'grid',
         gridTemplateColumns: '1fr auto 1fr',
@@ -219,7 +159,6 @@ const styles = {
         borderRadius: '3mm',
         padding: '1.5mm 4mm',
     },
-    // zoneText: { fontSize: '14px', fontWeight: 700 },
     zoneNumber: { fontSize: '24px', fontWeight: 800 },
 
     pageInfo: {
@@ -228,15 +167,12 @@ const styles = {
         textAlign: 'right',
     },
 
-    /* Dividers */
     solidDivider: { borderTop: '1.2px solid #000', margin: '1mm 0' },
     dashedDivider: { borderTop: '1px dashed #000', margin: '1mm 0' },
 
-    /* Address */
     addressSection: {},
     addressLine: { margin: '0.5mm 0', fontSize: '13px' },
 
-    /* Customer */
     detailsSection: { display: 'flex', flexDirection: 'column', gap: '1mm' },
     detailRow: {
         display: 'grid',
@@ -247,7 +183,6 @@ const styles = {
     detailColon: { textAlign: 'center', fontWeight: 700 },
     detailValueBold: { fontSize: '14px', fontWeight: 700 },
 
-    /* Box summary (frozen / not‑fit) */
     boxSummary: {
         display: 'flex',
         alignItems: 'center',
@@ -266,7 +201,6 @@ const styles = {
         background: '#000',
     },
 
-    /* Bottom row (barcode | boxes) */
     bottomRow: {
         display: 'grid',
         gridTemplateColumns: '1fr 4px 1fr',
