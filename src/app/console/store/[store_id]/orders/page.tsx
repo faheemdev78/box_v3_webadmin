@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { __error } from '@/lib/consoleHelper';
 import { adminRoot, defaultDateTimeFormat, defaultPageSize, defaultPagination } from "@/configs";
@@ -371,7 +371,7 @@ function OrdersListPage(props:any) {
     };
 
     const renderActions = (_: any, record: any) => {
-        let returnArr = []
+        let returnArr: ReactNode[] = []
 
         if (record.locked_by){
             if (record.locked_by === userSession.user._id) returnArr.push(<span style={{ color: "green" }}><Tooltip title="Locked by you"><Icon icon="lock" /></Tooltip></span>)

@@ -309,7 +309,7 @@ function EditAppPage() {
             return false;
         }
 
-        let uploadArray = [];
+        let uploadArray: { file: any; row_index: number }[] = [];
 
         let input = {
             _id: pageData && pageData._id,
