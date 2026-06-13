@@ -18,102 +18,108 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
         const totalBoxes = current_order?.baskets?.length || 0;
         const boxCodes = current_order?.baskets?.map((item: any) => (item.barcode)) || [];
 
-        return (<div ref={ref}>
-            <div style={styles.receipt}>
-                {/* ── Top Row: Order Total | Zone | Page ── */}
-                <div style={styles.topRow}>
-                    <div style={styles.totalBox}>
-                        <span style={styles.rsLabel}>RS</span>
-                        <span style={styles.totalValue}>{orderTotal}</span>
-                    </div>
 
-                    <div style={styles.zoneBadge}>
-                        <span style={styles.zoneNumber}>{zone.title}</span>
-                    </div>
 
-                    <div style={styles.pageInfo}>1 of {totalBoxes}</div>
-                </div>
+        return (<div className='scrollbar-thin overflow-auto h-full max-h-100'>
+            <div ref={ref}>
+                {Array.from({ length: totalBoxes }).map((_, i) => (
+                    <div style={styles.receipt} key={i}>
+                        {/* ── Top Row: Order Total | Zone | Page ── */}
+                        <div style={styles.topRow}>
+                            <div style={styles.totalBox}>
+                                <span style={styles.rsLabel}>RS</span>
+                                <span style={styles.totalValue}>{orderTotal}</span>
+                            </div>
 
-                <div style={styles.solidDivider} />
+                            <div style={styles.zoneBadge}>
+                                <span style={styles.zoneNumber}>{zone.title}</span>
+                            </div>
 
-                <div style={styles.addressSection}>
-                    <p style={styles.addressLine}>{shippingAddress.full_address}</p>
-                </div>
-
-                <div style={styles.dashedDivider} />
-
-                <div style={styles.detailsSection}>
-                    <div style={styles.detailRow}>
-                        <span style={styles.detailLabel}>Customer</span>
-                        <span style={styles.detailColon}>:</span>
-                        <span style={styles.detailValueBold}>{customer.name}</span>
-                    </div>
-
-                    <div style={styles.detailRow}>
-                        <span style={styles.detailLabel}>Phone</span>
-                        <span style={styles.detailColon}>:</span>
-                        <span style={styles.detailValueBold}>{customer.phone}</span>
-                    </div>
-
-                    <div style={styles.detailRow}>
-                        <span style={styles.detailLabel}>Delivery Slot</span>
-                        <span style={styles.detailColon}>:</span>
-                        <span style={styles.detailValueBold}>{deliverySlot}</span>
-                    </div>
-                </div>
-
-                <div style={styles.dashedDivider} />
-                <div style={styles.boxSummary}>
-                    {frozenItems > 0 && <div style={styles.boxItem}>
-                        <span className='relative'>
-                            <Icon icon='box' color='#000000' fontSize={18} />
-                            <Icon icon="snowflake" fontSize={10} color='#FFFFFF' className='absolute right-0 bottom-0' />
-                        </span>
-                        <span>Freezer: <span className='font-black'>{frozenItems}</span></span>
-                    </div>}
-                    {coldItems > 0 && <div style={styles.boxItem}>
-                        <span className='relative'>
-                            <Icon icon='box' color='#000000' fontSize={18} />
-                            <Icon icon="temperature-low" fontSize={10} color='#FFFFFF' className='absolute right-0 bottom-0' />
-                        </span>
-                        <span>Fridge: <span className='font-black'>{coldItems}</span></span>
-                    </div>}
-                    {unfitForboxItems > 0 && <div style={styles.boxItem}>
-                        <span className='relative'>
-                            <Icon icon='box' color='#000000' fontSize={18} />
-                            <div className='absolute bg-black h-1 w-full left-0 right-0 top-1.5 rounded-md border-1 border-white rotate-45' />
-                        </span>
-                        <span>Unfit for box: <span className='font-black'>{unfitForboxItems}</span></span>
-                    </div>}
-                </div>
-                <div style={styles.dashedDivider} />
-
-                <div style={styles.bottomRow}>
-                    <div style={styles.barcodeBox}>
-                        <Barcode
-                            value={barcode}
-                            format="CODE128"
-                            width={1.0}
-                            height={55}
-                            fontSize={12}
-                            margin={0}
-                            displayValue
-                        />
-                    </div>
-
-                    <div style={styles.verticalDashedDivider} />
-
-                    <div style={styles.boxesColumn}>
-                        <div style={styles.boxesLabel}>BOXES: {totalBoxes}</div>
-                        <div style={styles.boxCodes}>
-                            {boxCodes.map((code, i) => (
-                                <div key={i} style={styles.boxCode}>{code}</div>
-                            ))}
+                            <div style={styles.pageInfo}>{i + 1} of {totalBoxes}</div>
                         </div>
-                    </div>
-                </div>
 
-                <div style={styles.dashedDivider} />
+                        <div style={styles.solidDivider} />
+
+                        <div style={styles.addressSection}>
+                            <p style={styles.addressLine}>{shippingAddress.full_address}</p>
+                        </div>
+
+                        <div style={styles.dashedDivider} />
+
+                        <div style={styles.detailsSection}>
+                            <div style={styles.detailRow}>
+                                <span style={styles.detailLabel}>Customer</span>
+                                <span style={styles.detailColon}>:</span>
+                                <span style={styles.detailValueBold}>{customer.name}</span>
+                            </div>
+
+                            <div style={styles.detailRow}>
+                                <span style={styles.detailLabel}>Phone</span>
+                                <span style={styles.detailColon}>:</span>
+                                <span style={styles.detailValueBold}>{customer.phone}</span>
+                            </div>
+
+                            <div style={styles.detailRow}>
+                                <span style={styles.detailLabel}>Delivery Slot</span>
+                                <span style={styles.detailColon}>:</span>
+                                <span style={styles.detailValueBold}>{deliverySlot}</span>
+                            </div>
+                        </div>
+
+                        <div style={styles.dashedDivider} />
+                        <div style={styles.boxSummary}>
+                            {frozenItems > 0 && <div style={styles.boxItem}>
+                                <span className='relative'>
+                                    <Icon icon='box' color='#000000' fontSize={18} />
+                                    <Icon icon="snowflake" fontSize={10} color='#FFFFFF' className='absolute right-0 bottom-0' />
+                                </span>
+                                <span>Freezer: <span className='font-black'>{frozenItems}</span></span>
+                            </div>}
+                            {coldItems > 0 && <div style={styles.boxItem}>
+                                <span className='relative'>
+                                    <Icon icon='box' color='#000000' fontSize={18} />
+                                    <Icon icon="temperature-low" fontSize={10} color='#FFFFFF' className='absolute right-0 bottom-0' />
+                                </span>
+                                <span>Fridge: <span className='font-black'>{coldItems}</span></span>
+                            </div>}
+                            {unfitForboxItems > 0 && <div style={styles.boxItem}>
+                                <span className='relative'>
+                                    <Icon icon='box' color='#000000' fontSize={18} />
+                                    <div className='absolute bg-black h-1 w-full left-0 right-0 top-1.5 rounded-md border-1 border-white rotate-45' />
+                                </span>
+                                <span>Unfit for box: <span className='font-black'>{unfitForboxItems}</span></span>
+                            </div>}
+                        </div>
+                        <div style={styles.dashedDivider} />
+
+                        <div style={styles.bottomRow}>
+                            <div style={styles.barcodeBox}>
+                                <Barcode
+                                    value={barcode}
+                                    format="CODE128"
+                                    width={1.0}
+                                    height={55}
+                                    fontSize={12}
+                                    margin={0}
+                                    displayValue
+                                />
+                            </div>
+
+                            <div style={styles.verticalDashedDivider} />
+
+                            <div style={styles.boxesColumn}>
+                                <div style={styles.boxesLabel}>BOXES: {totalBoxes}</div>
+                                <div style={styles.boxCodes}>
+                                    {boxCodes.map((code, i) => (
+                                        <div key={i} style={styles.boxCode}>{code}</div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={styles.dashedDivider} />
+                    </div>)
+                )}
             </div>
         </div>);
     }
