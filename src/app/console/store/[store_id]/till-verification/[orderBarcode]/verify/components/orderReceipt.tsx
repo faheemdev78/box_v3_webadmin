@@ -22,7 +22,7 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
 
         return (<div className='scrollbar-thin overflow-auto h-full max-h-100'>
             <div ref={ref}>
-                {Array.from({ length: totalBoxes }).map((_, i) => (
+                {Array.from({ length: totalBoxes }).map((_:any, i:number) => (
                     <div style={styles.receipt} key={i}>
                         {/* ── Top Row: Order Total | Zone | Page ── */}
                         <div style={styles.topRow}>
@@ -39,13 +39,11 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
                         </div>
 
                         <div style={styles.solidDivider} />
-
                         <div style={styles.addressSection}>
                             <p style={styles.addressLine}>{shippingAddress.full_address}</p>
                         </div>
 
-                        <div style={styles.dashedDivider} />
-
+                        <div style={styles.solidDivider} />
                         <div style={styles.detailsSection}>
                             <div style={styles.detailRow}>
                                 <span style={styles.detailLabel}>Customer</span>
@@ -66,7 +64,7 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
                             </div>
                         </div>
 
-                        <div style={styles.dashedDivider} />
+                        {/* <div style={styles.dashedDivider} /> */}
                         <div style={styles.boxSummary}>
                             {frozenItems > 0 && <div style={styles.boxItem}>
                                 <span className='relative'>
@@ -90,7 +88,7 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
                                 <span>Unfit for box: <span className='font-black'>{unfitForboxItems}</span></span>
                             </div>}
                         </div>
-                        <div style={styles.dashedDivider} />
+                        <div style={styles.solidDivider} />
 
                         <div style={styles.bottomRow}>
                             <div style={styles.barcodeBox}>
@@ -110,14 +108,16 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
                             <div style={styles.boxesColumn}>
                                 <div style={styles.boxesLabel}>BOXES: {totalBoxes}</div>
                                 <div style={styles.boxCodes}>
-                                    {boxCodes.map((code, i) => (
-                                        <div key={i} style={styles.boxCode}>{code}</div>
+                                    {boxCodes.map((code:string, i:number) => (
+                                        <span key={i} style={styles.boxCode}>{code}{i < boxCodes.length-1 && ","} </span>
                                     ))}
                                 </div>
                             </div>
                         </div>
 
-                        <div style={styles.dashedDivider} />
+                        <div style={styles.solidDivider} />
+
+                        {totalBoxes - 1 > i && <div style={styles.cutDivider} />}
                     </div>)
                 )}
             </div>
@@ -132,15 +132,18 @@ const styles: Styles = {
     receipt: {
         width: '80mm',
         minHeight: '50mm',
-        padding: '4mm 5mm',
+        padding: '0', // '4mm 5mm',
         fontFamily: 'Arial, Helvetica, sans-serif',
         fontSize: '13px',
         lineHeight: 1.3,
         background: '#fff',
         color: '#000',
         boxSizing: 'border-box',
-        border: '1px solid #000',
+        // border: '1px solid #000',
+        // borderBottom: '1px dashed #000',
         margin: '0 auto',
+        // marginBottom: 20,
+        // paddingBottom: 20,
     },
 
     topRow: {
@@ -173,8 +176,9 @@ const styles: Styles = {
         textAlign: 'right',
     },
 
-    solidDivider: { borderTop: '1.2px solid #000', margin: '1mm 0' },
+    solidDivider: { borderTop: '1px solid #000', margin: '1mm 0' },
     dashedDivider: { borderTop: '1px dashed #000', margin: '1mm 0' },
+    cutDivider: { borderTop: '1px dashed #000', margin: '5mm 0' },
 
     addressSection: {},
     addressLine: { margin: '0.5mm 0', fontSize: '13px' },
@@ -218,7 +222,7 @@ const styles: Styles = {
     verticalDashedDivider: {
         width: 0,
         height: '20mm',
-        borderLeft: '1px dashed #000',
+        borderLeft: '1px solid #000',
     },
     boxesColumn: {
         display: 'flex',
@@ -233,12 +237,14 @@ const styles: Styles = {
         letterSpacing: '0.5px',
     },
     boxCodes: {
-        display: 'flex',
-        flexDirection: 'column',
+        // display: 'flex',
+        // flexDirection: 'column',
         alignItems: 'center',
         gap: '0.5mm',
+        // border: '1px solid black'
+        textAlign: "center",
     },
-    boxCode: { fontSize: '13px' },
+    boxCode: { fontSize: '12px' },
 };
 
 export default OrderReceipt;

@@ -33,9 +33,6 @@ import { utcToDate } from '@/lib/utill';
 import { AddBaskets } from './components/AddBaskets';
 import AddBags from './components/AddBags';
 import { playBeep } from '@/lib/utill';
-import { useThermalPrinter } from '@/hooks/useThermalPrinter';
-import { Styles } from '@/types/styles';
-import UsbTest from './components/UsbTest';
 
 import GET_AVAILABLE_BASKETS from '@/graphql/baskets/getAvailableBaskets.graphql';
 import GET_BAGS from '@/graphql/bags/bags.graphql';
@@ -576,142 +573,8 @@ const RightColumn = ({
     handleScan(productScanRequest.barcode);
   }, [productScanRequest?.key]);
 
-
-  const iconBgMap = {
-    'text-green-700': 'bg-green-100',
-    'text-blue-500': 'bg-blue-100',
-    'text-violet-500': 'bg-violet-100',
-    'text-amber-500': 'bg-amber-100',
-    'text-red-500': 'bg-red-100',
-    'text-teal-600': 'bg-teal-100',
-  };
-  const Icon2 = ({ children, bgColor, iconColor }) => (
-    <div className={`w-16 h-16 rounded-full flex items-center justify-center ${bgColor}`}>
-      <div className={`text-3xl ${iconColor}`}>{children}</div>
-    </div>
-  );
-  // Reusable StatCard component
-  const StatCard = ({ icon, bgColor, iconColor, label, value, subValue, valueColor }) => (
-    <div className={`rounded-2xl p-6 flex items-center gap-4 ${bgColor}`}>
-      <Icon2 bgColor={iconBgMap[iconColor]} iconColor={iconColor}>
-        {icon}
-      </Icon2>
-      <div className="border-l border-dashed border-gray-300 pl-4 flex-1">
-        <div className="text-sm font-semibold text-gray-700 mb-1">{label}</div>
-        <div className={`text-3xl font-bold ${valueColor}`}>
-          {value} {subValue && <span className="text-gray-400 text-lg">/ {subValue}</span>}
-        </div>
-      </div>
-    </div>
-  );
-  const OrderSummary = () => {
-    return (
-      <div className='bg-white'>
-        {/* Header */}
-        <div className="w-full bg-gradient-to-br from-green-50 to-green-100 p-6 flex items-center justify-between rounded-md m-3">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-green-700 flex items-center justify-center">
-              <div className="text-3xl text-white">🛍️</div>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">Order Received</h1>
-          </div>
-          <div className="text-right">
-            <div className="text-sm font-semibold text-green-700 uppercase tracking-wide">
-              Total Order Amount
-            </div>
-            <div className="text-5xl font-extrabold text-green-700">10,150</div>
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="w-full p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {/* Current Bill */}
-          <div className="rounded-2xl p-6 flex items-center gap-4 bg-green-50">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-              <div className="text-3xl text-green-700">👛</div>
-            </div>
-            <div className="border-l border-dashed border-green-300 pl-4 flex-1">
-              <div className="text-sm font-semibold text-gray-700 mb-1">Current Bill</div>
-              <div className="text-3xl font-bold text-green-700">
-                5,000 <span className="text-gray-400 text-lg font-normal">/ 10,000</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bags */}
-          <div className="rounded-2xl p-6 flex items-center gap-4 bg-blue-50">
-            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-              <div className="text-3xl text-blue-500">🛍️</div>
-            </div>
-            <div className="border-l border-dashed border-blue-300 pl-4 flex-1">
-              <div className="text-sm font-semibold text-gray-700 mb-1">Bags</div>
-              <div className="text-3xl font-bold text-blue-500">
-                3 <span className="text-gray-400 text-lg font-normal">/ 45</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Customer Payable */}
-          <div className="rounded-2xl p-6 flex items-center gap-4 bg-violet-50">
-            <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center">
-              <div className="text-3xl text-violet-500">👥</div>
-            </div>
-            <div className="border-l border-dashed border-violet-300 pl-4 flex-1">
-              <div className="text-sm font-semibold text-gray-700 mb-1">Customer Payable</div>
-              <div className="text-3xl font-bold text-violet-500">10,045</div>
-            </div>
-          </div>
-
-          {/* Total Items */}
-          <div className="rounded-2xl p-6 flex items-center gap-4 bg-amber-50">
-            <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
-              <div className="text-3xl text-amber-500">📦</div>
-            </div>
-            <div className="border-l border-dashed border-amber-300 pl-4 flex-1">
-              <div className="text-sm font-semibold text-gray-700 mb-1">Total Items</div>
-              <div className="text-3xl font-bold text-amber-500">
-                2 <span className="text-gray-400 text-lg font-normal">/ 7</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Out of Stock Items */}
-          <div className="rounded-2xl p-6 flex items-center gap-4 bg-red-50">
-            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-              <div className="text-3xl text-red-500">📋</div>
-            </div>
-            <div className="border-l border-dashed border-red-300 pl-4 flex-1">
-              <div className="text-sm font-semibold text-gray-700 mb-1">Out of Stock Items/Amount</div>
-              <div className="text-3xl font-bold text-red-500">
-                2 <span className="text-gray-400 text-lg font-normal">/ 150</span>
-              </div>
-            </div>
-          </div>
-
-          {/* FBR Fee */}
-          <div className="rounded-2xl p-6 flex items-center gap-4 bg-teal-50">
-            <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center">
-              <div className="text-3xl text-teal-600">🏛️</div>
-            </div>
-            <div className="border-l border-dashed border-teal-300 pl-4 flex-1">
-              <div className="text-sm font-semibold text-gray-700 mb-1">FBR Fee</div>
-              <div className="text-3xl font-bold text-teal-600">1</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="w-full border-t border-gray-200 p-4 text-center text-gray-500 text-sm">
-          All amounts are in Pakistani Rupees (Rs.)
-        </div>
-      </div>
-    );
-  };
-
-
   return (<>
     <div className='w-150 border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
-
       <div className="flex-1 w-full p-4 bg-gray-50/50 overflow-y-auto">
         <div className='flex flex-col p-10'>
           <div className=''>
@@ -727,9 +590,10 @@ const RightColumn = ({
             />
             {/* <div>scaned: {scaned}</div> */}
           </div>
-          {normalizedQuery && (<div className='flex flex-wrap gap-2 mt-10'>
-              {matchedItems.length > 0 ? matchedItems.map((item: any,) => (
-                <Button size="small"
+          {normalizedQuery && (
+            <div className='flex flex-wrap gap-2 mt-10'>
+              {matchedItems.length > 0 ? matchedItems.map((item: any) => (
+                <Button
                   key={String(item._id_product)}
                   type={String(selectedProductId) === String(item._id_product) ? 'primary' : 'default'}
                   onClick={() => selectItem(item)}
@@ -739,8 +603,8 @@ const RightColumn = ({
               )) : (
                 <Text type="secondary">No matching item found in this order.</Text>
               )}
-          </div>)}
-
+            </div>
+          )}
           <div className='flex flex-col items-center justify-center' style={{ marginTop:"10px" }}>
             <div className='text-xl font-semibold mt-10 text-center' style={{ color:"#111827" }}>
               {selectedItem?.title || 'Scan or search an item'}
@@ -785,17 +649,12 @@ const RightColumn = ({
             {/* <Button onClick={() => openPrintWindow('order')}>Box Receipt Print</Button> */}
           </Space></div>
         </div>
-
         <div className='border-t border-gray-300 p-10'>
           <div>Area: <b>{orderData.zone.title}</b></div>
           <div>Time: <b>{utcToDate(orderData.delivery_slot.start_date).format("ddd Do MMM YYYY - HH:mm")} - {utcToDate(orderData.delivery_slot.end_date).format("HH:mm")} </b></div>
         </div>
-
       </div>
-
-      <OrderSummary />
-
-      {/* <div className="h-[80px] border-t border-gray-300 w-full flex flex-col p-10 font-semibold">
+      <div className="h-[80px] border-t border-gray-300 w-full flex flex-col p-10 font-semibold">
         <Row>
           <Col span={12}>Total Bill <span className='text-sm'>({orderData.original_order.totals.grandTotal})</span></Col>
           <Col span={12}>{scannedItemTotal.toFixed(2)}/{originalOrderTotal.toFixed(2)}</Col>
@@ -806,8 +665,7 @@ const RightColumn = ({
           <Col span={12}>Out of stock items</Col>
           <Col span={12}>{unavailableItemCount}</Col>
         </Row>
-      </div> */}
-
+      </div>
     </div>
 
     <Modal title="Quantity Mismatch"
@@ -846,8 +704,6 @@ const RightColumn = ({
     </Modal>
   </>)
 }
-
-
 const PageFooter = ({ orderData }: { orderData:any }) => {
   {/* C3: 100px height */}
   return (<div className="h-[80px] border-t border-gray-300 flex bg-white">
@@ -1206,23 +1062,6 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       ? initialOrderData
       : null;
 
-  const {
-    status: printerStatus,
-    error: printerError,
-    supported: printerSupported,
-    autoConnect,
-    printTillReceipt,
-    printOrderReceipt,
-    printBoxLabel,
-  } = useThermalPrinter();
-
-
-  // Try to auto-connect on mount (silently)
-  useEffect(() => {
-    if (printerSupported) {
-      autoConnect();
-    }
-  }, [printerSupported]);
 
   const initializeOrder = async (targetOrderBarcode: string) => {
     console.log(__yellow("initializeOrder()"))
@@ -1437,112 +1276,32 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     set_showExcessiveItem(true);
   }
 
-  const handlePrintAllReceipts = async () => {
-    if (!orderData) return;
-
-    if (printerStatus !== 'connected') {
-      message.error('Printer not connected. Please connect the thermal printer first.');
-      return;
-    }
-
-    try {
-      await handlePrintInvoice()
-      message.success('Receipt printed successfully');
-    } catch (e: any) {
-      message.error(e.message || 'Print failed');
-    }
-  };
-
-  const handlePrintInvoice = async () => {
+  const handlePrintInvoice = () => {
     if (!invoicePreviewRef.current) return;
 
-    const contentWidth = 400; // invoicePreviewRef.current.scrollWidth;
-    const contentHeight = invoicePreviewRef.current.scrollHeight;
-
-    console.log(`Receipt dimensions: ${contentWidth}x${contentHeight}px`);
-
-    // Step 2: Open window sized to content + small buffer
-    const printWindow = window.open(
-      '',
-      '_blank',
-      `width=${contentWidth + 20},height=${contentHeight + 20},scrollbars=no`
-    );
-
+    const printWindow = window.open('', '_blank', 'width=420,height=800');
     if (!printWindow) {
       message.error('Unable to open print window');
       return;
     }
 
-    const receiptHTML = invoicePreviewRef.current.innerHTML;
-
-    // Step 3: Write HTML with @page sized to match content
     printWindow.document.write(`
-      <!DOCTYPE html>
       <html>
         <head>
           <title>Invoice ${orderData?.serial || ''}</title>
           <style>
-            * {
-              margin: 0 !important;
-              padding: 0 !important;
-              box-sizing: border-box !important;
-            }
-
-            html, body {
-              background: #fff;
-              width: ${contentWidth}px;
-              min-height: ${contentHeight}px;
-              overflow: visible;
-            }
-
-            /* This is the key - tell the browser the page is exactly the content size */
-            @page {
-              margin: 0;
-              padding: 0;
-              size: ${contentWidth}px ${contentHeight}px;
-            }
-
+            body { margin: 0; padding: 0; background: #fff; }
             @media print {
-              @page {
-                margin: 0 !important;
-                padding: 0 !important;
-                size: ${contentWidth}px ${contentHeight}px;
-              }
-
-              html, body {
-                width: ${contentWidth}px !important;
-                height: ${contentHeight}px !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
-              }
+              body { margin: 0; }
             }
           </style>
         </head>
-        <body>${receiptHTML}</body>
+        <body>${invoicePreviewRef.current.innerHTML}</body>
       </html>
     `);
-
     printWindow.document.close();
-
-    // Step 4: Wait for content to fully render, then measure again and print
-    printWindow.addEventListener('load', () => {
-      // Re-measure after images/fonts load
-      const body = printWindow.document.body;
-      const finalWidth = body.scrollWidth;
-      const finalHeight = body.scrollHeight;
-
-      // Resize window to exact content size (no extra space)
-      printWindow.resizeTo(finalWidth, finalHeight);
-
-      printWindow.focus();
-
-      // Small delay to ensure layout is stable
-      setTimeout(() => {
-        printWindow.print();
-      }, 300);
-    });
-
+    printWindow.focus();
+    printWindow.print();
   };
 
   // Initialize order verification on mount
@@ -1647,7 +1406,6 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
             <Button onClick={() => setActiveTab('unscanned')} color={activeTab ==='unscanned' ? 'blue' : undefined}>Unscanned ({unscannedItems.length})</Button>
             <Button onClick={() => setActiveTab('scanned')} color={activeTab === 'scanned' ? 'blue' : undefined}>Scanned ({scannedItems.length})</Button>
             <Button onClick={() => setActiveTab('unavailable')} color={activeTab === 'unavailable' ? 'blue' : undefined}>Unavailable ({missingItems.length})</Button>
-            <Tag color={printerStatus === 'connected' ? 'green' : 'red'}>Printer: {printerStatus}</Tag>
           </Space></div>
         </div>
 
@@ -1662,9 +1420,6 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
             loading={completingOrder}
           />
         ) : <ContentArea orderData={orderData} orderItems={displayItems} />}
-
-
-        <UsbTest />
 
         <PageFooter orderData={orderData} />
       </div>
@@ -1721,7 +1476,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       width={420}
       footer={[
         <Button key="close" onClick={() => set_showPrintPreview(false)}>Close</Button>,
-        <Button key="print" type="primary" icon={<PrinterOutlined />} disabled={printerStatus !== 'connected'} onClick={handlePrintAllReceipts}>Print</Button>,
+        <Button key="print" type="primary" icon={<PrinterOutlined />} onClick={handlePrintInvoice}>Print</Button>,
       ]}
     >
       {showPrintPreview == 'product' && <ProductReceipt orderData={orderData} ref={invoicePreviewRef} />}
