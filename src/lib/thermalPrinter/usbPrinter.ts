@@ -109,11 +109,28 @@ export class UsbThermalPrinter {
         }
     }
 
+    // private async send(data: Uint8Array): Promise<void> {
+    //     if (!this.device || this.endpointOut === null) {
+    //         throw new Error('Printer not connected');
+    //     }
+    //     const result = await this.device.transferOut(this.endpointOut, data);
+    //     if (result.status !== 'ok') {
+    //         throw new Error(`Print failed with status: ${result.status}`);
+    //     }
+    // }
     private async send(data: Uint8Array): Promise<void> {
         if (!this.device || this.endpointOut === null) {
             throw new Error('Printer not connected');
         }
-        const result = await this.device.transferOut(this.endpointOut, data);
+
+        // FIX: Ensure we're sending an ArrayBuffer-backed Uint8Array
+        // Copy into a fresh ArrayBuffer to avoid SharedArrayBuffer issues
+        const buffer = new ArrayBuffer(data.byteLength);
+        new Uint8Array(buffer).set(data);
+        const safeData = new Uint8Array(buffer);
+
+        const result = await this.device.transferOut(this.endpointOut, safeData);
+
         if (result.status !== 'ok') {
             throw new Error(`Print failed with status: ${result.status}`);
         }
