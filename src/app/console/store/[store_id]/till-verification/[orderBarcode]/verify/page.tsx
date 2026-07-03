@@ -33,7 +33,6 @@ import { utcToDate } from '@/lib/utill';
 import { AddBaskets } from './components/AddBaskets';
 import AddBags from './components/AddBags';
 import { playBeep } from '@/lib/utill';
-import { useThermalPrinter } from '@/hooks/useThermalPrinter';
 import { Styles } from '@/types/styles';
 import UsbTest from './components/UsbTest';
 
@@ -322,7 +321,14 @@ const RightColumn = ({
   orderData,
   orderId,
   productScanRequest,
-  onShowExcessiveItem
+  onShowExcessiveItem,
+
+  missingItems,
+  scannedItems,
+  unscannedItems,
+  processedItems,
+  totalItems
+
 }: {
   showBags: () => void;
   showBaskets: () => void;
@@ -332,7 +338,14 @@ const RightColumn = ({
   orderId: string;
   productScanRequest?: { barcode: string; key: number } | null;
   onShowExcessiveItem: (item: any, qty: number) => void;
+
+  missingItems: any;
+  scannedItems: any;
+  unscannedItems: any;
+  processedItems: any;
+  totalItems: any;
 }) => {
+
   {/* C4: 300px fixed width */}
   // flex flex-1 flex-col items-start w-full bg-gray-50/50 overflow-y-auto
   const [barcodeQuery, setBarcodeQuery] = useState('');
@@ -604,11 +617,144 @@ const RightColumn = ({
       </div>
     </div>
   );
-  const OrderSummary = () => {
+
+  const OrderSummary = ({ 
+    order, missingItems, scannedItems, unscannedItems, processedItems, totalItems,
+    orderAmount,
+    scannedItemTotal,
+    originalOrderTotal,
+    unavailableItemCount,
+
+  }: { 
+    order:any;
+    missingItems: any;
+    scannedItems: any;
+    unscannedItems: any;
+    processedItems: any;
+    totalItems: any;
+
+    orderAmount: number; // = { orderData.original_order.totals.grandTotal }
+    scannedItemTotal: number; // = { scannedItemTotal }
+    originalOrderTotal: number; // = { originalOrderTotal }
+    unavailableItemCount: number; // = { unavailableItemCount }
+
+  }) => {
+
+    // const scannedItems = order?.current_order?.items?.filter((item: any) =>
+    //   item.processed_qty > 0 && item.qty == item.processed_qty && item.status === 'confirmed'
+    // );
+
+    const Card1 = ({ className, children }: { className?: string; children:any; }) => {
+      return (<div className='w-full bg-green-100 rounded-md text-base/3' style={{ padding:"5px 10px", paddingBottom: '0px' }}>
+        {children}
+      </div>)
+    }
+
+    const _missingItems = missingItems.length ? missingItems.map(item=>(item.qty * item.price)) : 0;
+    let missingItems_total = 0;
+    _missingItems.forEach(itm => {
+      missingItems_total += itm;
+    });
+    
+    let customerPayable = 0;
+    customerPayable += 1; // FBR FEE
+    customerPayable += scannedItemTotal;
+
+
+    return (<div className='w-full text-base/4'>
+      <div className='w-full bg-green-100 rounded-md p-10'>
+        <Row align="middle">
+          <Col flex="auto"><span className='text-3xl font-bold text-gray-900'>Order Received</span></Col>
+          <Col className='text-center'>
+            <div>Total Order Amount</div>
+            <div><span className="text-3xl font-extrabold text-green-700">{originalOrderTotal.toFixed(2)}</span></div>
+          </Col>
+        </Row>
+      </div>
+
+      <div className='h-1' />
+
+      <Row gutter={[5, 5]}>
+        <Col span={8}>
+          <Card1>
+            <div>Current Bill</div>
+            <div><span className='text-2xl font-bold'>{scannedItemTotal}</span> / {originalOrderTotal}</div>
+          </Card1>
+        </Col>
+        <Col span={8}>
+          <Card1>
+            <div>Bags</div>
+            <div><span className='text-2xl font-bold'>{order?.current_order?.bags?.length || '0'}</span> / XXX</div>
+          </Card1>
+        </Col>
+        <Col span={8}>
+          <Card1>
+            <div>Total Items</div>
+            <div><span className='text-2xl font-bold'>{scannedItems.length || '0'}</span> / {order?.current_order.items?.length || '0'}</div>
+          </Card1>
+        </Col>
+        <Col span={8}>
+          <Card1>
+            <div>Out of Stock <span className='text-[9px]'>Items/Amnt</span></div>
+            <div><span className='text-2xl font-bold'>{missingItems.length || 0}</span> / {missingItems_total}</div>
+          </Card1>
+        </Col>
+        <Col span={8}>
+          <Card1>
+            <div>FBR Fee</div>
+            <div><span className='text-2xl font-bold'>{Number(1).toFixed(2)}</span></div>
+          </Card1>
+        </Col>
+        <Col span={8}>
+          <Card1>
+            <div>Customer Payable</div>
+            <div><span className='text-2xl font-bold'>{customerPayable.toFixed(2)}</span></div>
+          </Card1>
+        </Col>
+      </Row>
+
+      <div className="w-full border-t border-gray-200 p-4 text-center text-gray-500 text-sm">All amounts are in Pakistani Rupees (Rs.)</div>
+    </div>)
+
     return (
       <div className='bg-white'>
+
+        <Row>
+          <Col flex="auto">Order Received</Col>
+          <Col>
+            <div className='text-center'>
+              <div>Total Order Amount</div>
+              <div>{order?.original_order?.totals?.grandTotal}</div>
+            </div>
+          </Col>
+        </Row>
+
+        <Row>
+          <Col span={8}>
+            <div>Current Bill</div>
+            <div>5000 / 10000</div>
+          </Col>
+          <Col span={8}>
+            <div>Bags</div>
+            <div>3 / 45</div>
+          </Col>
+          <Col span={8}>
+            <div>Customer Payable</div>
+            <div>10045</div>
+          </Col>
+          <Col span={8}>
+            <div>Total Items</div>
+            <div>2 / 7</div>
+          </Col>
+          <Col span={8}>
+            <div>Out of Stock Items/Amount</div>
+            <div>2 / 150</div>
+          </Col>
+        </Row>
+
+
         {/* Header */}
-        <div className="w-full bg-gradient-to-br from-green-50 to-green-100 p-6 flex items-center justify-between rounded-md m-3">
+        {/* <div className="w-full bg-gradient-to-br from-green-50 to-green-100 p-6 flex items-center justify-between rounded-md m-3">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-green-700 flex items-center justify-center">
               <div className="text-3xl text-white">🛍️</div>
@@ -621,11 +767,9 @@ const RightColumn = ({
             </div>
             <div className="text-5xl font-extrabold text-green-700">10,150</div>
           </div>
-        </div>
+        </div> */}
 
-        {/* Stats Grid */}
-        <div className="w-full p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {/* Current Bill */}
+        {/* <div className="w-full p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           <div className="rounded-2xl p-6 flex items-center gap-4 bg-green-50">
             <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
               <div className="text-3xl text-green-700">👛</div>
@@ -638,7 +782,6 @@ const RightColumn = ({
             </div>
           </div>
 
-          {/* Bags */}
           <div className="rounded-2xl p-6 flex items-center gap-4 bg-blue-50">
             <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
               <div className="text-3xl text-blue-500">🛍️</div>
@@ -651,7 +794,6 @@ const RightColumn = ({
             </div>
           </div>
 
-          {/* Customer Payable */}
           <div className="rounded-2xl p-6 flex items-center gap-4 bg-violet-50">
             <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center">
               <div className="text-3xl text-violet-500">👥</div>
@@ -662,7 +804,6 @@ const RightColumn = ({
             </div>
           </div>
 
-          {/* Total Items */}
           <div className="rounded-2xl p-6 flex items-center gap-4 bg-amber-50">
             <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
               <div className="text-3xl text-amber-500">📦</div>
@@ -675,7 +816,6 @@ const RightColumn = ({
             </div>
           </div>
 
-          {/* Out of Stock Items */}
           <div className="rounded-2xl p-6 flex items-center gap-4 bg-red-50">
             <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
               <div className="text-3xl text-red-500">📋</div>
@@ -688,7 +828,6 @@ const RightColumn = ({
             </div>
           </div>
 
-          {/* FBR Fee */}
           <div className="rounded-2xl p-6 flex items-center gap-4 bg-teal-50">
             <div className="w-16 h-16 rounded-full bg-teal-100 flex items-center justify-center">
               <div className="text-3xl text-teal-600">🏛️</div>
@@ -698,12 +837,10 @@ const RightColumn = ({
               <div className="text-3xl font-bold text-teal-600">1</div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Footer */}
-        <div className="w-full border-t border-gray-200 p-4 text-center text-gray-500 text-sm">
-          All amounts are in Pakistani Rupees (Rs.)
-        </div>
+        <div className="w-full border-t border-gray-200 p-4 text-center text-gray-500 text-sm">All amounts are in Pakistani Rupees (Rs.)</div>
       </div>
     );
   };
@@ -793,7 +930,19 @@ const RightColumn = ({
 
       </div>
 
-      <OrderSummary />
+      <OrderSummary 
+        order={orderData}
+        missingItems={missingItems}
+        scannedItems={scannedItems}
+        unscannedItems={unscannedItems}
+        processedItems={processedItems}
+        totalItems={totalItems}
+        
+        orderAmount={orderData.original_order.totals.grandTotal}
+        scannedItemTotal={scannedItemTotal}
+        originalOrderTotal={originalOrderTotal}
+        unavailableItemCount={unavailableItemCount}
+      />
 
       {/* <div className="h-[80px] border-t border-gray-300 w-full flex flex-col p-10 font-semibold">
         <Row>
@@ -1206,24 +1355,6 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       ? initialOrderData
       : null;
 
-  const {
-    status: printerStatus,
-    error: printerError,
-    supported: printerSupported,
-    autoConnect,
-    printTillReceipt,
-    printOrderReceipt,
-    printBoxLabel,
-  } = useThermalPrinter();
-
-
-  // Try to auto-connect on mount (silently)
-  useEffect(() => {
-    if (printerSupported) {
-      autoConnect();
-    }
-  }, [printerSupported]);
-
   const initializeOrder = async (targetOrderBarcode: string) => {
     console.log(__yellow("initializeOrder()"))
     const normalizedOrderBarcode = String(targetOrderBarcode || '').trim();
@@ -1440,11 +1571,6 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const handlePrintAllReceipts = async () => {
     if (!orderData) return;
 
-    if (printerStatus !== 'connected') {
-      message.error('Printer not connected. Please connect the thermal printer first.');
-      return;
-    }
-
     try {
       await handlePrintInvoice()
       message.success('Receipt printed successfully');
@@ -1647,7 +1773,6 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
             <Button onClick={() => setActiveTab('unscanned')} color={activeTab ==='unscanned' ? 'blue' : undefined}>Unscanned ({unscannedItems.length})</Button>
             <Button onClick={() => setActiveTab('scanned')} color={activeTab === 'scanned' ? 'blue' : undefined}>Scanned ({scannedItems.length})</Button>
             <Button onClick={() => setActiveTab('unavailable')} color={activeTab === 'unavailable' ? 'blue' : undefined}>Unavailable ({missingItems.length})</Button>
-            <Tag color={printerStatus === 'connected' ? 'green' : 'red'}>Printer: {printerStatus}</Tag>
           </Space></div>
         </div>
 
@@ -1670,6 +1795,12 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       </div>
 
       <RightColumn 
+        missingItems={missingItems}
+        scannedItems={scannedItems}
+        unscannedItems={unscannedItems}
+        processedItems={processedItems}
+        totalItems={totalItems}
+
         orderData={orderData} 
         orderId={orderData._id} 
         productScanRequest={productScanRequest} 
@@ -1721,7 +1852,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       width={420}
       footer={[
         <Button key="close" onClick={() => set_showPrintPreview(false)}>Close</Button>,
-        <Button key="print" type="primary" icon={<PrinterOutlined />} disabled={printerStatus !== 'connected'} onClick={handlePrintAllReceipts}>Print</Button>,
+        <Button key="print" type="primary" icon={<PrinterOutlined />} onClick={handlePrintAllReceipts}>Print</Button>,
       ]}
     >
       {showPrintPreview == 'product' && <ProductReceipt orderData={orderData} ref={invoicePreviewRef} />}
