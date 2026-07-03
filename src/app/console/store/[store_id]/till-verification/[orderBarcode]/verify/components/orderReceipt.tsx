@@ -4,9 +4,13 @@ import Barcode from 'react-barcode';
 import { utcToDate } from '@/lib/utill';
 import { Icon } from '@/components';
 import { Styles } from '@/types/styles';
+import { useAppSelector } from '@/rStore/hooks';
+import { getSettings } from '@/rStore/slices/systemSlice';
 
 const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
     ({ orderData }, ref) => {
+        const settings = useAppSelector(getSettings);
+
         const { current_order, zone, shippingAddress, customer, delivery_slot, barcode } = orderData;
 
         const frozenItems = current_order.items.filter((o: any) => o.temp_sensitivity === 'freezer')?.length;
@@ -18,6 +22,10 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
         const totalBoxes = current_order?.baskets?.length || 0;
         const boxCodes = current_order?.baskets?.map((item: any) => (item.barcode)) || [];
 
+        const scannedItemTotal = orderData?.current_order?.items?.reduce(
+            (sum: number, item: any) => sum + ((item.processed_qty ?? 0) * (item.price ?? 0)),
+            0
+        );
 
 
         return (<div className='scrollbar-thin overflow-auto h-full max-h-100'>
@@ -27,8 +35,8 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
                         {/* ── Top Row: Order Total | Zone | Page ── */}
                         <div style={styles.topRow}>
                             <div style={styles.totalBox}>
-                                <span style={styles.rsLabel}>RS</span>
-                                <span style={styles.totalValue}>{orderTotal}</span>
+                                <span style={styles.rsLabel}>{settings.currency}</span>
+                                <span style={styles.totalValue}>{scannedItemTotal}</span>
                             </div>
 
                             <div style={styles.zoneBadge}>

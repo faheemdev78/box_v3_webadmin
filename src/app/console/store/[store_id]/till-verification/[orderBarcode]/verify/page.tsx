@@ -375,15 +375,15 @@ const RightColumn = ({
     (sum: number, item: any) => sum + ((item.processed_qty ?? 0) * (item.price ?? 0)),
     0
   );
-  const scannedItemQty = orderItems.reduce(
-    (sum: number, item: any) => sum + (item.processed_qty ?? 0),
-    0
-  );
+  // const scannedItemQty = orderItems.reduce(
+  //   (sum: number, item: any) => sum + (item.processed_qty ?? 0),
+  //   0
+  // );
   const unavailableItemCount = orderItems.filter(
     (item: any) => item.status === 'out_of_stock'
   ).length;
   const originalOrderTotal = orderData?.original_order?.totals?.grandTotal ?? orderData?.current_order?.totals?.grandTotal ?? 0;
-  const originalOrderQty = orderData?.original_order?.totals?.totalQuantity ?? orderData?.current_order?.totals?.totalQuantity ?? 0;
+  // const originalOrderQty = orderData?.original_order?.totals?.totalQuantity ?? orderData?.current_order?.totals?.totalQuantity ?? 0;
   const normalizedQuery = submittedBarcodeQuery.trim().toLowerCase();
   const matchedItems = normalizedQuery
     ? orderItems.filter((item: any) => {
@@ -429,15 +429,6 @@ const RightColumn = ({
     selectedQtyRef.current = nextQty;
     setSelectedProductId(productId);
     setSelectedQty(nextQty);
-  };
-
-  const clearBarcodeSelection = () => {
-    setBarcodeQuery('');
-    setSubmittedBarcodeQuery('');
-    selectedProductIdRef.current = null;
-    selectedQtyRef.current = 0;
-    setSelectedProductId(null);
-    setSelectedQty(0);
   };
 
   const handleBarcodeSearch = () => {
@@ -670,8 +661,10 @@ const RightColumn = ({
       missingItems_total += itm;
     });
     
+    const deliveryFee = Number(settings.default_delivery_charges || 0);
+    const fbrFee = Number(settings.fbr_fee || 0);
     let customerPayable = 0;
-    customerPayable += 1; // FBR FEE
+    customerPayable += fbrFee; // FBR FEE
     customerPayable += scannedItemTotal;
 
     // console.log("order?.current_order?.bags: ", order?.current_order?.bags)
@@ -679,9 +672,6 @@ const RightColumn = ({
     if (order?.current_order?.bags) order?.current_order?.bags.forEach(bag => {
       bagPrice += bag.price * bag.qty;
     });
-
-    const deliveryFee = Number(settings.default_delivery_charges || 0);
-    const fbrFee = Number(settings.fbr_fee || 0);
 
  
     return (<div className='w-full text-base/4'>
@@ -832,9 +822,7 @@ const RightColumn = ({
           <div style={{ marginBottom: "0px" }}><Space>
             <Button onClick={showBags}>Bags ({totalBags})</Button>
             <Button onClick={showBaskets}>Baskets ({totalBaskets})</Button>
-            {/* <Button onClick={showPrint}>Print</Button> */}
             <Button onClick={() => openPrintWindow('product')}>Product Receipt Print</Button>
-            {/* <Button onClick={() => openPrintWindow('order')}>Box Receipt Print</Button> */}
           </Space></div>
         </div>
 
@@ -858,19 +846,6 @@ const RightColumn = ({
         originalOrderTotal={originalOrderTotal}
         unavailableItemCount={unavailableItemCount}
       />
-
-      {/* <div className="h-[80px] border-t border-gray-300 w-full flex flex-col p-10 font-semibold">
-        <Row>
-          <Col span={12}>Total Bill <span className='text-sm'>({orderData.original_order.totals.grandTotal})</span></Col>
-          <Col span={12}>{scannedItemTotal.toFixed(2)}/{originalOrderTotal.toFixed(2)}</Col>
-          
-          <Col span={12}>Total Items</Col>
-          <Col span={12}>{scannedItemQty}/{originalOrderQty}</Col>
-          
-          <Col span={12}>Out of stock items</Col>
-          <Col span={12}>{unavailableItemCount}</Col>
-        </Row>
-      </div> */}
 
     </div>
 
@@ -1224,20 +1199,17 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [receiptText, setReceiptText] = useState<string>('');
   const [fatelError, setFatelError] = useState<string | null>(null);
-  const [openDrawer, set_openDrawer] = useState<string | false>(false);
 
   const [showWrongItem, set_showWrongItem] = useState<boolean>(false);
   const [showExcessiveItem, set_showExcessiveItem] = useState<boolean>(false);
   const [excessiveItemData, setExcessiveItemData] = useState<any>(null);
   const [excessiveQty, setExcessiveQty] = useState<number>(0);
   const [showSupervisorLogin, set_showSupervisorLogin] = useState<boolean>(false);
-  const [showReadyToDispatch, set_showReadyToDispatch] = useState<boolean>(false);
 
   const [showPrintPreview, set_showPrintPreview] = useState<string | boolean>(false);
 
   const [showBags, set_showBags] = useState<boolean>(false);
   const [showBaskets, set_showBaskets] = useState<boolean>(false);
-  const [showPrint, set_showPrint] = useState<boolean>(false);
   const [initializingOrderBarcode, setInitializingOrderBarcode] = useState<string | null>(null);
   const [initialOrderData, setInitialOrderData] = useState<any>(null);
 
