@@ -232,7 +232,7 @@ interface IconBtnProps extends ButtonProps {
     icon?: any,
 }
 export const IconButton = ({ icon, ...props }: IconBtnProps) => {
-    let _icon = <Icon icon={icon} />
+    const _icon = React.isValidElement(icon) ? icon : icon ? <Icon icon={icon} /> : undefined;
 
     // let throttleHandler = onClick && throttle(onClick, CLICK_TIMEOUT, {
     //     leading: true,  // Fire on the first click.

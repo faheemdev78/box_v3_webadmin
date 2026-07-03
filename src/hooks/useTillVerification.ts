@@ -297,12 +297,13 @@ export const useCompleteOrderVerification = () => {
 
   const completeOrder = async (
     _id_order: string,
-    notes?: string
+    notes?: string,
+    totals?: any
   ) => {
     dispatch(setLoading(true));
     try {
       const result = await completeOrderMutation({
-        variables: { _id_order, notes },
+        variables: { _id_order, notes, totals },
       });
 
       const response = result.data?.completeOrderVerification;
@@ -540,7 +541,7 @@ export const useVerifyOrderItem = () => {
  * Hook for marking item as missing
  */
 export const useMarkOrderItemMissing = () => {
-  console.log(__yellow("useMarkOrderItemMissing()"))
+  // console.log(__yellow("useMarkOrderItemMissing()"))
   
   const dispatch = useAppDispatch();
   const [markMissingMutation, { loading }] = useMutation<any>(MARK_ORDER_ITEM_MISSING);

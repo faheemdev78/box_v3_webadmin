@@ -145,10 +145,9 @@ function ActiveSession({ store, onSessionUpdate }:{
 function TillOrders(){
   const { store }:any = usePageProps()
   const router = useRouter();
-  const settings = useAppSelector(getSettings);
+  // const settings = useAppSelector(getSettings);
   const tillVerification = useAppSelector(getTillVerification);
   const storeRef = useRef(store);
-  console.log("store: ", store)
 
   const [state, setState] = useState<any>({
       pagination: defaultPagination,
@@ -157,7 +156,7 @@ function TillOrders(){
       others: { },
   })
   const stateRef = useRef<any>(state);
-  console.log("--- state.dataSource: ", state.dataSource)
+  // console.log("--- state.dataSource: ", state.dataSource)
   // const [showCloseShiftModal, setShowCloseShiftModal] = useState(false);
   // const [closeNotes, setCloseNotes] = useState('');
 

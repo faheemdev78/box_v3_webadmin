@@ -22,7 +22,7 @@ import {
   faBox,
   faExclamationCircle,
   faTemperatureLow,
-  faEquals} from '@fortawesome/free-solid-svg-icons'
+  faEquals, faUndo} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { FontAwesomeIconProps } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
@@ -33,7 +33,7 @@ library.add(
   faStopwatch, faClock, faCog, faEye, faSquareCheck, faSquare, faBell, faMultiply, faMessage, faAngleDown,
   faPen, faTrashAlt, faTrash, faCopy, faRefresh, faAddressCard, faLocation, faInfoCircle, faMapLocation, faBasketShopping,
   faLock, faPlay, faArrowLeft, faCheckCircle, faShoppingBasket, faShoppingBag, faExclamation,
-  faSnowflake, faBox, faExclamationCircle, faTemperatureLow
+  faSnowflake, faBox, faExclamationCircle, faTemperatureLow, faUndo
 )
  
 
@@ -45,7 +45,7 @@ function verifyIconAvailability(icon_name: string) {
 
 
 interface IconProps extends Omit<FontAwesomeIconProps, 'icon'> {
-  icon: string;
+  icon: string | React.ReactNode;
   anticon?: boolean;
   skipstyle?: boolean;
   className?: string;
@@ -54,8 +54,12 @@ export const Icon = React.forwardRef<HTMLSpanElement, IconProps>((_props, ref) =
   const { icon, anticon, skipstyle, className, ...rest } = _props;
   const mergedClassName = `awsom-icon ${anticon ? "anticon" : ""} ${className || ""}`;
 
-  if (!verifyIconAvailability(icon)) {
-    console.log(__error(`Icon not found: `), icon)
+  if (React.isValidElement(icon)) {
+    return <span ref={ref} className={mergedClassName}>{icon}</span>;
+  }
+
+  if (typeof icon !== 'string' || !verifyIconAvailability(icon)) {
+    if (typeof icon === 'string') console.log(__error(`Icon not found: `), icon)
     return <span ref={ref} className={mergedClassName}>{icon}</span>;
   }
 

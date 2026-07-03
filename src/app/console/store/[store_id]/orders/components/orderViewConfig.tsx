@@ -15,6 +15,16 @@ export const ORDER_FILTER_FIELDS: FilterField[] = [
         ]
     },
     {
+        key: 'barcode',
+        label: 'Order Barcode',
+        type: 'text',
+        operators: [
+            { value: 'contains', label: 'Contains' },
+            { value: 'equals', label: 'Equals' },
+            { value: 'starts_with', label: 'Starts with' },
+        ]
+    },
+    {
         key: 'customer.name',
         label: 'Customer Name',
         type: 'text',
@@ -218,6 +228,7 @@ export const ORDER_FILTER_FIELDS: FilterField[] = [
 // Available columns for orders table
 export const ORDER_AVAILABLE_COLUMNS: ColumnConfig[] = [
     { key: 'serial', label: 'Order #', visible: true, sortable: true },
+    { key: 'barcode', label: 'Barcode', visible: false, sortable: true },
     { key: 'customer', label: 'Customer', visible: true, sortable: true },
     { key: 'picker', label: 'Picker', visible: false, sortable: false },
     { key: 'order', label: 'Order Total', visible: true, sortable: true },

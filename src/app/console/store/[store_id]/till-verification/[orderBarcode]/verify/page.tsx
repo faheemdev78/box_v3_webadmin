@@ -5,7 +5,7 @@
  * Updated for shift-based order verification system
  */
 
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, Row, Col, Space, Typography, Modal, Input, message, Progress, Tag, Alert, InputNumber, Tooltip, Popover } from 'antd';
 import BarcodePackage from 'react-barcode';
 import { useQuery } from '@apollo/client/react';
@@ -14,7 +14,7 @@ import {
   CheckCircleOutlined, LeftOutlined, ExclamationCircleOutlined, PrinterOutlined } from '@ant-design/icons';
 import { useParams, useRouter } from 'next/navigation';
 import { useAppSelector, useAppDispatch } from '@/rStore/hooks';
-import { getActiveShift, getCurrentOrder, getTillVerification, setCurrentOrder
+import { getActiveShift, getCurrentOrder, getTillVerification, setCurrentOrder, updateOrderTotals
 } from '@/rStore/slices/tillVerificationSlice';
 import { removeHeldOrder } from '@/rStore/slices/tillVerificationSlice';
 import { getSettings } from '@/rStore/slices/systemSlice';
@@ -319,31 +319,22 @@ const RightColumn = ({
   // showPrint,
   openPrintWindow,
   orderData,
+  orderCalculations,
   orderId,
   productScanRequest,
   onShowExcessiveItem,
-
-  missingItems,
-  scannedItems,
-  unscannedItems,
-  processedItems,
-  totalItems
-
+  unscannedItems
 }: {
   showBags: () => void;
   showBaskets: () => void;
   // showPrint: () => void;
   openPrintWindow: (txt:string) => void;
   orderData: any;
+  orderCalculations: any;
   orderId: string;
   productScanRequest?: { barcode: string; key: number } | null;
   onShowExcessiveItem: (item: any, qty: number) => void;
-
-  missingItems: any;
-  scannedItems: any;
   unscannedItems: any;
-  processedItems: any;
-  totalItems: any;
 }) => {
 
   {/* C4: 300px fixed width */}
@@ -364,25 +355,18 @@ const RightColumn = ({
   const { markMissing, loading: missingLoading } = useMarkOrderItemMissing();
   const { markMismatch, loading: mismatchLoading } = useMarkOrderItemMismatch();
 
+  const settings = useAppSelector(getSettings);
 
-  const orderItems = orderData?.current_order?.items || [];
+  const orderItems = orderCalculations.orderItems || [];
   const totalBaskets = (orderData?.current_order?.baskets || []).length;
   const totalBags = (orderData?.current_order?.bags || []).reduce(
     (sum: number, bag: any) => sum + (bag.qty || 0),
-    0
-  );
-  const scannedItemTotal = orderItems.reduce(
-    (sum: number, item: any) => sum + ((item.processed_qty ?? 0) * (item.price ?? 0)),
     0
   );
   // const scannedItemQty = orderItems.reduce(
   //   (sum: number, item: any) => sum + (item.processed_qty ?? 0),
   //   0
   // );
-  const unavailableItemCount = orderItems.filter(
-    (item: any) => item.status === 'out_of_stock'
-  ).length;
-  const originalOrderTotal = orderData?.original_order?.totals?.grandTotal ?? orderData?.current_order?.totals?.grandTotal ?? 0;
   // const originalOrderQty = orderData?.original_order?.totals?.totalQuantity ?? orderData?.current_order?.totals?.totalQuantity ?? 0;
   const normalizedQuery = submittedBarcodeQuery.trim().toLowerCase();
   const matchedItems = normalizedQuery
@@ -396,8 +380,8 @@ const RightColumn = ({
   const selectedItem = orderItems.find(
     (item: any) => String(item._id_product) === String(selectedProductId)
   ) || null;
-  const selectedVerificationStatus = selectedItem ? getVerificationStatusFromItem(selectedItem) : null;
-  const pickedQty = selectedItem ? getPickedQtyFromProcessingStage(orderData, selectedItem) : 0;
+  // const selectedVerificationStatus = selectedItem ? getVerificationStatusFromItem(selectedItem) : null;
+  // const pickedQty = selectedItem ? getPickedQtyFromProcessingStage(orderData, selectedItem) : 0;
   const requestedQty = selectedItem?.qty ?? 0;
   const imageSrc =
     selectedItem?.picture_thumb ||
@@ -441,6 +425,8 @@ const RightColumn = ({
       setSelectedProductId(null);
       return;
     }
+
+    if (nextNormalizedQuery.length < 5) return;
 
     const nextMatchedItems = orderItems.filter((item: any) => {
       const barcode = String(item.barcode || '').toLowerCase();
@@ -609,32 +595,19 @@ const RightColumn = ({
     </div>
   );
 
-  const OrderSummary = ({ 
-    order, missingItems, scannedItems, unscannedItems, processedItems, totalItems,
-    orderAmount,
-    scannedItemTotal,
-    originalOrderTotal,
-    unavailableItemCount,
-
-  }: { 
-    order:any;
-    missingItems: any;
-    scannedItems: any;
-    unscannedItems: any;
-    processedItems: any;
-    totalItems: any;
-
-    orderAmount: number; // = { orderData.original_order.totals.grandTotal }
-    scannedItemTotal: number; // = { scannedItemTotal }
-    originalOrderTotal: number; // = { originalOrderTotal }
-    unavailableItemCount: number; // = { unavailableItemCount }
-
-  }) => {
-
-    const settings = useAppSelector(getSettings);
-    // const scannedItems = order?.current_order?.items?.filter((item: any) =>
-    //   item.processed_qty > 0 && item.qty == item.processed_qty && item.status === 'confirmed'
-    // );
+  const OrderSummary = ({ order, orderCalculations }: { order:any; orderCalculations: any }) => {
+    const {
+      missingItems,
+      scannedItems,
+      missingItems_total,
+      scannedItemTotal,
+      originalOrderTotal,
+      customerPayable,
+      bagPrice,
+    } = orderCalculations;
+    const totals = order?.current_order?.totals || {};
+    const deliveryFee = Number(totals.deliveryFee || 0);
+    const fbrFee = Number(totals.fbrFee || 0);
 
     const Card1 = ({ children, icon, color = 'gray' }: { children: any; icon?: ReactNode; color?:string; }) => {
 
@@ -653,26 +626,7 @@ const RightColumn = ({
           </div>
         </Space>
       </div>)
-    }
-
-    const _missingItems = missingItems.length ? missingItems.map(item=>(item.qty * item.price)) : 0;
-    let missingItems_total = 0;
-    _missingItems.forEach(itm => {
-      missingItems_total += itm;
-    });
-    
-    const deliveryFee = Number(settings.default_delivery_charges || 0);
-    const fbrFee = Number(settings.fbr_fee || 0);
-    let customerPayable = 0;
-    customerPayable += fbrFee; // FBR FEE
-    customerPayable += scannedItemTotal;
-
-    // console.log("order?.current_order?.bags: ", order?.current_order?.bags)
-    let bagPrice = 0;
-    if (order?.current_order?.bags) order?.current_order?.bags.forEach(bag => {
-      bagPrice += bag.price * bag.qty;
-    });
-
+    }   
  
     return (<div className='w-full text-base/4'>
       {/* <div className='w-full bg-green-100 rounded-md p-10'>
@@ -749,7 +703,8 @@ const RightColumn = ({
 
   };
 
-  const itemIsUnscanned = selectedItem && selectedItem.status == 'picked';
+  // const itemIsUnscanned = selectedItem && selectedItem.status == 'picked';
+  const itemIsUnscanned = selectedItem && !!unscannedItems.find((item:any) => item._id_product === selectedItem._id_product)
 
   return (<>
     <div className='w-150 border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
@@ -758,9 +713,15 @@ const RightColumn = ({
         <div className='flex flex-col p-10'>
           <div className=''>
             <Input
+              allowClear
               placeholder="Search barcode of items in order"
               value={barcodeQuery}
               onChange={(e) => setBarcodeQuery(e.target.value)}
+              onClear={()=>{
+                // handleBarcodeSearch();
+                setSelectedProductId(null)
+                setSubmittedBarcodeQuery('')
+              }}
               onPressEnter={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -794,11 +755,10 @@ const RightColumn = ({
                 <Text type="secondary">Product Picture</Text>
               )}
             </div>
-            <Space orientation="vertical" size={2} align="center" className='text-lg/1'>
-              <Text>Scanned / Order Qty</Text>
+            <Space orientation="horizontal" size={2} align="center" className='text-lg/1'>
+              <Text>Scanned</Text>
               <Text strong style={{ fontSize: 24, lineHeight:1 }}>{selectedQty}/{requestedQty}</Text>
-              {/* <Text type="secondary">Saved scanned: {selectedVerificationStatus?.qty_verified ?? 0}</Text> */}
-              {/* <Text type="secondary">Picked: {pickedQty}</Text> */}
+              <Text>Order Qty</Text>
             </Space>
             <div style={{ marginTop: '10px' }}>
               <Space>
@@ -835,16 +795,7 @@ const RightColumn = ({
 
       <OrderSummary 
         order={orderData}
-        missingItems={missingItems}
-        scannedItems={scannedItems}
-        unscannedItems={unscannedItems}
-        processedItems={processedItems}
-        totalItems={totalItems}
-        
-        orderAmount={orderData.original_order.totals.grandTotal}
-        scannedItemTotal={scannedItemTotal}
-        originalOrderTotal={originalOrderTotal}
-        unavailableItemCount={unavailableItemCount}
+        orderCalculations={orderCalculations}
       />
 
     </div>
@@ -1016,6 +967,7 @@ const ReadyToDispatchWizard = ({
     (sum: number, bag: any) => sum + (bag.qty || 0),
     0
   );
+  
 
 
   return (<div className="flex-1 flex flex-col items-start w-full bg-gray-50/50 overflow-y-auto">
@@ -1245,11 +1197,127 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     String(order?.barcode || '').trim() === orderBarcode
   );
 
-  const orderData = matchesRouteOrder(reduxOrderData)
+  const settingsDeliveryFee = Number(settings.default_delivery_charges || 0);
+  const settingsFbrFee = Number(settings.fbr_fee || 0);
+
+  const rawOrderData = matchesRouteOrder(reduxOrderData)
     ? reduxOrderData
     : matchesRouteOrder(initialOrderData)
       ? initialOrderData
       : null;
+
+  const orderCalculations = useMemo(() => {
+    const orderItems = rawOrderData?.current_order?.items || [];
+    const totals = rawOrderData?.current_order?.totals || {};
+    const deliveryFee = settingsDeliveryFee;
+    const fbrFee = settingsFbrFee;
+
+    const processedItems = orderItems.filter((item: any) =>
+      item.processed_qty > 0 || item.status === 'confirmed' || item.status === 'out_of_stock' || item.status === 'damaged'
+    );
+    const unscannedItems = orderItems.filter((item: any) =>
+      (item.processed_qty < 1 || item.qty !== item.processed_qty) && !!item.issue_reason == false && item.status !== 'out_of_stock' && item.status !== 'damaged'
+    );
+    const scannedItems = orderItems.filter((item: any) =>
+      item.processed_qty > 0 && item.qty == item.processed_qty && item.status === 'confirmed'
+    );
+    const missingItems = orderItems.filter((item: any) => !!item.issue_reason);
+
+    const totalItems = orderItems.length;
+    const progressPercent = totalItems > 0 ? (processedItems.length / totalItems) * 100 : 0;
+    const missingItems_total = missingItems.reduce(
+      (sum: number, item: any) => sum + (Number(item.qty || 0) * Number(item.price || 0)),
+      0
+    );
+    const scannedItemTotal = orderItems.reduce(
+      (sum: number, item: any) => sum + (Number(item.processed_qty || 0) * Number(item.price || 0)),
+      0
+    );
+    const bagPrice = (rawOrderData?.current_order?.bags || []).reduce(
+      (sum: number, bag: any) => sum + (Number(bag.price || 0) * Number(bag.qty || 0)),
+      0
+    );
+    const customerPayable = scannedItemTotal + bagPrice + fbrFee + deliveryFee;
+    const originalOrderTotal = rawOrderData?.original_order?.totals?.grandTotal ?? totals.grandTotal ?? 0;
+    const unavailableItemCount = orderItems.filter((item: any) => item.status === 'out_of_stock').length;
+
+    return {
+      orderItems,
+      processedItems,
+      unscannedItems,
+      scannedItems,
+      missingItems,
+      totalItems,
+      progressPercent,
+      missingItems_total,
+      scannedItemTotal,
+      bagPrice,
+      deliveryFee,
+      fbrFee,
+      customerPayable,
+      originalOrderTotal,
+      unavailableItemCount,
+    };
+  }, [rawOrderData, settingsDeliveryFee, settingsFbrFee]);
+
+  const orderData = useMemo(() => {
+    if (!rawOrderData?.current_order) return rawOrderData;
+
+    const totals = rawOrderData.current_order.totals || {};
+    const nextTotals = {
+      ...totals,
+      subtotal: orderCalculations.scannedItemTotal,
+      bagTotal: orderCalculations.bagPrice,
+      deliveryFee: orderCalculations.deliveryFee,
+      fbrFee: orderCalculations.fbrFee,
+      grandTotal: orderCalculations.customerPayable,
+    };
+
+    if (
+      Number(totals.subtotal || 0) === nextTotals.subtotal &&
+      Number(totals.bagTotal || 0) === nextTotals.bagTotal &&
+      Number(totals.deliveryFee || 0) === nextTotals.deliveryFee &&
+      Number(totals.fbrFee || 0) === nextTotals.fbrFee &&
+      Number(totals.grandTotal || 0) === nextTotals.grandTotal
+    ) {
+      return rawOrderData;
+    }
+
+    return {
+      ...rawOrderData,
+      current_order: {
+        ...rawOrderData.current_order,
+        totals: nextTotals,
+      },
+    };
+  }, [rawOrderData, orderCalculations.scannedItemTotal, orderCalculations.bagPrice, orderCalculations.customerPayable, orderCalculations.deliveryFee, orderCalculations.fbrFee]);
+
+  useEffect(() => {
+    if (!rawOrderData?._id || !rawOrderData?.current_order?.totals) return;
+
+    const totals = rawOrderData.current_order.totals;
+    const nextTotals = {
+      ...totals,
+      subtotal: orderCalculations.scannedItemTotal,
+      bagTotal: orderCalculations.bagPrice,
+      deliveryFee: orderCalculations.deliveryFee,
+      fbrFee: orderCalculations.fbrFee,
+      grandTotal: orderCalculations.customerPayable,
+    };
+
+    if (
+      Number(totals.subtotal || 0) === nextTotals.subtotal &&
+      Number(totals.bagTotal || 0) === nextTotals.bagTotal &&
+      Number(totals.deliveryFee || 0) === nextTotals.deliveryFee &&
+      Number(totals.fbrFee || 0) === nextTotals.fbrFee &&
+      Number(totals.grandTotal || 0) === nextTotals.grandTotal
+    ) return;
+
+    dispatch(updateOrderTotals({
+      orderId: rawOrderData._id,
+      totals: nextTotals,
+    }));
+  }, [dispatch, rawOrderData?._id, rawOrderData?.current_order?.totals, orderCalculations.scannedItemTotal, orderCalculations.bagPrice, orderCalculations.customerPayable, orderCalculations.deliveryFee, orderCalculations.fbrFee]);
 
   const initializeOrder = async (targetOrderBarcode: string) => {
     console.log(__yellow("initializeOrder()"))
@@ -1294,7 +1362,23 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     }
 
     try {
-      await completeOrder(orderData._id, completeNotes);
+      const currentTotals = orderData?.current_order?.totals || {};
+      const completionTotals = {
+        saved: Number(currentTotals.saved || 0),
+        totalQuantity: Number(currentTotals.totalQuantity || 0),
+        subtotal: orderCalculations.scannedItemTotal,
+        discountTotal: Number(currentTotals.discountTotal || 0),
+        bagTotal: orderCalculations.bagPrice,
+        shipping: Number(currentTotals.shipping || 0),
+        taxRate: Number(currentTotals.taxRate || 0),
+        taxAmount: Number(currentTotals.taxAmount || 0),
+        fbrFee: orderCalculations.fbrFee,
+        deliveryFee: orderCalculations.deliveryFee,
+        grandTotal: orderCalculations.customerPayable,
+      };
+
+      await completeOrder(orderData._id, completeNotes, completionTotals);
+      dispatch(updateOrderTotals({ orderId: orderData._id, totals: completionTotals }));
       message.success('Order verification completed successfully!');
       setShowCompleteModal(false);
       setCompleteNotes('');
@@ -1622,7 +1706,6 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     />
   }
 
-
   const openPrintWindow = (type: string) => {
     if (type == 'product') {
       set_showPrintPreview('product')
@@ -1633,23 +1716,14 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   }
 
 
-  const orderItems = orderData?.current_order?.items || [];
-  const customer = orderData?.customer;
-  const picker = orderData?.processing_stages?.picking?.handled_by;
-
-  // Calculate verification progress
-  const totalItems = orderItems.length;
-  const processedItems = orderItems.filter((item: any) =>
-    item.processed_qty > 0 || item.status === 'confirmed' || item.status === 'out_of_stock' || item.status === 'damaged'
-  );
-  const unscannedItems = orderItems.filter((item: any) =>
-    (item.processed_qty < 1 || item.qty !== item.processed_qty) && !!item.issue_reason==false && item.status !== 'out_of_stock' && item.status !== 'damaged'
-  );
-  const scannedItems = orderItems.filter((item: any) =>
-    item.processed_qty > 0 && item.qty == item.processed_qty && item.status === 'confirmed'
-  );
-  const missingItems = orderItems.filter((item: any) => !!item.issue_reason);
-  const progressPercent = totalItems > 0 ? (processedItems.length / totalItems) * 100 : 0;
+  const {
+    orderItems,
+    unscannedItems,
+    scannedItems,
+    missingItems,
+  } = orderCalculations;
+  // const customer = orderData?.customer;
+  // const picker = orderData?.processing_stages?.picking?.handled_by;
 
   let displayItems = (activeTab === 'unscanned') ? unscannedItems : orderItems;
   if (activeTab === 'scanned') displayItems = scannedItems;
@@ -1692,13 +1766,8 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       </div>
 
       <RightColumn 
-        missingItems={missingItems}
-        scannedItems={scannedItems}
-        unscannedItems={unscannedItems}
-        processedItems={processedItems}
-        totalItems={totalItems}
-
         orderData={orderData} 
+        orderCalculations={orderCalculations}
         orderId={orderData._id} 
         productScanRequest={productScanRequest} 
         onShowExcessiveItem={handleShowExcessiveItem} 
@@ -1706,6 +1775,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
         showBaskets={() => set_showBaskets(true)} 
         // showPrint={() => set_showPrint(true)}
         openPrintWindow={openPrintWindow}
+        unscannedItems={unscannedItems}
       />
     </div>
 
@@ -1727,21 +1797,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       )}
     </Modal>
 
-    {/* <Modal
-      open={showPrint}
-      onCancel={() => set_showPrint(false)}
-      title='Final Invoice'
-      width={420}
-      footer={[
-        <Button key="close" onClick={() => set_showPrint(false)}>Close</Button>,
-        <Button key="print" type="primary" icon={<PrinterOutlined />} onClick={handlePrintInvoice}>Print</Button>,
-      ]}
-    >
-      <ThermalInvoicePreview ref={invoicePreviewRef} orderData={orderData} settings={settings} />
-    </Modal> */}
-
-    <Modal
-      title="Print Preview"
+    <Modal title="Print Preview"
       open={!!showPrintPreview}
       onCancel={() => {
         set_showPrintPreview(false)
@@ -1803,7 +1859,7 @@ function TillVerificationPOS_Wrapper() {
 
   const [activity, setActivity] = useState("Loading session...")
   const [fatelError, setFatelError] = useState<string | null>(null)
-  const [ready, setReady] = useState(false)
+  // const [ready, setReady] = useState(false)
 
   const { session: shiftSession, loading: shiftLoading, error: shiftError, refetch: refetchShift } = useMyActiveTillShift();
   const { openShift, loading: openingShift } = useOpenTillShift();
@@ -1842,8 +1898,6 @@ function TillVerificationPOS_Wrapper() {
     }
   };
 
-
-
   if (fatelError) return (<Page><div style={{ textAlign: 'center', padding: '100px 0' }}><Card>
     <Space orientation="vertical" align="center">
       <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
@@ -1871,7 +1925,6 @@ function TillVerificationPOS_Wrapper() {
       <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>Go to Till Queue</Button>
     </Space>
   </Card></div></Page>);
-
 
   return (<>
     <TillVerificationPOS 

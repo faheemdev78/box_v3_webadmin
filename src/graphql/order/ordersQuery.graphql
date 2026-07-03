@@ -11,6 +11,7 @@ query ordersQuery($limit: Int, $page: Int, $filter: String, $others: String, $_i
         edges { 
             _id
             serial
+            barcode
             store { _id title }
             zone {
                 _id_zone

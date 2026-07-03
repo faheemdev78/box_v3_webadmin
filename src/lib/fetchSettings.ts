@@ -8,17 +8,17 @@ import GET_CONFIGS from '@/graphql/settings/getSystemConfigs.graphql';
 
 
 export async function fetchSettings() {
-    console.log("fetchSettings()")
+    // console.log("fetchSettings()")
 
     const client = createApolloClient();
-    console.log("client: ", client)
+    // console.log("client: ", client)
 
     const results = await client.query({ 
         query: GET_CONFIGS,
         fetchPolicy: 'network-only',
     })
     .then(r=>{
-        console.log("fetchSettings > R: ", r)
+        // console.log("fetchSettings > R: ", r)
         return r;
     })
         .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: { data?: { getSystemConfigs?: any[] } }) => rr?.data?.getSystemConfigs }))

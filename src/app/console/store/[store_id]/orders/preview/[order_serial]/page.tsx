@@ -271,7 +271,7 @@ function OrderPreview() {
 
 
     return (<div>
-        <PageHeader title={<><IconButton icon={<Icon icon="arrow-left" />} onClick={() => router.back()} /> Order Details</>} sub={<div>Order #{order_serial}</div>}>
+        <PageHeader title={<><IconButton icon="arrow-left" onClick={() => router.back()} /> Order Details</>} sub={<div>Order #{order_serial}</div>}>
             <Space>
                 {canRevertTo('pending') && (
                     <Button

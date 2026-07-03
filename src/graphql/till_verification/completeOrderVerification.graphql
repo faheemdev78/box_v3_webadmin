@@ -4,16 +4,33 @@
 mutation CompleteOrderVerification(
   $_id_order: ID!
   $notes: String
+  $totals: TillVerificationTotalsInput
 ) {
   completeOrderVerification(
     _id_order: $_id_order
     notes: $notes
+    totals: $totals
   ) {
     order {
       _id
       serial
       current_stage
       locked_by
+      current_order {
+        totals {
+          saved
+          totalQuantity
+          subtotal
+          discountTotal
+          bagTotal
+          shipping
+          taxRate
+          taxAmount
+          fbrFee
+          deliveryFee
+          grandTotal
+        }
+      }
     }
     session {
       _id

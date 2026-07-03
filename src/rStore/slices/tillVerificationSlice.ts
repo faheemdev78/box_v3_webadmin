@@ -52,10 +52,16 @@ export interface OrderItem {
 }
 
 export interface OrderTotals {
+  saved?: number;
+  totalQuantity?: number;
   subtotal: number;
   discountTotal: number;
   bagTotal?: number;
+  shipping?: number;
+  taxRate?: number;
   taxAmount: number;
+  deliveryFee?: number;
+  fbrFee?: number;
   grandTotal: number;
   // Legacy fields for backward compatibility
   subTotal?: number;
