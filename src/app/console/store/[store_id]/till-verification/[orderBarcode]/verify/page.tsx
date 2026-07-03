@@ -640,13 +640,27 @@ const RightColumn = ({
 
   }) => {
 
+    const settings = useAppSelector(getSettings);
     // const scannedItems = order?.current_order?.items?.filter((item: any) =>
     //   item.processed_qty > 0 && item.qty == item.processed_qty && item.status === 'confirmed'
     // );
 
-    const Card1 = ({ className, children }: { className?: string; children:any; }) => {
-      return (<div className='w-full bg-green-100 rounded-md text-base/3' style={{ padding:"5px 10px", paddingBottom: '0px' }}>
-        {children}
+    const Card1 = ({ children, icon, color = 'gray' }: { children: any; icon?: ReactNode; color?:string; }) => {
+
+      return (<div 
+        className={`
+          w-full rounded-md text-base/3
+          ${color === 'gray' ? 'bg-gray-100' : ''}
+          ${color === 'red' ? 'bg-red-100' : ''}
+          ${color === 'green' ? 'bg-green-100' : ''}
+        `}
+        style={{ padding:"5px 10px", paddingBottom: '0px' }}>
+        <Space>
+          {icon}          
+          <div>
+            {children}
+          </div>
+        </Space>
       </div>)
     }
 
@@ -660,9 +674,18 @@ const RightColumn = ({
     customerPayable += 1; // FBR FEE
     customerPayable += scannedItemTotal;
 
+    // console.log("order?.current_order?.bags: ", order?.current_order?.bags)
+    let bagPrice = 0;
+    if (order?.current_order?.bags) order?.current_order?.bags.forEach(bag => {
+      bagPrice += bag.price * bag.qty;
+    });
 
+    const deliveryFee = settings.default_delivery_charges || 0;
+    const fbrFee = settings.fbr_fee || 0;
+
+ 
     return (<div className='w-full text-base/4'>
-      <div className='w-full bg-green-100 rounded-md p-10'>
+      {/* <div className='w-full bg-green-100 rounded-md p-10'>
         <Row align="middle">
           <Col flex="auto"><span className='text-3xl font-bold text-gray-900'>Order Received</span></Col>
           <Col className='text-center'>
@@ -670,21 +693,15 @@ const RightColumn = ({
             <div><span className="text-3xl font-extrabold text-green-700">{originalOrderTotal.toFixed(2)}</span></div>
           </Col>
         </Row>
-      </div>
+      </div> */}
 
       <div className='h-1' />
 
-      <Row gutter={[5, 5]}>
+      <Row gutter={[5, 5]} align="middle">
         <Col span={8}>
           <Card1>
-            <div>Current Bill</div>
-            <div><span className='text-2xl font-bold'>{scannedItemTotal}</span> / {originalOrderTotal}</div>
-          </Card1>
-        </Col>
-        <Col span={8}>
-          <Card1>
-            <div>Bags</div>
-            <div><span className='text-2xl font-bold'>{order?.current_order?.bags?.length || '0'}</span> / XXX</div>
+            <div>Order Received</div>
+            <div><span className='text-2xl font-bold'>{originalOrderTotal.toFixed(2)}</span></div>
           </Card1>
         </Col>
         <Col span={8}>
@@ -695,25 +712,49 @@ const RightColumn = ({
         </Col>
         <Col span={8}>
           <Card1>
-            <div>Out of Stock <span className='text-[9px]'>Items/Amnt</span></div>
-            <div><span className='text-2xl font-bold'>{missingItems.length || 0}</span> / {missingItems_total}</div>
+            <div>Current Bill</div>
+            <div><span className='text-2xl font-bold'>{scannedItemTotal}</span> / {originalOrderTotal}</div>
+          </Card1>
+        </Col>
+
+        <Col span={8}>
+          <Card1 icon={<Icon icon="plus" size='2x' color={order?.current_order?.bags?.length > 0 ? "green" : 'gray'} />}>
+            <div>Bags</div>
+            <div><span className='text-2xl font-bold'>{order?.current_order?.bags?.length || '0'}</span> / {bagPrice.toFixed(2)}</div>
           </Card1>
         </Col>
         <Col span={8}>
-          <Card1>
+          <Card1 icon={<Icon icon="plus" size='2x' color={fbrFee > 0 ? "green" : 'gray'} />}>
             <div>FBR Fee</div>
-            <div><span className='text-2xl font-bold'>{Number(1).toFixed(2)}</span></div>
+            <div><span className='text-2xl font-bold'>{Number(fbrFee).toFixed(2)}</span></div>
           </Card1>
         </Col>
         <Col span={8}>
-          <Card1>
+          <Card1 icon={<Icon icon="plus" size='2x' color={deliveryFee > 0 ? "green" : 'gray'} />}>
+            <div>Delivery Fee</div>
+            <div><span className='text-2xl font-bold'>{Number(deliveryFee).toFixed(2)}</span></div>
+          </Card1>
+        </Col>
+        <Col span={8}>
+          <Card1 icon={<Icon icon="minus" size='2x' color={missingItems.length > 0 ? "red" : 'gray'} />} color="red">
+            <div>Out of Stock
+              {/* <span className='text-[9px]'>Items/Amnt</span> */}
+            </div>
+            <div><span className='text-2xl font-bold'>{missingItems.length || 0}</span> / {missingItems_total.toFixed(2)}</div>
+          </Card1>
+        </Col>
+        <Col span={8} className='text-center'>
+          <Icon icon="equals" size="2x" />
+        </Col>
+        <Col span={8}>
+          <Card1 color="green">
             <div>Customer Payable</div>
             <div><span className='text-2xl font-bold'>{customerPayable.toFixed(2)}</span></div>
           </Card1>
         </Col>
       </Row>
 
-      <div className="w-full border-t border-gray-200 p-4 text-center text-gray-500 text-sm">All amounts are in Pakistani Rupees (Rs.)</div>
+      <div className="w-full border-t border-gray-200 p-4 text-center text-gray-500 text-sm">All amounts are in Pakistani Rupees ({settings.currency})</div>
     </div>)
 
     return (
@@ -879,7 +920,7 @@ const RightColumn = ({
           </div>)}
 
           <div className='flex flex-col items-center justify-center' style={{ marginTop:"10px" }}>
-            <div className='text-xl font-semibold mt-10 text-center' style={{ color:"#111827" }}>
+            <div className='text-xl font-semibold mt-10 text-center' style={{ color:"#111827", lineHeight:1 }}>
               {selectedItem?.title || 'Scan or search an item'}
             </div>
             <div className='w-[300px] h-[300px] bg-gray-200 overflow-hidden flex items-center justify-center rounded-md' style={{margin:"10px"}}>
@@ -889,13 +930,11 @@ const RightColumn = ({
                 <Text type="secondary">Product Picture</Text>
               )}
             </div>
-            <Space orientation="vertical" size={2} align="center">
+            <Space orientation="vertical" size={2} align="center" className='text-lg/1'>
               <Text>Scanned / Order Qty</Text>
-              <Text strong style={{ fontSize: 24 }}>
-                {selectedQty}/{requestedQty}
-              </Text>
-              <Text type="secondary">Saved scanned: {selectedVerificationStatus?.qty_verified ?? 0}</Text>
-              <Text type="secondary">Picked: {pickedQty}</Text>
+              <Text strong style={{ fontSize: 24, lineHeight:1 }}>{selectedQty}/{requestedQty}</Text>
+              {/* <Text type="secondary">Saved scanned: {selectedVerificationStatus?.qty_verified ?? 0}</Text> */}
+              {/* <Text type="secondary">Picked: {pickedQty}</Text> */}
             </Space>
             <div style={{ marginTop: '10px' }}>
               <Space>
@@ -911,9 +950,11 @@ const RightColumn = ({
           </div>
         </div>
         <div className='border-t border-gray-300 p-10'>
-          <div style={{ marginBottom:"10px"}}><Space>
-            {orderData?.current_order?.baskets?.map((basket:any, index:number) => (<Tag color="gray" key={index}>{basket.title}</Tag>))}
-          </Space></div>
+          <div className='maxh-12 scrollbar-thin overflow-auto' style={{ marginBottom: '5px' }}>
+            <div><Space>
+              {orderData?.current_order?.baskets?.map((basket:any, index:number) => (<Tag color="gray" key={index}>{basket.title}</Tag>))}
+            </Space></div>
+          </div>
           <div style={{ marginBottom: "0px" }}><Space>
             <Button onClick={showBags}>Bags ({totalBags})</Button>
             <Button onClick={showBaskets}>Baskets ({totalBaskets})</Button>
@@ -1004,7 +1045,7 @@ const PageFooter = ({ orderData }: { orderData:any }) => {
       <Col flex='auto'>
         <Space>
           <div className='font-bold'>Picker Basket</div> 
-          {orderData?.processing_stages?.picking?.baskets?.map((basket:any, index:number) => (<Tag color="gray" key={index}>{basket.title}</Tag>))}
+          {orderData?.processing_stages?.picking?.baskets?.map((basket:any, index:number) => (<Tag style={{ fontSize:"20px" }} color="gray" key={index}>{basket.title}</Tag>))}
         </Space>
       </Col>
       <Col flex='250px' className='text-right'>

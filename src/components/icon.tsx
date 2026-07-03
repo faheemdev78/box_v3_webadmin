@@ -21,14 +21,15 @@ import {
   faSnowflake,
   faBox,
   faExclamationCircle,
-  faTemperatureLow} from '@fortawesome/free-solid-svg-icons'
+  faTemperatureLow,
+  faEquals} from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { FontAwesomeIconProps } from '@fortawesome/react-fontawesome';
 import type { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { __error } from '@/lib/consoleHelper';
 
 library.add(
-  faEllipsisV, faThList, faThLarge, faSearch, faBarcode, faPlus, faMinus,  faImage, faArrowRight, 
+  faEllipsisV, faThList, faThLarge, faSearch, faBarcode, faPlus, faMinus, faEquals, faImage, faArrowRight, 
   faStopwatch, faClock, faCog, faEye, faSquareCheck, faSquare, faBell, faMultiply, faMessage, faAngleDown,
   faPen, faTrashAlt, faTrash, faCopy, faRefresh, faAddressCard, faLocation, faInfoCircle, faMapLocation, faBasketShopping,
   faLock, faPlay, faArrowLeft, faCheckCircle, faShoppingBasket, faShoppingBag, faExclamation,
