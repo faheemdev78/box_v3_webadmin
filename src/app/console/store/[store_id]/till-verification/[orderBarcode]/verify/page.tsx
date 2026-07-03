@@ -1609,15 +1609,15 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
           <title>Invoice ${orderData?.serial || ''}</title>
           <style>
             * {
-              margin: 0 !important;
-              padding: 0 !important;
-              box-sizing: border-box !important;
+              box-sizing: border-box;
             }
 
             html, body {
               background: #fff;
               width: ${contentWidth}px;
               min-height: ${contentHeight}px;
+              margin: 0;
+              padding: 0;
               overflow: visible;
             }
 
