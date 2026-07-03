@@ -5,10 +5,12 @@ interface SettingsState {
     firstRun: boolean | null;
     timezone: string | null;
     currency: string | 'Rs';
+    [key: string]: unknown;
 }
 interface SystemState {
     settings: SettingsState,
-    fmc_token: string | null
+    fmc_token: string | null,
+    [key: string]: unknown
 }
 const initialState: SystemState = {
     settings: {

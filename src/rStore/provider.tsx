@@ -15,6 +15,8 @@ interface SettingsState {
     firstRun: boolean | null;
     timezone: string | null;
     currency: string | 'Rs';
+    // [key: string]: any;  // <-- allows any other dynamic property
+    [key: string]: unknown;
 }
 
 function ReduxProvider({ children, settings }: { children: React.ReactNode, settings: SettingsState }) {

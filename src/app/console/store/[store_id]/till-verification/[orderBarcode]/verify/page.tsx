@@ -680,8 +680,8 @@ const RightColumn = ({
       bagPrice += bag.price * bag.qty;
     });
 
-    const deliveryFee = settings.default_delivery_charges || 0;
-    const fbrFee = settings.fbr_fee || 0;
+    const deliveryFee = Number(settings.default_delivery_charges || 0);
+    const fbrFee = Number(settings.fbr_fee || 0);
 
  
     return (<div className='w-full text-base/4'>
@@ -886,6 +886,9 @@ const RightColumn = ({
     );
   };
 
+  const itemIsUnscanned = selectedItem && selectedItem.status == 'picked';
+  // console.log({ selectedItem })
+  
 
   return (<>
     <div className='w-150 border-l border-gray-300 flex flex-col items-start shrink-0 bg-white'>
@@ -938,13 +941,13 @@ const RightColumn = ({
             </Space>
             <div style={{ marginTop: '10px' }}>
               <Space>
-                <IconButton icon="minus" onClick={() => updateSelectedQty(-1)} disabled={!selectedItem || actionLoading} />
+                <IconButton icon="minus" onClick={() => updateSelectedQty(-1)} disabled={!selectedItem || actionLoading || !itemIsUnscanned} />
                 <div className='text-2xl border border-gray-300 rounded-sm min-w-[72px] text-center' style={{ padding:"0 5px"}}>
                   {selectedQty}/{requestedQty}
                 </div>
-                <IconButton icon="plus" onClick={() => updateSelectedQty(1)} disabled={!selectedItem || actionLoading} />
-                <Button icon={<WarningOutlined />} onClick={handleMismatch} disabled={!selectedItem || actionLoading}>Qty Issue</Button>
-                <Button color='green' onClick={() => applySelectedQty({ ...selectedItem, selectedQty })} loading={actionLoading} disabled={!selectedItem}>OK</Button>
+                <IconButton icon="plus" onClick={() => updateSelectedQty(1)} disabled={!selectedItem || actionLoading || !itemIsUnscanned} />
+                <Button icon={<WarningOutlined />} onClick={handleMismatch} disabled={!selectedItem || actionLoading || !itemIsUnscanned}>Qty Issue</Button>
+                <Button color='green' onClick={() => applySelectedQty({ ...selectedItem, selectedQty })} loading={actionLoading} disabled={!selectedItem || !itemIsUnscanned}>OK</Button>
               </Space>
             </div>
           </div>
