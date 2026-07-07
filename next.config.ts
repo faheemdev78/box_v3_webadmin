@@ -3,7 +3,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  
+
+  // ✅ Important: allow access from your IPs / domains
   allowedDevOrigins: [
     'local-origin.dev', '*.local-origin.dev',
 
@@ -24,6 +25,21 @@ const nextConfig: NextConfig = {
 
     "http://172.21.0.7:3000"
   ],
+
+  // ✅ Required so the browser lets the page use navigator.usb
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          // Enables Web USB in iframes (optional, safe)
+          { key: "Permissions-Policy", value: "usb=*" },
+          // Required if you serve over HTTPS and the printer is a self-signed device
+          { key: "Feature-Policy", value: "usb *" },
+        ],
+      },
+    ];
+  },
 
   reactCompiler: true,
   reactStrictMode: false, // Disables React Strict Mode (which causes double rendering in dev)
