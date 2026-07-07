@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components';
 import { connectEpson, getAuthorizedEpson, printReceipt } from "@/lib/epson-usb";
+import { Space } from 'antd';
 
 
 function ReceiptPage() {
@@ -57,21 +58,15 @@ function ReceiptPage() {
         }
     };
 
-    return (
-        <div style={{ padding: 20, fontFamily: "sans-serif" }}>
-            <h1>Epson TM-m30II (M129H) — Web USB</h1>
-            <p>Status: <b>{status}</b></p>
-            {info && (
-                <p>
-                    {info.name} ({info.vid}:{info.pid})
-                </p>
-            )}
-            <button onClick={handleConnect}>🔌 Connect Printer</button>{" "}
-            <button onClick={handlePrint} disabled={!info}>
-                🖨️ Print Test Receipt
-            </button>
-        </div>
-    );
+    return (<div style={{ padding: 20, fontFamily: "sans-serif" }}>
+        <h3>Epson TM-m30II (M129H) — Web USB</h3>
+        <p>Status: <b>{status}</b></p>
+        {info && (<p>
+            {info.name} ({info.vid}:{info.pid})
+        </p>)}
+        <Button size='small' onClick={handleConnect}>🔌 Connect Printer</Button>{" "}
+        <Button size='small' onClick={handlePrint} disabled={!info}>🖨️ Print Test Receipt</Button>
+    </div>);
 }
 
 
@@ -86,6 +81,7 @@ export default function UsbTest() {
     }, []);
 
     const testSupport = () => {
+        console.log("testSupport()")
         if (typeof navigator === 'undefined') {
             setInfo('SSR - navigator not available');
             return;
@@ -96,8 +92,12 @@ export default function UsbTest() {
     };
 
     const listDevices = async () => {
+        console.log("listDevices()")
+
         try {
             const devices = await navigator.usb.getDevices();
+            console.log({ devices })
+
             if (devices && devices.length){
                 console.table(
                     devices.map((x:any) => ({ vendor: '0x' + x.vendorId.toString(16), product: '0x' + x.productId.toString(16), name: x.productName }))
@@ -207,18 +207,17 @@ export default function UsbTest() {
         }
     };
 
-    return (
-        <div style={{ padding: 20 }}>
-            <h3>Web USB Test</h3>
-            <Button onClick={testSupport}>Check Support</Button>
-            <div><button onClick={requestDevice}>🔌 Connect Printer</button>{' '}</div>
-            <Button onClick={listDevices} style={{ marginLeft: 10 }}>List Devices</Button>
-            <Button onClick={() => {
+    return (<div style={{ padding: 20 }}>
+        <h3>Web USB Test</h3>
+        <Space style={{ width:"100%" }}>
+            <Button size='small' onClick={testSupport}>Check Support</Button>
+            <Button size='small' onClick={requestDevice}>🔌 Connect Printer</Button>{' '}
+            <Button size='small' onClick={listDevices} style={{ marginLeft: 10 }}>List Devices</Button>
+            <Button size='small' onClick={() => {
                 navigator.usb.getDevices().then((d: any) => d.forEach((x: any) => x.forget?.()));
             }}>Forget all Devices</Button>
-            <pre style={{ background: '#f5f5f5', whiteSpace: 'pre-wrap', padding: 10, marginTop: 10 }}>{info}</pre>
-            <hr />
-            <ReceiptPage />
-        </div>
-    );
+        </Space>
+        <pre style={{ background: '#f5f5f5', whiteSpace: 'pre-wrap', padding: 10, marginTop: 10 }}>{info}</pre>
+        <ReceiptPage />
+    </div>);
 }
