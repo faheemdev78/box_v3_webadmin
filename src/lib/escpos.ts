@@ -17,18 +17,16 @@ const concat = (...chunks: (string | number | number[])[]) => {
         } else if (typeof c === "number") {
             out.push(c & 0xff);
         } else {
-            // c is number[] here — TypeScript narrows it correctly
             out.push(...c);
         }
     }
     return new Uint8Array(out);
 };
 
-
 export const escpos = {
     init: () => concat(ESC, "@"),
-    cut: () => concat(GS, "V", 0x41, 0x10), // full cut (TM-m30II supports it)
-    feed: (n = 1) => concat(LF.repeat(n)),
+    cut: () => concat(GS, "V", 0x41, 0x10),
+    feed: (n = 1) => concat(...Array(n).fill(LF)),
     align: (a: "left" | "center" | "right" = "left") =>
         concat(ESC, "a", a === "left" ? 0 : a === "center" ? 1 : 2),
     bold: (on = true) => concat(ESC, "E", on ? 0x01 : 0x00),
