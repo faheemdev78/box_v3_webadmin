@@ -7,7 +7,7 @@ export const EOT = 0x04;
 export const LF = 0x0a;
 export const HT = 0x09;
 
-const concat = (...chunks: (string | number[])[]) => {
+const concat = (...chunks: (string | number | number[])[]) => {
     const out: number[] = [];
     for (const c of chunks) {
         if (typeof c === "string") {
