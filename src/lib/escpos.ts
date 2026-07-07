@@ -11,13 +11,19 @@ const concat = (...chunks: (string | number | number[])[]) => {
     const out: number[] = [];
     for (const c of chunks) {
         if (typeof c === "string") {
-            for (let i = 0; i < c.length; i++) out.push(c.charCodeAt(i) & 0xff);
+            for (let i = 0; i < c.length; i++) {
+                out.push(c.charCodeAt(i) & 0xff);
+            }
+        } else if (typeof c === "number") {
+            out.push(c & 0xff);
         } else {
+            // c is number[] here — TypeScript narrows it correctly
             out.push(...c);
         }
     }
     return new Uint8Array(out);
 };
+
 
 export const escpos = {
     init: () => concat(ESC, "@"),
