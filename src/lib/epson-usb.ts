@@ -1,7 +1,7 @@
 "use client";
 
 import { escpos } from "./escpos";
-import type { USBDevice } from '@types/w3c-web-usb'
+// import type { USBDevice } from '@types/w3c-web-usb'
 
 const EPSON_VENDOR = 0x04b8;
 const KNOWN_PRODUCTS = [0x0202, 0x0e03, 0x0e15]; // TM-m30II / TM-m10 / TM-m30
