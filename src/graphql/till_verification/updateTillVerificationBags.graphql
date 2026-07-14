@@ -27,6 +27,8 @@ mutation UpdateTillVerificationBags(
           shipping
           taxRate
           taxAmount
+          fbrFee
+          deliveryFee
           grandTotal
         }
       }

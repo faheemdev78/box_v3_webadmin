@@ -1,0 +1,120 @@
+"use client";
+
+import { escpos } from "./escpos";
+
+// Epson vendor ID
+const EPSON_VENDOR = 0x04b8;
+
+// Epson TM-T88IV (M129H) and other common Epson POS printers.
+// We always search by vendorId, but we keep this list to recognize
+// previously authorized devices in getDevices().
+const KNOWN_PRODUCTS: Record<number, string> = {
+    0x0201: "Epson TM-T88IV (USB)",     // <-- your printer, most likely
+    0x0202: "Epson TM-T88V / TM-m30II",
+    0x0203: "Epson TM-T88VI",
+    0x0e03: "Epson TM-T88III",
+    0x0e15: "Epson TM-T88V",
+    0x0e1c: "Epson TM-T88V (rev 2)",
+};
+
+let device: USBDevice | null = null;
+
+export async function connectEpson(): Promise<USBDevice> {
+    if (typeof navigator === "undefined" || !("usb" in navigator)) {
+        throw new Error("Web USB not supported in this browser");
+    }
+
+    // Filter by Epson vendor AND printer class (0x07).
+    // The vendor filter alone is enough for the TM-T88IV.
+    const dev = await navigator.usb.requestDevice({
+        filters: [
+            { vendorId: EPSON_VENDOR },
+            { vendorId: EPSON_VENDOR, classCode: 0x07 },
+        ],
+    });
+
+    await dev.open();
+    if (dev.configuration === null) await dev.selectConfiguration(1);
+
+    // Find the first interface with a bulk OUT endpoint.
+    const config = dev.configuration!;
+    let chosenIface: USBInterface | null = null;
+    let chosenEndpoint: number | null = null;
+
+    for (const iface of config.interfaces) {
+        for (const alt of iface.alternates) {
+            const outEp = alt.endpoints.find(
+                (e) => e.direction === "out" && e.type === "bulk"
+            );
+            if (outEp && chosenEndpoint === null) {
+                chosenIface = iface;
+                chosenEndpoint = outEp.endpointNumber;
+            }
+        }
+    }
+
+    if (!chosenIface || chosenEndpoint === null) {
+        throw new Error(
+            "No bulk OUT endpoint found. The Epson driver may be installed — uninstall it."
+        );
+    }
+
+    await dev.claimInterface(chosenIface.interfaceNumber);
+
+    // Stash endpoint for the print function
+    (dev as any)._ep = chosenEndpoint;
+    device = dev;
+    return dev;
+}
+
+export async function getAuthorizedEpson(): Promise<USBDevice | null> {
+    if (typeof navigator === "undefined" || !("usb" in navigator)) return null;
+    const list = await navigator.usb.getDevices();
+    return (
+        list.find(
+            (d) => d.vendorId === EPSON_VENDOR && d.productId in KNOWN_PRODUCTS
+        ) || null
+    );
+}
+
+export async function printReceipt(lines: string[]): Promise<void> {
+    if (!device) throw new Error("Printer not connected. Call connectEpson() first.");
+
+    const endpoint = (device as any)._ep as number | undefined;
+    if (!endpoint) throw new Error("Bulk OUT endpoint not captured");
+
+    // Build ESC/POS payload
+    const bytes: number[] = [];
+    const push = (...c: (number | number[])[]) => {
+        for (const x of c) {
+            if (typeof x === "number") bytes.push(x & 0xff);
+            else bytes.push(...x);
+        }
+    };
+
+    push(escpos.init());
+    push(escpos.align("center"));
+    push(escpos.bold(true), escpos.doubleSize(true));
+    push(escpos.text("MY STORE\n"));
+    push(escpos.doubleSize(false), escpos.bold(false));
+    push(escpos.text("123 Example Street\n"));
+    push(escpos.text("Tel: 555-1234\n"));
+    push(escpos.feed(1));
+    push(escpos.align("left"));
+
+    for (const line of lines) {
+        push(escpos.text(line + "\n"));
+    }
+
+    push(escpos.feed(4));
+    push(escpos.cut());
+
+    const data = new Uint8Array(bytes);
+    const CHUNK = 16384;
+    for (let i = 0; i < data.length; i += CHUNK) {
+        const result = await device.transferOut(endpoint, data.slice(i, i + CHUNK));
+        if (result.status !== "ok") {
+            throw new Error(`transferOut returned status: ${result.status}`);
+        }
+    }
+}

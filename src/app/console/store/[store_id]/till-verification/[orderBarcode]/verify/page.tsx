@@ -34,7 +34,7 @@ import { AddBaskets } from './components/AddBaskets';
 import AddBags from './components/AddBags';
 import { playBeep } from '@/lib/utill';
 import { Styles } from '@/types/styles';
-import UsbTest from './components/UsbTest';
+// import UsbTest from './components/UsbTest';
 
 import GET_AVAILABLE_BASKETS from '@/graphql/baskets/getAvailableBaskets.graphql';
 import GET_BAGS from '@/graphql/bags/bags.graphql';
@@ -125,7 +125,15 @@ const getPickedItem = (orderData: any, item: any) => {
   );
 };
 
-const formatMoney = (value: number | undefined | null) => Number(value || 0).toFixed(2);
+const toAmount = (value: unknown) => {
+  const amount = Number(value);
+  return Number.isFinite(amount) ? amount : 0;
+};
+
+const roundAmount = (value: number) =>
+  Math.round((value + Number.EPSILON) * 100) / 100;
+
+const formatMoney = (value: number | undefined | null) => roundAmount(toAmount(value)).toFixed(2);
 
 function ErrorComp({ title, description, buttons }: { title:string, description:string, buttons?:ReactNode }){
   return (<div style={{ textAlign: 'center', padding: '100px 0' }}><Card><Space orientation="vertical">
@@ -604,10 +612,10 @@ const RightColumn = ({
       originalOrderTotal,
       customerPayable,
       bagPrice,
+      totalBagQuantity,
+      deliveryFee,
+      fbrFee,
     } = orderCalculations;
-    const totals = order?.current_order?.totals || {};
-    const deliveryFee = Number(totals.deliveryFee || 0);
-    const fbrFee = Number(totals.fbrFee || 0);
 
     const Card1 = ({ children, icon, color = 'gray' }: { children: any; icon?: ReactNode; color?:string; }) => {
 
@@ -657,14 +665,14 @@ const RightColumn = ({
         <Col span={8}>
           <Card1>
             <div>Current Bill</div>
-            <div><span className='text-2xl font-bold'>{scannedItemTotal}</span> / {originalOrderTotal}</div>
+            <div><span className='text-2xl font-bold'>{scannedItemTotal.toFixed(2)}</span> / {Number(originalOrderTotal).toFixed(2)}</div>
           </Card1>
         </Col>
 
         <Col span={8}>
-          <Card1 icon={<Icon icon="plus" size='2x' color={order?.current_order?.bags?.length > 0 ? "green" : 'gray'} />}>
+          <Card1 icon={<Icon icon="plus" size='2x' color={totalBagQuantity > 0 ? "green" : 'gray'} />}>
             <div>Bags</div>
-            <div><span className='text-2xl font-bold'>{order?.current_order?.bags?.length || '0'}</span> / {bagPrice.toFixed(2)}</div>
+            <div><span className='text-2xl font-bold'>{totalBagQuantity}</span> / {bagPrice.toFixed(2)}</div>
           </Card1>
         </Col>
         <Col span={8}>
@@ -1197,8 +1205,8 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     String(order?.barcode || '').trim() === orderBarcode
   );
 
-  const settingsDeliveryFee = Number(settings.default_delivery_charges || 0);
-  const settingsFbrFee = Number(settings.fbr_fee || 0);
+  const settingsDeliveryFee = roundAmount(toAmount(settings.default_delivery_charges));
+  const settingsFbrFee = roundAmount(toAmount(settings.fbr_fee));
 
   const rawOrderData = matchesRouteOrder(reduxOrderData)
     ? reduxOrderData
@@ -1229,15 +1237,25 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       (sum: number, item: any) => sum + (Number(item.qty || 0) * Number(item.price || 0)),
       0
     );
-    const scannedItemTotal = orderItems.reduce(
-      (sum: number, item: any) => sum + (Number(item.processed_qty || 0) * Number(item.price || 0)),
+    const scannedItemTotal = roundAmount(orderItems.reduce(
+      (sum: number, item: any) => item.status === 'confirmed'
+        ? sum + (Math.max(0, toAmount(item.processed_qty)) * toAmount(item.price))
+        : sum,
+      0
+    ));
+    const orderBags = rawOrderData?.current_order?.bags || [];
+    const totalBagQuantity = orderBags.reduce(
+      (sum: number, bag: any) => sum + Math.max(0, Math.trunc(toAmount(bag.qty))),
       0
     );
-    const bagPrice = (rawOrderData?.current_order?.bags || []).reduce(
-      (sum: number, bag: any) => sum + (Number(bag.price || 0) * Number(bag.qty || 0)),
+    const bagPrice = roundAmount(orderBags.reduce(
+      (sum: number, bag: any) => {
+        const quantity = Math.max(0, Math.trunc(toAmount(bag.qty)));
+        return sum + (toAmount(bag.price) * quantity);
+      },
       0
-    );
-    const customerPayable = scannedItemTotal + bagPrice + fbrFee + deliveryFee;
+    ));
+    const customerPayable = roundAmount(scannedItemTotal + fbrFee + bagPrice + deliveryFee);
     const originalOrderTotal = rawOrderData?.original_order?.totals?.grandTotal ?? totals.grandTotal ?? 0;
     const unavailableItemCount = orderItems.filter((item: any) => item.status === 'out_of_stock').length;
 
@@ -1252,6 +1270,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       missingItems_total,
       scannedItemTotal,
       bagPrice,
+      totalBagQuantity,
       deliveryFee,
       fbrFee,
       customerPayable,
@@ -1562,16 +1581,10 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const handlePrintInvoice = async () => {
     if (!invoicePreviewRef.current) return;
 
-    const contentWidth = 400; // invoicePreviewRef.current.scrollWidth;
-    const contentHeight = invoicePreviewRef.current.scrollHeight;
-
-    console.log(`Receipt dimensions: ${contentWidth}x${contentHeight}px`);
-
-    // Step 2: Open window sized to content + small buffer
     const printWindow = window.open(
       '',
       '_blank',
-      `width=${contentWidth + 20},height=${contentHeight + 20},scrollbars=no`
+      'width=420,height=700,scrollbars=yes'
     );
 
     if (!printWindow) {
@@ -1581,46 +1594,76 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
 
     const receiptHTML = invoicePreviewRef.current.innerHTML;
 
-    // Step 3: Write HTML with @page sized to match content
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
           <title>Invoice ${orderData?.serial || ''}</title>
           <style>
+            :root {
+              --receipt-width: 80mm;
+            }
+
             * {
               box-sizing: border-box;
             }
 
+            /* Font Awesome's runtime stylesheet is not copied into this window. */
+            .awsom-icon {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              line-height: 1;
+              color: #000;
+            }
+
+            .awsom-icon > svg {
+              display: block;
+              width: 1em;
+              height: 1em;
+              overflow: visible;
+              fill: currentColor;
+            }
+
             html, body {
               background: #fff;
-              width: ${contentWidth}px;
-              min-height: ${contentHeight}px;
+              width: var(--receipt-width);
               margin: 0;
               padding: 0;
+            }
+
+            body {
               overflow: visible;
             }
 
-            /* This is the key - tell the browser the page is exactly the content size */
+            /*
+             * Let the Epson roll driver provide the page length. Giving Chrome a
+             * short fixed page makes it landscape and rotates the receipt.
+             */
             @page {
               margin: 0;
-              padding: 0;
-              size: ${contentWidth}px ${contentHeight}px;
+              size: auto;
             }
 
             @media print {
-              @page {
+              html, body {
+                width: var(--receipt-width) !important;
+                min-width: var(--receipt-width) !important;
+                height: auto !important;
+                min-height: 0 !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                size: ${contentWidth}px ${contentHeight}px;
+                overflow: visible !important;
               }
 
-              html, body {
-                width: ${contentWidth}px !important;
-                height: ${contentHeight}px !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
+              body > * {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+              }
+
+              body > div > div {
+                break-inside: avoid;
+                page-break-inside: avoid;
               }
             }
           </style>
@@ -1631,24 +1674,16 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
 
     printWindow.document.close();
 
-    // Step 4: Wait for content to fully render, then measure again and print
     printWindow.addEventListener('load', () => {
-      // Re-measure after images/fonts load
-      const body = printWindow.document.body;
-      const finalWidth = body.scrollWidth;
-      const finalHeight = body.scrollHeight;
-
-      // Resize window to exact content size (no extra space)
-      printWindow.resizeTo(finalWidth, finalHeight);
-
       printWindow.focus();
-
-      // Small delay to ensure layout is stable
       setTimeout(() => {
         printWindow.print();
       }, 300);
     });
 
+    printWindow.addEventListener('afterprint', () => {
+      printWindow.close();
+    }, { once: true });
   };
 
   // Initialize order verification on mount
@@ -1760,7 +1795,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
         ) : <ContentArea orderData={orderData} orderItems={displayItems} />}
 
 
-        <UsbTest />
+        {/* <UsbTest /> */}
 
         <PageFooter orderData={orderData} />
       </div>
@@ -1811,6 +1846,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       {showPrintPreview == 'product' && <ProductReceipt orderData={orderData} ref={invoicePreviewRef} />}
       {showPrintPreview == 'order' && <OrderReceipt
         orderData={orderData}
+        orderCalculations={orderCalculations}
         ref={invoicePreviewRef}
       />}
     </Modal>

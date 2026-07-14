@@ -7,8 +7,25 @@ import { Styles } from '@/types/styles';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
 
-const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
-    ({ orderData }, ref) => {
+type ReceiptCalculations = {
+    scannedItemTotal: number;
+    bagPrice: number;
+    totalBagQuantity: number;
+    fbrFee: number;
+    deliveryFee: number;
+    customerPayable: number;
+};
+
+const asAmount = (value: unknown) => {
+    const amount = Number(value);
+    return Number.isFinite(amount) ? amount : 0;
+};
+
+const OrderReceipt = React.forwardRef<HTMLDivElement, {
+    orderData: any;
+    orderCalculations?: ReceiptCalculations;
+}>(
+    ({ orderData, orderCalculations }, ref) => {
         const settings = useAppSelector(getSettings);
 
         const { current_order, zone, shippingAddress, customer, delivery_slot, barcode } = orderData;
@@ -17,10 +34,23 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
         const coldItems = current_order.items.filter((o: any) => o.temp_sensitivity === 'fridge')?.length;
         const unfitForboxItems = current_order.items.filter((o: any) => o.unfit_for_dispatch)?.length;
 
-        const customerPayable = Number(current_order?.totals?.grandTotal || 0);
+        const currentTotals = current_order?.totals || {};
+        const scannedItemTotal = asAmount(orderCalculations?.scannedItemTotal ?? currentTotals.subtotal);
+        const bagPrice = asAmount(orderCalculations?.bagPrice ?? currentTotals.bagTotal);
+        const totalBagQuantity = orderCalculations?.totalBagQuantity ?? (current_order?.bags || []).reduce(
+            (sum: number, bag: any) => sum + Math.max(0, Math.trunc(asAmount(bag.qty))),
+            0
+        );
+        const fbrFee = asAmount(orderCalculations?.fbrFee ?? currentTotals.fbrFee);
+        const deliveryFee = asAmount(orderCalculations?.deliveryFee ?? currentTotals.deliveryFee);
+        const customerPayable = asAmount(orderCalculations?.customerPayable ?? currentTotals.grandTotal);
         const deliverySlot = `${utcToDate(delivery_slot.start_date).format('hh:mm A')} to ${utcToDate(delivery_slot.end_date).format('hh:mm A')}`;
         const totalBoxes = current_order?.baskets?.length || 0;
         const boxCodes = current_order?.baskets?.map((item: any) => (item.barcode)) || [];
+        const barcodeModuleWidth = Math.max(
+            0.55,
+            Math.min(0.9, 16 / Math.max(String(barcode || '').length, 1))
+        );
 
 
         return (<div className='scrollbar-thin overflow-auto h-full max-h-100'>
@@ -67,28 +97,56 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
                             </div>
                         </div>
 
-                        {/* <div style={styles.dashedDivider} /> */}
+                        <div style={styles.solidDivider} />
+                        <div style={styles.totalsSection}>
+                            <div style={styles.totalLine}>
+                                <span>Confirmed items</span>
+                                <span>{settings.currency} {scannedItemTotal.toFixed(2)}</span>
+                            </div>
+                            <div style={styles.totalLine}>
+                                <span>FBR fee</span>
+                                <span>{settings.currency} {fbrFee.toFixed(2)}</span>
+                            </div>
+                            <div style={styles.totalLine}>
+                                <span>Bags ({totalBagQuantity})</span>
+                                <span>{settings.currency} {bagPrice.toFixed(2)}</span>
+                            </div>
+                            <div style={styles.totalLine}>
+                                <span>Delivery fee</span>
+                                <span>{settings.currency} {deliveryFee.toFixed(2)}</span>
+                            </div>
+                            <div style={styles.totalLineStrong}>
+                                <span>Customer payable</span>
+                                <span>{settings.currency} {customerPayable.toFixed(2)}</span>
+                            </div>
+                        </div>
+
+                        <div style={styles.solidDivider} />
                         <div style={styles.boxSummary}>
                             {frozenItems > 0 && <div style={styles.boxItem}>
-                                <span className='relative'>
-                                    <Icon icon='box' color='#000000' fontSize={18} />
-                                    <Icon icon="snowflake" fontSize={10} color='#FFFFFF' className='absolute right-0 bottom-0' />
+                                <span style={styles.conditionIcon}>
+                                    <Icon icon='box' color='#000000' style={styles.conditionBaseIcon} />
+                                    <span style={styles.conditionOverlay}>
+                                        <Icon icon="snowflake" color='#FFFFFF' style={styles.conditionOverlayIcon} />
+                                    </span>
                                 </span>
-                                <span>Freezer: <span className='font-black'>{frozenItems}</span></span>
+                                <span>Freezer: <span style={styles.conditionCount}>{frozenItems}</span></span>
                             </div>}
                             {coldItems > 0 && <div style={styles.boxItem}>
-                                <span className='relative'>
-                                    <Icon icon='box' color='#000000' fontSize={18} />
-                                    <Icon icon="temperature-low" fontSize={10} color='#FFFFFF' className='absolute right-0 bottom-0' />
+                                <span style={styles.conditionIcon}>
+                                    <Icon icon='box' color='#000000' style={styles.conditionBaseIcon} />
+                                    <span style={styles.conditionOverlay}>
+                                        <Icon icon="temperature-low" color='#FFFFFF' style={styles.conditionOverlayIcon} />
+                                    </span>
                                 </span>
-                                <span>Fridge: <span className='font-black'>{coldItems}</span></span>
+                                <span>Fridge: <span style={styles.conditionCount}>{coldItems}</span></span>
                             </div>}
                             {unfitForboxItems > 0 && <div style={styles.boxItem}>
-                                <span className='relative'>
-                                    <Icon icon='box' color='#000000' fontSize={18} />
-                                    <div className='absolute bg-black h-1 w-full left-0 right-0 top-1.5 rounded-md border-1 border-white rotate-45' />
+                                <span style={styles.conditionIcon}>
+                                    <Icon icon='box' color='#000000' style={styles.conditionBaseIcon} />
+                                    <span style={styles.conditionSlash} />
                                 </span>
-                                <span>Unfit for box: <span className='font-black'>{unfitForboxItems}</span></span>
+                                <span>Unfit for box: <span style={styles.conditionCount}>{unfitForboxItems}</span></span>
                             </div>}
                         </div>
                         <div style={styles.solidDivider} />
@@ -98,7 +156,7 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, { orderData: any }>(
                                 <Barcode
                                     value={barcode}
                                     format="CODE128"
-                                    width={1.0}
+                                    width={barcodeModuleWidth}
                                     height={55}
                                     fontSize={12}
                                     margin={0}
@@ -133,9 +191,11 @@ OrderReceipt.displayName = 'OrderReceipt';
 /* ─────────────────────────  STYLES  ───────────────────────── */
 const styles: Styles = {
     receipt: {
-        width: '80mm',
+        width: '72mm',
         minHeight: '50mm',
-        padding: '0', // '4mm 5mm',
+        // Keep content inside the TM-T88IV printable area on an 80 mm roll.
+        // The printer cannot image the outer few millimetres on either edge.
+        padding: '2mm 2mm 1mm',
         fontFamily: 'Arial, Helvetica, sans-serif',
         fontSize: '13px',
         lineHeight: 1.3,
@@ -196,17 +256,85 @@ const styles: Styles = {
     detailColon: { textAlign: 'center', fontWeight: 700 },
     detailValueBold: { fontSize: '14px', fontWeight: 700 },
 
+    totalsSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.5mm',
+        padding: '1mm 0',
+    },
+    totalLine: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '3mm',
+        fontSize: '12px',
+    },
+    totalLineStrong: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '3mm',
+        paddingTop: '0.5mm',
+        borderTop: '1px dashed #000',
+        fontSize: '13px',
+        fontWeight: 800,
+    },
     boxSummary: {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-around',
+        justifyContent: 'flex-start',
+        flexWrap: 'wrap',
+        gap: '1.5mm 3mm',
         padding: '1mm 0',
     },
     boxItem: {
         display: 'flex',
         alignItems: 'center',
         gap: '2mm',
+        maxWidth: '100%',
+        whiteSpace: 'nowrap',
     },
+    conditionIcon: {
+        position: 'relative',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '18px',
+        height: '18px',
+        flex: '0 0 18px',
+        color: '#000',
+    },
+    conditionBaseIcon: {
+        display: 'block',
+        width: '18px',
+        height: '18px',
+    },
+    conditionOverlay: {
+        position: 'absolute',
+        right: '-1px',
+        bottom: '-1px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '10px',
+        height: '10px',
+        borderRadius: '50%',
+        background: '#000',
+    },
+    conditionOverlayIcon: {
+        display: 'block',
+        width: '7px',
+        height: '7px',
+    },
+    conditionSlash: {
+        position: 'absolute',
+        left: '-1px',
+        top: '8px',
+        width: '20px',
+        height: '2px',
+        borderRadius: '2px',
+        background: '#000',
+        transform: 'rotate(45deg)',
+    },
+    conditionCount: { fontWeight: 900 },
     boxText: { fontSize: '13px' },
     verticalDivider: {
         width: '0.5px',
@@ -215,17 +343,22 @@ const styles: Styles = {
     },
 
     bottomRow: {
-        display: 'grid',
-        gridTemplateColumns: '1fr 4px 1fr',
-        alignItems: 'center',
-        gap: '2mm',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        gap: '1mm',
         minHeight: '20mm',
     },
-    barcodeBox: { display: 'flex', justifyContent: 'center' },
+    barcodeBox: {
+        display: 'flex',
+        justifyContent: 'center',
+        width: '100%',
+        maxWidth: '100%',
+    },
     verticalDashedDivider: {
-        width: 0,
-        height: '20mm',
-        borderLeft: '1px solid #000',
+        width: '100%',
+        height: 0,
+        borderTop: '1px dashed #000',
     },
     boxesColumn: {
         display: 'flex',
@@ -233,6 +366,8 @@ const styles: Styles = {
         alignItems: 'center',
         justifyContent: 'center',
         gap: '1mm',
+        width: '100%',
+        maxWidth: '100%',
     },
     boxesLabel: {
         fontSize: '13px',
@@ -246,6 +381,8 @@ const styles: Styles = {
         gap: '0.5mm',
         // border: '1px solid black'
         textAlign: "center",
+        width: '100%',
+        overflowWrap: 'anywhere',
     },
     boxCode: { fontSize: '12px' },
 };
