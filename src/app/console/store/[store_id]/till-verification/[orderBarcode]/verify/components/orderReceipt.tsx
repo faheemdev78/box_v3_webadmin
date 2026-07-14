@@ -125,25 +125,25 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, {
                         <div style={styles.boxSummary}>
                             {frozenItems > 0 && <div style={styles.boxItem}>
                                 <span style={styles.conditionIcon}>
-                                    <Icon icon='box' color='#000000' style={styles.conditionBaseIcon} />
+                                    <Icon icon='box' color='#000000' fontSize={18} />
                                     <span style={styles.conditionOverlay}>
-                                        <Icon icon="snowflake" color='#FFFFFF' style={styles.conditionOverlayIcon} />
+                                        <Icon icon="snowflake" color='#FFFFFF' fontSize={7} />
                                     </span>
                                 </span>
                                 <span>Freezer: <span style={styles.conditionCount}>{frozenItems}</span></span>
                             </div>}
                             {coldItems > 0 && <div style={styles.boxItem}>
                                 <span style={styles.conditionIcon}>
-                                    <Icon icon='box' color='#000000' style={styles.conditionBaseIcon} />
+                                    <Icon icon='box' color='#000000' fontSize={18} />
                                     <span style={styles.conditionOverlay}>
-                                        <Icon icon="temperature-low" color='#FFFFFF' style={styles.conditionOverlayIcon} />
+                                        <Icon icon="temperature-low" color='#FFFFFF' fontSize={7} />
                                     </span>
                                 </span>
                                 <span>Fridge: <span style={styles.conditionCount}>{coldItems}</span></span>
                             </div>}
                             {unfitForboxItems > 0 && <div style={styles.boxItem}>
                                 <span style={styles.conditionIcon}>
-                                    <Icon icon='box' color='#000000' style={styles.conditionBaseIcon} />
+                                    <Icon icon='box' color='#000000' fontSize={18} />
                                     <span style={styles.conditionSlash} />
                                 </span>
                                 <span>Unfit for box: <span style={styles.conditionCount}>{unfitForboxItems}</span></span>
@@ -302,11 +302,7 @@ const styles: Styles = {
         flex: '0 0 18px',
         color: '#000',
     },
-    conditionBaseIcon: {
-        display: 'block',
-        width: '18px',
-        height: '18px',
-    },
+
     conditionOverlay: {
         position: 'absolute',
         right: '-1px',
@@ -319,11 +315,7 @@ const styles: Styles = {
         borderRadius: '50%',
         background: '#000',
     },
-    conditionOverlayIcon: {
-        display: 'block',
-        width: '7px',
-        height: '7px',
-    },
+
     conditionSlash: {
         position: 'absolute',
         left: '-1px',
