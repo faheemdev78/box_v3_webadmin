@@ -886,9 +886,9 @@ const PageFooter = ({ orderData }: { orderData:any }) => {
   {/* C3: 100px height */}
   return (<div className="h-[62px] border-t border-gray-300 flex bg-white">
     <Row className='w-full p-10 nowrap' align="middle" gutter={[10, 10]}>
-      <Col flex='320px' className='border-r border-gray-300'>
+      <Col flex='330px' className='border-r border-gray-300'>
         <div>Area: <b>{orderData.zone.title}</b></div>
-        <div>Time: <b>{utcToDate(orderData.delivery_slot.start_date).format("ddd Do MMM YYYY - HH:mm")} - {utcToDate(orderData.delivery_slot.end_date).format("HH:mm")} </b></div>
+        <div>Time slot: <b>{utcToDate(orderData.delivery_slot.start_date).format("ddd Do MMM YYYY - HH:mm")} - {utcToDate(orderData.delivery_slot.end_date).format("HH:mm")} </b></div>
       </Col>
       <Col flex='auto' className='border-r border-gray-300'>
           <Space>
