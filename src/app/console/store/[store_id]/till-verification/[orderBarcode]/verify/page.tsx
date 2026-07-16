@@ -1230,7 +1230,6 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     String(order?.barcode || '').trim() === orderBarcode
   );
 
-  const settingsDeliveryFee = roundAmount(toAmount(settings.default_delivery_charges));
   const settingsFbrFee = roundAmount(toAmount(settings.fbr_fee));
 
   const rawOrderData = matchesRouteOrder(reduxOrderData)
@@ -1242,7 +1241,14 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const orderCalculations = useMemo(() => {
     const orderItems = rawOrderData?.current_order?.items || [];
     const totals = rawOrderData?.current_order?.totals || {};
-    const deliveryFee = settingsDeliveryFee;
+    // Delivery is an order-creation snapshot. FBR intentionally remains live
+    // and is also enforced from server settings when verification completes.
+    const deliveryFee = roundAmount(toAmount(
+      totals.deliveryFee ??
+      rawOrderData?.original_order?.totals?.deliveryFee ??
+      totals.shipping ??
+      rawOrderData?.original_order?.totals?.shipping
+    ));
     const fbrFee = settingsFbrFee;
 
     const processedItems = orderItems.filter((item: any) =>
@@ -1302,7 +1308,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       originalOrderTotal,
       unavailableItemCount,
     };
-  }, [rawOrderData, settingsDeliveryFee, settingsFbrFee]);
+  }, [rawOrderData, settingsFbrFee]);
 
   const orderData = useMemo(() => {
     if (!rawOrderData?.current_order) return rawOrderData;
