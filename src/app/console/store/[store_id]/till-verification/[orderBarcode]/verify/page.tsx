@@ -6,7 +6,7 @@
  */
 
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { Card, Row, Col, Space, Typography, Modal, Input, message, Progress, Tag, Alert, InputNumber, Tooltip, Popover } from 'antd';
+import { AutoComplete, Card, Row, Col, Space, Typography, Modal, Input, message, Progress, Tag, Alert, InputNumber, Tooltip, Popover } from 'antd';
 import BarcodePackage from 'react-barcode';
 import { useQuery } from '@apollo/client/react';
 import { 
@@ -207,12 +207,14 @@ const ProductHolder = ({ item, orderData }: {
 
   return (<div className='relative flex flex-col overflow-hidden w-full  h-[230px] min-w-fit bg-white border border-gray-200 rounded-2xl shadow-md'>
     <div className='absolute top-2 right-2 z-999'>
-      <PopMenu orientation="vertical" placement="leftTop" shape="round"
-        items={[
-          { onClick: handleDropItem, label: "Drop Item", confirm: "Are you sure to drop this item?", hide: item.processed_qty < 1 && !!item.issue_reason==false },
-          { onClick: () => setShowMissingModal(true), label: 'Unavailable' },
-        ]}
-      ></PopMenu>
+      {!(item.processed_qty < 1 && !!item.issue_reason == false) && 
+        <PopMenu orientation="vertical" placement="leftTop" shape="round"
+          items={[
+            { onClick: handleDropItem, label: "Drop Item", confirm: "Are you sure to drop this item?", hide: item.processed_qty < 1 && !!item.issue_reason==false },
+            // { onClick: () => setShowMissingModal(true), label: 'Unavailable' },
+          ]}
+        ></PopMenu>
+      }
       {/* <Popover content={<BarcodePackage
         value={item.barcode} //{`doReadyForDispatch`}
         width={2.0}
@@ -364,7 +366,7 @@ const RightColumn = ({
   {/* C4: 300px fixed width */}
   // flex flex-1 flex-col items-start w-full bg-gray-50/50 overflow-y-auto
   const [barcodeQuery, setBarcodeQuery] = useState('');
-  const [submittedBarcodeQuery, setSubmittedBarcodeQuery] = useState('');
+  const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [scaned, setScaned] = useState<string | null>(null)
   const [selectedQty, setSelectedQty] = useState(0);
@@ -392,7 +394,7 @@ const RightColumn = ({
   //   0
   // );
   // const originalOrderQty = orderData?.original_order?.totals?.totalQuantity ?? orderData?.current_order?.totals?.totalQuantity ?? 0;
-  const normalizedQuery = submittedBarcodeQuery.trim().toLowerCase();
+  const normalizedQuery = barcodeQuery.trim().toLowerCase();
   const matchedItems = normalizedQuery
     ? orderItems.filter((item: any) => {
         const barcode = String(item.barcode || '').toLowerCase();
@@ -443,10 +445,9 @@ const RightColumn = ({
     const nextQuery = barcodeQuery.trim();
     const nextNormalizedQuery = nextQuery.toLowerCase();
 
-    setSubmittedBarcodeQuery(nextQuery);
-
     if (!nextNormalizedQuery) {
       setSelectedProductId(null);
+      setSearchDropdownOpen(false);
       return;
     }
 
@@ -469,7 +470,24 @@ const RightColumn = ({
     }
 
     selectItem(nextItem);
+    setBarcodeQuery(String(nextItem.barcode || nextItem.title || ''));
+    setSearchDropdownOpen(false);
   };
+
+  const searchOptions = matchedItems.length > 0
+    ? matchedItems.map((item: any) => ({
+        value: String(item._id_product),
+        item,
+        label: (
+          <div className="flex items-center justify-between gap-4 py-1">
+            <span className="truncate font-medium">{item.title}</span>
+            <Text type="secondary" className="shrink-0">{item.barcode || 'No barcode'}</Text>
+          </div>
+        ),
+      }))
+    : normalizedQuery
+      ? [{ value: '__no_match__', disabled: true, label: 'No matching item found in this order.' }]
+      : [];
 
   const updateSelectedQty = (delta: number) => {
     if (!selectedItem) return;
@@ -735,16 +753,32 @@ const RightColumn = ({
 
       <div className="flex-1 w-full p-4 bg-gray-50/50 overflow-y-auto">
         <div className='flex flex-col p-10'>
-          <div className=''>
+          <AutoComplete
+            className="w-full"
+            value={barcodeQuery}
+            options={searchOptions}
+            open={searchDropdownOpen && !!normalizedQuery}
+            filterOption={false}
+            popupMatchSelectWidth
+            onFocus={() => setSearchDropdownOpen(!!normalizedQuery)}
+            onSearch={(value) => {
+              setBarcodeQuery(value);
+              setSearchDropdownOpen(!!value.trim());
+            }}
+            onSelect={(_value, option: any) => {
+              if (!option.item) return;
+              selectItem(option.item);
+              setBarcodeQuery(String(option.item.barcode || option.item.title || ''));
+              setSearchDropdownOpen(false);
+            }}
+          >
             <Input
               allowClear
-              placeholder="Search barcode of items in order"
-              value={barcodeQuery}
-              onChange={(e) => setBarcodeQuery(e.target.value)}
-              onClear={()=>{
-                // handleBarcodeSearch();
-                setSelectedProductId(null)
-                setSubmittedBarcodeQuery('')
+              placeholder="Search barcode or item name"
+              onClear={() => {
+                setBarcodeQuery('');
+                setSelectedProductId(null);
+                setSearchDropdownOpen(false);
               }}
               onPressEnter={(e) => {
                 e.preventDefault();
@@ -752,31 +786,17 @@ const RightColumn = ({
                 handleBarcodeSearch();
               }}
             />
-            {/* <div>scaned: {scaned}</div> */}
-          </div>
-          {normalizedQuery && (<div className='flex flex-wrap gap-2 mt-10'>
-              {matchedItems.length > 0 ? matchedItems.map((item: any,) => (
-                <Button size="small"
-                  key={String(item._id_product)}
-                  type={String(selectedProductId) === String(item._id_product) ? 'primary' : 'default'}
-                  onClick={() => selectItem(item)}
-                >
-                  {item.barcode || item.title}
-                </Button>
-              )) : (
-                <Text type="secondary">No matching item found in this order.</Text>
-              )}
-          </div>)}
+          </AutoComplete>
 
           <div className='flex flex-col items-center justify-center' style={{ marginTop:"10px" }}>
             <div className='text-xl font-semibold mt-10 text-center' style={{ color:"#111827", lineHeight:1 }}>
               {selectedItem?.title || 'Scan or search an item'}
             </div>
-            <div className='w-[300px] h-[300px] bg-gray-200 overflow-hidden flex items-center justify-center rounded-md' style={{margin:"10px"}}>
+            <div className='w-[500px] h-[400px] bg-gray-200 overflow-hidden flex items-center justify-center rounded-md' style={{margin:"10px"}}>
               {imageSrc ? (
                 <img src={imageSrc} alt={selectedItem?.title || 'Product'} className='h-full w-full object-cover' />
               ) : (
-                <Text type="secondary">Product Picture</Text>
+                  <Text type="secondary">{(selectedItem && selectedItem?.title) || 'Product Picture'}</Text>
               )}
             </div>
             <Space orientation="horizontal" size={2} align="center" className='text-lg/1'>
@@ -864,8 +884,8 @@ const RightColumn = ({
 
 const PageFooter = ({ orderData }: { orderData:any }) => {
   {/* C3: 100px height */}
-  return (<div className="h-[80px] border-t border-gray-300 flex bg-white">
-    <Row className='w-full p-20 nowrap' align="middle" gutter={[10, 10]}>
+  return (<div className="h-[62px] border-t border-gray-300 flex bg-white">
+    <Row className='w-full p-10 nowrap' align="middle" gutter={[10, 10]}>
       <Col flex='320px' className='border-r border-gray-300'>
         <div>Area: <b>{orderData.zone.title}</b></div>
         <div>Time: <b>{utcToDate(orderData.delivery_slot.start_date).format("ddd Do MMM YYYY - HH:mm")} - {utcToDate(orderData.delivery_slot.end_date).format("HH:mm")} </b></div>
@@ -873,7 +893,7 @@ const PageFooter = ({ orderData }: { orderData:any }) => {
       <Col flex='auto' className='border-r border-gray-300'>
           <Space>
             <div className='font-bold'>Picker Basket</div>
-            <div style={{ border: "0px solid blue", maxHeight: '60px', overflow: 'auto' }}>
+            <div style={{ border: "0px solid blue", maxHeight: '50px', overflow: 'auto' }}>
               <Space wrap className='w-full'>
                 {orderData?.processing_stages?.picking?.baskets?.map((basket: any, index: number) => (<Tag style={{ fontSize: "20px" }} color="gray" key={index}>{basket.title}</Tag>))}
                 {/* {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((item => (<Tag style={{ fontSize: "20px" }} color="gray" key={item}>Basket {item}</Tag>)))} */}
