@@ -1,11 +1,36 @@
-// src/components/ReceiptTwo.jsx
 import React from 'react';
 import Barcode from 'react-barcode';
 import { utcToDate } from '@/lib/utill';
-import { Icon } from '@/components';
 import { Styles } from '@/types/styles';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
+import { svgIcons } from '@/configs';
+
+const receiptIcons = svgIcons;
+
+const ReceiptIcon = ({
+    src,
+    alt,
+    size,
+}: {
+    src: string;
+    alt: string;
+    size: number;
+}) => (
+    <img
+        src={src}
+        alt={alt}
+        width={size}
+        height={size}
+        style={{
+            display: 'block',
+            width: `${size}px`,
+            height: `${size}px`,
+            objectFit: 'contain',
+            filter: 'grayscale(1) brightness(0)',
+        }}
+    />
+);
 
 type ReceiptCalculations = {
     scannedItemTotal: number;
@@ -27,13 +52,12 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, {
 }>(
     ({ orderData, orderCalculations }, ref) => {
         const settings = useAppSelector(getSettings);
-
         const { current_order, zone, shippingAddress, customer, delivery_slot, barcode } = orderData;
 
-        const frozenItems = current_order.items.filter((o: any) => o.temp_sensitivity === 'freezer')?.length;
-        const coldItems = current_order.items.filter((o: any) => o.temp_sensitivity === 'fridge')?.length;
-        const unfitForboxItems = current_order.items.filter((o: any) => o.unfit_for_dispatch)?.length;
-
+        const items = current_order?.items || [];
+        const frozenItems = items.filter((item: any) => item.temp_sensitivity === 'freezer').length;
+        const coldItems = items.filter((item: any) => item.temp_sensitivity === 'fridge').length;
+        const unfitForBoxItems = items.filter((item: any) => item.unfit_for_dispatch).length;
         const currentTotals = current_order?.totals || {};
         const scannedItemTotal = asAmount(orderCalculations?.scannedItemTotal ?? currentTotals.subtotal);
         const bagPrice = asAmount(orderCalculations?.bagPrice ?? currentTotals.bagTotal);
@@ -44,339 +68,351 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, {
         const fbrFee = asAmount(orderCalculations?.fbrFee ?? currentTotals.fbrFee);
         const deliveryFee = asAmount(orderCalculations?.deliveryFee ?? currentTotals.deliveryFee);
         const customerPayable = asAmount(orderCalculations?.customerPayable ?? currentTotals.grandTotal);
-        const deliverySlot = `${utcToDate(delivery_slot.start_date).format('hh:mm A')} to ${utcToDate(delivery_slot.end_date).format('hh:mm A')}`;
+        const deliverySlot = `${utcToDate(delivery_slot.start_date).format('hh:mm A')} – ${utcToDate(delivery_slot.end_date).format('hh:mm A')}`;
         const totalBoxes = current_order?.baskets?.length || 0;
-        const boxCodes = current_order?.baskets?.map((item: any) => (item.barcode)) || [];
-        const barcodeModuleWidth = Math.max(
-            0.55,
-            Math.min(0.9, 16 / Math.max(String(barcode || '').length, 1))
+        const receiptCount = Math.max(totalBoxes, 1);
+        const boxCodes = current_order?.baskets?.map((item: any) => item.barcode).filter(Boolean) || [];
+        const barcodeModuleWidth = Math.max(0.55, Math.min(0.86, 15 / Math.max(String(barcode || '').length, 1)));
+        const currency = String(settings.currency || 'RS').toUpperCase();
+
+        const DetailRow = ({ iconSrc, iconAlt, label, value }: {
+            iconSrc: string;
+            iconAlt: string;
+            label: string;
+            value: React.ReactNode;
+        }) => (
+            <div style={styles.detailRow}>
+                <span style={styles.detailIcon}>
+                    <ReceiptIcon src={iconSrc} alt={iconAlt} size={20} />
+                </span>
+                <span style={styles.detailLabel}>{label}</span>
+                <span style={styles.detailColon}>:</span>
+                <span style={styles.detailValue}>{value}</span>
+            </div>
         );
 
+        return (
+            <div className='scrollbar-thin overflow-auto h-full max-h-100'>
+                <div ref={ref}>
+                    {Array.from({ length: receiptCount }).map((_, pageIndex) => (
+                        <div style={styles.receipt} key={pageIndex}>
+                            <div style={styles.dashedDivider} />
 
-        return (<div className='scrollbar-thin overflow-auto h-full max-h-100'>
-            <div ref={ref}>
-                {Array.from({ length: totalBoxes }).map((_:any, i:number) => (
-                    <div style={styles.receipt} key={i}>
-                        {/* ── Top Row: Order Total | Zone | Page ── */}
-                        <div style={styles.topRow}>
-                            <div style={styles.totalBox}>
-                                <span style={styles.rsLabel}>{settings.currency}</span>
-                                <span style={styles.totalValue}>{customerPayable.toFixed(2)}</span>
-                            </div>
-
-                            <div style={styles.zoneBadge}>
-                                <span style={styles.zoneNumber}>{zone.title}</span>
-                            </div>
-
-                            <div style={styles.pageInfo}>{i + 1} of {totalBoxes}</div>
-                        </div>
-
-                        <div style={styles.solidDivider} />
-                        <div style={styles.addressSection}>
-                            <p style={styles.addressLine}>{shippingAddress.full_address}</p>
-                        </div>
-
-                        <div style={styles.solidDivider} />
-                        <div style={styles.detailsSection}>
-                            <div style={styles.detailRow}>
-                                <span style={styles.detailLabel}>Customer</span>
-                                <span style={styles.detailColon}>:</span>
-                                <span style={styles.detailValueBold}>{customer.name}</span>
-                            </div>
-
-                            <div style={styles.detailRow}>
-                                <span style={styles.detailLabel}>Phone</span>
-                                <span style={styles.detailColon}>:</span>
-                                <span style={styles.detailValueBold}>{customer.phone}</span>
-                            </div>
-
-                            <div style={styles.detailRow}>
-                                <span style={styles.detailLabel}>Delivery Slot</span>
-                                <span style={styles.detailColon}>:</span>
-                                <span style={styles.detailValueBold}>{deliverySlot}</span>
-                            </div>
-                        </div>
-
-                        <div style={styles.solidDivider} />
-                        <div style={styles.totalsSection}>
-                            <div style={styles.totalLine}>
-                                <span>Confirmed items</span>
-                                <span>{settings.currency} {scannedItemTotal.toFixed(2)}</span>
-                            </div>
-                            <div style={styles.totalLine}>
-                                <span>FBR fee</span>
-                                <span>{settings.currency} {fbrFee.toFixed(2)}</span>
-                            </div>
-                            <div style={styles.totalLine}>
-                                <span>Bags ({totalBagQuantity})</span>
-                                <span>{settings.currency} {bagPrice.toFixed(2)}</span>
-                            </div>
-                            <div style={styles.totalLine}>
-                                <span>Delivery fee</span>
-                                <span>{settings.currency} {deliveryFee.toFixed(2)}</span>
-                            </div>
-                            <div style={styles.totalLineStrong}>
-                                <span>Customer payable</span>
-                                <span>{settings.currency} {customerPayable.toFixed(2)}</span>
-                            </div>
-                        </div>
-
-                        <div style={styles.solidDivider} />
-                        <div style={styles.boxSummary}>
-                            {frozenItems > 0 && <div style={styles.boxItem}>
-                                <span style={styles.conditionIcon}>
-                                    <Icon icon='box' color='#000000' fontSize={18} />
-                                    <span style={styles.conditionOverlay}>
-                                        <Icon icon="snowflake" color='#FFFFFF' fontSize={7} />
+                            <div style={styles.topRow}>
+                                <div style={styles.zoneBlock} title={zone?.title || 'Zone'}>
+                                    <span style={styles.zoneIcon}>
+                                        <ReceiptIcon src={receiptIcons.location} alt='Location' size={28} />
                                     </span>
-                                </span>
-                                <span>Freezer: <span style={styles.conditionCount}>{frozenItems}</span></span>
-                            </div>}
-                            {coldItems > 0 && <div style={styles.boxItem}>
-                                <span style={styles.conditionIcon}>
-                                    <Icon icon='box' color='#000000' fontSize={18} />
-                                    <span style={styles.conditionOverlay}>
-                                        <Icon icon="temperature-low" color='#FFFFFF' fontSize={7} />
-                                    </span>
-                                </span>
-                                <span>Fridge: <span style={styles.conditionCount}>{coldItems}</span></span>
-                            </div>}
-                            {unfitForboxItems > 0 && <div style={styles.boxItem}>
-                                <span style={styles.conditionIcon}>
-                                    <Icon icon='box' color='#000000' fontSize={18} />
-                                    <span style={styles.conditionSlash} />
-                                </span>
-                                <span>Unfit for box: <span style={styles.conditionCount}>{unfitForboxItems}</span></span>
-                            </div>}
-                        </div>
-                        <div style={styles.solidDivider} />
+                                    <span style={styles.zoneName}>{zone?.title || 'Zone'}</span>
+                                </div>
 
-                        <div style={styles.bottomRow}>
-                            <div style={styles.barcodeBox}>
-                                <Barcode
-                                    value={barcode}
-                                    format="CODE128"
-                                    width={barcodeModuleWidth}
-                                    height={55}
-                                    fontSize={12}
-                                    margin={0}
-                                    displayValue
-                                />
+                                <div style={styles.thankYouBlock}>
+                                    <div style={styles.thankYou}>
+                                        Thank you!
+                                        <ReceiptIcon src={receiptIcons.heart} alt='Heart' size={13} />
+                                    </div>
+                                    <div style={styles.thankYouCaption}>We appreciate your trust.</div>
+                                </div>
+
+                                <div style={styles.pageInfo}>{pageIndex + 1} of {receiptCount}</div>
                             </div>
 
-                            <div style={styles.verticalDashedDivider} />
+                            <div style={styles.dashedDivider} />
 
-                            <div style={styles.boxesColumn}>
-                                <div style={styles.boxesLabel}>BOXES: {totalBoxes}</div>
-                                <div style={styles.boxCodes}>
-                                    {boxCodes.map((code:string, i:number) => (
-                                        <span key={i} style={styles.boxCode}>{code}{i < boxCodes.length-1 && ","} </span>
-                                    ))}
+                            <div style={styles.detailsSection}>
+                                <DetailRow iconSrc={receiptIcons.home} iconAlt='Home' label='ADDRESS' value={shippingAddress?.full_address + " " + shippingAddress?.full_address || '—'} />
+                                <DetailRow iconSrc={receiptIcons.user} iconAlt='User' label='CUSTOMER' value={customer?.name || '—'} />
+                                <DetailRow iconSrc={receiptIcons.phone} iconAlt='Phone' label='PHONE' value={customer?.phone || '—'} />
+                                <DetailRow iconSrc={receiptIcons.clock} iconAlt='Clock' label='DELIVERY SLOT' value={deliverySlot} />
+                            </div>
+
+                            <div style={styles.solidDivider} />
+
+                            <div style={styles.summaryHeading}>
+                                <span style={styles.summaryIcon}>
+                                    <ReceiptIcon src={receiptIcons.cart} alt='Shopping cart' size={21} />
+                                </span>
+                                <span>ORDER SUMMARY</span>
+                            </div>
+
+                            <div style={styles.totalsSection}>
+                                <div style={styles.totalLine}>
+                                    <span>Confirmed Items</span>
+                                    <span>{currency} {scannedItemTotal.toFixed(2)}</span>
+                                </div>
+                                <div style={styles.totalLine}>
+                                    <span>FBR Fee</span>
+                                    <span>{currency} {fbrFee.toFixed(2)}</span>
+                                </div>
+                                <div style={styles.totalLine}>
+                                    <span>Bags ({totalBagQuantity})</span>
+                                    <span>{currency} {bagPrice.toFixed(2)}</span>
+                                </div>
+                                <div style={styles.totalLine}>
+                                    <span>Delivery Fee</span>
+                                    <span>{currency} {deliveryFee.toFixed(2)}</span>
                                 </div>
                             </div>
+
+                            <div style={styles.payableRow}>
+                                <span>CUSTOMER PAYABLE</span>
+                                <span>{currency} {customerPayable.toFixed(2)}</span>
+                            </div>
+
+                            <div style={styles.scanAndConditions}>
+                                <div style={styles.barcodeColumn}>
+                                    <div style={styles.scanLabel}>SCAN TO RECEIVE ORDER</div>
+                                    <div style={styles.barcodeBox}>
+                                        <Barcode
+                                            value={String(barcode || '')}
+                                            format='CODE128'
+                                            width={barcodeModuleWidth}
+                                            height={46}
+                                            fontSize={11}
+                                            margin={0}
+                                            displayValue
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={styles.verticalDashedDivider} />
+
+                                <div style={styles.conditionsColumn}>
+                                    {frozenItems > 0 && (
+                                        <div style={styles.conditionItem}>
+                                            <span style={styles.conditionCircle}>
+                                                <ReceiptIcon src={receiptIcons.snow} alt='Snowflake' size={35} />
+                                            </span>
+                                            <span style={styles.conditionTitle}>{frozenItems} FROZEN</span>
+                                            <span style={styles.conditionCaption}>Keep Frozen</span>
+                                        </div>
+                                    )}
+                                    {coldItems > 0 && (
+                                        <div style={styles.conditionItem}>
+                                            <span style={styles.conditionCircle}>
+                                                <ReceiptIcon src={receiptIcons.chilled} alt='Chilled' size={25} />
+                                            </span>
+                                            <span style={styles.conditionTitle}>{coldItems} CHILLED</span>
+                                            <span style={styles.conditionCaption}>Keep Chilled</span>
+                                        </div>
+                                    )}
+                                    {unfitForBoxItems > 0 && (
+                                        <div style={styles.conditionItem}>
+                                            <span style={styles.conditionCircle}>
+                                                <ReceiptIcon src={receiptIcons.box} alt='NOT FIT BOX' size={35} />
+                                                <span style={styles.notFitSlash} aria-hidden='true' />
+                                            </span>
+                                            <span style={styles.conditionTitle}>{unfitForBoxItems} NOT FIT BOX</span>
+                                            <span style={styles.conditionCaption}>May not fit in box</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div style={styles.boxesRow}>
+                                <span style={styles.boxesIcon}>
+                                    <ReceiptIcon src={receiptIcons.box} alt='Box' size={30} />
+                                </span>
+                                <span style={styles.boxesLabel}>BOXES: {totalBoxes}</span>
+                                <span style={styles.boxesDivider} />
+                                <span style={styles.boxCodes}>
+                                    {boxCodes.length > 0 ? boxCodes.join(', ') : '—'}
+                                </span>
+                            </div>
+
+                            <div style={styles.solidDivider} />
+                            {receiptCount - 1 > pageIndex && <div style={styles.cutDivider} />}
                         </div>
-
-                        <div style={styles.solidDivider} />
-
-                        {totalBoxes - 1 > i && <div style={styles.cutDivider} />}
-                    </div>)
-                )}
+                    ))}
+                </div>
             </div>
-        </div>);
+        );
     }
 );
 OrderReceipt.displayName = 'OrderReceipt';
 
-
-/* ─────────────────────────  STYLES  ───────────────────────── */
 const styles: Styles = {
     receipt: {
         width: '72mm',
         minHeight: '50mm',
-        // Keep content inside the TM-T88IV printable area on an 80 mm roll.
-        // The printer cannot image the outer few millimetres on either edge.
-        padding: '2mm 2mm 1mm',
+        padding: '1.5mm 2mm 1mm',
         fontFamily: 'Arial, Helvetica, sans-serif',
-        fontSize: '13px',
-        lineHeight: 1.3,
+        fontSize: '12px',
+        lineHeight: 1.25,
         background: '#fff',
         color: '#000',
         boxSizing: 'border-box',
-        // border: '1px solid #000',
-        // borderBottom: '1px dashed #000',
         margin: '0 auto',
-        // marginBottom: 20,
-        // paddingBottom: 20,
+        overflow: 'hidden',
     },
-
     topRow: {
         display: 'grid',
-        gridTemplateColumns: '1fr auto 1fr',
+        gridTemplateColumns: 'minmax(0, 1.35fr) minmax(24mm, 0.9fr) auto',
         alignItems: 'center',
-        gap: '2mm',
+        gap: '1.5mm',
+        minHeight: '13mm',
+        padding: '1mm 0',
     },
-    totalBox: {
+    zoneBlock: {
         display: 'flex',
-        alignItems: 'baseline',
-        gap: '1mm',
-    },
-    rsLabel: { fontSize: '14px', fontWeight: 700 },
-    totalValue: { fontSize: '22px', fontWeight: 800 },
-
-    zoneBadge: {
-        display: 'inline-flex',
         alignItems: 'center',
-        gap: '4mm',
-        border: '1.5px solid #000',
-        borderRadius: '3mm',
-        padding: '1.5mm 4mm',
+        minWidth: 0,
+        overflow: 'hidden',
+        gap: '0mm',
     },
-    zoneNumber: { fontSize: '24px', fontWeight: 800 },
-
-    pageInfo: {
-        fontSize: '14px',
-        fontWeight: 700,
-        textAlign: 'right',
+    zoneIcon: {
+        display: 'inline-flex',
+        flex: '0 0 auto',
+        lineHeight: 1,
     },
-
-    solidDivider: { borderTop: '1px solid #000', margin: '1mm 0' },
-    dashedDivider: { borderTop: '1px dashed #000', margin: '1mm 0' },
+    zoneName: {
+        display: 'block',
+        minWidth: 0,
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        fontSize: '22px',
+        fontWeight: 900,
+        lineHeight: 1,
+        textTransform: 'uppercase',
+    },
+    thankYouBlock: { minWidth: 0, textAlign: 'left' },
+    thankYou: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '1mm',
+        whiteSpace: 'nowrap',
+        fontFamily: 'Georgia, Times New Roman, serif',
+        fontSize: '15px',
+        fontStyle: 'italic',
+        lineHeight: 1.1,
+    },
+    thankYouCaption: { marginTop: '1mm', whiteSpace: 'nowrap', fontSize: '7.5px' },
+    pageInfo: { whiteSpace: 'nowrap', fontSize: '13px', textAlign: 'right' },
+    dashedDivider: { borderTop: '1px dashed #000', margin: '0.5mm 0' },
+    solidDivider: { borderTop: '1px solid #000', margin: '1.5mm 0' },
     cutDivider: { borderTop: '1px dashed #000', margin: '5mm 0' },
-
-    addressSection: {},
-    addressLine: { margin: '0.5mm 0', fontSize: '13px' },
-
-    detailsSection: { display: 'flex', flexDirection: 'column', gap: '1mm' },
+    detailsSection: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.7mm',
+        padding: '2mm 0 1mm',
+    },
     detailRow: {
         display: 'grid',
-        gridTemplateColumns: '24mm 5mm 1fr',
-        alignItems: 'baseline',
+        gridTemplateColumns: '8mm 24mm 3mm minmax(0, 1fr)',
+        alignItems: 'center',
+        minWidth: 0,
     },
-    detailLabel: { fontSize: '13px' },
-    detailColon: { textAlign: 'center', fontWeight: 700 },
-    detailValueBold: { fontSize: '14px', fontWeight: 700 },
-
+    detailIcon: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center' },
+    detailLabel: { fontSize: '11px', fontWeight: 800, whiteSpace: 'nowrap' },
+    detailColon: { fontSize: '12px', fontWeight: 800, textAlign: 'center' },
+    detailValue: { minWidth: 0, fontSize: '12px', overflowWrap: 'anywhere' },
+    summaryHeading: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0mm',
+        padding: '1mm 0 0.5mm',
+        fontSize: '13px',
+        fontWeight: 800,
+    },
+    summaryIcon: { display: 'inline-flex', width: '8mm', justifyContent: 'center' },
     totalsSection: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.5mm',
-        padding: '1mm 0',
+        gap: '1.5mm',
+        padding: '1mm 0 1.5mm 8mm',
     },
     totalLine: {
         display: 'flex',
         justifyContent: 'space-between',
         gap: '3mm',
-        fontSize: '12px',
+        fontSize: '11.5px',
     },
-    totalLineStrong: {
+    payableRow: {
         display: 'flex',
         justifyContent: 'space-between',
+        alignItems: 'baseline',
         gap: '3mm',
-        paddingTop: '0.5mm',
         borderTop: '1px dashed #000',
-        fontSize: '13px',
-        fontWeight: 800,
+        borderBottom: '1px solid #000',
+        padding: '1.5mm 1mm',
+        fontSize: '14px',
+        fontWeight: 900,
     },
-    boxSummary: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        flexWrap: 'wrap',
-        gap: '1.5mm 3mm',
-        padding: '1mm 0',
-    },
-    boxItem: {
-        display: 'flex',
-        alignItems: 'center',
+    scanAndConditions: {
+        display: 'grid',
+        gridTemplateColumns: '43% 0 1fr',
         gap: '2mm',
-        maxWidth: '100%',
-        whiteSpace: 'nowrap',
+        alignItems: 'stretch',
+        padding: '2mm 0',
     },
-    conditionIcon: {
+    barcodeColumn: { minWidth: 0, textAlign: 'center' },
+    scanLabel: { marginBottom: '1mm', fontSize: '8px', fontWeight: 800, whiteSpace: 'nowrap' },
+    barcodeBox: { display: 'flex', justifyContent: 'center', maxWidth: '100%', overflow: 'hidden' },
+    verticalDashedDivider: { width: 0, borderLeft: '1px dashed #000' },
+    conditionsColumn: {
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'space-evenly',
+        flexWrap: 'wrap',
+        gap: '1.5mm',
+        minWidth: 0,
+    },
+    conditionItem: {
+        display: 'flex',
+        flex: '0 0 calc(50% - 0.75mm)',
+        maxWidth: 'calc(50% - 0.75mm)',
+        minWidth: 0,
+        boxSizing: 'border-box',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+    },
+    conditionCircle: {
         position: 'relative',
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        width: '18px',
-        height: '18px',
-        flex: '0 0 18px',
-        color: '#000',
-    },
-
-    conditionOverlay: {
-        position: 'absolute',
-        right: '-1px',
-        bottom: '-1px',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: '10px',
-        height: '10px',
-        borderRadius: '50%',
-        background: '#000',
-    },
-
-    conditionSlash: {
-        position: 'absolute',
-        left: '-1px',
-        top: '8px',
-        width: '20px',
-        height: '2px',
-        borderRadius: '2px',
-        background: '#000',
-        transform: 'rotate(45deg)',
-    },
-    conditionCount: { fontWeight: 900 },
-    boxText: { fontSize: '13px' },
-    verticalDivider: {
-        width: '0.5px',
+        width: '12mm',
         height: '12mm',
+        marginBottom: '1mm',
+        border: '1.5px solid #000',
+        borderRadius: '50%',
+    },
+    notFitSlash: {
+        position: 'absolute',
+        left: '50%',
+        top: '50%',
+        zIndex: 1,
+        width: '11mm',
+        height: '1.5px',
         background: '#000',
+        transform: 'translate(-50%, -50%) rotate(-45deg)',
+        transformOrigin: 'center',
+        pointerEvents: 'none',
     },
-
-    bottomRow: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'stretch',
-        gap: '1mm',
-        minHeight: '20mm',
-    },
-    barcodeBox: {
-        display: 'flex',
-        justifyContent: 'center',
-        width: '100%',
-        maxWidth: '100%',
-    },
-    verticalDashedDivider: {
-        width: '100%',
-        height: 0,
+    conditionTitle: { fontSize: '8.5px', fontWeight: 900, whiteSpace: 'nowrap' },
+    conditionCaption: { fontSize: '7.5px', whiteSpace: 'nowrap' },
+    boxesRow: {
+        display: 'grid',
+        gridTemplateColumns: '8mm auto 0 minmax(0, 1fr)',
+        alignItems: 'center',
+        gap: '2mm',
+        minHeight: '5mm',
+        padding: '1.5mm 0 0 0',
         borderTop: '1px dashed #000',
     },
-    boxesColumn: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '1mm',
-        width: '100%',
-        maxWidth: '100%',
-    },
-    boxesLabel: {
-        fontSize: '13px',
-        fontWeight: 700,
-        letterSpacing: '0.5px',
-    },
+    boxesIcon: { display: 'inline-flex', justifyContent: 'center' },
+    boxesLabel: { fontSize: '12px', fontWeight: 900, whiteSpace: 'nowrap' },
+    boxesDivider: { alignSelf: 'stretch', width: 0, borderLeft: '1px dashed #000' },
     boxCodes: {
-        // display: 'flex',
-        // flexDirection: 'column',
-        alignItems: 'center',
-        gap: '0.5mm',
-        // border: '1px solid black'
-        textAlign: "center",
-        width: '100%',
+        minWidth: 0,
+        fontSize: '11px',
+        lineHeight: 1.45,
+        textAlign: 'center',
         overflowWrap: 'anywhere',
     },
-    boxCode: { fontSize: '12px' },
 };
 
 export default OrderReceipt;

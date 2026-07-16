@@ -1,10 +1,29 @@
 #import "../../_fragment/error.graphql"
 #import "../../_fragment/GeoPointReff.graphql"
+#import "../../_fragment/GeoZoneReff.graphql"
 
-fragment GeoZoneReffInfo  on GeoZoneReff {
-    _id_zone
-    title
-    category
+# fragment GeoZoneReffInfo  on GeoZoneReff {
+#     # _id_zone
+#     # title
+#     # category
+#     city {
+#       _id
+#       title
+#       code
+#       child_of
+#       center {...GeoPointReffInfo}
+#       type
+#       status
+#     }
+#     # status
+# }
+
+fragment VehiclesInfo on Vehicles {
+  _id
+  title
+  registration_no
+  zones { 
+    ...GeoZoneReffInfo
     city {
       _id
       title
@@ -14,14 +33,7 @@ fragment GeoZoneReffInfo  on GeoZoneReff {
       type
       status
     }
-    status
-}
-
-fragment VehiclesInfo on Vehicles {
-  _id
-  title
-  registration_no
-  zones { ...GeoZoneReffInfo }
+  }
   status
   drivers { _id name }
   store {

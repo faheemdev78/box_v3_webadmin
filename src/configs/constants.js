@@ -6,6 +6,19 @@ export const shiftGap = 5;
 export const PROD_GAL_SIZE = 4;
 export const NOIMAGE = '/images/no-image.jpg';
 
+export const svgIcons = {
+    location: '/location-pin-svgrepo-com.svg',
+    heart: '/heart-angle-svgrepo-com.svg',
+    box: '/box-1-svgrepo-com.svg',
+    snow: '/snow-svgrepo-com.svg',
+    chilled: '/cold-svgrepo-com.svg',
+    cart: '/cart-shopping-svgrepo-com.svg',
+    clock: '/clock-five-svgrepo-com.svg',
+    phone: '/phone-svgrepo-com.svg',
+    user: '/user-svgrepo-com.svg',
+    home: '/house-svgrepo-com.svg',
+};
+
 export const publishStatus = [{ label: "Online", value: 'online' }, { label: "Offline", value: 'offline' }];
 
 export const activeStatus = [

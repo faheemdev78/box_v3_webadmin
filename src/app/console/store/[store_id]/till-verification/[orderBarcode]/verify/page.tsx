@@ -21,7 +21,7 @@ import { getSettings } from '@/rStore/slices/systemSlice';
 import { useStartOrderVerification, useCompleteOrderVerification,
   useMyActiveTillShift, usePrintTillReceipt, useOpenTillShift, useUpdateTillVerificationBaskets, useUpdateTillVerificationBags, useRemoveOrderFromTillSession
 } from '@/hooks/useTillVerification';
-import { adminRoot } from '@/configs';
+import { adminRoot, svgIcons } from '@/configs';
 import { Avatar, DevBlock, Button, IconButton, Loader, Table, usePageProps, Icon, Drawer, PopMenu, BarcodeScanner } from '@/components';
 import { Page } from '@/template';
 // import { ItemVerificationRow } from '@/modules/orders/tillVerification/ItemVerificationRow';
@@ -35,11 +35,11 @@ import AddBags from './components/AddBags';
 import { playBeep } from '@/lib/utill';
 import { Styles } from '@/types/styles';
 // import UsbTest from './components/UsbTest';
+import ProductReceipt from './components/productRreceipt';
+import OrderReceipt from './components/orderReceipt';
 
 import GET_AVAILABLE_BASKETS from '@/graphql/baskets/getAvailableBaskets.graphql';
 import GET_BAGS from '@/graphql/bags/bags.graphql';
-import ProductReceipt from './components/productRreceipt';
-import OrderReceipt from './components/orderReceipt';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -90,6 +90,30 @@ const getVerificationStatusFromItem = (item: any) => ({
   notes: item.issue_reason || '',
   verified_at: item.verified_at || null,
 });
+
+const ReceiptIcon = ({
+  src,
+  alt,
+  size,
+}: {
+  src: string;
+  alt: string;
+  size: number;
+}) => (
+  <img
+    src={src}
+    alt={alt}
+    width={size}
+    height={size}
+    style={{
+      display: 'block',
+      width: `${size}px`,
+      height: `${size}px`,
+      objectFit: 'contain',
+      filter: 'grayscale(1) brightness(0)',
+    }}
+  />
+);
 
 const normalizeBarcode = (barcode: any) => String(barcode || '').trim();
 
@@ -219,27 +243,19 @@ const ProductHolder = ({ item, orderData }: {
             {item?.attributes?.map((atr: any, i: number) => (<div className='bg-gray-200 rounded-sm' style={{ padding:"0px 3px", display:"inline-block" }} key={i}>{atr.val}{atr.title}</div>))}
           </div>
           <div>
+
             <Space size={1}>
               <Tag color="#E7F6EC" style={{ color: "#166534" }}><Icon icon="check-circle" color="#2DA44E" />{item?.store?.available_qty > 999 ? '1K+' : (item?.store?.available_qty || 0)} in Stock</Tag>
+
               {item.temp_sensitivity === 'freezer' && <Tooltip title='Freezer'>
-                <span className='relative'>
-                  <Icon icon='box' color='#8e8e8e' fontSize={18} />
-                  <Icon icon="snowflake" fontSize={10} color='#FFFFFF' className='absolute right-0 bottom-0' />
-                </span>
+                <span className='relative'><ReceiptIcon src={svgIcons.snow} alt='Freezer' size={20} /></span>
               </Tooltip>}
               {item.temp_sensitivity === 'fridge' && <Tooltip title='Fridge'>
-                <span className='relative'>
-                  <Icon icon='box' color='#8e8e8e' fontSize={18} />
-                  <Icon icon="temperature-low" fontSize={10} color='#FFFFFF' className='absolute right-0 bottom-0' />
-                </span>
+                <span className='relative'><ReceiptIcon src={svgIcons.chilled} alt='Fridge' size={20} /></span>
               </Tooltip>}
-              {/* <span className='relative'>
-                <Icon icon='box' color='#8e8e8e' fontSize={18} />
-                <Icon icon="exclamation-circle" fontSize={10} color='#FFFFFF' className='absolute right-0 bottom-0' />
-              </span> */}
               {item.unfit_for_dispatch && <Tooltip title='Not fit for box'>
                 <span className='relative'>
-                  <Icon icon='box' color='#8e8e8e' fontSize={18} />
+                  <Icon icon='box' color='#000000' fontSize={18} />
                   <div className='absolute bg-black-500 h-1 w-full left-0 right-0 top-1.5 rounded-md border-1 border-white rotate-45' />
                 </span>
               </Tooltip>}
@@ -535,7 +551,7 @@ const RightColumn = ({
   const handleScan = (barcode:string) => {
     const scannedBarcode = normalizeBarcode(barcode);
 
-    console.log("********** Till List Scanned *******", scannedBarcode);
+    // console.log("********** Till List Scanned *******", scannedBarcode);
     if (scannedBarcode) setScaned(scannedBarcode)
 
     const item = orderItems.find((o:any) => String(o.barcode || '').trim() === scannedBarcode)
@@ -794,10 +810,10 @@ const RightColumn = ({
           </Space></div>
         </div>
 
-        <div className='border-t border-gray-300 p-10'>
+        {/* <div className='border-t border-gray-300 p-10'>
           <div>Area: <b>{orderData.zone.title}</b></div>
           <div>Time: <b>{utcToDate(orderData.delivery_slot.start_date).format("ddd Do MMM YYYY - HH:mm")} - {utcToDate(orderData.delivery_slot.end_date).format("HH:mm")} </b></div>
-        </div>
+        </div> */}
 
       </div>
 
@@ -849,14 +865,23 @@ const RightColumn = ({
 const PageFooter = ({ orderData }: { orderData:any }) => {
   {/* C3: 100px height */}
   return (<div className="h-[80px] border-t border-gray-300 flex bg-white">
-    <Row className='w-full p-20' align="middle">
-      <Col flex='auto'>
-        <Space>
-          <div className='font-bold'>Picker Basket</div> 
-          {orderData?.processing_stages?.picking?.baskets?.map((basket:any, index:number) => (<Tag style={{ fontSize:"20px" }} color="gray" key={index}>{basket.title}</Tag>))}
-        </Space>
+    <Row className='w-full p-20 nowrap' align="middle" gutter={[10, 10]}>
+      <Col flex='320px' className='border-r border-gray-300'>
+        <div>Area: <b>{orderData.zone.title}</b></div>
+        <div>Time: <b>{utcToDate(orderData.delivery_slot.start_date).format("ddd Do MMM YYYY - HH:mm")} - {utcToDate(orderData.delivery_slot.end_date).format("HH:mm")} </b></div>
       </Col>
-      <Col flex='250px' className='text-right'>
+      <Col flex='auto' className='border-r border-gray-300'>
+          <Space>
+            <div className='font-bold'>Picker Basket</div>
+            <div style={{ border: "0px solid blue", maxHeight: '60px', overflow: 'auto' }}>
+              <Space wrap className='w-full'>
+                {orderData?.processing_stages?.picking?.baskets?.map((basket: any, index: number) => (<Tag style={{ fontSize: "20px" }} color="gray" key={index}>{basket.title}</Tag>))}
+                {/* {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].map((item => (<Tag style={{ fontSize: "20px" }} color="gray" key={item}>Basket {item}</Tag>)))} */}
+              </Space>
+            </div>
+          </Space>
+      </Col>
+      <Col flex='200px' className='text-right'>
         <div>{orderData?.processing_stages?.picking?.handled_by.name} <span className='text-gray-400'>(picker)</span></div>
         <div><span className='text-gray text-gray-400'>{utcToDate(orderData.processing_stages.updated_at).format("ddd Do MMM YYYY - HH:mm")}</span></div>
       </Col>
@@ -1410,23 +1435,28 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
         cancelText: 'Skip',
         icon: <PrinterOutlined />,
         onOk: async () => {
-          try {
-            const result = await printReceipt(orderData._id);
-            if (result?.receiptText) {
-              setReceiptText(result.receiptText);
-              setShowReceiptModal(true);
-            }
-            navigateToTillQueue();
-          } catch (error: any) {
-            message.error(error.message || 'Failed to print receipt');
-            // Still navigate away
-            navigateToTillQueue();
-          }
+          openPrintWindow('order')
+
+          // try {
+          //   const result = await printReceipt(orderData._id);
+          //   if (result?.receiptText) {
+          //     setReceiptText(result.receiptText);
+          //     setShowReceiptModal(true);
+          //   }
+          //   navigateToTillQueue();
+          // } catch (error: any) {
+          //   message.error(error.message || 'Failed to print receipt');
+          //   // Still navigate away
+          //   navigateToTillQueue();
+          // }
         },
         onCancel: () => {
           navigateToTillQueue();
         },
       });
+
+
+      
     } catch (error: any) {
       message.error(error.message || 'Failed to complete verification');
     }
@@ -1443,7 +1473,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     }
 
     const response = await updateTillVerificationBaskets(orderData._id, basket._id, action);
-    message.success(response?.success?.message || `Basket ${action}ed successfully`);
+    message.success(response?.success?.message || `Basket ${action}ed successfully`, 3);
   };
 
   const handleLiveBagAction = async (
@@ -1772,13 +1802,24 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       {/* Middle Column Wrapper (C2 + C3) */}
       <div className="flex flex-col flex-1 min-w-0">
         <div>
-          <div className='p-10 w-full'><Space wrap>
-            <IconButton onClick={() => router.back()} icon='arrow-left' />
-            <div>Order {orderData.serial}</div>
-            <Button onClick={() => setActiveTab('unscanned')} color={activeTab ==='unscanned' ? 'blue' : undefined}>Unscanned ({unscannedItems.length})</Button>
-            <Button onClick={() => setActiveTab('scanned')} color={activeTab === 'scanned' ? 'blue' : undefined}>Scanned ({scannedItems.length})</Button>
-            <Button onClick={() => setActiveTab('unavailable')} color={activeTab === 'unavailable' ? 'blue' : undefined}>Unavailable ({missingItems.length})</Button>
-          </Space></div>
+          <div className='p-10 w-full'>
+            <Row>
+              <Col flex='auto'><Space wrap>
+                  <IconButton onClick={() => router.back()} icon='arrow-left' />
+                  <div>Order {orderData.serial}</div>
+                  <Button onClick={() => setActiveTab('unscanned')} color={activeTab === 'unscanned' ? 'blue' : undefined}>Unscanned ({unscannedItems.length})</Button>
+                  <Button onClick={() => setActiveTab('scanned')} color={activeTab === 'scanned' ? 'blue' : undefined}>Scanned ({scannedItems.length})</Button>
+                  <Button onClick={() => setActiveTab('unavailable')} color={activeTab === 'unavailable' ? 'blue' : undefined}>Unavailable ({missingItems.length})</Button>
+                </Space></Col>
+              {/* <Col flex='300px'>
+                <div>
+                  <div>Area: <b>{orderData.zone.title}</b></div>
+                  <div>Time: <b>{utcToDate(orderData.delivery_slot.start_date).format("ddd Do MMM YYYY - HH:mm")} - {utcToDate(orderData.delivery_slot.end_date).format("HH:mm")} </b></div>
+                </div>
+              </Col> */}
+            </Row>
+
+          </div>
         </div>
 
         {/* {(unscannedItems.length > 0 && activeTab === 'unscanned') ? <ContentArea orderData={orderData} orderItems={displayItems} /> : <><ReadyToDispatchWizard orderData={orderData} /></>} */}

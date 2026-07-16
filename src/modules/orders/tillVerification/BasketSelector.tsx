@@ -4,7 +4,7 @@
  * Allows till operators to select delivery baskets for verified orders
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Input, Card, Row, Col, Space, Typography, Tag, Empty, Alert } from 'antd';
 import { CheckCircleOutlined, ShoppingOutlined } from '@ant-design/icons';
 import { useQuery, useLazyQuery } from '@apollo/client/react';
@@ -16,6 +16,8 @@ import GET_AVAILABLE_BASKETS from '@/graphql/baskets/getAvailableBaskets.graphql
 
 const { Search } = Input;
 const { Text } = Typography;
+const MIN_SEARCH_LENGTH = 3;
+const SEARCH_DEBOUNCE_MS = 500;
 
 interface Basket {
   _id: string;
@@ -86,6 +88,7 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
   initialSelectedBaskets = [],
 }) => {
   const [selectedBaskets, setSelectedBaskets] = useState<string[]>([]);
+  const [searchText, setSearchText] = useState('');
 
   // Query available delivery baskets
   const [get_getAvailableBaskets, { data, loading, error }] = useLazyQuery<any>(GET_AVAILABLE_BASKETS, { 
@@ -102,7 +105,7 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
   //   notifyOnNetworkStatusChange: true,
   // });
 
-  const onSearch = async(txt:string) => {
+  const onSearch = useCallback(async (txt: string) => {
     console.log("onSearch(): ", txt)
     const resutls = await get_getAvailableBaskets({
       variables: {
@@ -118,9 +121,23 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
     .catch(catchApolloError)
 
     console.log("resutls: ", resutls)
-  }
+  }, [category, get_getAvailableBaskets, storeId]);
 
-  const availableBaskets: Basket[] = data?.getAvailableBaskets?.baskets || [];
+  useEffect(() => {
+    const keywords = searchText.trim();
+
+    if (keywords.length < MIN_SEARCH_LENGTH) return;
+
+    const timeoutId = window.setTimeout(() => {
+      void onSearch(keywords);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [onSearch, searchText]);
+
+  const availableBaskets: Basket[] = searchText.trim().length >= MIN_SEARCH_LENGTH
+    ? data?.getAvailableBaskets?.baskets || []
+    : [];
 
   useEffect(() => {
     setSelectedBaskets(initialSelectedBaskets.map((basket) => basket._id));
@@ -193,7 +210,12 @@ export const BasketSelector: React.FC<BasketSelectorProps> = ({
 
   return (<div>
     <Space orientation="vertical" size={16} style={{ width: '100%' }}>
-      <Search placeholder="search basket" loading={loading} onSearch={onSearch} />
+      <Search
+        placeholder={`search basket (minimum ${MIN_SEARCH_LENGTH} characters)`}
+        loading={loading}
+        value={searchText}
+        onChange={(event) => setSearchText(event.target.value)}
+      />
 
 
       {/* <Alert

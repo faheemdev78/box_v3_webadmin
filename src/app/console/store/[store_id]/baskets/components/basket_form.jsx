@@ -8,6 +8,7 @@ import { useLazyQuery, useMutation, useSubscription } from '@apollo/client/react
 import { basketCategories } from '@/configs';
 import { __error } from '@/lib/consoleHelper';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import { timestamp } from '@/lib/utill';
 
 import RECORD_ADD from '@/graphql/baskets/addBasket.graphql';
 import RECORD_EDIT from '@/graphql/baskets/editBasket.graphql';
@@ -98,7 +99,7 @@ const WithDrawer = ({ store, open, initialValues, onClose, onSuccess }) => {
     >
         {open && <FormComp
             store={store}
-            initialValues={initialValues}
+            initialValues={{ barcode: String(timestamp()), color: "#FFFFFF", ...initialValues }}
             onSuccess={(results) => {
                 if (onSuccess) onSuccess(results);
                 onClose();
