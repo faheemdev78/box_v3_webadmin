@@ -827,6 +827,7 @@ const RightColumn = ({
             <Button onClick={showBags}>Bags ({totalBags})</Button>
             <Button onClick={showBaskets}>Baskets ({totalBaskets})</Button>
             <Button onClick={() => openPrintWindow('product')}>Product Receipt Print</Button>
+            {/* <Button onClick={() => openPrintWindow('product-preview')}>Product Receipt Preview</Button> */}
           </Space></div>
         </div>
 
@@ -1044,7 +1045,7 @@ const ReadyToDispatchWizard = ({
                   <Button onClick={showBags}>Bags ({totalBags})</Button>
                   <Button onClick={showPrint}>Box Receipt Prints</Button>
                 </Space>
-                <Button size="large" onClick={onReadyToDispatch} color="green" loading={loading}>Ready to Dispatch</Button>
+                <Button size="large" onClick={onReadyToDispatch} color="green" loading={loading}>Complete Verification & Proceed to next Order</Button>
               </Space>
             )}
           </div>
@@ -1210,8 +1211,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const [excessiveItemData, setExcessiveItemData] = useState<any>(null);
   const [excessiveQty, setExcessiveQty] = useState<number>(0);
   const [showSupervisorLogin, set_showSupervisorLogin] = useState<boolean>(false);
-
-  const [showPrintPreview, set_showPrintPreview] = useState<string | boolean>(false);
+  const [showProductReceiptPreview, setShowProductReceiptPreview] = useState(false);
 
   const [showBags, set_showBags] = useState<boolean>(false);
   const [showBaskets, set_showBaskets] = useState<boolean>(false);
@@ -1219,7 +1219,9 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   const [initialOrderData, setInitialOrderData] = useState<any>(null);
 
   const initializedOrderBarcodeRef = useRef<string | null>(null);
-  const invoicePreviewRef = useRef<HTMLDivElement | null>(null);
+  const productReceiptPrintRef = useRef<HTMLDivElement | null>(null);
+  const productReceiptPreviewRef = useRef<HTMLDivElement | null>(null);
+  const orderReceiptPrintRef = useRef<HTMLDivElement | null>(null);
   const productScanSeqRef = useRef(0);
   const liveAttachmentScanRef = useRef<Set<string>>(new Set());
   const [productScanRequest, setProductScanRequest] = useState<{ barcode: string; key: number } | null>(null);
@@ -1453,33 +1455,35 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       setShowCompleteModal(false);
       setCompleteNotes('');
 
-      // Offer to print receipt
-      Modal.confirm({
-        title: 'Print Receipt?',
-        content: 'Would you like to print the till receipt for this order?',
-        okText: 'Print Receipt',
-        cancelText: 'Skip',
-        icon: <PrinterOutlined />,
-        onOk: async () => {
-          openPrintWindow('order')
+      navigateToTillQueue();
 
-          // try {
-          //   const result = await printReceipt(orderData._id);
-          //   if (result?.receiptText) {
-          //     setReceiptText(result.receiptText);
-          //     setShowReceiptModal(true);
-          //   }
-          //   navigateToTillQueue();
-          // } catch (error: any) {
-          //   message.error(error.message || 'Failed to print receipt');
-          //   // Still navigate away
-          //   navigateToTillQueue();
-          // }
-        },
-        onCancel: () => {
-          navigateToTillQueue();
-        },
-      });
+      // Offer to print receipt
+      // Modal.confirm({
+      //   title: 'Print Receipt?',
+      //   content: 'Would you like to print the till receipt for this order?',
+      //   okText: 'Print Receipt',
+      //   cancelText: 'Skip',
+      //   icon: <PrinterOutlined />,
+      //   onOk: async () => {
+      //     openPrintWindow('order')
+
+      //     // try {
+      //     //   const result = await printReceipt(orderData._id);
+      //     //   if (result?.receiptText) {
+      //     //     setReceiptText(result.receiptText);
+      //     //     setShowReceiptModal(true);
+      //     //   }
+      //     //   navigateToTillQueue();
+      //     // } catch (error: any) {
+      //     //   message.error(error.message || 'Failed to print receipt');
+      //     //   // Still navigate away
+      //     //   navigateToTillQueue();
+      //     // }
+      //   },
+      //   onCancel: () => {
+      //     navigateToTillQueue();
+      //   },
+      // });
 
 
       
@@ -1623,19 +1627,24 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     set_showExcessiveItem(true);
   }
 
-  const handlePrintAllReceipts = async () => {
-    if (!orderData) return;
+  const handlePrintInvoice = async (
+    receiptRef: React.RefObject<HTMLDivElement | null>
+  ) => {
+    const receiptElement = receiptRef.current;
 
-    try {
-      await handlePrintInvoice()
-      message.success('Receipt printed successfully');
-    } catch (e: any) {
-      message.error(e.message || 'Print failed');
+    if (!receiptElement) {
+      message.error('Receipt is not ready to print');
+      return;
     }
-  };
 
-  const handlePrintInvoice = async () => {
-    if (!invoicePreviewRef.current) return;
+    const contentHeightPx = Math.ceil(Math.max(
+      receiptElement.scrollHeight,
+      receiptElement.getBoundingClientRect().height
+    ));
+    const contentHeightMm = Math.max(
+      1,
+      Math.ceil((contentHeightPx * 25.4 / 96) * 10) / 10
+    );
 
     const printWindow = window.open(
       '',
@@ -1648,20 +1657,50 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       return;
     }
 
-    const receiptHTML = invoicePreviewRef.current.innerHTML;
+    const receiptHTML = receiptElement.innerHTML;
 
     printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Invoice ${orderData?.serial || ''}</title>
+          <title></title>
           <style>
             :root {
               --receipt-width: 80mm;
+              --receipt-height: ${contentHeightMm}mm;
+            }
+
+            @page {
+              size: 80mm ${contentHeightMm}mm;
+              margin: 0 !important;
             }
 
             * {
               box-sizing: border-box;
+            }
+
+            html, body {
+              width: var(--receipt-width) !important;
+              min-width: var(--receipt-width) !important;
+              height: var(--receipt-height) !important;
+              min-height: var(--receipt-height) !important;
+              max-height: var(--receipt-height) !important;
+              margin: 0 !important;
+              padding: 0 !important;
+              overflow: hidden !important;
+              background: #fff;
+            }
+
+            #print-root {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: var(--receipt-width);
+              height: auto;
+              min-height: 0;
+              margin: 0;
+              padding: 0;
+              overflow: hidden;
             }
 
             /* Font Awesome's runtime stylesheet is not copied into this window. */
@@ -1681,61 +1720,73 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
               fill: currentColor;
             }
 
-            html, body {
-              background: #fff;
-              width: var(--receipt-width);
-              margin: 0;
-              padding: 0;
-            }
-
-            body {
-              overflow: visible;
-            }
-
-            /*
-             * Let the Epson roll driver provide the page length. Giving Chrome a
-             * short fixed page makes it landscape and rotates the receipt.
-             */
-            @page {
-              margin: 0;
-              size: auto;
-            }
-
             @media print {
+              @page {
+                size: 80mm auto !important;
+                // size: 80mm ${contentHeightMm}mm;
+                margin: 0 !important;
+              }
+
               html, body {
                 width: var(--receipt-width) !important;
-                min-width: var(--receipt-width) !important;
+                // height: var(--receipt-height) !important;
+                height: auto !important;
+                // min-height: var(--receipt-height) !important;
+                // max-height: var(--receipt-height) !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+              }
+
+              #print-root {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: var(--receipt-width) !important;
                 height: auto !important;
                 min-height: 0 !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                overflow: visible !important;
+                overflow: hidden !important;
               }
 
-              body > * {
+              #print-root > * {
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
               }
 
-              body > div > div {
+              #print-root > div > div {
                 break-inside: avoid;
                 page-break-inside: avoid;
               }
             }
           </style>
         </head>
-        <body>${receiptHTML}</body>
+        <body><div id="print-root">${receiptHTML}</div></body>
       </html>
     `);
 
     printWindow.document.close();
+    printWindow.document.title = '';
 
-    printWindow.addEventListener('load', () => {
+    printWindow.addEventListener('load', async () => {
+      const images = Array.from(printWindow.document.images);
+      await Promise.all(images.map((image) => {
+        if (image.complete) return Promise.resolve();
+        return new Promise<void>((resolve) => {
+          image.addEventListener('load', () => resolve(), { once: true });
+          image.addEventListener('error', () => resolve(), { once: true });
+        });
+      }));
+
+      await printWindow.document.fonts?.ready;
+      await new Promise<void>((resolve) => {
+        printWindow.requestAnimationFrame(() => resolve());
+      });
+
       printWindow.focus();
-      setTimeout(() => {
-        printWindow.print();
-      }, 300);
-    });
+      printWindow.print();
+    }, { once: true });
 
     printWindow.addEventListener('afterprint', () => {
       printWindow.close();
@@ -1798,11 +1849,18 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
   }
 
   const openPrintWindow = (type: string) => {
-    if (type == 'product') {
-      set_showPrintPreview('product')
+    if (type === 'product') {
+      void handlePrintInvoice(productReceiptPrintRef);
+      return;
     }
-    if (type == 'order') {
-      set_showPrintPreview('order')
+
+    if (type === 'product-preview') {
+      setShowProductReceiptPreview(true);
+      return;
+    }
+
+    if (type === 'order') {
+      void handlePrintInvoice(orderReceiptPrintRef);
     }
   }
 
@@ -1881,7 +1939,48 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       />
     </div>
 
+    <div
+      aria-hidden="true"
+      style={{
+        position: 'fixed',
+        left: '-10000px',
+        top: 0,
+        width: '80mm',
+        height: 'auto',
+        visibility: 'hidden',
+        pointerEvents: 'none',
+        overflow: 'visible',
+      }}
+    >
+      <ProductReceipt orderData={orderData} ref={productReceiptPrintRef} />
+      <OrderReceipt
+        orderData={orderData}
+        orderCalculations={orderCalculations}
+        ref={orderReceiptPrintRef}
+      />
+    </div>
 
+
+
+    <Modal
+      title="Product Receipt Print Preview"
+      open={showProductReceiptPreview}
+      onCancel={() => setShowProductReceiptPreview(false)}
+      width={420}
+      footer={[
+        <Button key="close" onClick={() => setShowProductReceiptPreview(false)}>Close</Button>,
+        <Button
+          key="print"
+          type="primary"
+          icon={<PrinterOutlined />}
+          onClick={() => void handlePrintInvoice(productReceiptPreviewRef)}
+        >
+          Print
+        </Button>,
+      ]}
+    >
+      <ProductReceipt orderData={orderData} ref={productReceiptPreviewRef} />
+    </Modal>
 
     <Modal open={showBags} onCancel={() => set_showBags(false)} title='Add Bags' footer={false} confirmLoading={updatingBags}>
       {/* <h1>Add Bags</h1> */}
@@ -1899,24 +1998,6 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       )}
     </Modal>
 
-    <Modal title="Print Preview"
-      open={!!showPrintPreview}
-      onCancel={() => {
-        set_showPrintPreview(false)
-      }}
-      width={420}
-      footer={[
-        <Button key="close" onClick={() => set_showPrintPreview(false)}>Close</Button>,
-        <Button key="print" type="primary" icon={<PrinterOutlined />} onClick={handlePrintAllReceipts}>Print</Button>,
-      ]}
-    >
-      {showPrintPreview == 'product' && <ProductReceipt orderData={orderData} ref={invoicePreviewRef} />}
-      {showPrintPreview == 'order' && <OrderReceipt
-        orderData={orderData}
-        orderCalculations={orderCalculations}
-        ref={invoicePreviewRef}
-      />}
-    </Modal>
 
 
     <Modal open={showWrongItem} onCancel={() => set_showWrongItem(false)} title="Wrong Item" footer={false}

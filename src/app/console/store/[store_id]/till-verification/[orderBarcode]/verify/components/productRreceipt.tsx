@@ -73,7 +73,6 @@ ProductReceipt.displayName = 'ProductReceipt';
 const styles: Styles = {
     receipt: {
         width: '80mm',
-        minHeight: '50mm',
         padding: '4mm 5mm',
         fontFamily: 'Arial, Helvetica, sans-serif',
         fontSize: '13px',
@@ -81,7 +80,7 @@ const styles: Styles = {
         background: '#fff',
         color: '#000',
         boxSizing: 'border-box',
-        border: '1px solid #000',
+        // border: '1px solid #000',
         margin: '0 auto',
     },
 

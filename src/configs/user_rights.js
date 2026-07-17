@@ -62,7 +62,7 @@ export const UserRightsArray = [
             { title: 'View On-Till', key: '106.11' },
             { title: 'Process On-Till', key: '106.12' },
             
-            { title: 'View Dispatched', key: '106.21' },
+            { title: 'View Ready to Dispatch', key: '106.21' },
             { title: 'Process Dispatched', key: '106.22' },
             
             { title: 'View Delivered', key: '106.31' },

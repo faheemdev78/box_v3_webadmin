@@ -27,9 +27,54 @@ export function TopBar({ menuArray, session }: {
     const pathname = usePathname()
     const matchUrl = (href: string) => pathname.startsWith(href);
 
+    const filtered = filterPermissions(menuArray, session);
+
+    // if total number of links including children is less then 5 then convert it to a stright array
+    let totalCnt = 0;
+    let finalItems:any = [];
+    filtered.forEach((item:any) => {
+        let child = item?.children;
+
+        // only process links with href prop
+
+        if (!(!item.href && item.children.length < 1)) {
+            if (item?.children?.length){
+                child = item.children.filter((cItem:any) => {
+                    if (!cItem.href && cItem.children.length < 1) return false;
+                    return true; 
+                })
+            }
+    
+            if (child) totalCnt += child.length;
+            if (item.href) totalCnt++;
+
+            finalItems.push({
+                ...item,
+                children: child
+            })
+        }
+    });
+
+    let final_menuArray:any = [];
+    // flaten array if total items are less than 5
+    if (totalCnt < 5){
+        finalItems.forEach((item:any) => {
+            if (item.href) final_menuArray.push({ ...item, children: undefined })
+            if (item.children){
+                item.children.forEach((cItem:any) => {
+                    final_menuArray.push(cItem)
+                });
+            }
+        });
+    }
+    else {
+        final_menuArray = finalItems;
+    }
+
+
     return (<div className='menu-bar'>
         <Space size={0}>
-            {filterPermissions(menuArray, session).map((item: any, i: number) => {
+            {final_menuArray.map((item: any, i: number) => {
                 if (item.children && item.children.length > 0) {
                     return (<Popover
                         color="#2D3E51"
@@ -42,7 +87,7 @@ export function TopBar({ menuArray, session }: {
                         arrow={true}
                         key={i}>
                         <Link className={`${matchUrl(item.href) ? 'active' : ''}`} href={item.href || '#'} key={i}>
-                            <div style={{ display:"flex", gap:'3px' }} className='nowrap'>{item.title} <Icon className="more-icon" icon="angle-down" /></div>
+                            <div style={{ display: "flex", gap: '3px' }} className='nowrap'>{item.title} <Icon className="more-icon" icon="angle-down" /></div>
                         </Link>
                     </Popover>)
                 }

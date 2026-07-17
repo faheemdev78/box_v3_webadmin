@@ -5,7 +5,6 @@ import { Styles } from '@/types/styles';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
 import { svgIcons } from '@/configs';
-import { Icon } from '@/components';
 
 const receiptIcons = svgIcons;
 
@@ -72,7 +71,7 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, {
         const deliverySlot = `${utcToDate(delivery_slot.start_date).format('hh:mm A')} – ${utcToDate(delivery_slot.end_date).format('hh:mm A')}`;
         const totalBoxes = current_order?.baskets?.length || 0;
         const receiptCount = Math.max(totalBoxes, 1);
-        const boxCodes = current_order?.baskets?.map((item: any) => item.title).filter(Boolean) || [];
+        const boxCodes = current_order?.baskets?.map((item: any) => item.barcode).filter(Boolean) || [];
         const barcodeModuleWidth = Math.max(0.55, Math.min(0.86, 15 / Math.max(String(barcode || '').length, 1)));
         const currency = String(settings.currency || 'RS').toUpperCase();
 
@@ -107,13 +106,13 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, {
                                     <span style={styles.zoneName}>{zone?.title || 'Zone'}</span>
                                 </div>
 
-                                {/* <div style={styles.thankYouBlock}>
+                                <div style={styles.thankYouBlock}>
                                     <div style={styles.thankYou}>
                                         Thank you!
                                         <ReceiptIcon src={receiptIcons.heart} alt='Heart' size={13} />
                                     </div>
                                     <div style={styles.thankYouCaption}>We appreciate your trust.</div>
-                                </div> */}
+                                </div>
 
                                 <div style={styles.pageInfo}>{pageIndex + 1} of {receiptCount}</div>
                             </div>
@@ -160,33 +159,25 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, {
                                 <span>{currency} {customerPayable.toFixed(2)}</span>
                             </div>
 
-                            <div style={styles.barcodeColumn}>
-                                {/* <div style={styles.scanLabel}>SCAN TO RECEIVE ORDER</div> */}
-                                <div style={styles.barcodeBox}>
-                                    <Barcode
-                                        value={String(barcode || '')}
-                                        format='CODE128'
-                                        // width={barcodeModuleWidth}
-                                        width={1.7}
-                                        height={45}
-                                        fontSize={11}
-                                        margin={0}
-                                        displayValue
-                                    />
-                                </div>
-                            </div>
                             <div style={styles.scanAndConditions}>
-                                {/* {[1, 2, 3, 4, 5, 6, 7].map((item, i) => (<div style={styles.conditionItem} key={i}>
-                                    <span style={styles.conditionCircle}>
-                                        <ReceiptIcon src={receiptIcons.snow} alt='Snowflake' size={35} />
-                                    </span>
-                                    <span style={styles.conditionTitle}>{frozenItems} FROZEN {i}</span>
-                                    <span style={styles.conditionCaption}>Keep Frozen</span>
-                                </div>))} */}
-                                
-                                {/* <div style={styles.verticalDashedDivider} /> */}
+                                <div style={styles.barcodeColumn}>
+                                    <div style={styles.scanLabel}>SCAN TO RECEIVE ORDER</div>
+                                    <div style={styles.barcodeBox}>
+                                        <Barcode
+                                            value={String(barcode || '')}
+                                            format='CODE128'
+                                            width={barcodeModuleWidth}
+                                            height={46}
+                                            fontSize={11}
+                                            margin={0}
+                                            displayValue
+                                        />
+                                    </div>
+                                </div>
 
-                                {/* <div style={styles.conditionsColumn}> */}
+                                <div style={styles.verticalDashedDivider} />
+
+                                <div style={styles.conditionsColumn}>
                                     {frozenItems > 0 && (
                                         <div style={styles.conditionItem}>
                                             <span style={styles.conditionCircle}>
@@ -215,7 +206,7 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, {
                                             <span style={styles.conditionCaption}>May not fit in box</span>
                                         </div>
                                     )}
-                                {/* </div> */}
+                                </div>
                             </div>
 
                             <div style={styles.boxesRow}>
@@ -230,11 +221,7 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, {
                             </div>
 
                             <div style={styles.solidDivider} />
-                            {/* {receiptCount - 1 > pageIndex && <div style={styles.cutDivider}>cut here</div>} */}
-                            {receiptCount - 1 > pageIndex && <div style={styles.cutDivider}>
-                                <div style={styles.cutDividerText}>cut here <Icon icon="cut" /></div>
-                                <div style={styles.curDividerLine} />
-                                </div>}
+                            {receiptCount - 1 > pageIndex && <div style={styles.cutDivider} />}
                         </div>
                     ))}
                 </div>
@@ -257,22 +244,16 @@ const styles: Styles = {
         boxSizing: 'border-box',
         margin: '0 auto',
         overflow: 'hidden',
-        breakInside: 'avoid',
-        pageBreakInside: 'avoid',
-        WebkitPrintColorAdjust: 'exact',
-        printColorAdjust: 'exact',
     },
     topRow: {
         display: 'grid',
-        // gridTemplateColumns: 'minmax(0, 1.35fr) minmax(24mm, 0.9fr) auto',
-        gridTemplateColumns: 'minmax(0, 1.35fr) auto',
+        gridTemplateColumns: 'minmax(0, 1.35fr) minmax(24mm, 0.9fr) auto',
         alignItems: 'center',
         gap: '1.5mm',
         minHeight: '13mm',
         padding: '1mm 0',
     },
     zoneBlock: {
-        // border: '1px solid black',
         display: 'flex',
         alignItems: 'center',
         minWidth: 0,
@@ -285,7 +266,6 @@ const styles: Styles = {
         lineHeight: 1,
     },
     zoneName: {
-        // border: '1px solid black',
         display: 'block',
         minWidth: 0,
         overflow: 'hidden',
@@ -308,34 +288,14 @@ const styles: Styles = {
         lineHeight: 1.1,
     },
     thankYouCaption: { marginTop: '1mm', whiteSpace: 'nowrap', fontSize: '7.5px' },
-    pageInfo: { whiteSpace: 'nowrap', fontSize: '16px', fontWeight:'bold', textAlign: 'right' },
+    pageInfo: { whiteSpace: 'nowrap', fontSize: '13px', textAlign: 'right' },
     dashedDivider: { borderTop: '1px dashed #000', margin: '0.5mm 0' },
     solidDivider: { borderTop: '1px solid #000', margin: '1.5mm 0' },
-    cutDivider: { 
-        // borderTop: '1px dashed #000', margin: '5mm 0',
-        // border: '1px solid green',
-        marginTop: '15px',
-        display: 'flex',
-        width: '100%',
-        flexDirection: 'row'
-    },
-    cutDividerText: {
-        flexShrink: 0,
-        width: '70px',
-        textAlign: 'left',
-        backgroundColor:'#FFF'
-    },
-    curDividerLine:{
-        flex: 1,
-        marginTop: '7px',
-        borderBottom: '1px dashed black',
-        maxHeight: '1px',
-        overflow:'hidden',
-    },
+    cutDivider: { borderTop: '1px dashed #000', margin: '5mm 0' },
     detailsSection: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.5mm',
+        gap: '0.7mm',
         padding: '2mm 0 1mm',
     },
     detailRow: {
@@ -360,7 +320,7 @@ const styles: Styles = {
     totalsSection: {
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.3mm',
+        gap: '1.5mm',
         padding: '1mm 0 1.5mm 8mm',
     },
     totalLine: {
@@ -377,18 +337,17 @@ const styles: Styles = {
         borderTop: '1px dashed #000',
         borderBottom: '1px solid #000',
         padding: '1.5mm 1mm',
-        fontSize: '13px',
+        fontSize: '14px',
         fontWeight: 900,
     },
     scanAndConditions: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        rowGap: '2mm',
+        display: 'grid',
+        gridTemplateColumns: '43% 0 1fr',
+        gap: '2mm',
+        alignItems: 'stretch',
         padding: '2mm 0',
-        alignItems: 'flex-start',
     },
-    barcodeColumn: { minWidth: 0, textAlign: 'center', marginTop: '5px' },
+    barcodeColumn: { minWidth: 0, textAlign: 'center' },
     scanLabel: { marginBottom: '1mm', fontSize: '8px', fontWeight: 800, whiteSpace: 'nowrap' },
     barcodeBox: { display: 'flex', justifyContent: 'center', maxWidth: '100%', overflow: 'hidden' },
     verticalDashedDivider: { width: 0, borderLeft: '1px dashed #000' },
@@ -402,15 +361,13 @@ const styles: Styles = {
     },
     conditionItem: {
         display: 'flex',
-        flex: '0 0 25%',
-        maxWidth: '25%',
+        flex: '0 0 calc(50% - 0.75mm)',
+        maxWidth: 'calc(50% - 0.75mm)',
         minWidth: 0,
         boxSizing: 'border-box',
         flexDirection: 'column',
         alignItems: 'center',
         textAlign: 'center',
-        breakInside: 'avoid',
-        pageBreakInside: 'avoid',
     },
     conditionCircle: {
         position: 'relative',
@@ -447,7 +404,7 @@ const styles: Styles = {
         borderTop: '1px dashed #000',
     },
     boxesIcon: { display: 'inline-flex', justifyContent: 'center' },
-    boxesLabel: { fontSize: '12px', fontWeight: 900, whiteSpace: 'nowrap', marginLeft: '-2mm' },
+    boxesLabel: { fontSize: '12px', fontWeight: 900, whiteSpace: 'nowrap' },
     boxesDivider: { alignSelf: 'stretch', width: 0, borderLeft: '1px dashed #000' },
     boxCodes: {
         minWidth: 0,
