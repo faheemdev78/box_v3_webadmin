@@ -36,6 +36,32 @@ query getReadyToDispatchQueue($limit: Int, $page: Int, $filter: String, $others:
                     _id title
                 }
             }
+            processing_stages {
+                picking {
+                    handled_by {
+                        name
+                    }
+                    baskets{
+                        title
+                    }
+                }
+                till_verification{
+                    handled_by {
+                        name
+                    }
+                    baskets{
+                        title
+                    }
+                }
+                delivery{
+                    handled_by {
+                        name
+                    }
+                    baskets{
+                        title
+                    }
+                }
+            }
 
             current_stage
             status { order }

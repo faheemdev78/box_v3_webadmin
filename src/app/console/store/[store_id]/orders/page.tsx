@@ -462,15 +462,15 @@ function OrdersListPage(props:any) {
 
         { title: 'Actions', key: 'actions', width: 100, align: 'center',
             render: (_: any, record: any) => {
-                let hasActiosn = columns.find(o => o.key == 'actions')
-                if (!hasActiosn) return null;
+                let hasActions = columns.find(o => o.key == 'actions')
+                if (!hasActions) return null;
 
                 return (<Space size="small">
-                    {(hasActiosn?.options?.reset && record.current_stage !== 'pending') && (
+                    {(hasActions?.options?.reset && record.current_stage !== 'pending') && (
                         <ResetButton size="small" handleResetOrder={() => handleResetOrder(record)} />
                     )}
 
-                    {hasActiosn?.options?.till_verification && <>
+                    {hasActions?.options?.till_verification && <>
                         {(record.locked_by && !record.is_locked_by_me) && <>
                             <Icon icon="lock" /> Locked by someone else
                         </>}
@@ -482,7 +482,7 @@ function OrdersListPage(props:any) {
                         </>}
                     </>}
 
-                    {(record.locked_by && hasActiosn?.options?.till_verification) && <>
+                    {(record.locked_by && hasActions?.options?.till_verification) && <>
                         <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record.barcode}/verify`}><Space size={2}>
                             <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
                         </Space></Link>

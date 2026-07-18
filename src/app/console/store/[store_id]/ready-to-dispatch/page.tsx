@@ -30,6 +30,8 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import LIST_DATA from '@/graphql/order/getReadyToDispatchQueue.graphql';
+import BoxReceiptPreviewButton from '@/components/receipts/BoxReceiptPreviewButton';
+import ProductReceiptPreviewButton from '@/components/receipts/ProductReceiptPreviewButton';
 
 dayjs.extend(relativeTime);
 
@@ -106,13 +108,38 @@ function ReadytoDispatchList(props:any) {
           styles={{ body: { padding: 0 } }}
       >
           <OrderTable
-              busy={false} 
-              columns={['serial', 'customer', 'picker', 'order', 'delivery_slot', 'status', 'createdAt', 
-                // { key: 'actions', options: { reset: true, till_verification: false } }
-            ]} 
-              dataSource={state.dataSource || []}
-              pagination={state.pagination}
-              scroll={{ x: 1200 }}
+            busy={false} 
+            columns={[
+              'serial',
+              'picker_baskets',
+              'dispatch_baskets',
+              'customer',
+              'picker',
+              'order',
+              'delivery_slot',
+              'status',
+              'createdAt',
+              {
+                key: 'actions',
+                title: 'Actions',
+                width: 260,
+                render: (_: unknown, order: any) => (
+                  <Space wrap size="small">
+                    <BoxReceiptPreviewButton
+                      orderId={order._id}
+                      orderSerial={order.serial}
+                    />
+                    <ProductReceiptPreviewButton
+                      orderId={order._id}
+                      orderSerial={order.serial}
+                    />
+                  </Space>
+                ),
+              },
+            ]}
+            dataSource={state.dataSource || []}
+            pagination={state.pagination}
+            scroll={{ x: 1200 }}
           />
       </Card>
     </Page>

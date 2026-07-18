@@ -35,8 +35,8 @@ import AddBags from './components/AddBags';
 import { playBeep } from '@/lib/utill';
 import { Styles } from '@/types/styles';
 // import UsbTest from './components/UsbTest';
-import ProductReceipt from './components/productRreceipt';
-import OrderReceipt from './components/orderReceipt';
+import ProductReceipt from '@/components/receipts/ProductReceipt';
+import OrderReceipt from '@/components/receipts/OrderReceipt';
 
 import GET_AVAILABLE_BASKETS from '@/graphql/baskets/getAvailableBaskets.graphql';
 import GET_BAGS from '@/graphql/bags/bags.graphql';

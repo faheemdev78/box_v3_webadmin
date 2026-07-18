@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { Table } from './table';
 import Link from 'next/link';
 import { adminRoot, defaultDateTimeFormat } from '@/configs';
@@ -74,12 +74,13 @@ interface OrderTableProps {
     //     reset?: boolean;
     //     till_verification?: boolean;
     // } | undefined;
-    scroll?: any,
-    rowKey?: string,
+    scroll?: any;
+    rowKey?: string;
+    actions?: ReactNode | ReactNode[];
 }
 export function OrderTable({ 
     busy, columns, dataSource, pagination, rowClassName, handleTableChange, refresh,
-    title, scroll, rowKey
+    title, scroll, rowKey, actions
 }: OrderTableProps) {
     const [loading, setLoading] = useState(false)
     const settings = useAppSelector(getSettings);
@@ -137,22 +138,21 @@ export function OrderTable({
 
 
     const _columns = [
-        { title: 'Serial', _dataIndex: 'serial', key: 'serial', align: 'left', 
+        { title: 'Serial', _dataIndex: 'serial', key: 'serial', align: 'left', width: 270,
             render: (__: any, rec: any) => {
                 const { current_order, serial } = rec;
                 return (<>
                     {/* <Link href={getOrderPreviewHref(rec)}>{serial}</Link> */}
                     <div><Link href={getOrderPreviewHref(rec)}><BarcodePackage
                         value={serial} //{`doReadyForDispatch`}
-                        width={2}
+                        width={1.5}
                         height={30}
                         format={"CODE128"}
                         displayValue={serial}
                     /></Link></div>
-                    {(current_order && current_order.baskets) && <div>
+                    {/* {(current_order && current_order.baskets) && <div>
                         {current_order?.baskets?.map((basket: any, i: number) => (<Tag key={i}>{basket.title}</Tag>))}
-                    </div>}
-                    {/* <div><b>Customer:</b> {customer.name}</div> */}
+                    </div>} */}
                 </>)
             }
         },
@@ -162,11 +162,23 @@ export function OrderTable({
                 <Text>{customer?.name || 'N/A'}</Text>
             </Space>),
         },
-        { title: 'Baskets', width: 180, key: 'baskets', dataIndex: ['processing_stages', 'picking', 'handled_by'],
+        { title: 'Baskets', width: 170, key: 'baskets', dataIndex: ['processing_stages', 'picking', 'handled_by'],
             render:(___:string, rec:any) => {
                 if (rec?.processing_stages?.till_verification?.baskets?.length)
                     return <Space>{rec.processing_stages.till_verification.baskets.map((basket: any, i: number) => (<Tag color='gray' key={i}>{basket.title}</Tag>))}</Space>
                 return <Space>{rec?.processing_stages?.picking?.baskets?.map((basket: any, i: number) => (<Tag color='gray' key={i}>{basket.title}</Tag>))}</Space>
+            }
+        },
+        { title: 'Picker Baskets', width: 170, key: 'picker_baskets', dataIndex: ['processing_stages', 'picking', 'baskets'],
+            render: (baskets:any, rec:any) => {
+                if (!baskets) return null;
+                return baskets.map((b: any, i: number) => (<Tag key={i}>{b.title}</Tag>))
+            }
+        },
+        { title: 'Dispatch Baskets', width: 170, key: 'dispatch_baskets', dataIndex: ['processing_stages', 'till_verification', 'baskets'],
+            render: (baskets:any, rec:any) => {
+                if (!baskets) return null;
+                return baskets.map((b: any, i: number) => (<Tag key={i}>{b.title}</Tag>))
             }
         },
         { title: 'Picker', width: 180, key: 'picker', dataIndex: ['processing_stages', 'picking', 'handled_by'],
@@ -181,7 +193,7 @@ export function OrderTable({
                 <div><b>ZONE:</b> {rec?.zone?.title}</div>
             </div>)
         },
-        { title: 'Order', dataIndex: 'order', key: 'order', width: 150, align: 'left', 
+        { title: 'Order', dataIndex: 'order', key: 'order', width: 100, align: 'left', 
             render: (____: any, rec: any) => {
                 let odr = rec.current_order || rec.original_order;
 
@@ -235,15 +247,16 @@ export function OrderTable({
         },
         { title: 'Actions', key: 'actions', width: 100, align: 'center',
             render: (_: any, record: any) => {
-                let hasActiosn = columns.find(o=>o.key=='actions')
-                if (!hasActiosn) return null;
+                if (actions) return actions;
+                let hasActions = columns.find((o:any) => o.key=='actions')
+                if (!hasActions) return null;
 
                 return (<Space size="small">
-                    {(hasActiosn?.options?.reset && record.current_stage !== 'pending') && (
+                    {(hasActions?.options?.reset && record.current_stage !== 'pending') && (
                         <ResetButton size="small" handleResetOrder={() => handleResetOrder(record)} />
                     )}
 
-                    {hasActiosn?.options?.till_verification && <>
+                    {hasActions?.options?.till_verification && <>
                         {(record.locked_by && !record.is_locked_by_me) && <>
                             <Icon icon="lock" /> Locked by someone else
                         </>}
@@ -255,7 +268,7 @@ export function OrderTable({
                         </>}
                     </>}
 
-                    {(record.locked_by && hasActiosn?.options?.till_verification) && <>
+                    {(record.locked_by && hasActions?.options?.till_verification) && <>
                         <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record.serial}/verify`}><Space size={2}>
                             <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
                         </Space></Link>

@@ -1,0 +1,23 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/UserAddressesRef.graphql"
+#import "../_fragment/GeoZoneReff.graphql"
+#import "./_fragment/OrderDeliverySlot.graphql"
+#import "./_fragment/ProcessingData.graphql"
+
+query receiptOrderDetails($filter: String!) {
+  orderDetails(filter: $filter) {
+    _id
+    serial
+    barcode: serial
+    zone { ...GeoZoneReffInfo }
+    customer { _id name phone email }
+    shippingAddress { ...UserAddressesRefInfo }
+    delivery_slot { ...OrderDeliverySlotInfo }
+
+    processing_stages {
+      till_verification { ...ProcessingDataInfo }
+    }
+
+    error { ...ErrorInfo }
+  }
+}
