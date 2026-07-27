@@ -162,7 +162,8 @@ export const ProductHolder = ({ item, orderData }: {
                                     <span className='font-bold text-2xl' style={{ color: "#DC2626" }}>{item.price}</span> 
                                     <span className='text-base text-gray-500 line-through' style={{ color: "#9CA3AF" }}>{settings.currency} {item.price_was}</span>
                                 </Space> */}
-                                <div className='text-base'>{settings.currency} <span className='font-bold text-2xl' style={{ color: "#DC2626" }}>{item.price}</span> <span className='text-base text-gray-500 line-through' style={{ color: "#9CA3AF" }}>{settings.currency} {item.price_was}</span></div>
+                                {/* <div className='text-base'>{settings.currency} <span className='font-bold text-2xl' style={{ color: "#DC2626" }}>{item.price}</span> <span className='text-base text-gray-500 line-through' style={{ color: "#9CA3AF" }}>{settings.currency} {item.price_was}</span></div> */}
+                                <div className='text-base'>{settings.currency} <span className='font-bold text-2xl' style={{ color: "#1F2937" }}>{item.price}</span> <span className='text-base text-gray-500 line-through' style={{ color: "#9CA3AF" }}>{settings.currency} {item.price_was}</span></div>
                                 <div className='text-sm'>In order qty: {item.qty}</div>
                             </Col>
                             <Col>{!!item.issue_reason && <Tooltip trigger='click' title={<div>
