@@ -962,7 +962,7 @@ const ReadyToDispatchWizard = ({
                     showPrint()
                   }}>Box Receipt Prints</Button>
                 </Space>
-                <Button size="large" disabled={printOk} onClick={onReadyToDispatch} color="green" loading={loading}>Complete Verification & Proceed to next Order</Button>
+                <Button size="large" disabled={!printOk} onClick={onReadyToDispatch} color="green" loading={loading}>Complete Verification & Proceed to next Order</Button>
               </Space>
             )}
           </div>
