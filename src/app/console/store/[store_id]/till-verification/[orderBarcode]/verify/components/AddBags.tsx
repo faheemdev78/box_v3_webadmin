@@ -19,7 +19,7 @@ interface Bags {
     // status: string;
 }
 
-function Addbags({
+export function AddBags({
     currentBags = [],
     onBagAction,
 }: {
@@ -68,4 +68,4 @@ function Addbags({
 
 }
 
-export default Addbags;
+
