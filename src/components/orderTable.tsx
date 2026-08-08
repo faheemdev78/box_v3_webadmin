@@ -15,6 +15,7 @@ import _ from 'lodash';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Button, IconButton } from './button';
+import { OrderItemsPreviewButton } from './orders/OrderItemsPreviewDrawer';
 import { useRouter } from 'next/navigation';
 import { PlayCircleOutlined, UserOutlined, ShoppingOutlined, ClockCircleOutlined, PauseCircleOutlined, LogoutOutlined, LoginOutlined, LockOutlined } from '@ant-design/icons';
 import { utcToDate } from '@/lib/utill';
@@ -245,13 +246,15 @@ export function OrderTable({
         { title: 'Updated', dataIndex: ['updatedAt'], key: 'updatedAt', width: 115, align: 'left', 
             render: (updatedAt: string, rec: any) => (<div>{moment(updatedAt).format(defaultDateTimeFormat)}</div>)
         },
-        { title: 'Actions', key: 'actions', width: 100, align: 'center',
+        { title: 'Actions', key: 'actions', width: 140, align: 'center',
             render: (_: any, record: any) => {
                 if (actions) return actions;
                 let hasActions = columns.find((o:any) => o.key=='actions')
                 if (!hasActions) return null;
 
-                return (<Space size="small">
+                return (<Space size="small" wrap>
+                    <OrderItemsPreviewButton order={record} />
+
                     {(hasActions?.options?.reset && record.current_stage !== 'pending') && (
                         <ResetButton size="small" handleResetOrder={() => handleResetOrder(record)} />
                     )}
@@ -273,8 +276,6 @@ export function OrderTable({
                             <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
                         </Space></Link>
                     </>}
-
-                    {/* <IconButton onClick={() => router.push(`${adminRoot}/orders/preview/${record.serial}`)} icon="eye" tooltip="View order details" /> */}
                 </Space>)
             },
         },
@@ -284,6 +285,21 @@ export function OrderTable({
         if (!col) return null;
 
         if (col === true || col === false || _.isString(col)) return o;
+
+        // Keep items preview button even when callers override the actions render
+        if (o.key === 'actions' && typeof col.render === 'function') {
+            const customRender = col.render
+            return {
+                ...o,
+                ...col,
+                render: (_: any, record: any) => (
+                    <Space size="small" wrap>
+                        <OrderItemsPreviewButton order={record} />
+                        {customRender(_, record)}
+                    </Space>
+                ),
+            }
+        }
 
         return { ...o, ...col }
     }).filter(o => o !== null)

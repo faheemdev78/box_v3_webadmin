@@ -1,0 +1,11 @@
+mutation registerAdminPushApp($input: AdminPushAppInput!) {
+  registerAdminPushApp(input: $input) {
+    _id
+    key
+    title
+    topic
+    notes
+    active
+    error { message details }
+  }
+}

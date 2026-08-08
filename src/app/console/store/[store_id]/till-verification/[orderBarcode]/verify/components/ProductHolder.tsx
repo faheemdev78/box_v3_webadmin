@@ -5,8 +5,7 @@ import { Row, Col, Space, Typography, Modal, Input, message, Tag, Tooltip } from
 import BarcodePackage from 'react-barcode';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
-import { svgIcons } from '@/configs';
-import { IconButton, Icon, PopMenu } from '@/components';
+import { IconButton, Icon, PopMenu, ProductItemFlags } from '@/components';
 import { useMarkOrderItemMissing, useDropOrderItem } from '@/hooks/useTillVerification';
 import { __success, __yellow } from '@/lib/consoleHelper';
 
@@ -59,27 +58,6 @@ const getPickedQtyFromProcessingStage = (orderData: any, item: any) => {
 
     return pickedItem?.processed_qty ?? 0;
 };
-
-const ReceiptIcon = ({ src, alt, size }: {
-    src: string;
-    alt: string;
-    size: number;
-}) => (
-    <img
-        src={src}
-        alt={alt}
-        width={size}
-        height={size}
-        style={{
-            display: 'block',
-            width: `${size}px`,
-            height: `${size}px`,
-            objectFit: 'contain',
-            filter: 'grayscale(1) brightness(0)',
-        }}
-    />
-);
-
 
 export const ProductHolder = ({ item, orderData }: {
   item:any;
@@ -139,18 +117,7 @@ export const ProductHolder = ({ item, orderData }: {
                         <div>
                             <Space size={1}>
                                 <Tag color="#E7F6EC" style={{ color: "#166534" }}><Icon icon="check-circle" color="#2DA44E" />{item?.store?.available_qty > 999 ? '1K+' : (item?.store?.available_qty || 0)} in Stock</Tag>
-                                {item.temp_sensitivity === 'freezer' && <Tooltip title='Freezer'>
-                                    <span className='relative'><ReceiptIcon src={svgIcons.snow} alt='Freezer' size={20} /></span>
-                                </Tooltip>}
-                                {item.temp_sensitivity === 'fridge' && <Tooltip title='Fridge'>
-                                    <span className='relative'><ReceiptIcon src={svgIcons.chilled} alt='Fridge' size={20} /></span>
-                                </Tooltip>}
-                                {item.unfit_for_dispatch && <Tooltip title='Not fit for box'>
-                                    <span className='relative'>
-                                        <Icon icon='box' color='#000000' fontSize={18} />
-                                        <div className='absolute bg-black-500 h-1 w-full left-0 right-0 top-1.5 rounded-md border-1 border-white rotate-45' />
-                                    </span>
-                                </Tooltip>}
+                                <ProductItemFlags item={item} variant="icons" size={20} />
                             </Space>
                         </div>
 

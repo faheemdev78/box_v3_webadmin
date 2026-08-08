@@ -3,11 +3,10 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation';
 import { useLazyQuery, useMutation } from '@apollo/client/react'
-import { DevBlock, Loader, Icon, Button, IconButton } from '@/components'
+import { DevBlock, Loader, Icon, Button, IconButton, OrderItemsTable } from '@/components'
 import { PageHeader } from '@/template'
 import { Page } from '@/template/page'
-import { Alert, Card, Descriptions, Table, Tag, Space, Typography, Divider, Row, Col, Modal, Input, message } from 'antd'
-import type { ColumnsType } from 'antd/es/table';
+import { Alert, Card, Descriptions, Tag, Space, Typography, Divider, Row, Col, Modal, Input, message, Timeline, Empty } from 'antd'
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
@@ -122,6 +121,12 @@ function OrderPreview() {
 
     const order = data.order;
     const originalOrder = order.original_order;
+    const dispatchBaskets =
+        order.current_order?.baskets?.length
+            ? order.current_order.baskets
+            : (order.processing_stages?.till_verification?.baskets
+                || order.processing_stages?.delivery?.baskets
+                || []);
     const totals = originalOrder?.totals || order?.current_order?.totals || {
         saved: 0,
         totalQuantity: 0,
@@ -140,121 +145,6 @@ function OrderPreview() {
         // return `${settings?.currency || 'RS'} ${(safeAmount / 100).toFixed(2)}`;
     };
 
-    // Order items table columns
-    const itemColumns: ColumnsType<any> = [
-        {
-            title: '#',
-            width: 50,
-            render: (_: unknown, __: unknown, index: number) => index + 1,
-        },
-        {
-            title: 'Product',
-            dataIndex: 'title',
-            key: 'title',
-            render: (title: string, record: any) => (
-                <div>
-                    <div><strong>{title}</strong></div>
-                    {record.barcode && <Text type="secondary" style={{ fontSize: '12px' }}>Barcode: {record.barcode}</Text>}
-                    {record.categories && record.categories.length > 0 && (
-                        <div style={{ marginTop: 4 }}>
-                            {record.categories.map((cat: { _id: string; title: string }, idx: number) => (
-                                <Tag key={idx} color="blue" style={{ fontSize: '11px' }}>{cat?.title || ''}</Tag>
-                            ))}
-                        </div>
-                    )}
-                    {record.attributes && record.attributes.length > 0 && (
-                        <div style={{ marginTop: 4 }}>
-                            {record.attributes.map((attr: { name: string; value: string }, idx: number) => (
-                                <Tag key={idx} style={{ fontSize: '11px' }}>{attr?.name || ''}: {attr?.value || ''}</Tag>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            ),
-        },
-        {
-            title: 'Price',
-            dataIndex: 'price',
-            key: 'price',
-            width: 100,
-            align: 'right',
-            render: (price: number, record: any) => (
-                <div>
-                    {record.price_was && record.price_was > price && (
-                        <div>
-                            <Text delete type="secondary" style={{ fontSize: '12px' }}>{formatCurrency(record.price_was)}</Text>
-                        </div>
-                    )}
-                    <div><strong>{formatCurrency(price)}</strong></div>
-                </div>
-            ),
-        },
-        {
-            title: 'Qty',
-            dataIndex: 'qty',
-            key: 'qty',
-            width: 70,
-            align: 'center',
-            render: (qty: number) => <strong>{qty}</strong>,
-        },
-        {
-            title: 'Subtotal',
-            dataIndex: 'subtotal',
-            key: 'subtotal',
-            width: 100,
-            align: 'right',
-            render: (subtotal: number) => <strong>{formatCurrency(subtotal)}</strong>,
-        },
-        {
-            title: 'Tax',
-            dataIndex: 'tax_amount',
-            key: 'tax_amount',
-            width: 100,
-            align: 'right',
-            render: (tax_amount: number, record: any) => (
-                <div>
-                    <div>{formatCurrency(tax_amount)}</div>
-                    {record.tax && (
-                        <Text type="secondary" style={{ fontSize: '11px' }}>
-                            {record.tax.type} @ {record.tax.rate}%
-                        </Text>
-                    )}
-                </div>
-            ),
-        },
-        {
-            title: 'Discount',
-            dataIndex: 'discount_amount',
-            key: 'discount_amount',
-            width: 100,
-            align: 'right',
-            render: (discount_amount: number, record: any) => (
-                <div>
-                    {discount_amount > 0 ? (
-                        <>
-                            <div style={{ color: '#52c41a' }}>-{formatCurrency(discount_amount)}</div>
-                            {record.vouchers && record.vouchers.length > 0 && (
-                                <Text type="secondary" style={{ fontSize: '11px' }}>
-                                    {record.vouchers.map((v: { title: string }) => v.title).join(', ')}
-                                </Text>
-                            )}
-                        </>
-                    ) : (
-                        <Text type="secondary">-</Text>
-                    )}
-                </div>
-            ),
-        },
-        {
-            title: 'Total',
-            dataIndex: 'total',
-            key: 'total',
-            width: 120,
-            align: 'right',
-            render: (total: number) => <strong style={{ fontSize: '15px' }}>{formatCurrency(total)}</strong>,
-        },
-    ];
-
     // Status colors
     const getStatusColor = (status: string) => {
         const colors: Record<string, string> = {
@@ -268,6 +158,39 @@ function OrderPreview() {
         };
         return colors[status] || 'default';
     };
+
+    const getActivityColor = (action: string): string => {
+        const colors: Record<string, string> = {
+            order_created: 'blue',
+            picking_started: 'cyan',
+            picking_completed: 'cyan',
+            till_started: 'geekblue',
+            till_verified: 'geekblue',
+            order_reset: 'orange',
+            collected_by_driver: 'purple',
+            on_the_way: 'magenta',
+            on_the_way_cleared: 'default',
+            delivered: 'green',
+            completed: 'green',
+            cancelled: 'red',
+            returned: 'volcano',
+            baskets_returned: 'gold',
+            wallet_settled: 'gold',
+        };
+        return colors[action] || 'gray';
+    };
+
+    const formatActivityLabel = (action: string) =>
+        (action || '')
+            .split('_')
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+
+    const activityLogs = [...(order.activity_logs || [])].sort((a: any, b: any) => {
+        const aTime = a?.at ? new Date(a.at).getTime() : 0;
+        const bTime = b?.at ? new Date(b.at).getTime() : 0;
+        return bTime - aTime; // newest first for audit reading
+    });
 
 
     return (<div>
@@ -352,44 +275,7 @@ function OrderPreview() {
                 <Col span={16}>
                     {/* Order Items */}
                     <Card title={`Order Items (${originalOrder?.items?.length || 0} items)`} variant="outlined" style={{ marginBottom: 10 }}>
-                        <Table
-                            columns={itemColumns}
-                            dataSource={originalOrder?.items || []}
-                            rowKey="_id_product"
-                            pagination={false}
-                            size="small"
-                            bordered
-                            summary={(pageData) => {
-                                // let totalBorrow = 0;
-                                // let totalRepayment = 0;
-                                // pageData.forEach(({ borrow, repayment }) => {
-                                //     totalBorrow += borrow;
-                                //     totalRepayment += repayment;
-                                // });
-
-                                return (<>
-                                    <Table.Summary.Row>
-                                        <Table.Summary.Cell index={0} colSpan={2} align="right">You Saved</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={1} align="right">
-                                            <Text style={{ color: '#52c41a' }}>-{formatCurrency(totals.saved)}</Text>
-                                        </Table.Summary.Cell>
-                                        <Table.Summary.Cell index={2} align="center">{totals?.totalQuantity || 0}</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={3} align="right">{formatCurrency(totals?.subtotal || 0)}</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={4} align="right">{totals?.taxRate || 0}%</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={5} align="right">{totals?.discountTotal > 0 && (<>
-                                            <Text style={{ color: '#52c41a' }}>-{formatCurrency(totals.discountTotal)}</Text>
-                                        </>)}</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={6} align="right">
-                                            <Title level={4} style={{ margin: 0, color: '#1890ff' }}>{formatCurrency(totals?.grandTotal || 0)}</Title>
-                                        </Table.Summary.Cell>
-                                    </Table.Summary.Row>
-                                    {/* <Table.Summary.Row>
-                                        <Table.Summary.Cell index={0}>Balance</Table.Summary.Cell>
-                                        <Table.Summary.Cell index={1} colSpan={2}><Text type="danger">totalBorrow - totalRepayment</Text></Table.Summary.Cell>
-                                    </Table.Summary.Row> */}
-                                </>);
-                            }}
-                        />
+                        <OrderItemsTable items={originalOrder?.items || []} totals={totals} />
                     </Card>
 
                     {/* Order Summary */}
@@ -508,6 +394,48 @@ function OrderPreview() {
                         </Descriptions>
                     </Card>
 
+                    <Card
+                        title={`Dispatch Baskets (${dispatchBaskets.length})`}
+                        variant="outlined"
+                    >
+                        {dispatchBaskets.length > 0 ? (
+                            <Space wrap size={[8, 8]}>
+                                {dispatchBaskets.map((basket: any, index: number) => (
+                                    <Tag
+                                        key={basket._id || basket.barcode || index}
+                                        color="blue"
+                                        style={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: 6,
+                                            paddingInline: 10,
+                                            marginInlineEnd: 0,
+                                        }}
+                                    >
+                                        <span
+                                            style={{
+                                                width: 10,
+                                                height: 10,
+                                                borderRadius: 2,
+                                                background: basket.color || '#d9d9d9',
+                                                border: '1px solid #bfbfbf',
+                                                display: 'inline-block',
+                                            }}
+                                        />
+                                        <span>{basket.title || 'Basket'}</span>
+                                        {basket.barcode && (
+                                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                                {basket.barcode}
+                                            </Text>
+                                        )}
+                                    </Tag>
+                                ))}
+                            </Space>
+                        ) : (
+                            <Text type="secondary">No dispatch baskets attached to this order.</Text>
+                        )}
+                    </Card>
+
                     {/* Payment Information */}
                     {order.payment && (<Card title="Payment Information" variant="outlined">
                         <Descriptions column={2} size="small">
@@ -536,6 +464,59 @@ function OrderPreview() {
                 </div>}
             />)}
 
+            {/* Activity / audit log */}
+            <Card
+                title={`Activity Log (${activityLogs.length})`}
+                variant="outlined"
+                style={{ marginBottom: 24 }}
+                extra={order.sub_status?.code === 'on_the_way' && order.sub_status?.eta_minutes != null
+                    ? <Tag color="magenta">On the Way · ETA ~{order.sub_status.eta_minutes} min</Tag>
+                    : null}
+            >
+                {activityLogs.length < 1 ? (
+                    <Empty description="No activity recorded yet" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                ) : (
+                    <Timeline
+                        items={activityLogs.map((log: any) => {
+                            const coords = log.location?.coordinates;
+                            const lat = Array.isArray(coords) ? coords[1] : null;
+                            const lng = Array.isArray(coords) ? coords[0] : null;
+                            const eta = log.meta?.eta_minutes;
+                            const distance = log.meta?.distance_meters;
+
+                            return {
+                                key: log._id || `${log.action}-${log.at}`,
+                                color: getActivityColor(log.action),
+                                content: (
+                                    <div>
+                                        <Space wrap size={[8, 4]} style={{ marginBottom: 4 }}>
+                                            <Tag color={getActivityColor(log.action)}>{formatActivityLabel(log.action)}</Tag>
+                                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                                {log.at ? moment(log.at).format(defaultDateTimeFormat) : '—'}
+                                            </Text>
+                                            {log.by?.name && (
+                                                <Text type="secondary" style={{ fontSize: 12 }}>
+                                                    by {log.by.name}
+                                                </Text>
+                                            )}
+                                        </Space>
+                                        <div>{log.message || formatActivityLabel(log.action)}</div>
+                                        {(eta != null || distance != null || (lat != null && lng != null)) && (
+                                            <Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 4 }}>
+                                                {eta != null ? `ETA ~${eta} min` : ''}
+                                                {eta != null && distance != null ? ' · ' : ''}
+                                                {distance != null ? `${Math.round(distance)} m` : ''}
+                                                {(eta != null || distance != null) && lat != null ? ' · ' : ''}
+                                                {lat != null && lng != null ? `@ ${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}` : ''}
+                                            </Text>
+                                        )}
+                                    </div>
+                                ),
+                            };
+                        })}
+                    />
+                )}
+            </Card>
 
             {/* Debug Information */}
             <Divider />

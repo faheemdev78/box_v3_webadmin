@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Popconfirm, Alert, message, Row, Col, Divider, Radio, Modal, Space, Tag } from 'antd';
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { __error } from '@/lib/consoleHelper';
-import { Table, Loader, Button, Avatar, DataGrid, Icon, IconButton, DeleteButton, DevBlock } from '@/components';
+import { Table, Loader, Button, Avatar, DataGrid, Icon, IconButton, DeleteButton, DevBlock, ProductItemFlags } from '@/components';
 import { ProductBarcodeFilter, ProductGridItem, ProductFilter } from './components'
 import Link from 'next/link';
 import { adminRoot } from '@/configs';
@@ -81,7 +81,10 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
         return (<Row gutter={16}>
           <Col><Avatar size={40} shape="square" src={record?.picture?.thumbnails ? `${process.env.NEXT_PUBLIC_CDN_URL}/${record?.picture?.thumbnails[0]}` : null} icon={<Icon icon="image" />} /></Col>
           <Col>
-            <Link href={parseEditLink ? parseEditLink(record) : `${adminRoot}/product/${record._id}/view`}>{record.title}</Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <Link href={parseEditLink ? parseEditLink(record) : `${adminRoot}/product/${record._id}/view`}>{record.title}</Link>
+              <ProductItemFlags item={record} variant="icons" />
+            </div>
             <div style={{ fontSize: "0.9em", color: "#AAA" }}>ID: {record._id}</div>
           </Col>
         </Row>)
@@ -94,7 +97,7 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
     // { title: 'Reserved', dataIndex: ['store', 'reserved_qty'], key:'store_reserved_qty', width: 80, align: 'center' },
     { title: 'Global Status', dataIndex: 'status', key:'status', width: 100, align: 'center', render: (txt, rec) => (<Tag color={txt == 'online' ? 'green' : 'red'}>{txt}</Tag>) },
     { title: 'Categories', dataIndex: 'categories', key: 'categories', width: 100, align: 'center', 
-      render: (catArray, rec) => catArray.map((cat, i) => (<Tag key={i}>{cat.title}</Tag>))
+      render: (catArray, rec) => (catArray || []).map((cat, i) => (<Tag key={i}>{cat.title}</Tag>))
     },
     { title: 'STORE', dataIndex: 'store', key: 'store', 
       children: [

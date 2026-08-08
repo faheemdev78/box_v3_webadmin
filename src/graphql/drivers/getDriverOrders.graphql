@@ -1,9 +1,8 @@
 #import "../_fragment/error.graphql"
 #import "../_fragment/UserReff.graphql"
 
-query getDriversWithPendingSettlement($_id_store: ID!) {
-  getDriversWithPendingSettlement(_id_store: $_id_store) {
-    driver { ...UserReffInfo }
+query getDriverOrders($_id_driver: ID!, $_id_session: ID) {
+  getDriverOrders(_id_driver: $_id_driver, _id_session: $_id_session) {
     session {
       _id
       session_started_at
@@ -17,21 +16,26 @@ query getDriversWithPendingSettlement($_id_store: ID!) {
       baskets_returned
       all_baskets_returned
     }
-    total_cod_collected
-    deposited_amount
-    pending_deposit
-    delivered_orders_count
-    pending_orders {
+    session_missing
+    orders {
       _id
       serial
+      customer { ...UserReffInfo }
       current_stage
       is_cod
       amount_collected
       amount_deposited
       amount_remaining
+      cod_deposited
       baskets_count
       baskets_received
-      customer { ...UserReffInfo }
+      pending_clearance
+      baskets {
+        _id
+        title
+        barcode
+        color
+      }
     }
     error { ...ErrorInfo }
   }

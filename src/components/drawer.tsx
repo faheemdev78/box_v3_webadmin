@@ -24,10 +24,25 @@ const useStyle = createStyles(({ token }) => ({
   },
 }));
 
+type LegacyDrawerProps = DrawerProps & {
+  /** @deprecated Use `size` instead (Ant Design 6). Mapped automatically by this wrapper. */
+  width?: DrawerProps['width']
+  /** @deprecated Use `size` instead (Ant Design 6). Mapped automatically by this wrapper. */
+  height?: DrawerProps['height']
+}
 
-export function Drawer(props: DrawerProps){
+/**
+ * App Drawer wrapper.
+ * Ant Design 6 deprecated Drawer `width`/`height` in favor of `size`.
+ * This wrapper accepts legacy props and forwards only `size` to AntDrawer.
+ */
+export function Drawer(props: LegacyDrawerProps){
   const { styles } = useStyle();
   const token = useTheme();
+  const { width, height, size, classNames: propClassNames, ...rest } = props;
+
+  // Prefer explicit size; fall back to legacy width/height so call sites keep working.
+  const resolvedSize = size ?? width ?? height;
 
   const classNames = {
     body: styles['custom-drawer-body'],
@@ -65,7 +80,8 @@ export function Drawer(props: DrawerProps){
   >
     <AntDrawer 
       closable={{ placement: 'end' }}
-      {...props}
+      {...rest}
+      {...(resolvedSize !== undefined ? { size: resolvedSize as DrawerProps['size'] } : {})}
       classNames={{
         root: 'custom-drawer',
         mask: 'cd-mask',
@@ -76,7 +92,7 @@ export function Drawer(props: DrawerProps){
         footer: 'cd-footer',
         dragger: 'cd-dragger',
         close: 'cd-close',
-        ...props.classNames
+        ...propClassNames
       }}
     />
   </ConfigProvider>)

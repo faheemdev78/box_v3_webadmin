@@ -21,7 +21,7 @@ import { useStartOrderVerification, useCompleteOrderVerification,
   useMyActiveTillShift, usePrintTillReceipt, useOpenTillShift, useUpdateTillVerificationBaskets, useUpdateTillVerificationBags, useRemoveOrderFromTillSession
 } from '@/hooks/useTillVerification';
 import { adminRoot, svgIcons } from '@/configs';
-import { Avatar, DevBlock, Button, IconButton, Loader, Table, usePageProps, Icon, Drawer, PopMenu, BarcodeScanner } from '@/components';
+import { Avatar, DevBlock, Button, IconButton, Loader, Table, usePageProps, Icon, Drawer, PopMenu, BarcodeScanner, ProductItemFlags } from '@/components';
 import { Page } from '@/template';
 import { useVerifyOrderItem, useMarkOrderItemMissing, useMarkOrderItemDamaged, useMarkOrderItemMismatch, useDropOrderItem } from '@/hooks/useTillVerification';
 import { __success, __yellow } from '@/lib/consoleHelper';
@@ -448,7 +448,10 @@ const RightColumn = ({
         item,
         label: (
           <div className="flex items-center justify-between gap-4 py-1">
-            <span className="truncate font-medium">{item.title}</span>
+            <div className="flex min-w-0 items-center gap-2">
+              <span className="truncate font-medium">{item.title}</span>
+              <ProductItemFlags item={item} variant="icons" size={16} />
+            </div>
             <Text type="secondary" className="shrink-0">{item.barcode || 'No barcode'}</Text>
           </div>
         ),
@@ -760,6 +763,11 @@ const RightColumn = ({
             <div className='text-xl font-semibold mt-10 text-center' style={{ color:"#111827", lineHeight:1 }}>
               {selectedItem?.title || 'Scan or search an item'}
             </div>
+            {selectedItem && (
+              <div style={{ marginTop: 8 }}>
+                <ProductItemFlags item={selectedItem} variant="icons" />
+              </div>
+            )}
             <div className='w-[500px] h-[400px] bg-gray-200 overflow-hidden flex items-center justify-center rounded-md' style={{margin:"10px"}}>
               {imageSrc ? (
                 <img src={imageSrc} alt={selectedItem?.title || 'Product'} className='h-full w-full object-cover' />

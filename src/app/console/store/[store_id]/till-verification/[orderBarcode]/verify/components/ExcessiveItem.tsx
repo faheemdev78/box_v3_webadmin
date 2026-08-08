@@ -1,4 +1,4 @@
-import { Button } from "@/components";
+import { Button, ProductItemFlags } from "@/components";
 import { Col, Row, Space } from "antd";
 
 export const ExcessiveItem = ({ item, selectedQty, onAcknowledge }: { item?: any, selectedQty?: number, onAcknowledge: () => void }) => {
@@ -18,6 +18,9 @@ export const ExcessiveItem = ({ item, selectedQty, onAcknowledge }: { item?: any
                     </div>
                     <div>{item?.attributes?.map((atr: any) => `${atr.val}${atr.title}`).join(', ') || 'attributes'}</div>
                     <div>{item?.barcode || 'N/A'}</div>
+                    <div style={{ marginTop: 8 }}>
+                        <ProductItemFlags item={item} variant="icons" />
+                    </div>
                 </div></Col>
                 <Col span={12} className='border-l border-gray-200'><div style={{ padding: "10px" }} className='text-center'>
                     <Space vertical align="center">

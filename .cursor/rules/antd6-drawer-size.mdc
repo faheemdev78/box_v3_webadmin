@@ -1,0 +1,32 @@
+---
+description: Ant Design 6 Drawer — use size, never width/height
+globs: **/*.{tsx,ts,jsx,js}
+alwaysApply: false
+---
+
+# Ant Design 6 Drawer sizing
+
+In Ant Design 6, Drawer `width` and `height` are **deprecated**. Use `size` instead.
+
+## Rules
+
+- Prefer the shared wrapper: `import { Drawer } from '@/components'` (or `@/components/drawer`).
+- Always pass **`size`**, never `width` / `height`, on Drawer.
+- `size` accepts a number (px), CSS string (`'50%'`, `'100vw'`), or preset (`'default'` | `'large'`).
+- Do **not** import `Drawer` from `antd` directly in app screens unless there is a strong reason; the shared wrapper maps legacy `width`/`height` → `size` as a safety net, but call sites must still use `size`.
+
+```tsx
+// ❌ BAD
+<Drawer width={980} open={open} onClose={onClose} />
+<Drawer height={400} placement="top" />
+
+// ✅ GOOD
+<Drawer size={980} open={open} onClose={onClose} />
+<Drawer size={400} placement="top" />
+<Drawer size="100vw" open={open} onClose={onClose} />
+```
+
+## Related Ant Design 6 notes
+
+- `InputNumber` `addonBefore` / `addonAfter` → wrap with `Space.Compact` instead.
+- Prefer `Space orientation="vertical"` (antd 6) over deprecated `direction` where this codebase already uses `orientation`.

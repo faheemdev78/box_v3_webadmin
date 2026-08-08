@@ -1,0 +1,39 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/UserReff.graphql"
+
+query getDriverSettlementHistory(
+  $_id_store: ID!
+  $_id_driver: ID!
+  $limit: Int
+  $page: Int
+  $order_serial: String
+  $date_from: Date
+  $date_to: Date
+) {
+  getDriverSettlementHistory(
+    _id_store: $_id_store
+    _id_driver: $_id_driver
+    limit: $limit
+    page: $page
+    order_serial: $order_serial
+    date_from: $date_from
+    date_to: $date_to
+  ) {
+    edges {
+      _id
+      _id_order
+      order_serial
+      amount_collected
+      amount_deposited
+      cumulative_deposited
+      baskets_received
+      basket_ids
+      is_final_clearance
+      entry_type
+      cleared_by { ...UserReffInfo }
+      createdAt
+    }
+    totalCount
+    error { ...ErrorInfo }
+  }
+}

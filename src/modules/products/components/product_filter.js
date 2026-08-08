@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Row, Col, Divider, message, Alert, Space } from 'antd';
 import { __error } from '@/lib/consoleHelper';
-import { publishStatus } from '@/configs';
+import { publishStatus, tempSensitivityArray } from '@/configs';
 import { Loader, DevBlock, Button, Icon } from '@/components';
 // import { ProdCatSelection } from '@/components/admin';
 import { BrandsDD, ProdTypeDD, ProdCatsDD } from '@/components/dropdowns';
@@ -16,19 +16,40 @@ import { FormField, submitHandler } from '@/components/form';
 
 const defaultFilter = { status: 'online' }
 
+const unfitForBoxOptions = [
+    { label: 'Yes', value: 'true' },
+    { label: 'No', value: 'false' },
+]
+
+const tempFilterOptions = tempSensitivityArray.filter((o) => o.value !== 'normal')
+
+const toFormValues = (filter = {}) => {
+    const next = { ...defaultFilter, ...filter }
+    if (next.unfit_for_dispatch === true) next.unfit_for_dispatch = 'true'
+    else if (next.unfit_for_dispatch === false) next.unfit_for_dispatch = 'false'
+    return next
+}
+
 export const ProductFilter = props => {
     const [error, setError] = useState(null)
     const exclude = props.exclude || [];
 
     const onSubmit = values => {
-        let filter = formToFilter(values)
+        const { unfit_for_dispatch, ...rest } = values || {}
+        // formToFilter coerces booleans poorly — apply unfit flag explicitly
+        let filter = formToFilter(rest)
+        if (unfit_for_dispatch === 'true' || unfit_for_dispatch === true) {
+            filter.unfit_for_dispatch = true
+        } else if (unfit_for_dispatch === 'false' || unfit_for_dispatch === false) {
+            filter.unfit_for_dispatch = false
+        }
         props.onChange({ filter })
     }
 
     if (props.loading) return <Loader loading={true} />
 
     return (<div style={{ border:"0px solid black"}}>
-        <FinalForm onSubmit={onSubmit} initialValues={{ ...defaultFilter, ...props.defaultValue }}
+        <FinalForm onSubmit={onSubmit} initialValues={toFormValues(props.defaultValue)}
             mutators={{ ...arrayMutators }}
             render={(formargs) => {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
@@ -72,6 +93,32 @@ export const ProductFilter = props => {
 
                             {exclude.indexOf('brand') < 0 && <div style={{ width:"200px" }}>
                                 <BrandsDD name="brand*_id" filter={{}} label="Brands" placeholder="Search Brands..." compact preload localsearch allowClear size="small" />
+                            </div>}
+
+                            {exclude.indexOf('temp_sensitivity') < 0 && <div style={{ width:"130px" }}>
+                                <FormField
+                                    type="select"
+                                    options={tempFilterOptions}
+                                    name="temp_sensitivity"
+                                    placeholder="Temp"
+                                    label="Fridge / Freezer"
+                                    compact
+                                    allowClear
+                                    size="small"
+                                />
+                            </div>}
+
+                            {exclude.indexOf('unfit_for_dispatch') < 0 && <div style={{ width:"130px" }}>
+                                <FormField
+                                    type="select"
+                                    options={unfitForBoxOptions}
+                                    name="unfit_for_dispatch"
+                                    placeholder="Any"
+                                    label="Not fit for box"
+                                    compact
+                                    allowClear
+                                    size="small"
+                                />
                             </div>}
                             
                             <div style={{ paddingTop:"16px"}}>

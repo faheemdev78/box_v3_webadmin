@@ -171,4 +171,11 @@ export const UserRightsArray = [
         ]
     },
 
+    { _id: 1010, title: 'Notifications',
+        rules: [
+            { title: 'Access notifications', key: '1010.0' },
+            { title: 'Send notifications', key: '1010.1' },
+        ]
+    },
+
 ];

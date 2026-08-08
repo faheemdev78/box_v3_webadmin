@@ -1,0 +1,15 @@
+mutation sendAdminPushNotification($input: SendAdminPushInput!) {
+  sendAdminPushNotification(input: $input) {
+    success { message }
+    log {
+      _id
+      title
+      body
+      status
+      stats { topics success failure }
+      error_summary
+      createdAt
+    }
+    error { message details }
+  }
+}

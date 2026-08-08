@@ -7,7 +7,7 @@ import { adminRoot, defaultDateTimeFormat, defaultPageSize, defaultPagination } 
 import { Alert, Card, message, Modal, Popover, Row, Space, Tag, Tooltip, Typography } from "antd";
 import { UserOutlined, ShoppingOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { catchApolloError, checkApolloRequestErrors } from "@/lib/utill_apollo";
-import { Button, DevBlock, Icon, OrderTable, usePageProps, PopMenu } from '@/components';
+import { Button, DevBlock, Icon, OrderTable, usePageProps, PopMenu, OrderItemsPreviewButton } from '@/components';
 import { Page } from "@/template";
 import { DynamicViewFilter } from "@/app/console/view_filter/components/DynamicViewFilter";
 import Link from "next/link";
@@ -373,9 +373,11 @@ function OrdersListPage(props:any) {
     const renderActions = (_: any, record: any) => {
         let returnArr: ReactNode[] = []
 
+        returnArr.push(<OrderItemsPreviewButton key="items-preview" order={record} storeId={store._id} />)
+
         if (record.locked_by){
-            if (record.locked_by === userSession.user._id) returnArr.push(<span style={{ color: "green" }}><Tooltip title="Locked by you"><Icon icon="lock" /></Tooltip></span>)
-            else returnArr.push(<span style={{ color: "red" }}><Tooltip title="Locked by someone else"><Icon icon="lock" /></Tooltip></span>)
+            if (record.locked_by === userSession.user._id) returnArr.push(<span key="lock-me" style={{ color: "green" }}><Tooltip title="Locked by you"><Icon icon="lock" /></Tooltip></span>)
+            else returnArr.push(<span key="lock-other" style={{ color: "red" }}><Tooltip title="Locked by someone else"><Icon icon="lock" /></Tooltip></span>)
         }
         // if (record.current_stage !== 'pending') returnArr.push(<ResetButton size="small" handleResetOrder={() => handleResetOrder(record)} />)
 
@@ -388,7 +390,7 @@ function OrdersListPage(props:any) {
         if (canCancelOrders && canMarkOrderAsTerminal(record)) popArray.push({ onClick: () => handleCancelOrDeclineOrder(record, 'cancelled'), label: "To Cancelled", confirm: true })
         if (canCancelOrders && canMarkOrderAsTerminal(record)) popArray.push({ onClick: () => handleCancelOrDeclineOrder(record, 'declined'), label: "To Declined", confirm: true })
         if (canPrintTillReceipt(record)) popArray.push({ onClick: () => handlePrintTillReceipt(record), label: "Print Receipt" })
-        if (popArray.length) returnArr.push(<PopMenu orientation="vertical" placement="left" items={popArray} ></PopMenu>);
+        if (popArray.length) returnArr.push(<PopMenu key="menu" orientation="vertical" placement="left" items={popArray} ></PopMenu>);
 
         return (<Space size="small" wrap style={{ width: '100%' }}>{returnArr}</Space>);
     }

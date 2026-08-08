@@ -27,6 +27,8 @@ export * from './prodCatTreeSelection';
 export * from './prodAttributesSelector';
 
 export * from './orderTable';
+export * from './ProductItemFlags';
+export * from './orders';
 
 export * from './pageProps';
 

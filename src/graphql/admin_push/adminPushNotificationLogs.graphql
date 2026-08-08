@@ -1,0 +1,24 @@
+query adminPushNotificationLogs($limit: Int, $page: Int) {
+  adminPushNotificationLogs(limit: $limit, page: $page) {
+    pagination {
+      totalDocs
+      limit
+      page
+      totalPages
+      hasNextPage
+      hasPrevPage
+    }
+    edges {
+      _id
+      title
+      body
+      status
+      apps { _id key title topic }
+      stats { topics success failure }
+      error_summary
+      created_by { _id name email }
+      createdAt
+    }
+    error { message details }
+  }
+}

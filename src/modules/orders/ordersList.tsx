@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Popconfirm, Alert, message, Row, Col, Divider, Radio, Modal, Space, Tag } from 'antd';
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { __error } from '@/lib/consoleHelper';
-import { Table, Loader, Button, Avatar, DataGrid, Icon, IconButton, DeleteButton, DevBlock } from '@/components';
+import { Table, Loader, Button, Avatar, DataGrid, Icon, IconButton, DeleteButton, DevBlock, OrderItemsPreviewButton } from '@/components';
 // import { ProductBarcodeFilter, ProductGridItem, ProductFilter } from './components'
 import Link from 'next/link';
 import { adminRoot, defaultDateTimeFormat } from '@/configs';
@@ -26,12 +26,12 @@ import RESET_ORDER from '@/graphql/order/resetOrderToZero.graphql'
 export const defaultProps = {
   pageView: "list",
   columns: [
-    'serial', 'store', 'original_order', 'delivery_slot', 
-    // 'actions', 
-    { key: 'status' }, 
-    { key: 'pickup_allow' }, 
-    { key: 'createdAt' }, 
-    { key: 'updatedAt' }
+    'serial', 'store', 'original_order', 'delivery_slot',
+    { key: 'status' },
+    { key: 'pickup_allow' },
+    { key: 'createdAt' },
+    { key: 'updatedAt' },
+    'actions',
   ]
 };
 
@@ -184,11 +184,7 @@ const OrdersList: React.FC<OrdersListProps> = ({
             </Popconfirm>
           )}
 
-          <IconButton
-            icon="eye"
-            onClick={() => router.push(getOrderPreviewHref(record))}
-            tooltip="View order details"
-          />
+          <OrderItemsPreviewButton order={record} />
         </Space>
       ),
     },

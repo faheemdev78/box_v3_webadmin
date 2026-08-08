@@ -35,6 +35,11 @@ fragment OrderItemsInfo on OrderItems {
       reserved_qty
     }
 
+    store_at_order {
+      available_qty
+      reserved_qty
+    }
+
     # /*********** Calculations ************* */
     price_was
     price

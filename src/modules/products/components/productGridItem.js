@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Card, Skeleton, Avatar, Menu, Dropdown, Popconfirm, Row, Col, Modal, message, Space } from 'antd';
-import { Icon, Button, Loader } from '@/components';
+import { Icon, Button, Loader, ProductItemFlags } from '@/components';
 import { __error } from '@/lib/consoleHelper';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
@@ -96,6 +96,9 @@ export const ProductGridItem = props => {
                         <div className="card_body">
                             <div style={{ textAlign: "right", color: "#999", fontSize: 10 }}>{props._id}</div>
                             <div className='_title'>{props.title}</div>
+                            <div style={{ marginBottom: 4 }}>
+                                <ProductItemFlags item={props} variant="icons" />
+                            </div>
                             <Row>
                                 <Col span={12}><div className='_price'>{props.price} {settings.currency}</div></Col>
                                 <Col span={12} align="right"><div className='_price'>Qty: {props.available_qty}</div></Col>

@@ -1,0 +1,6 @@
+mutation removeAdminPushApp($_id: ID!) {
+  removeAdminPushApp(_id: $_id) {
+    success { message }
+    error { message details }
+  }
+}

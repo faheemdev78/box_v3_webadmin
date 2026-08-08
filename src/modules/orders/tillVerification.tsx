@@ -8,7 +8,7 @@ import { adminRoot } from "@/configs";
 import { Card, message, Row, Col, Button, Divider, Typography, Tag, Space, Alert } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { catchApolloError, checkApolloRequestErrors } from "@/lib/utill_apollo";
-import { DevBlock, usePageProps } from '@/components';
+import { DevBlock, usePageProps, ProductItemFlags } from '@/components';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
 
@@ -143,6 +143,9 @@ function TillVerification({ serial }: { serial:string }) {
                     <Row key={index} className="py-2 border-b last:border-b-0">
                         <Col span={12}>
                             <Text strong>{item.title}</Text>
+                            <div style={{ marginTop: 4 }}>
+                                <ProductItemFlags item={item} variant="icons" />
+                            </div>
                             <br />
                             <Text type="secondary">{item.barcode}</Text>
                         </Col>

@@ -24,6 +24,10 @@ query orderDetails($filter: String!) {
                 price
                 total
                 status
+                is_expirable
+                unfit_for_dispatch
+                temp_sensitivity
+                store_at_order { available_qty reserved_qty }
             }
         }
 
@@ -44,6 +48,10 @@ query orderDetails($filter: String!) {
                 price
                 total
                 status
+                is_expirable
+                unfit_for_dispatch
+                temp_sensitivity
+                store_at_order { available_qty reserved_qty }
                 processed_qty
                 issue_reason
                 is_substitute
@@ -90,6 +98,27 @@ query orderDetails($filter: String!) {
 
         status { order payment fulfillment }
         current_stage
+
+        sub_status {
+            code
+            updated_at
+            updated_by { _id name }
+            eta_minutes
+            distance_meters
+        }
+
+        activity_logs {
+            _id
+            action
+            message
+            at
+            by { _id name email }
+            meta
+            location {
+                type
+                coordinates
+            }
+        }
 
         locked_by
         locked_at

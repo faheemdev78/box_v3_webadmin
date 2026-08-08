@@ -1,0 +1,30 @@
+#import "../_fragment/error.graphql"
+#import "../_fragment/success.graphql"
+
+mutation clearDriverOrderCollection($input: ClearDriverOrderCollectionInput!) {
+  clearDriverOrderCollection(input: $input) {
+    order {
+      _id
+      serial
+      current_stage
+    }
+    session {
+      _id
+      driver_wallet {
+        total_cod_collected
+        deposited_amount
+        pending_deposit
+        is_settled
+      }
+      baskets_assigned
+      baskets_returned
+      all_baskets_returned
+    }
+    is_fully_cleared
+    cumulative_deposited
+    amount_remaining
+    success { ...SuccessInfo }
+    error { ...ErrorInfo }
+  }
+}
+

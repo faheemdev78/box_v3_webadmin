@@ -1,0 +1,11 @@
+mutation updateAdminPushApp($input: EditAdminPushAppInput!) {
+  updateAdminPushApp(input: $input) {
+    _id
+    key
+    title
+    topic
+    notes
+    active
+    error { message details }
+  }
+}

@@ -9,6 +9,7 @@ import { Card, Space, Button, Typography, Tag, Input, Modal, InputNumber, messag
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined, ClockCircleOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
+import { ProductItemFlags } from '@/components';
 import { useVerifyOrderItem, useMarkOrderItemMissing, useMarkOrderItemDamaged, useMarkOrderItemMismatch } from '@/hooks/useTillVerification';
 import dayjs from 'dayjs';
 
@@ -23,6 +24,8 @@ interface ItemVerificationRowProps {
     qty: number;
     price: number;
     total: number;
+    temp_sensitivity?: string | null;
+    unfit_for_dispatch?: boolean | null;
   };
   verificationStatus: {
     status: 'pending' | 'verified' | 'missing' | 'damaged' | 'mismatch';
@@ -137,6 +140,7 @@ export const ItemVerificationRow: React.FC<ItemVerificationRowProps> = ({ item, 
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Space orientation="vertical" size={0}>
             <Text strong style={{ fontSize: 16 }}>{item.title}</Text>
+            <ProductItemFlags item={item} variant="icons" />
             {item.barcode && (<Text type="secondary" style={{ fontSize: 12 }}>Barcode: {item.barcode}</Text>)}
           </Space>
           {getStatusTag()}

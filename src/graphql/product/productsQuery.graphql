@@ -14,6 +14,8 @@ query productsQuery($limit: Int, $page: Int, $filter: String, $others: String, $
             barcode
             # attributes {...Prod_AttributesSchemaReff_Info}
             status
+            temp_sensitivity
+            unfit_for_dispatch
             picture { thumbnails }
 
             store {

@@ -1,0 +1,15 @@
+query adminPushApps {
+  adminPushApps {
+    edges {
+      _id
+      key
+      title
+      topic
+      notes
+      active
+      createdAt
+      updatedAt
+    }
+    error { message details }
+  }
+}

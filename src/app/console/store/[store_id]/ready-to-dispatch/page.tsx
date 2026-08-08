@@ -122,7 +122,7 @@ function ReadytoDispatchList(props:any) {
               {
                 key: 'actions',
                 title: 'Actions',
-                width: 260,
+                width: 100,
                 render: (_: unknown, order: any) => (
                   <Space wrap size="small">
                     <BoxReceiptPreviewButton

@@ -50,8 +50,10 @@ export default security;
 
 export function filterPermissions(arr, session) {
     let permissions = (session && session?.user?.permissions) || "";
+    const isSuperAdmin = session?.user?.acc_type === 'super-admin';
 
     return arr.filter(o => {
+        if (o.superAdminOnly && !isSuperAdmin) return false;
         if (o.modulePermessions && !security.verifyModule(o.modulePermessions, permissions)) return false;
         if (o.rolePermessions && !security.verifyRole(o.rolePermessions, permissions)) return false;
         return true;

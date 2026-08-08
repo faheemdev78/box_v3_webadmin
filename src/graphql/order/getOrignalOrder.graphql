@@ -17,12 +17,52 @@ query getOrignalOrder($filter: String!) {
 
         original_order { ...OriginalOrderInfo }
 
+        current_order {
+            baskets { _id title barcode color }
+            handled_by { _id name }
+            notes
+            _id_session
+        }
+
+        processing_stages {
+            till_verification {
+                baskets { _id title barcode color }
+                handled_by { _id name }
+            }
+            delivery {
+                baskets { _id title barcode color }
+                handled_by { _id name }
+            }
+        }
+
         delivery_slot { ...OrderDeliverySlotInfo }
         delivery_note
 
         # viewed
         status { order payment fulfillment }
+        current_stage
         payment { ...OrderPaymentInfo }
+
+        sub_status {
+            code
+            updated_at
+            updated_by { _id name }
+            eta_minutes
+            distance_meters
+        }
+
+        activity_logs {
+            _id
+            action
+            message
+            at
+            by { _id name email }
+            meta
+            location {
+                type
+                coordinates
+            }
+        }
 
         shippingAddress { ...UserAddressesRefInfo }
 
