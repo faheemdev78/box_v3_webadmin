@@ -1,0 +1,8 @@
+#import "./_fragment/dynamicFilter.graphql"
+#import "../_fragment/error.graphql"
+
+query dynamicFilters($entityType: String!, $storeId: ID) {
+  dynamicFilters(entityType: $entityType, storeId: $storeId) {
+    ...DynamicFilterInfo
+  }
+}

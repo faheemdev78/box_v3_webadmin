@@ -1,0 +1,7 @@
+#import "./_fragment/dynamicFilter.graphql"
+
+mutation duplicateDynamicFilter($id: ID!) {
+  duplicateDynamicFilter(id: $id) {
+    ...DynamicFilterInfo
+  }
+}

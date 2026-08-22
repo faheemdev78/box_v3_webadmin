@@ -31,5 +31,6 @@ export * from './ProductItemFlags';
 export * from './orders';
 
 export * from './pageProps';
+export * from './dynamicFilter';
 
 export { default as List } from './List';

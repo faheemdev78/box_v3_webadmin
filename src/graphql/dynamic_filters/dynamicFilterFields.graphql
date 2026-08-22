@@ -1,0 +1,17 @@
+query dynamicFilterFields($entityType: String!) {
+  dynamicFilterFields(entityType: $entityType) {
+    key
+    label
+    type
+    group
+    operators
+    options {
+      label
+      value
+    }
+    dataPath
+    isFilterable
+    isSearchable
+    isSortable
+  }
+}

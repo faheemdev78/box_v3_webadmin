@@ -1,0 +1,7 @@
+#import "./_fragment/dynamicFilter.graphql"
+
+mutation editDynamicFilter($input: Edit_DynamicFilterInput!) {
+  editDynamicFilter(input: $input) {
+    ...DynamicFilterInfo
+  }
+}

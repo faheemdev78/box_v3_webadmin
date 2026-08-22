@@ -1,0 +1,7 @@
+#import "./_fragment/dynamicFilter.graphql"
+
+mutation pinDynamicFilter($id: ID!, $isPinned: Boolean!) {
+  pinDynamicFilter(id: $id, isPinned: $isPinned) {
+    ...DynamicFilterInfo
+  }
+}

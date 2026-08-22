@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation';
-import { useLazyQuery, useMutation } from '@apollo/client/react'
+import { useLazyQuery } from '@apollo/client/react'
 import { DevBlock, Loader, Icon, Button, IconButton, OrderItemsTable } from '@/components'
 import { PageHeader } from '@/template'
 import { Page } from '@/template/page'
-import { Alert, Card, Descriptions, Tag, Space, Typography, Divider, Row, Col, Modal, Input, message, Timeline, Empty } from 'antd'
+import { Alert, Card, Descriptions, Tag, Space, Typography, Divider, Row, Col, Timeline, Empty } from 'antd'
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
@@ -14,10 +14,9 @@ import moment from 'moment';
 import { defaultDateTimeFormat, adminRoot } from '@/configs';
 
 import ORDER from '@/graphql/order/getOrignalOrder.graphql'
-import REVERT_ORDER_STAGE from '@/graphql/order/revertOrderStage.graphql'
+import { RevertOrderModal } from '../../components'
 
 const { Title, Text } = Typography;
-const { TextArea } = Input;
 
 function OrderPreview() {
     const router = useRouter();
@@ -26,11 +25,8 @@ function OrderPreview() {
     const settings = useAppSelector(getSettings);
     const [isRevertModalVisible, setIsRevertModalVisible] = useState(false);
     const [revertTargetStage, setRevertTargetStage] = useState('');
-    const [revertReason, setRevertReason] = useState('');
-    const [revertNotes, setRevertNotes] = useState('');
 
     const [getOrignalOrder, { called, loading, data }] = useLazyQuery<any>(ORDER, { fetchPolicy: 'network-only' });
-    const [revertOrderStage, { loading: reverting }] = useMutation<any>(REVERT_ORDER_STAGE);
 
     async function getchData(){
         setError(null)
@@ -53,48 +49,6 @@ function OrderPreview() {
     const handleRevertClick = (targetStage: string) => {
         setRevertTargetStage(targetStage);
         setIsRevertModalVisible(true);
-    };
-
-    const handleRevertConfirm = async () => {
-        if (!revertReason.trim()) {
-            message.error('Please provide a reason for reverting');
-            return;
-        }
-
-        try {
-            const result = await revertOrderStage({
-                variables: {
-                    input: {
-                        _id_order: data.order._id,
-                        target_stage: revertTargetStage,
-                        reason: revertReason,
-                        notes: revertNotes || undefined
-                    }
-                }
-            }).then(r => checkApolloRequestErrors({
-                results: r,
-                allowEmpty: false,
-                parseReturn: (rr: { data?: { revertOrderStage?: unknown } }) => rr?.data?.revertOrderStage
-            }))
-            .catch(catchApolloError);
-
-            if (result.error) {
-                message.error(result.error.details || result.error.message || 'Failed to revert order');
-                return;
-            }
-
-            if (result.success) {
-                message.success(`Order reverted to ${revertTargetStage} successfully`);
-                setIsRevertModalVisible(false);
-                setRevertReason('');
-                setRevertNotes('');
-                // Refresh order data
-                getchData();
-            }
-        } catch (err) {
-            message.error('An error occurred while reverting the order');
-            console.error(err);
-        }
     };
 
     const canRevertTo = (targetStage: string) => {
@@ -525,83 +479,17 @@ function OrderPreview() {
         </Page>
 
         {/* Revert Order Modal */}
-        <Modal
-            title="Revert Order Stage"
+        <RevertOrderModal
             open={isRevertModalVisible}
-            onOk={handleRevertConfirm}
-            onCancel={() => {
+            order={order}
+            targetStage={revertTargetStage}
+            storeId={order?.store?._id || (Array.isArray(store_id) ? store_id[0] : store_id) || ''}
+            onClose={() => {
                 setIsRevertModalVisible(false);
-                setRevertReason('');
-                setRevertNotes('');
+                setRevertTargetStage('');
             }}
-            confirmLoading={reverting}
-            okText="Confirm Revert"
-            okButtonProps={{ danger: true }}
-            width={600}
-        >
-            <Space orientation="vertical" style={{ width: '100%' }} size="large">
-                <Alert
-                    title="Warning"
-                    description={
-                        <div>
-                            <p>You are about to revert this order to <strong>{revertTargetStage}</strong>.</p>
-                            <p>This action will:</p>
-                            <ul style={{ marginLeft: 20, marginBottom: 0 }}>
-                                {revertTargetStage === 'pending' && (
-                                    <>
-                                        <li>Reset the order to its original state</li>
-                                        <li>Clear all processing stages and data</li>
-                                        <li>Release any locks and assigned resources</li>
-                                        <li>Set order status back to NEW</li>
-                                    </>
-                                )}
-                                {revertTargetStage === 'picking-complete' && (
-                                    <>
-                                        <li>Restore order data from after picking was completed</li>
-                                        <li>Clear till verification and delivery stages</li>
-                                        <li>Release any locks (order will need to be re-verified at till)</li>
-                                    </>
-                                )}
-                                {revertTargetStage === 'ready-to-dispatch' && (
-                                    <>
-                                        <li>Restore order data from after till verification</li>
-                                        <li>Clear delivery stage</li>
-                                        <li>Release delivery-related locks</li>
-                                    </>
-                                )}
-                            </ul>
-                        </div>
-                    }
-                    type="warning"
-                    showIcon
-                />
-
-                <div>
-                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
-                        Reason for Reverting <span style={{ color: 'red' }}>*</span>
-                    </label>
-                    <Input
-                        placeholder="Enter reason for reverting (required)"
-                        value={revertReason}
-                        onChange={(e) => setRevertReason(e.target.value)}
-                        maxLength={200}
-                    />
-                </div>
-
-                <div>
-                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>
-                        Additional Notes (Optional)
-                    </label>
-                    <TextArea
-                        placeholder="Enter any additional notes or comments"
-                        value={revertNotes}
-                        onChange={(e) => setRevertNotes(e.target.value)}
-                        rows={4}
-                        maxLength={500}
-                    />
-                </div>
-            </Space>
-        </Modal>
+            onSuccess={() => getchData()}
+        />
     </div>)
 
 }

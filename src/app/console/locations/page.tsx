@@ -103,7 +103,6 @@ function Locations() {
             <Button onClick={() => set_showForm({ show: true, fields: undefined })} color="orange">Add New Location</Button>
         </PageHeader>
 
-
         <Page>
             <Table
                 loading={loading}

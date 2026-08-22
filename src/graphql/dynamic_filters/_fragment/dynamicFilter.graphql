@@ -1,0 +1,32 @@
+#import "../../_fragment/error.graphql"
+
+fragment DynamicFilterInfo on DynamicFilter {
+  _id
+  entityType
+  name
+  description
+  filterGroups {
+    id
+    logic
+    joinLogic
+    conditions {
+      id
+      field
+      operator
+      value
+    }
+  }
+  columns
+  sort {
+    field
+    direction
+  }
+  isPinned
+  isDefault
+  visibility
+  owner
+  storeId
+  createdAt
+  updatedAt
+  error { ...ErrorInfo }
+}

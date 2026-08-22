@@ -1,0 +1,7 @@
+#import "../_fragment/response.graphql"
+
+mutation deleteDynamicFilter($id: ID!) {
+  deleteDynamicFilter(id: $id) {
+    ...ResponseInfo
+  }
+}

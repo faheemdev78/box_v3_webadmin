@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client/react';
-import { Popconfirm, Alert, message, Row, Col, Modal, Space, Tabs } from 'antd';
+import { Popconfirm, Alert, message, Row, Col, Modal, Space, Tabs, Tag, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Barcode, Loader, Icon, Button, IconButton, Table, Avatar, ListHeader, DevBlock, DeleteButton } from '@/components';
 import { __error } from '@/lib/consoleHelper';
@@ -16,6 +16,12 @@ import type { RootState } from '@/rStore';
 import LIST_DATA from '@/graphql/baskets/baskets.graphql';
 import RECORD_DELETE from '@/graphql/baskets/deleteBasket.graphql';
 import RELEASE_BASKET from '@/graphql/baskets/releaseBasket.graphql';
+
+const isBasketTaken = (basket: any) => Boolean(
+    basket?.status === 'taken'
+    || basket?.locked_by
+    || basket?._id_order
+);
 
 const ReleaseBasketButton = ({ basket, onSuccess }: { basket: any; onSuccess?: (results: any) => void }) => {
     const [busy, setBusy] = useState(false)
@@ -80,6 +86,10 @@ const ListComp = ({ store }: { store: any }) => {
     }
 
     const renderActions = (_text: any, record: any) => {
+        if (isBasketTaken(record)) {
+            return <ReleaseBasketButton basket={record} onSuccess={() => fetchData({ category: activeCategory })} />
+        }
+
         return (<Space>
             {security.verifyRole('1005.2', session?.user?.permissions || []) && <IconButton onClick={() => onEditRecord(record)} icon="pen" />}
             {security.verifyRole('1005.3', session?.user?.permissions || []) && <DeleteButton onConfirm={() => handleDelete(record._id)} />}
@@ -104,7 +114,14 @@ const ListComp = ({ store }: { store: any }) => {
     const columns: ColumnsType<any> = [
         { title: 'Basket', dataIndex: 'barcode', render:(_txt: any, record: any) => (<div>
             {/* <div className="label" style={{ backgroundColor: record.color || "#FFFFFF", color: lightOrDark(record.color) == 'light' ? "#000000" : "#FFFFFF", fontSize: '14px' }}>{record.title}</div> */}
-            <h3>{record.title}</h3>
+            <Space align="center">
+                <h3 style={{ margin: 0 }}>{record.title}</h3>
+                {isBasketTaken(record) && (
+                    <Tooltip title="Basket is taken and locked">
+                        <span style={{ color: '#cf1322' }}><Icon icon="lock" /></span>
+                    </Tooltip>
+                )}
+            </Space>
             <Barcode 
                 value={`${record.barcode}`} 
                 background={record.color || "#FFFFFF"} 
@@ -114,28 +131,36 @@ const ListComp = ({ store }: { store: any }) => {
             />
         </div>)},
         { title: 'In Use', dataIndex: 'record', render:(__: any, rec: any) => {
-            const isLocked = Boolean(rec?.locked_by || rec?.locked_at || rec?.lock_expires_at || rec?._id_order || rec?.status === 'taken');
+            const isLocked = isBasketTaken(rec);
             // const orderPreviewHref = rec?._id_order ? `${adminRoot}/store/${store._id}/orders/preview/${rec._id}` : '';
             // `console/store/68755e0e245e63fc0f79a2f2/orders/preview/ORD202605160006`
             const lockedByName = rec?.locked_user?.name || rec?.taken_by?.name || '';
 
+            if (!isLocked) return null;
+
             return (<>
                 {rec?.taken_by?.name  && <div>Taken By: {rec?.taken_by?.name}</div>}
-                {isLocked && rec?.locked_by && <div>Locked By: {lockedByName || rec?.locked_by}</div>}
+                {rec?.locked_by && <div>Locked By: {lockedByName || rec?.locked_by}</div>}
                 {rec.locked_at && <div>Locked At: {utcToDate(rec.locked_at).format(defaultDateTimeFormat)}</div>}
                 {rec.lock_expires_at && <div>Auto unlock at: {utcToDate(rec.lock_expires_at).format(defaultDateTimeFormat)}</div>}
-                {isLocked && rec?._id_order && (
+                {rec?._id_order && (
                     <div>
                         Order ID:{` ${rec._id_order}`}
                         {/* <Link href={orderPreviewHref}>{rec._id_order}</Link> */}
                     </div>
                 )}
-                {isLocked && <ReleaseBasketButton basket={rec} onSuccess={() => fetchData({ category: activeCategory })} />}
             </>)
         } },
         { title: 'Category', dataIndex: 'category', width: 120, align:"center" },
-        { title: 'Status', dataIndex: 'status', width: 120, align: "center" },
-        { title: 'Actions', dataIndex: '', render: renderActions, className: 'actions-column', align: 'right', width: '100px' },
+        { title: 'Status', dataIndex: 'status', width: 140, align: "center",
+            render: (status: string, rec: any) => {
+                if (isBasketTaken(rec)) {
+                    return <Tag color="red" icon={<Icon icon="lock" />}>{(status || 'taken').toUpperCase()}</Tag>
+                }
+                return <Tag color={status === 'available' ? 'green' : 'default'}>{(status || 'n/a').toUpperCase()}</Tag>
+            }
+        },
+        { title: 'Actions', dataIndex: '', render: renderActions, className: 'actions-column', align: 'right', width: '140px' },
     ];
 
     return (<>

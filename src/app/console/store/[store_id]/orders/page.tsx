@@ -1,33 +1,27 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from "react";
-import { useMutation, useLazyQuery } from '@apollo/client/react';
-import { __error } from '@/lib/consoleHelper';
-import { adminRoot, defaultDateTimeFormat, defaultPageSize, defaultPagination } from "@/configs";
-import { Alert, Card, message, Modal, Popover, Row, Space, Tag, Tooltip, Typography } from "antd";
+import { useState, type ReactNode } from "react";
+import { useMutation } from '@apollo/client/react';
+import { adminRoot, defaultDateTimeFormat } from "@/configs";
+import { Alert, message, Modal, Space, Tag, Tooltip, Typography } from "antd";
 import { UserOutlined, ShoppingOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import { catchApolloError, checkApolloRequestErrors } from "@/lib/utill_apollo";
-import { Button, DevBlock, Icon, OrderTable, usePageProps, PopMenu, OrderItemsPreviewButton } from '@/components';
+import { Button, Icon, usePageProps, PopMenu, OrderItemsPreviewButton, OrderFilters } from '@/components';
 import { Page } from "@/template";
-import { DynamicViewFilter } from "@/app/console/view_filter/components/DynamicViewFilter";
 import Link from "next/link";
 import { useAppSelector } from "@/rStore/hooks";
 import type { RootState } from '@/rStore';
 import { getSettings } from "@/rStore/slices/systemSlice";
 import { utcToDate } from "@/lib/utill";
-import { ResetButton } from "./components";
+import { ResetButton, RevertOrderModal } from "./components";
 import { getSession } from "@/rStore/slices/sessionSlice";
 import security from '@/lib/security';
 import { usePrintTillReceipt } from "@/hooks/useTillVerification";
 
-import LIST_DATA from '@/graphql/order/ordersQuery.graphql'
 import RESET_ORDER from '@/graphql/order/resetOrderToZero.graphql'
-import REVERT_ORDER_STAGE from '@/graphql/order/revertOrderStage.graphql'
 import CANCEL_OR_DECLINE_ORDER from '@/graphql/order/cancelOrDeclineOrder.graphql'
 
-const { Title, Text } = Typography;
-
-const defaultFilter = {}; // { status: 'online' }
+const { Text } = Typography;
 
 function OrdersListPage(props:any) {
     const session = useAppSelector((state: RootState) => state.session);
@@ -40,75 +34,25 @@ function OrdersListPage(props:any) {
     // const router = useRouter()
     
     const [busy, setBusy] = useState(false)
-    const [fatelError, setFatelError] = useState(false)
+    const [reloadToken, setReloadToken] = useState(0)
     const [showReceiptModal, setShowReceiptModal] = useState(false);
     const [receiptText, setReceiptText] = useState('');
     const [receiptOrderSerial, setReceiptOrderSerial] = useState('');
+    const [revertModal, setRevertModal] = useState<{ open: boolean; order: any; targetStage: string }>({
+        open: false,
+        order: null,
+        targetStage: '',
+    });
     // const [savedViews, setSavedViews] = useState<ViewConfig[]>(INITIAL_ORDER_VIEWS)
     // const [activeView, setActiveView] = useState<ViewConfig | null>(null)
 
-    const [state, setState] = useState({
-        pagination: defaultPagination,
-        pageView: "list",
-        dataSource: null,
-        filter: { ...defaultFilter },
-    })
-
-    const [ordersQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
     const [resetOrder, resetOrder_results] = useMutation<any>(RESET_ORDER);
-    const [revertOrderStage, { loading: reverting }] = useMutation<any>(REVERT_ORDER_STAGE);
     const [cancelOrDeclineOrderMutation, { loading: cancellingOrDeclining }] = useMutation<any>(CANCEL_OR_DECLINE_ORDER);
     const { printReceipt } = usePrintTillReceipt();
 
     if (!canView) return <Alert title="Access Denied!" type="error" showIcon />
 
-    const fetchData = async ({ filter = {}, pagination = {} }: { filter?: any; pagination?: { pageSize?: number; current?: number } } = {}) => {
-        setFatelError(false);
-
-        const variables = {
-            limit: pagination?.pageSize || state.pagination.pageSize,
-            page: pagination?.current || state.pagination.current,
-            filter: filter || state.filter || {},
-            others: (state as any).others || {},
-            _id_store: store._id,
-        }
-
-        // setBusy(true)
-        const resutls = await ordersQuery({ 
-            variables: {
-                ...variables,
-                filter: JSON.stringify(variables.filter),
-                others: JSON.stringify(variables.others || {})
-            }
-         })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.ordersQuery }))
-            .catch(catchApolloError)
-        // setBusy(false)
-
-        if (resutls && resutls.error) {
-            setFatelError(resutls.error.message)
-            return;
-        }
-
-        setState({
-            ...state,
-            pagination: { 
-                ...state.pagination,
-                current: resutls.pagination.page,
-                total: resutls.pagination.totalDocs,
-                // resutls.pagination.totalPages,
-                pageSize: resutls.pagination.limit,
-            },
-            filter: variables.filter,
-            dataSource: resutls?.edges,
-            // dataSource: resutls?.edges?.map(o => ({
-            //     ...o,
-            //     children: o?.variations?.length > 0 && o.variations,
-            //     variations: undefined
-            // })),
-        })
-
-    }
+    const fetchData = () => setReloadToken((token) => token + 1);
 
     // useEffect(() => {
     //     if (called || loading) return
@@ -196,45 +140,8 @@ function OrdersListPage(props:any) {
         }
     };
 
-    const handleRevertOrder = async (order: any, targetStage: string) => {
-        const stageName = targetStage === 'pending' ? 'Pending' :
-                         targetStage === 'picking-complete' ? 'Picking Complete' :
-                         targetStage === 'ready-to-dispatch' ? 'Ready to Dispatch' : targetStage;
-
-        const confirmed = window.confirm(`Are you sure you want to revert order ${order.serial} to ${stageName}?\n\nThis will restore the order to its state at that stage.`);
-        if (!confirmed) return;
-
-        const reason = window.prompt(`Please provide a reason for reverting to ${stageName}:`);
-        if (!reason || !reason.trim()) {
-            message.warning('Revert cancelled: Reason is required');
-            return;
-        }
-
-        setBusy(true);
-        const processedResult = await revertOrderStage({
-            variables: {
-                input: {
-                    _id_order: order._id,
-                    target_stage: targetStage,
-                    reason: reason.trim(),
-                    notes: ''
-                }
-            }
-        })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.revertOrderStage }))
-            .catch(catchApolloError);
-        setBusy(false);
-
-        if (processedResult.error) {
-            message.error("Failed to revert order: " + processedResult.error.details || processedResult.error.message || '');
-            // message.error(`Failed to revert order: ${processedResult.error.message}`);
-            return;
-        }
-
-        if (processedResult.success) {
-            message.success(`Order ${order.serial} has been reverted to ${stageName}`);
-            fetchData({});
-        }
+    const handleRevertOrder = (order: any, targetStage: string) => {
+        setRevertModal({ open: true, order, targetStage });
     };
 
     const canRevertTo = (order: any, targetStage: string) => {
@@ -384,9 +291,9 @@ function OrdersListPage(props:any) {
         // Set popup Menu
         let popArray: any[] = []
         if (record.current_stage !== 'pending') popArray.push({ onClick: () => handleResetOrder(record), label: "Reset to New", confirm: true })
-        if (canRevertTo(record, 'pending')) popArray.push({ onClick: () => handleRevertOrder(record, 'pending'), label: "To Pending", confirm: true })
-        if (canRevertTo(record, 'picking-complete')) popArray.push({ onClick: () => handleRevertOrder(record, 'picking-complete'), label: "To Picking Complete", confirm: true })
-        if (canRevertTo(record, 'ready-to-dispatch')) popArray.push({ onClick: () => handleRevertOrder(record, 'ready-to-dispatch'), label: "To Ready to Dispatch", confirm: true })
+        if (canRevertTo(record, 'pending')) popArray.push({ onClick: () => handleRevertOrder(record, 'pending'), label: "To Pending" })
+        if (canRevertTo(record, 'picking-complete')) popArray.push({ onClick: () => handleRevertOrder(record, 'picking-complete'), label: "To Picking Complete" })
+        if (canRevertTo(record, 'ready-to-dispatch')) popArray.push({ onClick: () => handleRevertOrder(record, 'ready-to-dispatch'), label: "To Ready to Dispatch" })
         if (canCancelOrders && canMarkOrderAsTerminal(record)) popArray.push({ onClick: () => handleCancelOrDeclineOrder(record, 'cancelled'), label: "To Cancelled", confirm: true })
         if (canCancelOrders && canMarkOrderAsTerminal(record)) popArray.push({ onClick: () => handleCancelOrDeclineOrder(record, 'declined'), label: "To Declined", confirm: true })
         if (canPrintTillReceipt(record)) popArray.push({ onClick: () => handlePrintTillReceipt(record), label: "Print Receipt" })
@@ -499,8 +406,11 @@ function OrdersListPage(props:any) {
 
     return (<>
         <Page>
-            <DynamicViewFilter 
+            <OrderFilters
                 entityType="orders"
+                storeId={store._id}
+                contextFilter={{ "store._id": store._id }}
+                reloadToken={reloadToken}
                 customColumns={{
                     serial: {
                         width: 180,
@@ -657,6 +567,15 @@ function OrdersListPage(props:any) {
                     {receiptText}
                 </pre>
             </Modal>
+
+            <RevertOrderModal
+                open={revertModal.open}
+                order={revertModal.order}
+                targetStage={revertModal.targetStage}
+                storeId={store._id}
+                onClose={() => setRevertModal({ open: false, order: null, targetStage: '' })}
+                onSuccess={() => fetchData({})}
+            />
 
         </Page>
 

@@ -5,13 +5,13 @@
 #import "./_fragment/OrderDeliverySlot.graphql"
 
 
-query ordersQuery($limit: Int, $page: Int, $filter: String, $others: String, $_id_store: ID) {
-    ordersQuery(limit: $limit, page: $page, filter: $filter, others: $others, _id_store: $_id_store) {
+query ordersQuery($limit: Int, $page: Int, $filter: String, $others: String, $_id_store: ID, $filterGroups: [DynamicFilterGroupInput!], $searchTerm: String) {
+    ordersQuery(limit: $limit, page: $page, filter: $filter, others: $others, _id_store: $_id_store, filterGroups: $filterGroups, searchTerm: $searchTerm) {
         pagination { ...PaginationResultsInfo }
         edges { 
             _id
             serial
-            barcode
+            barcode: serial
             store { _id title }
             zone {
                 _id_zone
@@ -30,10 +30,16 @@ query ordersQuery($limit: Int, $page: Int, $filter: String, $others: String, $_i
 
             # current_order: ProcessingData
             current_order {
-                baskets{ title }
-                # bags{ title }
+                baskets { _id title barcode color }
+                totals { ...OrderTotalsInfo }
             }
-            # processing_stages: Order_ProcessingStages
+            processing_stages {
+                picking {
+                    baskets { _id title barcode color }
+                    handled_by { _id name }
+                }
+                till_verification { baskets { _id title barcode color } }
+            }
 
             delivery_slot { ...OrderDeliverySlotInfo }
             # delivery_note: String
@@ -49,7 +55,7 @@ query ordersQuery($limit: Int, $page: Int, $filter: String, $others: String, $_i
 
             pickup_allow
 
-            # locked_by
+            locked_by
             # locked_at
             # lock_expires_at
             lock_type
