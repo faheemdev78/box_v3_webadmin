@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Button, Card, Space, Tag, Typography, message } from 'antd';
+import type { TablePaginationConfig } from 'antd';
 import { useLazyQuery, useQuery } from '@apollo/client/react';
 import { Table } from '../table';
 import { defaultPagination } from '@/configs';
@@ -77,7 +78,10 @@ export function OrderFilters({
   const [builderOpen, setBuilderOpen] = useState(false);
   const [managerOpen, setManagerOpen] = useState(false);
   const [prefillCreate, setPrefillCreate] = useState(false);
-  const [pagination, setPagination] = useState({ ...defaultPagination });
+  const [pagination, setPagination] = useState<TablePaginationConfig>({
+    ...defaultPagination,
+    size: 'default',
+  });
   const [dataSource, setDataSource] = useState<any[]>([]);
   const [fatalError, setFatalError] = useState<string | false>(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);

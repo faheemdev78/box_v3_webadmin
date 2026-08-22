@@ -100,7 +100,7 @@ export const defaultPagination = {
     showSizeChanger: false, onShowSizeChange: undefined,
     showTitle: true,
     showTotal: (total, range) => (`${range.join(" ~ ")} / ${total}`), // (`${range} / ${total}`),
-    size: 'default',
+    size: /** @type {'default'} */ ('default'),
     total: undefined,
     onChange: undefined,
 };
