@@ -56,7 +56,7 @@ function OrdersListPage(props:any) {
 
     // useEffect(() => {
     //     if (called || loading) return
-    //     // fetchData({})
+    //     // fetchData()
     // }, [called, loading])
 
     // Helper function to convert view filter groups to GraphQL filter format
@@ -136,7 +136,7 @@ function OrdersListPage(props:any) {
                     {resetData.resources_released?.inventory_restored && ' ✓ Inventory'}
                 </div>
             </div>);
-            fetchData({});
+            fetchData();
         }
     };
 
@@ -211,7 +211,7 @@ function OrdersListPage(props:any) {
         if (processedResult?.success) {
             const releasedCount = processedResult?.data?.baskets_released || 0;
             message.success(`Order ${order.serial} marked as ${actionLabel}. Released ${releasedCount} basket(s).`);
-            fetchData({});
+            fetchData();
         }
     };
 
@@ -526,7 +526,7 @@ function OrdersListPage(props:any) {
                         <Title level={3} style={{ margin: 0 }}>Orders</Title>
                         {!loading && <Tag color="green">{state?.pagination?.total || 0} orders found</Tag>}
                     </Space>}
-                    extra={<Button onClick={() => fetchData({})} loading={loading}>Refresh</Button>}
+                    extra={<Button onClick={() => fetchData()} loading={loading}>Refresh</Button>}
                     styles={{ body: { padding: 0 } }}
                 >
                     {fatelError && <Alert title="Error" description={fatelError} type="error" showIcon />}
@@ -574,7 +574,7 @@ function OrdersListPage(props:any) {
                 targetStage={revertModal.targetStage}
                 storeId={store._id}
                 onClose={() => setRevertModal({ open: false, order: null, targetStage: '' })}
-                onSuccess={() => fetchData({})}
+                onSuccess={() => fetchData()}
             />
 
         </Page>
