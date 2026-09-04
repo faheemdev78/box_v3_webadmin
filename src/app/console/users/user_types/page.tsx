@@ -20,6 +20,12 @@ import ADD_ROLE from '@/graphql/user_role/addUserRole.graphql'
 
 const filterSlug = (e: any, onChange: (val: string) => void) => onChange(string_to_slug(e.target.value));
 
+const KNOWN_APPS = [
+  "client-app:3.0.1",
+  "client-web:1.0.0",
+  "web-admin:3.1",
+];
+
 type UserRoleValues = {
   _id?: string;
   title?: string;
@@ -101,6 +107,11 @@ function TypeForm({ onSuccess, onCancel, show, initialValues }: { onSuccess: () 
                         </div>)
                         })}
 
+                        <Space wrap style={{ marginBottom: 8 }}>
+                          {KNOWN_APPS.filter((app) => !(fields.value || []).includes(app)).map((app) => (
+                            <Button key={app} size="small" onClick={() => fields.push(app)}>{app}</Button>
+                          ))}
+                        </Space>
                         <Button icon={<Icon icon="plus" />} onClick={() => fields.push("")} size="small" block type="dashed">Add</Button>
                         <div style={{ marginBottom: "50px" }} />
 
