@@ -136,7 +136,7 @@ function PagesHome() {
             dataSource={dataArray && dataArray.edges}
             pagination={{
                 ...pagination,
-                size: 'default',
+                size: 'middle',
                 onChange: (page, pageSize) => fetchData(filter, { page, pageSize })
             }}
         />

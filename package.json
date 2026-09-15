@@ -27,7 +27,7 @@
     "@react-google-maps/api": "^2.20.8",
     "@reduxjs/toolkit": "^2.11.2",
     "ahooks": "^3.9.6",
-    "antd": "^6.1.1",
+    "antd": "^6.6.4",
     "antd-img-crop": "^4.27.0",
     "antd-style": "^3.7.1",
     "axios": "^1.13.2",

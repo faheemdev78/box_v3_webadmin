@@ -1,7 +1,7 @@
 // 'use client'
 
 // import React from 'react'
-import { Spin, Avatar, List, Skeleton, Switch, Space, Row, Col } from 'antd';
+import { Spin, Avatar, Skeleton, Switch, Space, Row, Col } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import React from 'react';
 

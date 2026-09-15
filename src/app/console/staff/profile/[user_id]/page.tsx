@@ -1,8 +1,10 @@
 'use client'
 
+import { ListyItem, ListyItemMeta } from '@/components/ListyItem';
+
 import { __error, __yellow } from '@/lib/consoleHelper';
 import { CustomerWrapper } from '@/modules/customers';
-import { Alert, Card, Col, Divider, Row, Table, Tag, Statistic, List, Timeline, Descriptions, Space, Button } from 'antd';
+import { Alert, Card, Col, Divider, Row, Table, Tag, Statistic, Listy, Timeline, Descriptions, Space, Button } from 'antd';
 import { Avatar, DevBlock } from '@/components';
 import { PasswordUpdateButton } from '@/modules/user/components';
 import {
@@ -247,13 +249,14 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
 
                 {/* Favorite Categories */}
                 <Card title="Favorite Categories" variant='outlined' style={{ marginTop: 16 }}>
-                    <List
-                        size="small"
-                        dataSource={DUMMY_USER_EXTRAS.favorite_categories}
-                        renderItem={(item) => (
-                            <List.Item>
+                    <Listy
+                        styles={{ item: { padding: '8px 0' } }}
+                        items={DUMMY_USER_EXTRAS.favorite_categories}
+                        rowKey={(item) => item}
+                        itemRender={(item) => (
+                            <ListyItem>
                                 <Tag color="green">{item}</Tag>
-                            </List.Item>
+                            </ListyItem>
                         )}
                     />
                 </Card>
@@ -387,10 +390,12 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
 
                 {/* Delivery Addresses */}
                 <Card title="Delivery Addresses" variant='outlined' style={{ marginTop: 16 }}>
-                    <List
-                        dataSource={DUMMY_ADDRESSES}
-                        renderItem={(address) => (
-                            <List.Item
+                    <Listy
+                        styles={{ item: { paddingInline: 0 } }}
+                        items={DUMMY_ADDRESSES}
+                        rowKey="_id"
+                        itemRender={(address) => (
+                            <ListyItem
                                 key={address._id || address.label}
                                 actions={[
                                     <span key="default">{address.is_default ? <Tag color="blue">Default</Tag> : <a>Set Default</a>}</span>,
@@ -398,7 +403,7 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                                     <a key="delete" style={{ color: 'red' }}>Delete</a>
                                 ]}
                             >
-                                <List.Item.Meta
+                                <ListyItemMeta
                                     avatar={<EnvironmentOutlined style={{ fontSize: 24 }} />}
                                     title={<strong>{address.label}</strong>}
                                     description={<>
@@ -408,7 +413,7 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                                         <div>{address.country}</div>
                                     </>}
                                 />
-                            </List.Item>
+                            </ListyItem>
                         )}
                     />
                 </Card>

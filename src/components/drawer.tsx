@@ -49,14 +49,14 @@ export function Drawer(props: LegacyDrawerProps){
     mask: styles['custom-drawer-mask'],
     header: styles['custom-drawer-header'],
     // footer: styles['custom-drawer-footer'],
-    content: styles['custom-drawer-content'],
+    section: styles['custom-drawer-content'],
   };
 
   const drawerStyles = {
     mask: {
       backdropFilter: 'blur(2px)',
     },
-    content: {
+    section: {
       // boxShadow: '-10px 0 10px #666',
     },
     // header: {

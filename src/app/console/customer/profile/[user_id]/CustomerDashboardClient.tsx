@@ -1,13 +1,18 @@
 'use client';
 
+import { ListyItem, ListyItemMeta } from '@/components/ListyItem';
+
 import { CustomerWrapper } from '@/modules/customers';
-import { Alert, Card, Col, Divider, Row, Table, Tag, Statistic, List, Timeline, Descriptions, Space, Button } from 'antd';
-import { Avatar, DevBlock } from '@/components';
+import { Alert, Card, Col, Divider, Row, Table, Tag, Statistic, Listy, Timeline, Descriptions, Space, Button } from 'antd';
+import { Avatar, DevBlock, List, PopMenu } from '@/components';
 import { PasswordUpdateButton } from '@/modules/user/components';
 import {
     PhoneOutlined, MailOutlined, EnvironmentOutlined, ShoppingCartOutlined, DollarOutlined, ClockCircleOutlined,
     TrophyOutlined, CheckCircleOutlined, CloseCircleOutlined, StopOutlined, UserOutlined
 } from '@ant-design/icons';
+import Link from 'next/link';
+import { utcToDate } from '@/lib/utill_date';
+import { defaultDateFormat, defaultDateTimeFormat } from '@/configs';
 
 // Dummy Data
 const DUMMY_ADDRESSES = [
@@ -132,6 +137,43 @@ const DUMMY_USER_EXTRAS = {
     average_delivery_time: '45 minutes'
 };
 
+const ProfileHeader = ({ user }: { user: any }) => {
+    if (!user) return <div>User data not found!</div>
+
+    return (<Card variant='outlined'>
+        <Row gutter={[10,10]}>
+            <Col><Avatar src={user?.avatarUrl} size={80} /></Col>
+            <Col flex="auto">
+                <h2 style={{ marginTop: 0, marginBottom: 4 }}>{user.name}</h2>
+                <Descriptions column={1} size="small">
+                    <Descriptions.Item label={<Space size={2}><MailOutlined /> Email</Space>}>{user.email}</Descriptions.Item>
+                    <Descriptions.Item label={<Space size={2}><PhoneOutlined /> Phone</Space>}>{user.phone}</Descriptions.Item>
+                </Descriptions>
+                <PasswordUpdateButton _id={user._id} query_type="updateUserPwd" />
+            </Col>
+            <Col flex="auto">
+                <Descriptions column={1} size="small">
+                    <Descriptions.Item label={<Space size={2}><ClockCircleOutlined /> Last Seen</Space>}>{utcToDate(user.lastLogin).format(defaultDateTimeFormat)}</Descriptions.Item>
+                    <Descriptions.Item label={<Space size={2}><UserOutlined /> Member Since</Space>}>
+                        {utcToDate(user.createdAt).format(defaultDateTimeFormat)}
+                    </Descriptions.Item>
+                    {/* <Descriptions.Item label={<Space size={2}><TrophyOutlined /> Loyalty Points</Space>}>
+                        <Tag color="gold">{DUMMY_USER_EXTRAS.loyalty_points} points</Tag>
+                    </Descriptions.Item> */}
+                    {/* <Descriptions.Item label="Referrals">{DUMMY_USER_EXTRAS.referral_count} customers</Descriptions.Item> */}
+                </Descriptions>
+            </Col>
+            <Col>
+                <PopMenu orientation="vertical" size="small" placement="leftTop" items={[
+                    { onClick: () => void (0), label: "Send Email" },
+                    { onClick: () => void (0), label: "Send SMS" }
+                ]}></PopMenu>
+            </Col>
+        </Row>
+    </Card>)
+}
+
+
 function CustomerDashboard({ user, session, refresh }: { user: any; session: any; refresh: () => void }) {
     if (!session || !session?.user?._id) return <Alert title="Error" description="Invalid user session" showIcon type='error' />
 
@@ -196,64 +238,52 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
     ];
 
     return (<>
+        <ProfileHeader user={user} />
+        <Card title="recent orders"></Card>
+
         <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
             {/* Customer Profile Section */}
             <Col xs={24} lg={8}>
-                <Card title="Customer Profile" variant='outlined'>
-                    <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                        <Avatar src={user?.avatarUrl} size={120} />
-                        <h2 style={{ marginTop: 16, marginBottom: 4 }}>{user.name}</h2>
-                        <Tag color="blue">Premium Member</Tag>
-                    </div>
-
-                    <Descriptions column={1} size="small">
-                        <Descriptions.Item label={<Space size={2}><MailOutlined /> Email</Space>}>
-                            {user.email}
-                        </Descriptions.Item>
-                        <Descriptions.Item label={<Space size={2}><PhoneOutlined /> Phone</Space>}>
-                            {user.phone || '+1 (555) 123-4567'}
-                        </Descriptions.Item>
-                        <Descriptions.Item label={<Space size={2}><ClockCircleOutlined /> Last Seen</Space>}>
-                            {new Date(DUMMY_USER_EXTRAS.last_seen).toLocaleString()}
-                        </Descriptions.Item>
-                        <Descriptions.Item label={<Space size={2}><UserOutlined /> Member Since</Space>}>
-                            {new Date(DUMMY_USER_EXTRAS.member_since).toLocaleDateString()}
-                        </Descriptions.Item>
-                        <Descriptions.Item label={<Space size={2}><TrophyOutlined /> Loyalty Points</Space>}>
-                            <Tag color="gold">{DUMMY_USER_EXTRAS.loyalty_points} points</Tag>
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Referrals">
-                            {DUMMY_USER_EXTRAS.referral_count} customers
-                        </Descriptions.Item>
-                    </Descriptions>
-
-                    <Divider />
-
-                    <Space orientation="vertical" style={{ width: '100%' }}>
-                        <PasswordUpdateButton _id={user._id} query_type="updateUserPwd" />
-                        <Button type="default" block>Send Email</Button>
-                        <Button type="default" block>Send SMS</Button>
-                    </Space>
-                </Card>
-
                 {/* Favorite Categories */}
-                <Card title="Favorite Categories" variant='outlined' style={{ marginTop: 16 }}>
-                    <List
-                        size="small"
-                        dataSource={DUMMY_USER_EXTRAS.favorite_categories}
-                        renderItem={(item:any) => (
-                            <List.Item>
+                {/* <Card title="Favorite Categories" variant='outlined' style={{ marginTop: 16 }}>
+                    <Listy
+                        styles={{ item: { padding: '8px 0' } }}
+                        items={DUMMY_USER_EXTRAS.favorite_categories}
+                        rowKey={(item) => item}
+                        itemRender={(item:any) => (
+                            <ListyItem>
                                 <Tag color="green">{item}</Tag>
-                            </List.Item>
+                            </ListyItem>
                         )}
                     />
+                </Card> */}
+
+                {/* User Activity Timeline */}
+                <Card title="Recent Activity" variant='outlined' style={{ marginTop: 16 }}>
+                    <Timeline
+                        items={DUMMY_ACTIVITIES.map((activity) => ({
+                            color: getActivityColor(activity.type),
+                            content: (<>
+                                <p style={{ margin: 0 }}>
+                                    <strong>{activity.action}</strong>
+                                    <span style={{ float: 'right', color: '#999', fontSize: 12 }}>
+                                        {activity.time}
+                                    </span>
+                                </p>
+                                <p style={{ margin: 0, color: '#666', fontSize: 12 }}>
+                                    {activity.details}
+                                </p>
+                            </>)
+                        }))}
+                    />
                 </Card>
+
             </Col>
 
             {/* Stats and Orders Section */}
             <Col xs={24} lg={16}>
                 {/* Purchase Statistics */}
-                <Card title="Purchase Statistics" variant='outlined'>
+                {/* <Card title="Purchase Statistics" variant='outlined'>
                     <Row gutter={[16, 16]}>
                         <Col xs={12} sm={8} md={6}>
                             <Statistic
@@ -360,7 +390,7 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                             </Descriptions>
                         </Col>
                     </Row>
-                </Card>
+                </Card> */}
 
                 {/* Recent Orders */}
                 <Card title="Recent Orders" variant='outlined' style={{ marginTop: 16 }}>
@@ -373,55 +403,6 @@ function CustomerDashboard({ user, session, refresh }: { user: any; session: any
                     />
                 </Card>
 
-                {/* Delivery Addresses */}
-                <Card title="Delivery Addresses" variant='outlined' style={{ marginTop: 16 }}>
-                    <List
-                        dataSource={DUMMY_ADDRESSES}
-                        renderItem={(address:any) => (
-                            <List.Item
-                                key={address._id || address.label}
-                                actions={[
-                                    <span key="default">{address.is_default ? <Tag color="blue">Default</Tag> : <a>Set Default</a>}</span>,
-                                    <a key="edit">Edit</a>,
-                                    <a key="delete" style={{ color: 'red' }}>Delete</a>
-                                ]}
-                            >
-                                <List.Item.Meta
-                                    avatar={<EnvironmentOutlined style={{ fontSize: 24 }} />}
-                                    title={<strong>{address.label}</strong>}
-                                    description={
-                                        <>
-                                            <div>{address.address_line1}</div>
-                                            {address.address_line2 && <div>{address.address_line2}</div>}
-                                            <div>{address.city}, {address.state} {address.zip}</div>
-                                            <div>{address.country}</div>
-                                        </>
-                                    }
-                                />
-                            </List.Item>
-                        )}
-                    />
-                </Card>
-
-                {/* User Activity Timeline */}
-                <Card title="Recent Activity" variant='outlined' style={{ marginTop: 16 }}>
-                    <Timeline
-                        items={DUMMY_ACTIVITIES.map((activity) => ({
-                            color: getActivityColor(activity.type),
-                            content: (<>
-                                <p style={{ margin: 0 }}>
-                                    <strong>{activity.action}</strong>
-                                    <span style={{ float: 'right', color: '#999', fontSize: 12 }}>
-                                        {activity.time}
-                                    </span>
-                                </p>
-                                <p style={{ margin: 0, color: '#666', fontSize: 12 }}>
-                                    {activity.details}
-                                </p>
-                            </>)
-                        }))}
-                    />
-                </Card>
             </Col>
         </Row>
 

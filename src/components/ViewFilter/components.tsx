@@ -1,7 +1,9 @@
 'use client'
 
+import { ListyItem, ListyItemMeta } from '@/components/ListyItem';
+
 import React from 'react'
-import { Card, Button, Row, Col, Space, Tag, Modal, List, message, Divider } from 'antd';
+import { Card, Button, Row, Col, Space, Tag, Modal, Empty, Listy, message, Divider } from 'antd';
 import {
     StarFilled,
     StarOutlined,
@@ -277,17 +279,20 @@ export function ViewSettingsModal({
         >
             <div>
                 <h4>Manage Views</h4>
-                <List
-                    dataSource={views}
-                    renderItem={(view) => (
-                        <List.Item
+                {views.length === 0 && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />}
+                <Listy
+                    styles={{ item: { paddingInline: 0 } }}
+                    items={views}
+                    rowKey="id"
+                    itemRender={(view) => (
+                        <ListyItem
                             actions={[
                                 <Button size="small" key="hide" onClick={() => onToggleHide(view.id)}>
                                     {view.isHidden ? 'Show' : 'Hide'}
                                 </Button>
                             ]}
                         >
-                            <List.Item.Meta
+                            <ListyItemMeta
                                 title={
                                     <Space>
                                         {view.isFavorite && <StarFilled style={{ color: '#faad14' }} />}
@@ -297,7 +302,7 @@ export function ViewSettingsModal({
                                 }
                                 description={getVisibilityLabel(view.visibility)}
                             />
-                        </List.Item>
+                        </ListyItem>
                     )}
                 />
             </div>

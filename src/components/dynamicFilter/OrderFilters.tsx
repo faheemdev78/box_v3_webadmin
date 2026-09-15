@@ -80,7 +80,7 @@ export function OrderFilters({
   const [prefillCreate, setPrefillCreate] = useState(false);
   const [pagination, setPagination] = useState<TablePaginationConfig>({
     ...defaultPagination,
-    size: 'default',
+    size: 'middle',
   });
   const [dataSource, setDataSource] = useState<any[]>([]);
   const [fatalError, setFatalError] = useState<string | false>(false);

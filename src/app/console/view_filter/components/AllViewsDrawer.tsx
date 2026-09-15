@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { List, Card, Space, Tag, Select, Input, Typography, Tooltip, Popconfirm, Avatar, Empty } from 'antd';
+import { Listy, Card, Space, Tag, Select, Input, Typography, Tooltip, Popconfirm, Avatar, Empty } from 'antd';
 import {
   PushpinOutlined, PushpinFilled, EyeOutlined, CopyOutlined,
   DeleteOutlined, EditOutlined, UserOutlined, ClockCircleOutlined,
@@ -206,9 +206,11 @@ export const AllViewsDrawer: React.FC<AllViewsDrawerProps> = ({
 
       {/* Views List */}
       {filteredAndSortedViews.length === 0 ? (<Empty description="No views found" />) : (
-        <List
-          dataSource={filteredAndSortedViews}
-          renderItem={(view) => {
+        <Listy
+          styles={{ item: { padding: 0, borderBlockEnd: 'none' } }}
+          items={filteredAndSortedViews}
+          rowKey="_id"
+          itemRender={(view) => {
             const isActive = view._id === activeViewId;
 
             return (
