@@ -23,7 +23,7 @@ export const dateToLocal = (_date:any) => {
     return moment.tz(subject.format('YYYY-MM-DDTHH:mm:ss'), "YYYY-MM-DDTHH:mm:ss", true, defaultTZ)
 }
 
-export const dateToUtc = (_t:any, new_options:any) => {
+export const dateToUtc = (_t:any, new_options?:any) => {
     let offset1 = _t.utcOffset();
     let offset2 = moment().utcOffset();
 
