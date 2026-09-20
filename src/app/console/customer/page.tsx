@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react'
 import { Card, Col, message, Popconfirm, Row, Space } from 'antd';
 import { adminRoot, defaultPageSize } from '@/configs';
@@ -11,6 +11,8 @@ import { Page } from '@/template/page';
 import { PageBar, PageHeader } from '@/template';
 import { __error } from '@/lib/consoleHelper';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+
+import DELETE_CUSTOMER from '@/graphql/users/deleteCustomer.graphql';
 
 import LIST_DATA from '@/graphql/users/customerQuery.graphql'
 
@@ -31,9 +33,10 @@ function Users(props: any) {
     const [dataArray, set_dataArray] = useState<any | null>(null)
     const [busy, setBusy] = useState(false)
 
-    // const [deleteStore, del_results] = useMutation(RECORD_DELETE); // { data, loading, error }
+    const [deleteCustomer, { loading: deleting }] = useMutation<any>(DELETE_CUSTOMER);
+    const deleteInFlight = useRef(false);
 
-    const [customerQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA);
+    const [customerQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: "network-only" });
 
     const fetchData = async (args: FetchArgs = {}) => {
         let limit = args?.pageSize || defaultPageSize;
@@ -65,19 +68,28 @@ function Users(props: any) {
     }
 
     const handleDelete = async ({ _id }: { _id: string }) => {
-        // let results = await deleteStore(id)
-        //     .then(r => (r?.data?.deleteStore))
-        //     .catch(error => {
-        //         console.log(__error("ERROR"), error);
-        //         message.error("Invalid Response!")
-        //     })
-
-        // if (!results || results.error) {
-        //     message.error((results && results?.error?.message) || "Unable to delete record")
-        //     return false;
-        // }
-
-        // message.success("Record deleted")
+        if (deleteInFlight.current) return;
+        if (!_id) { message.error('Customer ID is missing. Refresh the list.'); return; }
+        deleteInFlight.current = true;
+        try {
+            const result = await deleteCustomer({ variables: { id: _id } })
+                .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.deleteCustomer }))
+                .catch(catchApolloError);
+            if (!result?.success || result.error) {
+                message.error(result?.error?.message || 'Unable to delete customer.');
+                return;
+            }
+            // Reflect the successful delete even if the following refresh fails.
+            set_dataArray((previous: any) => previous ? {
+                ...previous,
+                edges: previous.edges?.filter((customer: { _id: string }) => customer._id !== _id),
+                pagination: { ...previous.pagination, totalDocs: Math.max(0, (previous.pagination?.totalDocs || 0) - 1) },
+            } : previous);
+            message.success('Customer deleted.');
+            await fetchData({ current: state.pagination.current });
+        } finally {
+            deleteInFlight.current = false;
+        }
     }
 
     useEffect(() => {
@@ -95,7 +107,7 @@ function Users(props: any) {
                 dataSource={dataArray && dataArray.edges}
                 pagination={false}
                 handleDelete={handleDelete}
-                loading={loading}
+                loading={loading || deleting}
             />
         </Page>
 

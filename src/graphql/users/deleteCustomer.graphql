@@ -1,0 +1,7 @@
+#import "../_fragment/response.graphql"
+
+mutation deleteCustomer($id: ID!) {
+    deleteCustomer(id: $id) {
+        ...ResponseInfo
+    }
+}
