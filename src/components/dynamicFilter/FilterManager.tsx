@@ -56,12 +56,6 @@ export function FilterManager({
   const [duplicateFilter, duplicateState] = useMutation<any>(DUPLICATE_FILTER);
   const saving = addState.loading || editState.loading || deleteState.loading || pinState.loading || duplicateState.loading;
 
-  useEffect(() => {
-    if (!open) return;
-    if (prefillCreate) openCreate();
-    else setMode('list');
-  }, [open, prefillCreate]);
-
   const openCreate = () => {
     setEditing(null);
     setFormGroups(cloneJson(draftGroups || []));
@@ -73,6 +67,12 @@ export function FilterManager({
     });
     setMode('form');
   };
+
+  useEffect(() => {
+    if (!open) return;
+    if (prefillCreate) openCreate();
+    else setMode('list');
+  }, [open, prefillCreate]);
 
   const openEdit = (view: SavedDynamicFilter) => {
     setEditing(view);

@@ -95,8 +95,9 @@ export const DateField = props => {
             {({ input, meta }) => {
                 // ant-picker ant-picker-range css-dev-only-do-not-override-byeoj0
 
-                // let value = input.value;
-                if (input.value && _.isString(input.value[0])) value = [utcToDateField(value[0]), utcToDateField(value[1])];
+                const value = Array.isArray(input.value)
+                    ? input.value.map(item => _.isString(item) ? utcToDateField(item) : item)
+                    : input.value || null;
 
                 return (
                     <div className={`${styles.field} ${styles.date}`} style={props.wrapperStyle}>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Tabs, Button, Space, Input, Table, Tag, message, Modal } from 'antd';
 import { PlusOutlined, CloseOutlined } from '@ant-design/icons';
 import { useQuery, useMutation } from '@apollo/client/react';
@@ -257,10 +257,9 @@ export const DynamicViewFilter: React.FC<DynamicViewFilterProps> = ({
   };
 
   // Generate table columns
-  const tableColumns = useMemo(() => {
-    if (!activeView || !entityConfig) return [];
-    return generateTableColumns(entityConfig, activeView.columns, entityType, customRenderers, customColumns).filter(col => col !== null);
-  }, [activeView, entityConfig, entityType, customRenderers, customColumns]);
+  const tableColumns = activeView && entityConfig
+    ? generateTableColumns(entityConfig, activeView.columns, entityType, customRenderers, customColumns).filter(col => col !== null)
+    : [];
 
   // Loading states
   if (configLoading) return <Card loading />;

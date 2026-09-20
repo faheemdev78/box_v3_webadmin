@@ -193,7 +193,6 @@ export function OrderFilters({
 
   useEffect(() => {
     fetchData(1, pagination.pageSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storeId, JSON.stringify(queryGroups), debouncedSearch, reloadToken]);
 
   const columns = DEFAULT_COLUMNS.map((column) => ({

@@ -52,7 +52,7 @@ export const dateToUtc = (_t:any, new_options?:any) => {
     return options.returnAs == "string" ? _utc.format() : _utc;
 }
 
-export const utcToDate = (utc_string?:string, format?:string) => {
+export const utcToDate = (utc_string?:string | any, format?:string) => {
     return format ? moment(utc_string, format) : moment(utc_string);
 }
 
@@ -95,9 +95,9 @@ export const countDateDifference = (start:any, end:any) => {
 
 export function timeStr2Date(t:string) {
     let dString = utcToDate()
-    let newDate = String(t).padStart(4, '0')
-    newDate = dString.clone().set({ hours: newDate.slice(0, 2), minutes: newDate.slice(2) })
-    newDate = dayjs(newDate.format())
+    let _newDate = String(t).padStart(4, '0')
+    let __newDate = dString.clone().set({ hours: Number(_newDate.slice(0, 2)), minutes: Number(_newDate.slice(2)) })
+    let newDate = dayjs(__newDate.format())
 
     return newDate;
 }

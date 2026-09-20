@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useState } from 'react';
 import { Button, Select, Space, Typography } from 'antd';
 import { CloseOutlined, PlusOutlined } from '@ant-design/icons';
 import type { FilterCondition, FilterField, FilterGroup, FilterLogic } from './types';
@@ -32,13 +32,8 @@ export function FilterEditor({
   onDone,
   compact = false,
 }: Props) {
-  const placeholderRef = useRef<FilterGroup | null>(null);
-  if (!groups.length) {
-    if (!placeholderRef.current) placeholderRef.current = emptyGroup();
-  } else {
-    placeholderRef.current = null;
-  }
-  const working = groups.length ? groups : [placeholderRef.current as FilterGroup];
+  const [placeholder] = useState<FilterGroup>(() => emptyGroup());
+  const working = groups.length ? groups : [placeholder];
   const fieldOptions = fields.filter((field) => field.isFilterable !== false).map((field) => ({
     label: field.group ? `${field.group} / ${field.label}` : field.label,
     value: field.key,

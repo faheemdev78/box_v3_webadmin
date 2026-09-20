@@ -4,7 +4,8 @@ import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { Alert, Card, Col, message, Row, Space } from 'antd';
 import { List, Loader, StatusTag } from '@/components';
 import { adminRoot, defaultDateFormat, userStatus } from '@/configs';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/rStore';
 import { Page } from '@/template/page';
 import { PageHeader } from '@/template';
 import { useParams } from 'next/navigation';
@@ -16,12 +17,23 @@ import GET_USER from '@/graphql/users/user.graphql';
 import UPDATE_STATUS from '@/graphql/users/updateUserStatus.graphql'
 
 
-export function CustomerWrapper({ render, ...props }) {
+type CustomerProfile = {
+    _id: string;
+    name?: string;
+    status?: string;
+    createdAt?: string;
+    [key: string]: any;
+};
+type CustomerWrapperProps = {
+    render: (context: { user: CustomerProfile; session: RootState['session']; refresh: () => Promise<void> }) => React.ReactNode;
+};
+
+export function CustomerWrapper({ render }: CustomerWrapperProps) {
     const { user_id } = useParams()
 
-    const [fatelError, set_fatelError] = useState(null)
-    const [data, setData] = useState(null)
-    const session = useSelector((state) => state.session);
+    const [fatelError, set_fatelError] = useState<string | null>(null)
+    const [data, setData] = useState<CustomerProfile | null>(null)
+    const session = useSelector((state: RootState) => state.session);
 
     const [getUser, { loading }] = useLazyQuery(GET_USER, { fetchPolicy: "network-only" });
     const [updateUserStatus, status_details] = useMutation(UPDATE_STATUS); // { data, loading, error }
@@ -42,7 +54,7 @@ export function CustomerWrapper({ render, ...props }) {
         setData(resutls)
     }, [getUser, user_id])
 
-    const onStatusUpdate = async (values) => {
+    const onStatusUpdate = async (values: { status: string }) => {
         if (!data?._id) {
             message.error("Customer data is unavailable. Please reload the profile.");
             return false;
@@ -57,7 +69,7 @@ export function CustomerWrapper({ render, ...props }) {
             return false;
         }
 
-        setData((prev) => ({ ...prev, status: values.status }))
+        setData((prev) => prev ? { ...prev, status: values.status } : prev)
         return values.status;
     }
 
@@ -77,7 +89,7 @@ export function CustomerWrapper({ render, ...props }) {
             sub={<div>
                 <Space separator="|">
                     <div>ID: {data._id}</div>
-                    <div><StatusTag value={data.status} editable={canEdit} options={userStatus} onSubmit={onStatusUpdate} /></div>
+                    <div><StatusTag value={data.status || ""} editable={canEdit} options={userStatus} onSubmit={onStatusUpdate} /></div>
                 </Space>
             </div>}
         >

@@ -18,6 +18,14 @@ interface AdvancedFiltersDrawerProps {
   onApply: (filterGroups: FilterGroup[]) => void;
 }
 
+// Derive IDs from the current tree without reading the clock during render.
+function nextAvailableId(existing: readonly string[], prefix: string): string {
+  const used = new Set(existing);
+  let suffix = 1;
+  while (used.has(`${prefix}_${suffix}`)) suffix += 1;
+  return `${prefix}_${suffix}`;
+}
+
 // Operator labels mapping
 const OPERATOR_LABELS: Record<FilterOperator, { label: string; description: string }> = {
   'equals': { label: 'is equal to', description: 'Exact match' },
@@ -112,7 +120,7 @@ export const AdvancedFiltersDrawer: React.FC<AdvancedFiltersDrawerProps> = ({
   // Add new filter to a group
   const handleAddFilter = (groupId: string) => {
     const newFilter: FilterCondition = {
-      id: `filter_${Date.now()}`,
+      id: nextAvailableId(filterGroups.flatMap(group => group.conditions.map(condition => condition.id)), 'filter'),
       field: fields[0]?.key || '',
       operator: 'equals',
       value: null,
@@ -135,7 +143,7 @@ export const AdvancedFiltersDrawer: React.FC<AdvancedFiltersDrawerProps> = ({
   // Add new filter group
   const handleAddFilterGroup = () => {
     const newGroup: FilterGroup = {
-      id: `group_${Date.now()}`,
+      id: nextAvailableId(filterGroups.map(group => group.id), 'group'),
       logic: 'OR',
       conditions: []
     };
@@ -175,14 +183,14 @@ export const AdvancedFiltersDrawer: React.FC<AdvancedFiltersDrawerProps> = ({
   const handleDuplicateGroup = (groupId: string) => {
     const group = filterGroups.find(g => g.id === groupId);
     if (group) {
-      const newGroup: FilterGroup = {
-        id: `group_${Date.now()}`,
-        logic: group.logic,
-        conditions: group.conditions.map(c => ({
-          ...c,
-          id: `filter_${Date.now()}_${Math.random()}`
-        }))
-      };
+      const groupId = nextAvailableId(filterGroups.map(item => item.id), 'group');
+      const usedConditionIds = filterGroups.flatMap(item => item.conditions.map(condition => condition.id));
+      const conditions = group.conditions.map(condition => {
+        const id = nextAvailableId(usedConditionIds, 'filter');
+        usedConditionIds.push(id);
+        return { ...condition, id };
+      });
+      const newGroup: FilterGroup = { id: groupId, logic: group.logic, conditions };
       setFilterGroups([...filterGroups, newGroup]);
     }
   };
@@ -468,9 +476,9 @@ export const AdvancedFiltersDrawer: React.FC<AdvancedFiltersDrawerProps> = ({
                       onClick={() => {
                         // Add to first group or create new group
                         if (filterGroups.length === 0) handleAddFilterGroup();
-                        const targetGroup = filterGroups[0] || { id: `group_${Date.now()}`, logic: 'AND' as const, conditions: [] };
+                        const targetGroup = filterGroups[0] || { id: nextAvailableId(filterGroups.map(group => group.id), 'group'), logic: 'AND' as const, conditions: [] };
                         const newFilter: FilterCondition = {
-                          id: `filter_${Date.now()}`,
+                          id: nextAvailableId(filterGroups.flatMap(group => group.conditions.map(condition => condition.id)), 'filter'),
                           field: field.key,
                           operator: field.operators[0],
                           value: null,

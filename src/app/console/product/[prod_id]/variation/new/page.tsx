@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import PropTypes from 'prop-types';
 import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, DevBlock, Loader, FileUploader, IconButton, Icon } from '@/components';
 import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@/components/dropdowns';
@@ -76,12 +76,11 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
     const formRef = useRef<any>(null);
     const router = useRouter()
 
-    // Create a debounced function using useRef
-    const debouncedSetFormValues = useRef(
-        debounce((newValues) => {
-            setFormValues(newValues); // Safely update the state
-        }, 300) // Adjust delay as needed
-    ).current;
+    // Keep the debounced callback stable and cancel it on unmount.
+    const debouncedSetFormValues = useMemo(
+        () => debounce((newValues) => setFormValues(newValues), 300),
+        []
+    );
 
     useEffect(() => {
         // Cleanup debounced function on unmount
