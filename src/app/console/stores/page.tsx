@@ -94,7 +94,7 @@ function Stores(props:any) {
             align: 'right' as const,
             render: (_text: any, rec: any) => {
                 return (<Space>
-                    {/* <IconButton onClick={() => set_showForm({ show: true, fields: rec })} icon="pen" /> */}
+                    <IconButton icon="pen" tooltip="Edit" href={`${adminRoot}/store/${rec._id}/edit`} />
                     <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}>
                         <IconButton icon="trash-alt" />
                     </Popconfirm>

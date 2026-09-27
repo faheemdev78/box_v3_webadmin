@@ -12,6 +12,7 @@ import { __error } from '@/lib/consoleHelper';
 import { checkApolloRequestErrors } from '@/lib/utill_apollo';
 
 import GET_STORE from '@/graphql/stores/store.graphql';
+import { Page, PageHeader } from '@/template';
 
 // function AddStorePage(props) {
 //   return (<>
@@ -54,27 +55,32 @@ function StoreWrapper(props: any) {
   if (!data || !data?.store?._id) return <Alert title="Error" description="Store not found!" showIcon />
 
   return (<>
-    
-    <Row gutter={[50, 50]} style={{ borderBottom: "1px solid black" }}>
-      <Col><h1>{data.store.title}</h1></Col>
-      <Col><Space style={{ width: "100%" }} orientation="vertical">
-        {[
-          { title: 'Geo Zones', href: `${adminRoot}/store/${data.store._id}/zones` },
-        ].map((item, i) => {
-          return <Link href={item.href} key={i}>{item.title}</Link>
-        })}
-      </Space></Col>
-      <Col><Space style={{ width: "100%" }} orientation="vertical">
-        {[
-          { title: 'Products', href: `${adminRoot}/store/${data.store._id}/products` },
-        ].map((item, i) => {
-          return <Link href={item.href} key={i}>{item.title}</Link>
-        })}
-      </Space></Col>
-    </Row>
+    <PageHeader title={data.store.title} />
 
-    {/* <AddStorePage {...props} store={data.store} /> */}
-    <StoreForm {...props} store_id={props?.params?.store_id} store={data.store} />
+    <Page>
+      {/* <Row gutter={[50, 50]} style={{ borderBottom: "1px solid black" }}>
+        <Col><h1>{data.store.title}</h1></Col>
+        <Col><Space style={{ width: "100%" }} orientation="vertical">
+          {[
+            { title: 'Geo Zones', href: `${adminRoot}/store/${data.store._id}/zones` },
+          ].map((item, i) => {
+            return <Link href={item.href} key={i}>{item.title}</Link>
+          })}
+        </Space></Col>
+        <Col><Space style={{ width: "100%" }} orientation="vertical">
+          {[
+            { title: 'Products', href: `${adminRoot}/store/${data.store._id}/products` },
+          ].map((item, i) => {
+            return <Link href={item.href} key={i}>{item.title}</Link>
+          })}
+        </Space></Col>
+      </Row> */}
+
+      <StoreForm store_id={store_id} />
+
+    </Page>
+    
+
   </>)
 
 }

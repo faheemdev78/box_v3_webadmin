@@ -613,50 +613,48 @@ export const SelectField = props => {
                 })
 
                 return (<div className={`${styles.field} ${styles.select}`} style={props.wrapperStyle}>
+                    <Space orientation={props.direction || 'vertical'} size={props.gutter || 5}>
+                        {props.label && <Label style={{ width: props.label_width || undefined }} isRequired={props.isRequired}>{props.label}</Label>}
+                        <div className={`${styles.field_wrapper}`}>
+                            <Row style={{ width: props.width || 'inherit' }}>
+                                <Col flex="auto">
+                                    {props.preview && <Row style={{ border: "1px solid #DDD", borderRadius: "5px" }}>
+                                        <Col flex="auto" style={{ padding: "5px 10px", color: value ? '#000' : 'white' }}>{value || "."}</Col>
+                                        <Col></Col>
+                                    </Row>}
+                                    {!props.preview && <AntSelect {...input} {...fieldProps} className={`${props.isRequired && styles.is_required_field}`}
+                                        styles={{
+                                            root: {
+                                                backgroundColor: FieldStyles.background,
+                                                border: FieldStyles.border,
+                                                fontSize: FieldStyles.fontSize
+                                            },
+                                            prefix: {},
+                                            content: {},
+                                            placeholder: {},
+                                            clear: {},
+                                            input: {},
+                                            suffix: {},
+                                            popup: {
+                                                root: {},
+                                                list: {},
+                                                listItem: {}
+                                            }
+                                        }}
 
-                    <Row align="middle" gutter={props.gutter || [0, 0]}>
-                        {props.label && <Col span={props.direction == 'horizontal' ? undefined : 24}><Label style={{ width: props.label_width || undefined }} isRequired={props.isRequired}>{props.label}</Label></Col>}
-                        <Col flex="auto">
-                            <div className={`${styles.field_wrapper}`}>
-                                <Row style={{ width: props.width || 'inherit' }}>
-                                    <Col flex="auto">
-                                        {props.preview && <Row style={{ border: "1px solid #DDD", borderRadius: "5px" }}>
-                                            <Col flex="auto" style={{ padding: "5px 10px", color: value ? '#000' : 'white' }}>{value || "."}</Col>
-                                            <Col></Col>
-                                        </Row>}
-                                        {!props.preview && <AntSelect {...input} {...fieldProps} className={`${props.isRequired && styles.is_required_field}`}
-                                            styles={{
-                                                root: {
-                                                    backgroundColor: FieldStyles.background,
-                                                    border: FieldStyles.border,
-                                                    fontSize: FieldStyles.fontSize
-                                                },
-                                                prefix: {},
-                                                content: {},
-                                                placeholder: {},
-                                                clear: {},
-                                                input: {},
-                                                suffix: {},
-                                                popup: {
-                                                    root: {},
-                                                    list: {},
-                                                    listItem: {}
-                                                }
-                                            }}
+                                    >
+                                        {props?.options?.map((item, i) => {
+                                            let node = optionParser(item);
+                                            return <AntSelect.Option value={node.value} style={node.style} key={i}>{node.children}</AntSelect.Option>;
+                                        })}
+                                    </AntSelect>}
+                                </Col>
+                                {props.info && <Col><Tooltip title={props.info} color="#1C9DFF"><InfoCircleFilled style={{ color: "#1C9DFF" }} /></Tooltip></Col>}
+                            </Row>
+                            <RenderError {...meta} />
+                        </div>
 
-                                        >
-                                            {props?.options?.map((item, i) => {
-                                                let node = optionParser(item);
-                                                return <AntSelect.Option value={node.value} style={node.style} key={i}>{node.children}</AntSelect.Option>;
-                                            })}
-                                        </AntSelect>}
-                                    </Col>
-                                    {props.info && <Col><Tooltip title={props.info} color="#1C9DFF"><InfoCircleFilled style={{ color: "#1C9DFF" }} /></Tooltip></Col>}
-                                </Row>
-                                <RenderError {...meta} />
-                            </div>
-                        </Col>
-                    </Row>
+                    </Space>
 
                 </div>)
 

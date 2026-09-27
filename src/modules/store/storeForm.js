@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect } from 'react'
-import { Drawer, message, Row, Col, Divider, Alert, Space } from 'antd';
+import { Drawer, message, Row, Col, Divider, Alert, Space, Card } from 'antd';
 import { Button, DevBlock, FileUploader, GMap, Loader } from '@/components';
 import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@/lib/utill';
 import { publishStatus, locationTypes, adminRoot } from '@/configs';
@@ -28,22 +28,22 @@ const FormComponent = ({ fields = {}, onSuccess, initialValues }) => {
 
     const onSubmit = async (values) => {
         const _id = initialValues && initialValues?._id;
-        
-        setError(true);
+
+        setError(false);
         let input = {
             title: values.title,
             code: values.code,
             address: values.address,
             location: {
-                _id: values.location._id,
-                title: values.location.title,
-                code: values.location.code,
+                _id: values.location?._id,
+                title: values.location?.title,
+                code: values.location?.code,
                 center: {
-                    type: "Point",
-                    coordinates: values.location.center.coordinates
+                    type: values.location?.center?.type || "Point",
+                    coordinates: values.location?.center?.coordinates,
                 },
-                type: values.location.type,
-                status: values.location.status,
+                type: values.location?.type,
+                status: values.location?.status,
             },
             slug: values.slug,
             // zones: [GeoZoneReff_Input]
@@ -74,12 +74,12 @@ const FormComponent = ({ fields = {}, onSuccess, initialValues }) => {
             results = await _addStore(input)
         }
 
-        if (results.error){
-            message.error(results.error.message);
-            setError(true);
+        if (!results || results.error){
+            message.error(results?.error?.message || "Unable to save store");
+            setError(results?.error?.message || "Unable to save store");
         }else{
             message.success("Success");
-            router.push(`${adminRoot}/store/${results._id}`)
+            if (!_id) router.push(`${adminRoot}/store/${results._id}`)
         }
 
         return false;
@@ -118,6 +118,7 @@ const FormComponent = ({ fields = {}, onSuccess, initialValues }) => {
             mutators={{
                 ...arrayMutators,
                 updateCenter: (newValueArray, state, tools) => {
+                    console.log("newValueArray: ", newValueArray)
                     let coords = newValueArray[0]
                     tools.changeValue(state, 'center.coordinates', () => coords)
                 },
@@ -135,58 +136,56 @@ const FormComponent = ({ fields = {}, onSuccess, initialValues }) => {
                     <form id="StoreForm" {...submitHandler(formargs)}>
 
                         <Row gutter={[10, 10]}>
-                            {/* zones: [GeoZoneReff_Input] */}
-                            <Col span={6}><FormField type="text" name="title" label="Title" validate={rules.required} compact /></Col>
-                            <Col span={6}><FormField onChange={filterSlug} type="text" name="code" label="Code" validate={rules.required} compact /></Col>
-                            <Col span={6}><FormField type="select" name="status" label="Status" options={publishStatus} validate={rules.required} compact /></Col>
-                            <Col span={6}>
-                                <LocationsDD 
-                                    preload allowClear
-                                    name="location._id" 
-                                    label="Location" 
-                                    filter={{ type: "city" }}
-                                    onChange={(___, raw) => form.mutators.onLocationChanged(raw)}
-                                />
-                            </Col>
-                            <Col span={24}>
-                                <Divider>Location Center</Divider>
-                                <Row gutter={[10]}>
-                                    <Col span={12}><FormField type="text" disabled name={`center.coordinates.lat`} label="Latitude" validate={rules.required} compact /></Col>
-                                    <Col span={12}><FormField type="text" disabled name={`center.coordinates.lng`} label="Longitude" validate={rules.required} compact /></Col>
+                            <Col lg={12} span={24}>
+                            <Card>
+                                <Row gutter={[10, 10]}>
+                                    <Col span={24}><Divider>Store Info</Divider></Col>
+                                    <Col span={6}><FormField type="text" name="title" label="Title" validate={rules.required} compact /></Col>
+                                    <Col span={6}><FormField onChange={filterSlug} type="text" name="code" label="Code" validate={rules.required} compact /></Col>
+                                    <Col span={6}><FormField type="select" name="status" label="Status" options={publishStatus} validate={rules.required} compact /></Col>
+                                    <Col span={6}><FormField onChange={filterSlug} type="text" name="slug" label="Slug" validate={rules.required} compact /></Col>
+                                    <Col span={6}>
+                                        <LocationsDD
+                                            preload allowClear
+                                            name="location._id"
+                                            label="Location"
+                                            filter={{ type: "city" }}
+                                            onChange={(___, raw) => form.mutators.onLocationChanged(raw)}
+                                        />
+                                    </Col>
+                                    <Col span={18}><FormField type="text" name="address" label="Address" validate={rules.required} compact /></Col>
+
+                                    <Col span={24}><Divider>SEO Info</Divider></Col>
+                                    <Col span={6}><FormField type="text" name="seo_title" label="SEO Title" /></Col>
+                                    <Col span={18}><FormField type="text" name="seo_desc" label="SEO Description" /></Col>
+                                    <Col span={24}><FormField type="textarea" name="description" label="Description" compact /></Col>
+                                    <Col span={24} align="right"><SubmitButton loading={submitting} label={'Save'} /></Col>
                                 </Row>
+                            </Card>
                             </Col>
-                            <Col span={24}>
-                                <div style={{ width: '100%', height: '400px', position: "relative" }}>
+                            <Col lg={12} span={24}>
+                                <Row gutter={[10]} align="middle">
+                                    <Col span={8}><h1>Location Center</h1></Col>
+                                    <Col span={8}><FormField type="text" disabled name={`center.coordinates.lat`} label="Latitude" validate={rules.required} compact /></Col>
+                                    <Col span={8}><FormField type="text" disabled name={`center.coordinates.lng`} label="Longitude" validate={rules.required} compact /></Col>
+                                </Row>
+                                <div style={{ width: '100%', height: '460px', position: "relative", marginTop:"20px", border:"1px solid #EEE", borderRadius:"10px" }}>
                                     <GMap
                                         zoom={12}
                                         center={values?.center?.coordinates?.lat && { lat: values.center.coordinates.lat, lng: values.center.coordinates.lng }}
-                                        onCenterChange={(coords) => {
-                                            form.mutators.updateCenter(coords)
-                                        }}
+                                        onCenterChange={(coords) => form.mutators.updateCenter(coords)}
                                     >
-                                        {/* <div style={{ backgroundColor: 'red' }}
-                                            lat={values?.center?.coordinates?.lat} lng={values?.center?.coordinates?.lng}
-                                        >Children</div> */}
+                                        {/* <div style={{ backgroundColor: 'red' }} lat={values?.center?.coordinates?.lat} lng={values?.center?.coordinates?.lng}>Children</div> */}
                                     </GMap>
                                     <div style={{ position: "absolute", top: "50%", zIndex: 100, width: "100%", borderBottom: "1px solid rgba(255, 255, 255, 0.2)" }} />
                                     <div style={{ position: "absolute", top: 0, left: "50%", zIndex: 100, height: "100%", borderRight: "1px solid rgba(255, 255, 255, 0.2)" }} />
                                     <div style={{ position: "absolute", top: "50%", marginTop: "-40px", left: "50%", marginLeft: "-15px", zIndex: 100, }}><img src={icon_location_red} alt="You" width="30px" /></div>
                                 </div>
+
+
                             </Col>
-                            <Col span={6}><FormField onChange={filterSlug} type="text" name="slug" label="Slug" validate={rules.required} compact /></Col>
-                            <Col span={18}><FormField type="text" name="address" label="Address" validate={rules.required} compact /></Col>
-                            <Col span={24}><FormField type="textarea" name="description" label="Description" compact /></Col>
-
-                            <Col span={6}><FormField type="text" name="seo_title" label="SEO Title" /></Col>
-                            <Col span={18}><FormField type="text" name="seo_desc" label="SEO Description" /></Col>
-                            {/* img: String
-                            img_thumb: String */}
-
-
-                            <Col span={24} align="right"><SubmitButton loading={submitting} label={'Save'} /></Col>
                         </Row>
 
-                        
                         <Row>
                             <Col span={12}><DevBlock obj={values} title="values" /></Col>
                             <Col span={12}><DevBlock obj={initialValues} title="initialValues" /></Col>
@@ -224,13 +223,15 @@ export const StoreForm = (props) => {
         // let inner_coordinates = resutls.polygon.coordinates[0].slice()
         //     inner_coordinates.pop()
 
+        const point = Array.isArray(resutls?.center?.coordinates) ? resutls.center.coordinates : [];
+
         set_initialValues({
             ...resutls,
             center: {
-                ...resutls.center,
+                type: resutls?.center?.type || "Point",
                 coordinates: {
-                    lat: resutls.center.coordinates[0],
-                    lng: resutls.center.coordinates[1],
+                    lat: point[0],
+                    lng: point[1],
                 }
             },
             // category: {

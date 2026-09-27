@@ -5,14 +5,15 @@ import { Alert, message, Space } from 'antd'
 import { __error, __yellow } from '@/lib/consoleHelper';
 // import { useMutation, useLazyQuery } from '@apollo/client/react';
 import { Loader } from './loader';
-import { GoogleMap, useJsApiLoader, Libraries, DrawingManager, PolygonF, Polygon, InfoWindow } from '@react-google-maps/api'
+import { GoogleMap, useJsApiLoader, Polygon, InfoWindow } from '@react-google-maps/api'
 import _ from 'lodash'
 import { Button } from './button';
 
 // import GEO_ZONES from '_/graphql/geo_zone/geoZones.graphql';
 
-const libraries = ['drawing']; // ['places', 'drawing', 'geometry'];
-const defaultMapContainerStyle = { width: '100%', height: '80vh', borderRadius: '15px 0px 0px 15px' };
+// DrawingManager was removed from the Maps JavaScript API in version 3.65.
+const libraries = ['maps'];
+const defaultMapContainerStyle = { width: '100%', height: '100%', borderRadius: '15px 0px 0px 15px' };
 const defaultMapCenter = { lat: 31.52443022759592, lng: 74.35772741448616 }; // Lahore
 const defaultMapZoom = 18;
 // const defaultMapOptions = { zoomControl: true, tilt: 0, gestureHandling: 'auto', mapTypeId: 'roadmap' };
@@ -29,6 +30,17 @@ const editable_polygonOptions = {
     geodesic: false,
     zIndex: 1,
 };
+function isNearLatLng(map, a, b, pixelRadius = 14) {
+    if (!map || !a || !b) return false;
+    const zoom = map.getZoom() || 12;
+    const lat1 = a.lat();
+    const dLat = (b.lat() - lat1) * 111320;
+    const dLng = (b.lng() - a.lng()) * 111320 * Math.cos((lat1 * Math.PI) / 180);
+    const meters = Math.hypot(dLat, dLng);
+    const metersPerPixel = (156543.03392 * Math.cos((lat1 * Math.PI) / 180)) / Math.pow(2, zoom);
+    return meters <= metersPerPixel * pixelRadius;
+}
+
 const static_polygonOptions = {
     fillColor: 'blue', fillOpacity: 0.3,
     strokeColor: 'blue', strokeOpacity: 0.8, strokeWeight: 2,
@@ -40,11 +52,14 @@ const static_polygonOptions = {
 };
 
 function MapProvider({ children }) {
-    const { NEXT_PUBLIC_GOOGLEMAP_API_KEY } = process.env;
+    // Next inlines only the literal `process.env.NEXT_PUBLIC_*` access.
+    // Destructuring `process.env` stays undefined in the client bundle.
+    const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLEMAP_API_KEY;
+    console.log({ googleMapsApiKey })
 
     // Load the Google Maps JavaScript API asynchronously
     const { isLoaded: scriptLoaded, loadError } = useJsApiLoader({
-        googleMapsApiKey: NEXT_PUBLIC_GOOGLEMAP_API_KEY,
+        googleMapsApiKey,
         libraries: libraries,
     });
 
@@ -76,7 +91,7 @@ export function MapComponent({ children, style, defaultCenter, onCenterChange, o
     }
 
     function _onCenterChange() {
-        console.log(__yellow("_onCenterChange()"))
+        // console.log(__yellow("_onCenterChange()"))
 
         if (!map.current?.center?.lat) return;
         // const newCenter = map.current.getCenter();
@@ -126,18 +141,24 @@ export function MapComponent({ children, style, defaultCenter, onCenterChange, o
     </>)
 }
 
-const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, enableDrawing = false, editableShape, staticShapes, staticZones, children, ...props }) => {
+const TheMap = React.memo(({ style, center, onPolygonUpdate, enableDrawing = false, editableShape, staticShapes, staticZones, children, ...props }) => {
     const [tooltipContent, setTooltipContent] = useState(""); // Content of the tooltip
     const [tooltipPosition, setTooltipPosition] = useState(null); // Position of the tooltip
 
-    const drawingManagerRef = useRef(null);
     const map = useRef(null);
     const maps = useRef(null);
     const polygonReff = useRef(null);
     const polygonsRef = useRef([]);
+    const draftRef = useRef({ listener: null, polyline: null, markers: [], path: [] });
+    const [draftCount, setDraftCount] = useState(0);
+    const onPolygonUpdateRef = useRef(onPolygonUpdate);
+    const enableDrawingRef = useRef(enableDrawing);
+    const startDrawingRef = useRef(null);
+    onPolygonUpdateRef.current = onPolygonUpdate;
+    enableDrawingRef.current = enableDrawing;
 
     const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, vertexIndex: null });
-    const [mapCenter, setMapCenter] = useState(center || defaultMapCenter)
+    // const [mapCenter, setMapCenter] = useState(center || defaultMapCenter)
     const [newShape, setNewShape] = useState()
     const newShapeRef = useRef(newShape); // Create a ref for newShape
 
@@ -231,7 +252,7 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         if (polygon) polygonReff.current = polygon;
 
         if (polygon === false) {
-            if (onPolygonUpdate) onPolygonUpdate(null);
+            if (onPolygonUpdateRef.current) onPolygonUpdateRef.current(null);
             return;
         }
 
@@ -241,10 +262,11 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
             .map((latLng) => [latLng.lng(), latLng.lat()]); // Correct structure
         // const closedPaths = [...paths, paths[0]]; // Ensure the ring closes
         // console.log("paths: ", paths)
-        if (onPolygonUpdate) onPolygonUpdate(paths);
+        if (onPolygonUpdateRef.current) onPolygonUpdateRef.current(paths);
     }
 
     function addShape(polygon) {
+        newShapeRef.current = polygon;
         setNewShape(polygon);
         addDragListeners(polygon)
 
@@ -255,6 +277,13 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         // if (onPolygonUpdate) onPolygonUpdate(closedPaths);
 
         polygon.setMap(map.current);
+
+        const path = polygon.getPath();
+        path.addListener("set_at", () => onPolygonupdated(polygon));
+        path.addListener("insert_at", () => onPolygonupdated(polygon));
+        path.addListener("remove_at", () => onPolygonupdated(polygon));
+        maps.current.event.addListener(polygon, "dragend", () => onPolygonupdated(polygon));
+
         onPolygonupdated(polygon)
     }
 
@@ -277,28 +306,114 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         // if (onPolygonUpdate) onPolygonUpdate(closedPaths);
     };
 
+    function clearDraft() {
+        const draft = draftRef.current;
+        if (draft.listener && maps.current?.event) {
+            maps.current.event.removeListener(draft.listener);
+        }
+        draft.listener = null;
+        if (draft.polyline) {
+            draft.polyline.setMap(null);
+            draft.polyline = null;
+        }
+        draft.markers.forEach((marker) => marker.setMap(null));
+        draft.markers = [];
+        draft.path = [];
+        if (map.current) {
+            map.current.setOptions({ draggableCursor: null, disableDoubleClickZoom: false });
+        }
+        setDraftCount(0);
+    }
 
+    function finishDraft() {
+        const path = draftRef.current.path.slice();
+        if (path.length < 3) {
+            message.warning("Add at least 3 points to close the zone");
+            return;
+        }
 
-    const initilizeDrawing = () => {
-        const drawingManager = new maps.current.drawing.DrawingManager({
-            drawingMode: maps.current.drawing.OverlayType.POLYGON,
-            drawingControl: true,
-            drawingControlOptions: {
-                position: maps.current.ControlPosition.TOP_CENTER,
-                drawingModes: [maps.current.drawing.OverlayType.POLYGON],
-            },
-            polygonOptions: editable_polygonOptions,
+        clearDraft();
+        const polygon = new maps.current.Polygon({
+            ...editable_polygonOptions,
+            paths: path,
         });
-        drawingManager.setMap(map.current);
-        drawingManagerRef.current = drawingManager;
+        handlePolygonComplete(polygon);
+    }
 
-        // maps.current.event.addListener(drawingManager, 'polygoncomplete', (event) => {
-        //     handlePolygonComplete(event)
-        // });
-        maps.current.event.addListener(drawingManager, 'polygoncomplete', (event) => {
-            handlePolygonComplete(event)
+    function undoDraftPoint() {
+        const draft = draftRef.current;
+        if (!draft.path.length) return;
+
+        draft.path.pop();
+        const marker = draft.markers.pop();
+        if (marker) marker.setMap(null);
+        if (draft.polyline) draft.polyline.setPath(draft.path);
+        setDraftCount(draft.path.length);
+    }
+
+    function startDrawing() {
+        if (!map.current || !maps.current || newShapeRef.current) return;
+
+        clearDraft();
+        map.current.setOptions({ draggableCursor: 'crosshair', disableDoubleClickZoom: true });
+
+        const polyline = new maps.current.Polyline({
+            map: map.current,
+            path: [],
+            strokeColor: 'green',
+            strokeOpacity: 0.9,
+            strokeWeight: 2,
+            clickable: false,
+            zIndex: 2,
+        });
+        draftRef.current.polyline = polyline;
+
+        draftRef.current.listener = map.current.addListener('click', (event) => {
+            if (newShapeRef.current) return;
+            const latLng = event.latLng;
+            if (!latLng) return;
+
+            const draft = draftRef.current;
+            if (draft.path.length >= 3 && isNearLatLng(map.current, draft.path[0], latLng)) {
+                finishDraft();
+                return;
+            }
+
+            draft.path.push(latLng);
+            polyline.setPath(draft.path);
+
+            const isFirst = draft.path.length === 1;
+            const pointStyle = {
+                strokeColor: 'green',
+                strokeWeight: 2,
+                fillColor: isFirst ? '#ffffff' : 'green',
+                fillOpacity: 1,
+                clickable: false,
+                zIndex: 3,
+                map: map.current,
+            };
+            draft.markers.push(maps.current.Marker && maps.current.SymbolPath
+                ? new maps.current.Marker({
+                    ...pointStyle,
+                    position: latLng,
+                    icon: {
+                        path: maps.current.SymbolPath.CIRCLE,
+                        scale: isFirst ? 7 : 4,
+                        fillColor: pointStyle.fillColor,
+                        fillOpacity: 1,
+                        strokeColor: 'green',
+                        strokeWeight: 2,
+                    },
+                })
+                : new maps.current.Circle({
+                    ...pointStyle,
+                    center: latLng,
+                    radius: ((156543.03392 * Math.cos((latLng.lat() * Math.PI) / 180)) / Math.pow(2, map.current.getZoom() || 12)) * (isFirst ? 8 : 5),
+                }));
+            setDraftCount(draft.path.length);
         });
     }
+    startDrawingRef.current = startDrawing;
 
 
     const onLoad = useCallback(function callback(_map) {
@@ -311,7 +426,7 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
             map.current = _map;
             // _map.setCenter(mapCenter);
 
-            if (enableDrawing) initilizeDrawing()
+            if (enableDrawingRef.current) startDrawingRef.current?.()
             draw_editableShape()
             onMapLoad()
         }
@@ -356,31 +471,28 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         setContextMenu({ visible: false, x: 0, y: 0, vertexIndex: null });
     };
 
-
     function resetShape(){
-        console.log(__yellow("resetShape()"))
-
-        newShape.setMap(null)
-        enableDrawingControl()
-        setNewShape(null)
-
-        onPolygonupdated(false)
+        if (newShapeRef.current) newShapeRef.current.setMap(null);
+        newShapeRef.current = null;
+        setNewShape(null);
+        onPolygonupdated(false);
+        enableDrawingControl();
     }
 
-    function centerChanged(_map){
-        if (!map.current?.center?.lat) return;
+    // function centerChanged(_map){
+    //     if (!map.current?.center?.lat) return;
 
-        // const newCenter = _map.getCenter();
-        // newCenter.lat();
+    //     // const newCenter = _map.getCenter();
+    //     // newCenter.lat();
 
-        let _center = {
-            lat: map.current.center.lat(),
-            lng: map.current.center.lng(),
-        } 
+    //     let _center = {
+    //         lat: map.current.center.lat(),
+    //         lng: map.current.center.lng(),
+    //     } 
         
-        setMapCenter(_center)
-        if (onCenterChange) onCenterChange(_center)
-    }
+    //     setMapCenter(_center)
+    //     if (onCenterChange) onCenterChange(_center)
+    // }
 
     // const panToAllPolygons = (polygons) => {
     //     // polygons
@@ -398,22 +510,7 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
     // };
 
     const enableDrawingControl = () => {
-        if (drawingManagerRef.current) {
-            drawingManagerRef.current.setOptions({
-                drawingControl: true, // Enable drawing control
-                drawingControlOptions: {
-                    position: maps.current.ControlPosition.TOP_CENTER,
-                    drawingModes: [maps.current.drawing.OverlayType.POLYGON],
-                },
-            });
-        }
-    };
-    const disableDrawingControl = () => {
-        if (drawingManagerRef.current) {
-            drawingManagerRef.current.setOptions({
-                drawingControl: false,
-            });
-        }
+        startDrawing();
     };
 
     // function draw_staticShapes(){
@@ -451,7 +548,6 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
     // let onCenterChanged = _.debounce(function (_map) {
     //     centerChanged(_map)
     // }, 500, { leading: false, trailing: true });
-    
 
     function renderStaticZones(){
         if (!staticZones || staticZones.length<1) return null;
@@ -475,15 +571,25 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
     }
 
     useEffect(() => {
-        // Sync the ref with the state whenever newShape changes
-        newShapeRef.current = newShape;
+        // Sync the ref with the state whenever newShape changes.
+        // resetShape clears the ref itself before this effect runs.
+        if (newShape) newShapeRef.current = newShape;
     }, [newShape]);
 
+    useEffect(() => {
+        return () => {
+            const draft = draftRef.current;
+            if (draft.listener && window.google?.maps?.event) {
+                window.google.maps.event.removeListener(draft.listener);
+            }
+        };
+    }, []);
 
     useEffect(() => {
         centerMap(center)
     }, [center])
 
+    console.log({ center })
 
     /*
     panTo
@@ -494,18 +600,31 @@ const TheMap = React.memo(({ style, center, onCenterChange, onPolygonUpdate, ena
         <MapComponent 
             style={style} 
             defaultCenter={center || defaultMapCenter} 
-            // onCenterChange={centerChanged}
             onLoad={onLoad} 
             {...props}
+            // onCenterChange={centerChanged}
             // onUnmount={onUnmount}
         >
             {children}
 
             {renderStaticZones()}
 
-            {enableDrawing && <div style={{ position: "absolute", top: 15, left: 200 }}><Space>
-                {newShape && <Button onClick={resetShape} color="blue">Reset Shape</Button>}
-            </Space></div>}
+            {enableDrawing && <div
+                style={{ position: "absolute", top: 15, left: 200, zIndex: 2 }}
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
+            >
+                <Space>
+                    {!newShape && <>
+                        <Button onClick={undoDraftPoint} disabled={draftCount < 1}>Undo point</Button>
+                        <Button onClick={finishDraft} color="blue" disabled={draftCount < 3}>Finish zone</Button>
+                    </>}
+                    {newShape && <Button onClick={resetShape} color="blue">Reset Shape</Button>}
+                </Space>
+                {!newShape && <div style={{ marginTop: 6, background: "rgba(255,255,255,0.92)", padding: "4px 8px", borderRadius: 6, fontSize: 12 }}>
+                    Click the map to add points ({draftCount}). Click the first point, or Finish zone, to close it.
+                </div>}
+            </div>}
 
             {tooltipPosition && (<InfoWindow position={tooltipPosition}
                 options={{

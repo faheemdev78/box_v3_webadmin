@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/client/react';
-import { Alert, Breadcrumb, Col, message, Popconfirm, Row, Space, Switch } from 'antd';
-import { Button, DeleteButton, DevBlock, IconButton, Loader, MapComponent, Table, usePageProps, GMap } from '@/components';
+import { Breadcrumb, Col, message, Row, Space, Switch, Typography } from 'antd';
+import { Button, DeleteButton, IconButton, Loader, Table, usePageProps, GMap, DevBlock } from '@/components';
 import { ColumnsType } from 'antd/es/table';
 import { adminRoot, defaultPageSize } from '@/configs';
 import Link from 'next/link';
@@ -12,7 +12,6 @@ import { ZonesFilter } from '@/modules/geo_zones';
 import { Page } from '@/template/page';
 import { PageHeader } from '@/template';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
-import { __error } from '@/lib/consoleHelper';
 import { Polygon, InfoWindow } from '@react-google-maps/api';
 
 import LIST_DATA from '@/graphql/geo_zone/geoZoneQuery.graphql'
@@ -26,11 +25,21 @@ type ZoneType = {
     _id: string;
     title: string;
     type: string;
+    status?: string;
     city: { title: string };
     polygon: { coordinates: [number, number][][] };
 };
 
-function ServiceZone({ zones }: { zones: ZoneType[] }) {
+type MapApi = {
+    panToCoordinates: (coordinates: ZoneType['polygon']['coordinates']) => void;
+};
+
+function ServiceZone({ center, zones, focusedZoneId, onMapReady }: {
+    center?: any,
+    zones: ZoneType[];
+    focusedZoneId?: string | null;
+    onMapReady: (api: MapApi) => void;
+}) {
     const { store } = usePageProps() as unknown as { store: any }
 
     const router = useRouter()
@@ -40,6 +49,31 @@ function ServiceZone({ zones }: { zones: ZoneType[] }) {
 
     const [showDeliveryZones, set_showDeliveryZones] = useState(true)
     const [showServiceZones, set_showServiceZones] = useState(true)
+    const onMapReadyRef = useRef(onMapReady);
+    onMapReadyRef.current = onMapReady;
+
+    useEffect(() => {
+        if (!focusedZoneId) return;
+        const zone = zones.find((item) => item._id === focusedZoneId);
+        if (!zone) return;
+        if (zone.type === 'delivery') set_showDeliveryZones(true);
+        if (zone.type === 'service') set_showServiceZones(true);
+    }, [focusedZoneId, zones]);
+
+    const polygonOptions = (zone: ZoneType, color: string) => {
+        const focused = focusedZoneId === zone._id;
+        return {
+            fillColor: color,
+            fillOpacity: focused ? 0.45 : 0.3,
+            strokeColor: color,
+            strokeOpacity: 0.9,
+            strokeWeight: focused ? 4 : 2,
+            draggable: false,
+            editable: false,
+            geodesic: false,
+            zIndex: focused ? 20 : 10,
+        };
+    };
 
     const handleMouseOver = (event: any, zone: ZoneType) => {
         setTooltipPosition({ lat: event.latLng.lat(), lng: event.latLng.lng() });
@@ -56,44 +90,27 @@ function ServiceZone({ zones }: { zones: ZoneType[] }) {
             <Switch defaultChecked={false} onChange={set_showServiceZones} checked={showServiceZones} checkedChildren="Service Zones" unCheckedChildren="Service Zones" />
         </Space></div>
 
-        <div style={{ width: '100%', height: 'calc(100vh - 300px)', position: "relative" }}>
+        <div style={{ width: '100%', height: 'calc(100vh - 250px)', position: "relative", border:"0px solid blue" }}>
             <GMap
-                // center={getPolygonCenter(initialValues.polygon.coordinates)}
-                // onMapLoad={({ panToCoordinates }) => panToCoordinates(initialValues.polygon.coordinates)}
                 zoom={12}
                 style={{ borderRadius: 0 }}
                 enableDrawing={false}
-                // staticZones={relatedZones}
+                onMapLoad={(api: MapApi) => onMapReadyRef.current(api)}
+                center={center}
             >
                 {showDeliveryZones && zones.filter((o: ZoneType) => o.type == 'delivery').map((zone: ZoneType, i: number) => (<Polygon key={i}
                     onMouseOver={(e) => handleMouseOver(e, zone)}
                     onMouseOut={handleMouseOut}
                     onClick={() => router.push(`${adminRoot}/store/${store._id}/zone/${zone._id}`)}
                     path={zone.polygon.coordinates[0].map(([lng, lat]: [number, number]) => ({ lat, lng }))}
-                    options={{
-                        fillColor: 'green', fillOpacity: 0.3,
-                        strokeColor: 'green', strokeOpacity: 0.8, strokeWeight: 2,
-                        // clickable: false,
-                        draggable: false,
-                        editable: false,
-                        geodesic: false,
-                        zIndex: 10,
-                    }}
+                    options={polygonOptions(zone, 'green')}
                 />))}
 
                 {showServiceZones && zones.filter((o: ZoneType) => o.type == 'service').map((zone: ZoneType, i: number) => (<Polygon key={i}
                     onMouseOver={(e) => handleMouseOver(e, zone)}
                     onMouseOut={handleMouseOut}
                     path={zone.polygon.coordinates[0].map(([lng, lat]: [number, number]) => ({ lat, lng }))}
-                    options={{
-                        fillColor: 'blue', fillOpacity: 0.3,
-                        strokeColor: 'blue', strokeOpacity: 0.8, strokeWeight: 2,
-                        // clickable: false,
-                        draggable: false,
-                        editable: false,
-                        geodesic: false,
-                        zIndex: 10,
-                    }}
+                    options={polygonOptions(zone, 'blue')}
                 />))}
 
 
@@ -124,6 +141,14 @@ function StoreZones() {
         busy: false,
     })
     const [dataArray, set_dataArray] = useState<any | null>(null)
+    const [focusedZoneId, setFocusedZoneId] = useState<string | null>(null)
+    const mapApiRef = useRef<MapApi | null>(null)
+
+    const focusZone = (zone: ZoneType) => {
+        setFocusedZoneId(zone._id);
+        const coordinates = zone.polygon?.coordinates;
+        if (coordinates?.length) mapApiRef.current?.panToCoordinates(coordinates);
+    }
 
     const [deleteGeoZone, del_results] = useMutation<any>(RECORD_DELETE); // { data, loading, error }
     const [geoZoneQuery, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
@@ -177,32 +202,20 @@ function StoreZones() {
         return false;
     }
   
-    const columns: ColumnsType<any> = [
-        { title: 'Zone Name', dataIndex: 'title', key: 'title', render:(__: any, rec: any) => {
-            return <Link href={`${adminRoot}/store/${store._id}/zone/${rec._id}`}>{rec.title}</Link>
-        } },
-        { title: 'Store', dataIndex: ['store', 'title'], key: 'store' },
-        { title: 'Type', dataIndex: 'type', width: '20%',
-            filters: [
-                { text: 'Service Area', value: 'service' },
-                { text: 'Delivery Zones', value: 'delivery' },
-            ],
-            onFilter: (value: any, record: any) => record.type.indexOf(value as any) === 0,
-            sorter: (a: any, b: any) => a.type.length - b.type.length,
-            // defaultSortOrder: 'descend',
-        },
-        {
-            title: 'city', dataIndex: ['city', 'title'], width: '20%',
-            sorter: (a: any, b: any) => a.city.length - b.city.length,
-            defaultSortOrder: 'descend' as const,
-        },
+    const columns: ColumnsType<ZoneType> = [
+        { title: 'Zone Name', dataIndex: 'title', key: 'title', render: (_: unknown, rec: ZoneType) => (
+            <Typography.Link onClick={() => focusZone(rec)}>{rec.title}</Typography.Link>
+        ) },
+        { title: 'Type', dataIndex: 'type', key: 'type', width: 100, render: (type: string) => (
+            type === 'delivery' ? 'Delivery' : type === 'service' ? 'Service' : type
+        ) },
         { title: 'Status', dataIndex: 'status', key: 'status', width: 100, align: 'center' as const },
         {
-            title: 'Actions', dataIndex: 'actions', width: 120, key: 'actions', align: 'right',
-            render: (_text: any, rec: any) => {
+            title: 'Actions', dataIndex: 'actions', width: 100, key: 'actions', align: 'right',
+            render: (_text: unknown, rec: ZoneType) => {
                 return (<Space>
+                    <IconButton icon="pen" tooltip="Edit" href={`${adminRoot}/store/${store._id}/zone/${rec._id}`} />
                     <DeleteButton onClick={() => handleDelete(rec)} />
-                    {/* <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(rec)}><IconButton icon="trash-alt" /></Popconfirm> */}
                 </Space>)
             }
         },
@@ -213,7 +226,7 @@ function StoreZones() {
         fetchData()
     }, [store._id, called, loading])
 
-    if (loading) return <Loader loading={true} />
+    if (loading && !dataArray) return <Loader loading={true} />
 
     return (<>
         <PageHeader title={`Geo Zones`}
@@ -224,19 +237,39 @@ function StoreZones() {
             <Button color="orange" type="link"><Link href={`${adminRoot}/store/${store._id}/zone/new`}>Add New Geo Zone</Link></Button>
         </PageHeader>
 
-        {(dataArray && dataArray.edges) && <ServiceZone zones={dataArray.edges} />}
-
-        <hr />
-
         <Page>
-            <Table
-                title={() => (<ZonesFilter initialValues={state.filter} onUpdate={onFilterUpdate} />)}
-                loading={loading}
-                columns={columns}
-                dataSource={dataArray?.edges || []}
-                pagination={false}
-            />
+            <Row gutter={[16, 16]}>
+                <Col xs={24} lg={10}>
+                    <div style={{ maxHeight: 'calc(100vh - 220px)', height: 'calc(100vh - 220px)', overflow: 'auto' }}>
+                        <style>{`.zones-page-row-active > td { background: #e6f4ff !important; }`}</style>
+                        <ZonesFilter initialValues={state.filter} onUpdate={onFilterUpdate} />
+                        <Table
+                            // title={() => (<ZonesFilter initialValues={state.filter} onUpdate={onFilterUpdate} />)}
+                            bordered
+                            loading={loading}
+                            columns={columns}
+                            dataSource={dataArray?.edges || []}
+                            pagination={false}
+                            rowKey="_id"
+                            rowClassName={(rec: ZoneType, index?: number) => {
+                                const stripe = index !== undefined && index % 2 ? 'even_row' : 'odd_row';
+                                return `table_row ${stripe}${rec._id === focusedZoneId ? ' zones-page-row-active' : ''}`;
+                            }}
+                        />
+                    </div>
+                </Col>
+                <Col xs={24} lg={14}>
+                    <ServiceZone
+                        zones={dataArray?.edges || []}
+                        focusedZoneId={focusedZoneId}
+                        onMapReady={(api) => { mapApiRef.current = api }}
+                        center={{ lat: store.center.coordinates[0], lng: store.center.coordinates[1] }}
+                    />
+                </Col>
+            </Row>
         </Page>
+
+        <DevBlock obj={store.center.coordinates} />
 
     </>)
 

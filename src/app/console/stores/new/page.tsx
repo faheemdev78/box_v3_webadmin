@@ -10,9 +10,7 @@ function AddStorePage() {
     <PageHeader title={"Add New Store"} />
 
     <Page>
-      <Card>
-        <StoreForm />
-      </Card>
+      <StoreForm />
     </Page>
   </>)
 }

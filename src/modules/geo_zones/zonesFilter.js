@@ -2,7 +2,7 @@
 import React from 'react'
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@/components/form';
-import { Col, Row } from 'antd';
+import { Col, Row, Space } from 'antd';
 import { geoZoneTypes, publishStatus } from '@/configs';
 
 
@@ -25,12 +25,13 @@ export function ZonesFilter({ onUpdate, initialValues }) {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed } = formargs;
 
                 return (<>
-                    <form id="ZoneFilterForm" {...submitHandler(formargs)}><Row gutter={[10, 10]}>
-                        {/* <Col><FormField type="text" name="title" placeholder="Title" allowClear /></Col> */}
-                        <Col flex="150px"><FormField type="select" name="type" options={geoZoneTypes} allowClear /></Col>
-                        <Col flex="100px"><FormField type="select" name="status" options={publishStatus} allowClear /></Col>
-                        <Col><SubmitButton loading={submitting} label={'Search'} /></Col>
-                    </Row></form>
+                    <form id="ZoneFilterForm" {...submitHandler(formargs)}>
+                        <div style={{ display:"flex", flexDirection:"row", gap:10 }}>
+                            <FormField type="select" label="Zones" name="type" options={geoZoneTypes} allowClear width={200} />
+                            <FormField type="select" label="Status" name="status" options={publishStatus} allowClear width={200} />
+                            <SubmitButton loading={submitting} label={'Search'} style={{ marginTop:"25px" }} />
+                        </div>
+                    </form>
                 </>)
 
             }}
