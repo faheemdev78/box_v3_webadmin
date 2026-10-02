@@ -100,7 +100,7 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
     let values = form.getState().values
 
     let sourceField;
-    switch (values.page_type.type) {
+    switch (values?.page_type?.type) {
         case "category_page":
             sourceField = <>
                 <div>Category: {values?.page_type?.page_source?.title}</div>
