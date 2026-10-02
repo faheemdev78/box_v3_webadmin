@@ -1,3 +1,4 @@
+import { uploadProductImages } from '@/lib/productImageUpload';
 import React, { useState, useEffect, useRef } from 'react'
 import { __error, __yellow } from '@/lib/consoleHelper';
 import { Alert, Card, Col, Divider, message, Row, Space } from 'antd';
@@ -21,8 +22,8 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
     const [initialValues, set_initialValues] = useState(null)
     const [error, setError] = useState(null)
     const [messageApi, contextHolder] = message.useMessage();
-    const [uploadProductImg] = useMutation(UPDATE_MAIN_IMG);
-    const [uploadGalleryItems] = useMutation(UPDATE_GALL_IMG);
+    // const [uploadProductImg] = useMutation(UPDATE_MAIN_IMG);
+    // const [uploadGalleryItems] = useMutation(UPDATE_GALL_IMG);
     const [uploadProductVideo] = useMutation(UPDATE_VDO);
 
     console.log({ initialValues })
@@ -106,43 +107,48 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
     }
 
     const onUpdateMainFile = async (files, _id) => {
-        console.log(__yellow("onUpdateMainFile()"), files)
+        if (!(files?.originFileObj instanceof File)) return { error: { message: 'Picture file not found.' } };
+        const result = await uploadProductImages({ files: [files.originFileObj], productId: _id, target: 'picture' });
+        return result.error ? result : result.files[0];
 
-        const file = files
-        if (!file) {
-            console.log(__yellow("No picture file found to uplaod"))
-            return false;
-        }
-
-        if (!(file.originFileObj instanceof File)) {
-            message.error("File object not found!")
-            return false;
-        }
-
-        messageApi.open({ key: "onSubmit", type: 'loading', content: "Uploading product image" })
-        const uploadResult = await uploadFilesToCdn([file.originFileObj], {
-            folder: `prod/${_id}`,
-            thumbnailSizes: [{ width: 200, height: 200 }],
-        });
-        if (uploadResult?.error) return uploadResult;
-
-        const uploadedFile = uploadResult?.files?.[0];
-        if (!uploadedFile) return { error: { message: 'Invalid CDN upload response' } };
-
-        messageApi.open({ key: "onSubmit", type: 'loading', content: "Saving product image" })
-        return uploadProductImg({
-            variables: {
-                _id_product: _id,
-                file: {
-                    url: uploadedFile.url,
-                    type: uploadedFile.type,
-                    thumbnails: uploadedFile.thumbnails || [],
-                },
-            },
-        })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadProductImg }))
-            .catch(error => ({ error: { message: error.message || 'Unable to save product image' } }));
-
+        // Legacy direct upload and metadata mutation retained for rollback.
+        //         console.log(__yellow("onUpdateMainFile()"), files)
+        //
+        //         const file = files
+        //         if (!file) {
+        //             console.log(__yellow("No picture file found to uplaod"))
+        //             return false;
+        //         }
+        //
+        //         if (!(file.originFileObj instanceof File)) {
+        //             message.error("File object not found!")
+        //             return false;
+        //         }
+        //
+        //         messageApi.open({ key: "onSubmit", type: 'loading', content: "Uploading product image" })
+        //         const uploadResult = await uploadFilesToCdn([file.originFileObj], {
+        //             folder: `prod/${_id}`,
+        //             thumbnailSizes: [{ width: 200, height: 200 }],
+        //         });
+        //         if (uploadResult?.error) return uploadResult;
+        //
+        //         const uploadedFile = uploadResult?.files?.[0];
+        //         if (!uploadedFile) return { error: { message: 'Invalid CDN upload response' } };
+        //
+        //         messageApi.open({ key: "onSubmit", type: 'loading', content: "Saving product image" })
+        //         return uploadProductImg({
+        //             variables: {
+        //                 _id_product: _id,
+        //                 file: {
+        //                     url: uploadedFile.url,
+        //                     type: uploadedFile.type,
+        //                     thumbnails: uploadedFile.thumbnails || [],
+        //                 },
+        //             },
+        //         })
+        //             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadProductImg }))
+        //             .catch(error => ({ error: { message: error.message || 'Unable to save product image' } }));
+        //
     }
     const onUpdateVideoFile = async (files, _id) => {
         console.log(__yellow("onUpdateVideoFile()"), files)
@@ -181,43 +187,47 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
 
     }
     const onUpdateGalleryFiles = async (_files, _id) => {
-        console.log(__yellow("onUpdateGalleryFiles()"), _files)
+        const files = (_files || []).filter((item) => item?.originFileObj instanceof File).map((item) => item.originFileObj);
+        if (!files.length) return { images: [], files: [] };
+        return uploadProductImages({ files, productId: _id, target: 'gallery' });
 
-        const files = _files
-            .filter(o => (o.originFileObj instanceof File))
-            .map(o => (o.originFileObj))
-
-        if (!files || files.length < 1) {
-            console.log(__yellow("No gallery pictures file found to uplaod"))
-            return false;
-        }
-
-        messageApi.open({ key: "onSubmit", type: 'loading', content: `Uploading product gallery (${files.length})` })
-        const uploadResult = await uploadFilesToCdn(files, {
-            folder: `prod/${_id}`,
-            thumbnailSizes: [{ width: 200, height: 200 }],
-        });
-        if (uploadResult?.error) return uploadResult;
-
-        const uploadedFiles = uploadResult?.files || [];
-        if (uploadedFiles.length < 1) return { error: { message: 'Invalid CDN upload response' } };
-
-        messageApi.open({ key: "onSubmit", type: 'loading', content: `Saving product gallery (${uploadedFiles.length})` })
-        return uploadGalleryItems({
-            variables: {
-                _id_product: _id,
-                files: uploadedFiles.map((file) => ({
-                    url: file.url,
-                    type: file.type,
-                    thumbnails: file.thumbnails || [],
-                })),
-            },
-        })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadGalleryItems }))
-            .catch(error => ({ error: { message: error.message || 'Unable to save product gallery' } }));
-
+        // Legacy direct upload and metadata mutation retained for rollback.
+        //         console.log(__yellow("onUpdateGalleryFiles()"), _files)
+        //
+        //         const files = _files
+        //             .filter(o => (o.originFileObj instanceof File))
+        //             .map(o => (o.originFileObj))
+        //
+        //         if (!files || files.length < 1) {
+        //             console.log(__yellow("No gallery pictures file found to uplaod"))
+        //             return false;
+        //         }
+        //
+        //         messageApi.open({ key: "onSubmit", type: 'loading', content: `Uploading product gallery (${files.length})` })
+        //         const uploadResult = await uploadFilesToCdn(files, {
+        //             folder: `prod/${_id}`,
+        //             thumbnailSizes: [{ width: 200, height: 200 }],
+        //         });
+        //         if (uploadResult?.error) return uploadResult;
+        //
+        //         const uploadedFiles = uploadResult?.files || [];
+        //         if (uploadedFiles.length < 1) return { error: { message: 'Invalid CDN upload response' } };
+        //
+        //         messageApi.open({ key: "onSubmit", type: 'loading', content: `Saving product gallery (${uploadedFiles.length})` })
+        //         return uploadGalleryItems({
+        //             variables: {
+        //                 _id_product: _id,
+        //                 files: uploadedFiles.map((file) => ({
+        //                     url: file.url,
+        //                     type: file.type,
+        //                     thumbnails: file.thumbnails || [],
+        //                 })),
+        //             },
+        //         })
+        //             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadGalleryItems }))
+        //             .catch(error => ({ error: { message: error.message || 'Unable to save product gallery' } }));
+        //
     }
-
     async function deleteMainImage(file){}
     async function deleteVideo(file){}
     async function deleteGalleryItem(file){}

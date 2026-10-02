@@ -60,11 +60,11 @@ export function ComponentStyling({ name, showHeading=true }) {
                                 />
                             </Col>)}
 
-                            {type === 'solid' && (<Col style={{ marginTop: "20px" }}>
+                            {type === 'solid' && (<Col style={{ marginTop: "27px" }}>
                                 <FormField name={bgColor1Name} type="color" _label="Color 1" compact />
                             </Col>)}
 
-                            {type === 'gradient' && (<Col style={{ marginTop:"20px" }}><Space>
+                            {type === 'gradient' && (<Col style={{ marginTop:"27px" }}><Space>
                                 <FormField name={bgColor1Name} type="color" _label="Color 1" compact />
                                 <FormField name={bgColor2Name} type="color" _label="Color 2" compact />
                             </Space></Col>)}

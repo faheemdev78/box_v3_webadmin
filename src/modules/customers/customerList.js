@@ -24,7 +24,7 @@ export const CustomerList = ({ dataSource, pagination = false, handleDelete, loa
             render: (text, rec) => {
                 return (<Space>
                     {/* <IconButton onClick={() => set_showForm({ show: true, fields: rec })} icon="pen" /> */}
-                    {handleDelete && <Popconfirm title="Delete this customer?" description="This permanently deletes the customer account." okText="Delete" cancelText="Cancel" okButtonProps={{ danger: true }} onConfirm={() => handleDelete(rec)}>
+                    {handleDelete && <Popconfirm title="Delete this customer?" description="This permanently deletes the customer, addresses, cart, sessions and saved preferences. Order history is retained." okText="Delete" cancelText="Cancel" okButtonProps={{ danger: true }} onConfirm={() => handleDelete(rec)}>
                         <IconButton icon="trash-alt" />
                     </Popconfirm>}
                 </Space>)

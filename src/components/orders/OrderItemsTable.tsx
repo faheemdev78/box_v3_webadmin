@@ -1,4 +1,6 @@
 'use client'
+import { cdnImageUrl } from '@/lib/cdnImageUrl';
+// Legacy product thumbnails were always prefixed with NEXT_PUBLIC_CDN_URL.
 
 import { Table, Tag, Typography } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -41,7 +43,7 @@ export function OrderItemsTable({
       key: 'title',
       render: (title: string, record: any) => {
         const thumb = record?.picture?.thumbnails?.[0]
-          ? `${process.env.NEXT_PUBLIC_CDN_URL}/${record.picture.thumbnails[0]}`
+          ? cdnImageUrl(record.picture.thumbnails[0])
           : null
 
         return (

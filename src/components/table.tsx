@@ -22,10 +22,32 @@ export const Table: React.FC<MyTableProps> = (_props) => {
 
     const [dataSource, setDataSource] = useState<any[] | null>(null);
 
+    function addChildKey(children:any[]){
+        return children?.map((ch: any, ii: number) => {
+            return ({
+                key: (ch._id || ii + 1),
+                ...ch,
+                children: ch?.children ? addChildKey(ch.children) : undefined
+            })
+        })
+    }
+
     useEffect(() => {
         if (!props?.dataSource) return;
         if (!Array.isArray(props.dataSource)) return;
-        let _dataSource = props?.dataSource?.map((o, i) => ({ key: (o._id || i + 1), ...o }));
+        let _dataSource = props?.dataSource?.map((o:any, i:number) => {
+            return ({ 
+                key: (o._id || i + 1), 
+                ...o,
+                children: o?.children ? addChildKey(o.children) : undefined,
+                // children: o?.children?.map((ch:any, ii: number) => {
+                //     return ({
+                //         key: (ch._id || ii + 1),
+                //         ...ch,
+                //     })
+                // })
+            })
+        });
         setDataSource(_dataSource)
 
     }, [props?.dataSource])

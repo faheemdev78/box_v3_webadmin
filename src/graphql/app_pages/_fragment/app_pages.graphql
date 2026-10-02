@@ -9,7 +9,16 @@ fragment AppPagesInfo on AppPages {
   deleteable
   draft
   description
-  page_type { title type }
+  page_type { 
+    # _id_source
+    title
+    type
+    page_source {
+      _id
+      title
+      path
+    }
+  }
   styles { ...AppPageStylesInfo }
   p_limit
 

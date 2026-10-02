@@ -6,6 +6,7 @@ import { __error, __yellow } from '@/lib/consoleHelper';
 import security from '@/lib/security';
 import { NOIMAGE, PROD_GAL_SIZE } from '@/configs';
 import axios from 'axios';
+import { uploadProductImages } from '@/lib/productImageUpload';
 import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
@@ -26,10 +27,10 @@ export function ProductImageManager({ session, ...props }) {
     const [initialValues, set_initialValues] = useState(props.initialValues)
     const [messageApi, contextHolder] = message.useMessage();
 
-    const [uploadProductImg, img_updates] = useMutation(UPDATE_MAIN_IMG); // { data, loading, error }
+    // const [uploadProductImg, img_updates] = useMutation(UPDATE_MAIN_IMG); // { data, loading, error }
     const [deleteProductImg, del_img_updates] = useMutation(DEL_MAIN_IMG); // { data, loading, error }
     
-    const [uploadGalleryItems, galup_updates] = useMutation(UPDATE_GALL_IMG); // { data, loading, error }
+    // const [uploadGalleryItems, galup_updates] = useMutation(UPDATE_GALL_IMG); // { data, loading, error }
     const [deleteGalleryItem, galdel_updates] = useMutation(DEL_GAL_IMG); // { data, loading, error }
 
     const [uploadProductVideo, vdoup_updates] = useMutation(UPDATE_VDO); // { data, loading, error }
@@ -44,71 +45,79 @@ export function ProductImageManager({ session, ...props }) {
     }, [props.initialValues])
 
     async function on_uploadMainImage ({ files }) {
-        console.log(__yellow("on_uploadMainImage()"), files);
-        
-        messageApi.open({ key: "on_uploadMainImage", type: 'loading', content: `Uploading file...` })
+        const picture = files[0];
+        if (!picture) return;
+        set_initialValues(previous => ({ ...previous, picture }));
 
-        const file = files[0]
-        let results = await uploadProductImg({ variables: {
-            _id_product: initialValues._id,
-            file: {
-                url: file.url,
-                type: file.type,
-                thumbnails: file.thumbnails
-            }
-        } })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadProductImg }))
-            .catch(catchApolloError);
-        
-
-        if (!results || results.error){
-            messageApi.open({ 
-                key: "on_uploadMainImage", 
-                type: 'error', 
-                content: (results && results?.error?.message) || "Invalid Response!", 
-                duration: 2
-            });
-            return;
-        }
-
-        set_initialValues({
-            ...initialValues,
-            picture: results
-        })
-
-        messageApi.open({ key: "on_uploadMainImage", type: 'success', content: "Success", duration: 2 });
+        // Legacy metadata mutation retained; multipart backend now saves the DB fields.
+        //         console.log(__yellow("on_uploadMainImage()"), files);
+        //
+        //         messageApi.open({ key: "on_uploadMainImage", type: 'loading', content: `Uploading file...` })
+        //
+        //         const file = files[0]
+        //         let results = await uploadProductImg({ variables: {
+        //             _id_product: initialValues._id,
+        //             file: {
+        //                 url: file.url,
+        //                 type: file.type,
+        //                 thumbnails: file.thumbnails
+        //             }
+        //         } })
+        //             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadProductImg }))
+        //             .catch(catchApolloError);
+        //
+        //
+        //         if (!results || results.error){
+        //             messageApi.open({
+        //                 key: "on_uploadMainImage",
+        //                 type: 'error',
+        //                 content: (results && results?.error?.message) || "Invalid Response!",
+        //                 duration: 2
+        //             });
+        //             return;
+        //         }
+        //
+        //         set_initialValues({
+        //             ...initialValues,
+        //             picture: results
+        //         })
+        //
+        //         messageApi.open({ key: "on_uploadMainImage", type: 'success', content: "Success", duration: 2 });
     }
 
-    async function on_uploadGallImages ({ files }) {
-        console.log(__yellow("on_uploadGallImages()"), files);
+    async function on_uploadGallImages ({ files, images }) {
+        set_initialValues(previous => ({ ...previous, gallery: images || [...(previous.gallery || []), ...files] }));
 
-        messageApi.open({ key: "on_uploadGallImages", type: 'loading', content: `Uploading...` })
-
-        let variables = {
-            _id_product: initialValues._id,
-            files: files.map(file => ({
-                url: file.url,
-                type: file.type,
-                thumbnails: file.thumbnails
-            }))
-        }
-
-        let results = await uploadGalleryItems({ variables })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadGalleryItems }))
-            .catch(catchApolloError);
-
-        if (!results || results.error){
-            messageApi.open({
-                key: "on_uploadGallImages", type: 'error', duration: 2,
-                content: (results && results?.error?.message) || "Invalid Response!",
-            });
-            return;
-        }
-
-        set_initialValues({ ...initialValues, gallery: results.images })
-
-        messageApi.open({ key: "on_uploadGallImages", type: 'success', content: "Upload complete", duration: 2 });
-
+        // Legacy metadata mutation retained; multipart backend now saves the DB fields.
+        //         console.log(__yellow("on_uploadGallImages()"), files);
+        //
+        //         messageApi.open({ key: "on_uploadGallImages", type: 'loading', content: `Uploading...` })
+        //
+        //         let variables = {
+        //             _id_product: initialValues._id,
+        //             files: files.map(file => ({
+        //                 url: file.url,
+        //                 type: file.type,
+        //                 thumbnails: file.thumbnails
+        //             }))
+        //         }
+        //
+        //         let results = await uploadGalleryItems({ variables })
+        //             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadGalleryItems }))
+        //             .catch(catchApolloError);
+        //
+        //         if (!results || results.error){
+        //             messageApi.open({
+        //                 key: "on_uploadGallImages", type: 'error', duration: 2,
+        //                 content: (results && results?.error?.message) || "Invalid Response!",
+        //             });
+        //             return;
+        //         }
+        //
+        //         set_initialValues({ ...initialValues, gallery: results.images })
+        //
+        //         messageApi.open({ key: "on_uploadGallImages", type: 'success', content: "Upload complete", duration: 2 });
+        //
     }
 
     async function on_uploadVideo ({ files }) {
@@ -222,6 +231,7 @@ export function ProductImageManager({ session, ...props }) {
             <div align="center" style={{ maxWidth:"400px" }}><Space wrap>
                 <div align="center">
                     <FileUploader
+                        uploadRequest={files => uploadProductImages({ files, productId: initialValues._id, target: "picture" })}
                         thumbnail={{
                             resize: [{width: 200, height: 200 }],
                             display: { width: 150, height: 150 },
@@ -277,6 +287,7 @@ export function ProductImageManager({ session, ...props }) {
 
             <div align="center">
                 <FileUploader
+                        uploadRequest={files => uploadProductImages({ files, productId: initialValues._id, target: "gallery" })}
                     thumbnail={{
                         resize: [{ width: 200, height: 200 }],
                         display: { width: 150, height: 150 },

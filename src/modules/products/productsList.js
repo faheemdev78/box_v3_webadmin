@@ -1,4 +1,6 @@
 'use client'
+import { cdnImageUrl } from '@/lib/cdnImageUrl';
+// Legacy product thumbnails were always prefixed with NEXT_PUBLIC_CDN_URL.
 
 import React, { useState, useEffect } from 'react'
 import { Popconfirm, Alert, message, Row, Col, Divider, Radio, Modal, Space, Tag } from 'antd';
@@ -79,7 +81,7 @@ export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProp
     // { title: 'ID', dataIndex: '_id', key:'_id', width: 80, align: 'left' },
     { title: 'Name', dataIndex: 'title', key:'title', render: (text, record) => {
         return (<Row gutter={16}>
-          <Col><Avatar size={40} shape="square" src={record?.picture?.thumbnails ? `${process.env.NEXT_PUBLIC_CDN_URL}/${record?.picture?.thumbnails[0]}` : null} icon={<Icon icon="image" />} /></Col>
+          <Col><Avatar size={40} shape="square" src={record?.picture?.thumbnails ? cdnImageUrl(record?.picture?.thumbnails[0] || record?.picture?.url) : null} icon={<Icon icon="image" />} /></Col>
           <Col>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <Link href={parseEditLink ? parseEditLink(record) : `${adminRoot}/product/${record._id}/view`}>{record.title}</Link>

@@ -2,9 +2,11 @@ fragment ProductCatInfo on ProductCat {
   _id
   title
   slug
+  cat_path
   status
   _id_parent_cat
   parent_cat_title
+  parents { _id title cat_path }
 
   icon_img
   icon_img_thumb

@@ -1,4 +1,6 @@
 'use client'
+import { cdnImageUrl } from '@/lib/cdnImageUrl';
+// Legacy product thumbnails were always prefixed with NEXT_PUBLIC_CDN_URL.
 import React, { Children, useEffect, useState } from 'react'
 import { Alert, Col, message, Row } from 'antd';
 import { Image, Button, DevBlock, DndContainers, Icon, SearchBar } from '@/components';
@@ -22,7 +24,7 @@ function itemParser (data){
         <Row gutter={[10]} align="middle">
             <Col>
                 {data?.picture?.thumbnails ? 
-                    <Image src={`${process.env.NEXT_PUBLIC_CDN_URL}/${data.picture.thumbnails[0]}`} width={50} height={50} alt={data.title} /> :
+                    <Image src={cdnImageUrl(data.picture.thumbnails[0])} width={50} height={50} alt={data.title} /> :
                     <Icon style={{ fontSize: "50px", color: "#999999" }} icon="image" />
                 }
             </Col>

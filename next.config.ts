@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
     // Current LAN host (see root .env VIRTUAL_HOSTS / ALLOWED_ORIGINS)
     "192.168.88.10", "*.192.168.88.10",
     // Legacy LAN host
-    "192.168.18.10", "*192.168.18.10*",
+    "192.168.88.10", "*192.168.88.10*",
 
     "http://172.21.0.7:3000"
   ],

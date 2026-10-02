@@ -1,3 +1,5 @@
+import { cdnImageUrl } from '@/lib/cdnImageUrl';
+// Legacy product thumbnails were always prefixed with NEXT_PUBLIC_CDN_URL.
 import React, { Component, useEffect } from 'react'
 import { Spin, message, Row, Col } from 'antd';
 import { useLazyQuery, useMutation, useSubscription } from '@apollo/client/react';
@@ -73,7 +75,7 @@ export const ProductSelector = props => {
 
             {list.map((item, i) => {
                 return (<Row key={i} className="date-row" gutter={[5, 0]} style={{ flexWrap: "nowrap" }}>
-                    <Col flex="30px"><Avatar size={40} shape="square" src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.picture_thumb}`} /></Col>
+                    <Col flex="30px"><Avatar size={40} shape="square" src={cdnImageUrl(item.picture_thumb)} /></Col>
                     <Col flex="auto"><div style={{ flexWrap: "wrap", whiteSpace: "normal" }}>{item.title}</div></Col>
                     <Col flex="20px"><IconButton onClick={()=>props.onAddClick(item)} icon="plus" /></Col>
                 </Row>)

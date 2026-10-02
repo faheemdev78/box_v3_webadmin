@@ -65,6 +65,11 @@ function CategoriesPage () {
             key: 'title',
         },
         {
+            title: 'Path',
+            dataIndex: 'cat_path',
+            key: 'cat_path',
+        },
+        {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',

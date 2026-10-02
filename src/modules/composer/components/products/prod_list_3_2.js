@@ -1,4 +1,6 @@
 'use client'
+import { cdnImageUrl } from '@/lib/cdnImageUrl';
+// Legacy product thumbnails were always prefixed with NEXT_PUBLIC_CDN_URL.
 
 import React, { useEffect, useState } from 'react'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler } from '@/components/form';
@@ -45,7 +47,7 @@ function ProductList({ onProductsLoad, item: { data, schedule_start, schedule_en
                     return (<Col span={8} key={i}>
                         <div className={cssStyles.thumb} style={{}}>
                             {item?.picture?.thumbnails ?
-                                <Image src={`${process.env.NEXT_PUBLIC_CDN_URL}/${item.picture.thumbnails[0]}`} width={142} height={142} alt={item.title} style={{ width: "100%", height: "auto" }} /> :
+                                <Image src={cdnImageUrl(item.picture.thumbnails[0])} width={142} height={142} alt={item.title} style={{ width: "100%", height: "auto" }} /> :
                                 <Icon style={{ fontSize: "64px", color: "#999999" }} icon="image" />
                             }
                         </div>

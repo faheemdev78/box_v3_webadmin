@@ -383,6 +383,53 @@ function EditAppPage() {
         return false;
     }
 
+    // const uploadImage = async (file) => {
+    //     let result = uploadFile({ file, data: { upload_type: "page_assets" } }).catch(err => {
+    //         console.log(__error("Error: "), err)
+    //         return { error: { message: "Unable to comeplte upload!" } }
+    //     })
+
+    //     if (!result || result.error) {
+    //         setError((result && result.error.message) && "Invalid Upload response!")
+    //         return false;
+    //     }
+
+    //     return result;
+    // }
+
+    // const updatePublish = async (values: any, published:boolean) => {
+    //     console.log("updatePublish() ", values)
+
+    //     // const form = useForm()
+    //     // let _values = form.getState().values
+    //     // console.log("_values: ", _values)
+
+    //     // const { rows, published } = values;
+
+    //     // if (!rows || rows.length < 1 || !rows[0]?._id) {
+    //     //     setError("Oops! Seems like your havent added anything into the page yet!")
+    //     //     return false;
+    //     // }
+    //     // setError(null);
+
+    //     // return false;
+
+    //     // set_publishing(true)
+    //     // let result = await publishAppPage({ variables: { input: { _id: pageData._id, published } } })
+    //     //     .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr:any) => rr?.data?.publishAppPage }))
+    //     //     .catch(catchApolloError)
+    //     // set_publishing(false)
+
+    //     // if (!result || result.error) {
+    //     //     setError((result && result?.error?.message) || "Invalid response")
+    //     //     return false;
+    //     // }
+
+    //     // message.success("Published")
+
+    //     // set_pageData((prev:any) => ({ ...prev, published: published }))
+    // }
+
     const toggleSettings = () => set_showPageEdit(!showPageEdit)
     const toggleSchedule = () => set_showScheduleEdit(!showScheduleEdit)
 
@@ -497,6 +544,7 @@ function EditAppPage() {
                                     <div className={styles.mob_view} style={{ textAlign: 'left' }}>
                                         <FieldArray name="rows">
                                             {({ fields }) => {
+                                                console.log("fields?.value: ", fields?.value);
 
                                                 return (<>
                                                     <DndContext

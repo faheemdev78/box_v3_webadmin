@@ -32,7 +32,12 @@ function AppPageCreatorForm({ onClose }: { onClose:Function }) {
             description: values.description,
             page_type: {
                 title: values.page_type.title,
-                type: values.page_type.type
+                type: values.page_type.type,
+                page_source: !values?.page_source?._id ? undefined :  {
+                    _id: values.page_source._id,
+                    title: values.page_source.title,
+                    path: values.page_source.path
+                }
             },
             p_limit: values.p_limit || 50
         }

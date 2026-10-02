@@ -7,7 +7,7 @@ import { __error } from '@/lib/consoleHelper';
 import { Alert, Col, Divider, message, Row } from 'antd';
 import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@/lib/utill';
 import { ComponentStyling } from './lib';
-import { Button } from '@/components';
+import { Button, DevBlock } from '@/components';
 
 import EDIT_DATA from '@/graphql/app_pages/editAppPage.graphql'
 
@@ -97,6 +97,28 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
         return false;
     }
 
+    let values = form.getState().values
+
+    let sourceField;
+    switch (values.page_type.type) {
+        case "category_page":
+            sourceField = <>
+                <div>Category: {values?.page_type?.page_source?.title}</div>
+                {values?.page_source?.path && <Tag>{values?.page_source?.path}</Tag>}
+            </>;
+            break;
+
+        case "brand_page":
+            sourceField = <>
+                <div>Brand: {values?.page_type?.page_source?.title}</div>
+                {values?.page_source?.path && <Tag>{values?.page_source?.path}</Tag>}
+            </>;
+            break;
+
+        default:
+            sourceField = "nothing";
+    }
+    
 
     return (<div>
         {/* <h1>{`Editing "${data?.page_type?.title}" Variant`}</h1> */}
@@ -106,9 +128,10 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
             <Col span={12}>
                 <Divider>Page Info</Divider>
                 <FormField name="title" label="Page Title" type="text" validate={rules.required} />
-                <FormField name="slug" label="Page Slug" type="text" placeholder={'section1/section2/section3'}
+                {sourceField}
+                {/* <FormField name="slug" label="Page Slug" type="text" placeholder={'section1/section2/section3'}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>, callback: (val: string) => void) => callback(string_to_slug(e.target.value, "/"))}
-                    validate={rules.required} />
+                    validate={rules.required} /> */}
                 <FormField name="description" label="Page Description" rows={2} type="textarea" />
                 <FormField name="p_limit" label="Pagination Limit" type="number" validate={rules.required} />
             </Col>
@@ -122,6 +145,8 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
             <Col flex="auto"><Button onClick={() => onCancel()} disabled={busy}>Cancel</Button></Col>
             <Col><Button loading={busy} onClick={saveSettings} color="orange">Save</Button></Col>
         </Row>
+
+        {/* <DevBlock obj={values} /> */}
     </div>)
 
     // return <PageSettings data={data} onUpdate={onPageSettingsUpdate} />

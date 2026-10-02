@@ -93,7 +93,8 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
         else set_showPreview(target)
     }
 
-    const URL = thumb_url ? (String(thumb_url).startsWith('data:') ? thumb_url : `${process.env.NEXT_PUBLIC_CDN_URL}/${thumb_url}`) : '';
+    // Legacy: const URL = thumb_url ? `${process.env.NEXT_PUBLIC_CDN_URL}/${thumb_url}` : '';
+    const URL = thumb_url || config.file?.url || '';
     const resolvedSrc = URL || config.placeholder || '';
 
     return (<>
@@ -128,7 +129,8 @@ export const Thumbnail: React.FC<ThumbnailProps> = (props) => {
         </Loader>
 
         <Modal open={showPreview !== false} onCancel={() => set_showPreview(false)} width={'1000px'} style={{ textAlign: "center" }} title={false} footer={false} destroyOnHidden>
-            {(showPreview) && <Image src={`${process.env.NEXT_PUBLIC_CDN_URL}/${showPreview.url}`} width={500} height={500} alt="" />}
+            {/* Legacy: prefix showPreview.url with NEXT_PUBLIC_CDN_URL. */}
+            {(showPreview) && <Image src={showPreview.url} width={500} height={500} alt="" />}
         </Modal>
 
     </>)
@@ -147,6 +149,7 @@ interface FileUploaderProps {
     };
     disabled?: boolean;
     onUpload?: (args: any) => void;
+    uploadRequest?: (files: File[]) => Promise<any>;
     uploadMode?: 'immediate' | 'deferred';
     // Relax prop surface for legacy callers
     defaultValues?: { _id?: string; url?: string; thumbnails?: string[]; originFileObj?: File; loading?: boolean }[];
@@ -264,10 +267,13 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
 
         let uri:string = `upload_files`;
 
-        const results = await axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/${uri}`, formData,
+        // Product images use the authenticated backend callback. Legacy transport remains for videos/other callers.
+        const results = await (config.uploadRequest
+            ? config.uploadRequest(files.map(file => file.originFileObj as File))
+            : axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/${uri}`, formData,
                 { headers: { 'Content-Type': 'multipart/form-data' } }
             )
-            .then((r: any) => (r?.error || r?.data?.error || r.data))
+            .then((r: any) => (r?.error || r?.data?.error || r.data)))
             .catch(err=>{
                 console.error(err);
                 return { error: { message:"upload Failed!" } }
@@ -281,7 +287,7 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
     
         messageApi.open({ key: "on_uploadMainImage", type: 'success', content: "Done", duration: 2 });
 
-        if (config.onUpload) config.onUpload(results);
+        if (config.onUpload) await config.onUpload(results);
         return results;
 
     }
@@ -368,7 +374,8 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
 
         <Modal open={previewImg !== null} onCancel={() => setPreviewImg(null)} width={'1000px'} title={false} footer={false} destroyOnHidden style={{ textAlign: "center" }}>
             {/* {(previewImg && !busy) && <Image src={previewImg} style={{ width: "100%" }} width={0} height={0} alt="" />} */}
-            {(previewImg && !busy) && <Image unoptimized src={String(previewImg).startsWith('data:') ? previewImg : `${process.env.NEXT_PUBLIC_CDN_URL}/${previewImg}`} width={500} height={500} alt="" />}
+            {/* Legacy: prefix previewImg with NEXT_PUBLIC_CDN_URL. */}
+            {(previewImg && !busy) && <Image unoptimized src={previewImg} width={500} height={500} alt="" />}
             {busy && <Loader loading={true} />}
         </Modal>
 

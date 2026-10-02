@@ -1,3 +1,5 @@
+import { cdnImageUrl } from '@/lib/cdnImageUrl';
+// Legacy product thumbnails were always prefixed with NEXT_PUBLIC_CDN_URL.
 import React, { Component, useState, useEffect } from 'react'
 import { Drawer, Button, Heading, Icon, Loader, Avatar, IconButton, DevBlock, BannerSelection } from '@/components'
 import { FormField, FormFieldGroup, SubmitButton, rules, submitHandler } from '@/components/form';
@@ -196,7 +198,7 @@ const FormComp = props => {
                                                     {products && products.map((prod, i) => {
                                                         return (
                                                             <Row key={i} className="date-row" gutter={[15, 0]} style={{ flexWrap: "nowrap" }}>
-                                                                <Col flex="30px"><Avatar size={40} shape="square" src={`${process.env.NEXT_PUBLIC_CDN_URL}/${prod.picture_thumb}`} /></Col>
+                                                                <Col flex="30px"><Avatar size={40} shape="square" src={cdnImageUrl(prod.picture_thumb)} /></Col>
                                                                 <Col flex="auto"><div style={{ flexWrap: "wrap", whiteSpace: "normal" }}>{prod.title}</div></Col>
                                                                 <Col flex="20px"><IconButton icon="minus" onClick={() => formProps.form.mutators.setProduct({ remove_prod: prod, key: key })} /></Col>
                                                             </Row>
@@ -306,7 +308,7 @@ const FormComp = props => {
                                                 {products && products.map((prod, i) => {
                                                     return (
                                                         <Row key={i} className="date-row" gutter={[15, 0]} style={{ flexWrap: "nowrap" }}>
-                                                            <Col flex="30px"><Avatar size={40} shape="square" src={`${process.env.NEXT_PUBLIC_CDN_URL}/${prod.picture_thumb}`} /></Col>
+                                                            <Col flex="30px"><Avatar size={40} shape="square" src={cdnImageUrl(prod.picture_thumb)} /></Col>
                                                             <Col flex="auto"><div style={{ flexWrap: "wrap", whiteSpace: "normal" }}>{prod.title}</div></Col>
                                                             <Col flex="20px"><IconButton icon="minus" onClick={() => formProps.form.mutators.setProduct({ remove_prod: prod, key: key })} /></Col>
                                                         </Row>

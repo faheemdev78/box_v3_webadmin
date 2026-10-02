@@ -55,8 +55,7 @@ function MapProvider({ children }) {
     // Next inlines only the literal `process.env.NEXT_PUBLIC_*` access.
     // Destructuring `process.env` stays undefined in the client bundle.
     const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLEMAP_API_KEY;
-    console.log({ googleMapsApiKey })
-
+    
     // Load the Google Maps JavaScript API asynchronously
     const { isLoaded: scriptLoaded, loadError } = useJsApiLoader({
         googleMapsApiKey,

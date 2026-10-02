@@ -4,7 +4,12 @@ import { gql } from "@apollo/client";
 
 const SEARCH_QUERY = gql`query productCats($filter:String, $others:String){
     productCats(filter: $filter, others: $others){
-        _id title slug _id_parent_cat parent_cat_title
+        _id 
+        title
+        slug
+        cat_path
+        _id_parent_cat
+        parent_cat_title
     }
 }`
 

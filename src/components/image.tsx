@@ -1,12 +1,13 @@
 import React from 'react'
 import NextImage, { ImageProps as NextImageProps } from 'next/image';
+import { cdnImageUrl } from '@/lib/cdnImageUrl';
 
 type CustomImageProps = Omit<NextImageProps, 'src' | 'alt'> & { src: string; alt?: string };
 
 export function Image({ src, alt, ...props }: CustomImageProps) {
 
-    let _src: string = src; 
-    if (!String(src).startsWith('/') && !String(src).startsWith('http')) _src = `${process.env.NEXT_PUBLIC_CDN_URL}/${src}`;
+    // Legacy: prefix every relative image with NEXT_PUBLIC_CDN_URL.
+    const _src = cdnImageUrl(src);
     //String(src).startsWith('http') ? src : `${process.env.NEXT_PUBLIC_CDN_URL}/${src}`;
 
 

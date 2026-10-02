@@ -1,98 +1,68 @@
 'use client';
 
+import { gql } from '@apollo/client';
+import { useQuery } from '@apollo/client/react';
 import { ListyItem, ListyItemMeta } from '@/components/ListyItem';
 import { CustomerWrapper } from '@/modules/customers';
-import { Alert, Card, Col, Divider, Row, Table, Tag, Statistic, Listy, Timeline, Descriptions, Space, Button } from 'antd';
+import { Alert, Button, Card, Empty, Listy, Space, Tag } from 'antd';
 import { EnvironmentOutlined } from '@ant-design/icons';
-import Link from 'next/link';
 
-// Dummy Data
-const DUMMY_ADDRESSES = [
-    {
-        _id: 'addr_1',
-        label: 'Home',
-        address_line1: '123 Main Street',
-        address_line2: 'Apt 4B',
-        city: 'San Francisco',
-        state: 'CA',
-        zip: '94102',
-        country: 'USA',
-        is_default: true,
-        coordinates: { lat: 37.7749, lng: -122.4194 }
-    },
-    {
-        _id: 'addr_2',
-        label: 'Office',
-        address_line1: '456 Market Street',
-        address_line2: 'Suite 200',
-        city: 'San Francisco',
-        state: 'CA',
-        zip: '94105',
-        country: 'USA',
-        is_default: false,
-        coordinates: { lat: 37.7849, lng: -122.4094 }
-    },
-    {
-        _id: 'addr_3',
-        label: 'Parents House',
-        address_line1: '789 Oak Avenue',
-        address_line2: '',
-        city: 'Oakland',
-        state: 'CA',
-        zip: '94612',
-        country: 'USA',
-        is_default: false,
-        coordinates: { lat: 37.8044, lng: -122.2712 }
+const CUSTOMER_ADDRESSES = gql`
+    query CustomerAddresses($filter: String!) {
+        userAddresses(filter: $filter) {
+            _id title full_address city { title } delivery_instructions
+            geo_point { coordinates } is_default verified error { message }
+        }
     }
-];
+`;
 
+type Address = {
+    _id: string;
+    title?: string;
+    full_address?: string;
+    city?: { title?: string };
+    delivery_instructions?: string;
+    geo_point?: { coordinates?: number[] };
+    is_default?: boolean;
+    verified?: boolean;
+    error?: { message?: string };
+};
 
+function Addresses({ user }: { user: { _id: string } }) {
+    const { data, loading, error, refetch } = useQuery<{ userAddresses: Address[] }>(CUSTOMER_ADDRESSES, {
+        variables: { filter: JSON.stringify({ _id_user: user._id }) },
+        fetchPolicy: 'network-only',
+    });
+    const addresses = data?.userAddresses || [];
+    const errorMessage = error?.message || addresses.find(address => address.error)?.error?.message;
 
-function Addresses({ user, session, refresh }: { user: any; session: any; refresh: () => void }) {
-    if (!session || !session?.user?._id) return <Alert title="Error" description="Invalid user session" showIcon type='error' />
-
-    return (<>
-
-        <Card title="Delivery Addresses" variant='outlined' style={{ marginTop: 16 }}>
-            <Listy
-                styles={{ item: { paddingInline: 0 } }}
-                items={DUMMY_ADDRESSES}
-                rowKey="_id"
-                itemRender={(address: any) => (
-                    <ListyItem
-                        key={address._id || address.label}
-                        actions={[
-                            <span key="default">{address.is_default ? <Tag color="blue">Default</Tag> : <a>Set Default</a>}</span>,
-                            <a key="edit">Edit</a>,
-                            <a key="delete" style={{ color: 'red' }}>Delete</a>
-                        ]}
-                    >
-                        <ListyItemMeta
-                            avatar={<EnvironmentOutlined style={{ fontSize: 24 }} />}
-                            title={<strong>{address.label}</strong>}
-                            description={
-                                <>
-                                    <div>{address.address_line1}</div>
-                                    {address.address_line2 && <div>{address.address_line2}</div>}
-                                    <div>{address.city}, {address.state} {address.zip}</div>
-                                    <div>{address.country}</div>
-                                </>
-                            }
-                        />
-                    </ListyItem>
-                )}
-            />
+    return (
+        <Card title="Delivery Addresses" loading={loading} style={{ marginTop: 16 }}
+            extra={<Button onClick={() => { void refetch().catch(() => {}); }} disabled={loading}>Refresh</Button>}>
+            {errorMessage ? <Alert title="Unable to load addresses" description={errorMessage} type="error" showIcon />
+                : !addresses.length ? <Empty description="No saved addresses" />
+                : <Listy styles={{ item: { paddingInline: 0 } }} items={addresses} rowKey="_id"
+                    itemRender={(address: Address) => {
+                        const coordinates = address.geo_point?.coordinates;
+                        const hasPin = coordinates?.length === 2 && coordinates.every(Number.isFinite);
+                        return <ListyItem key={address._id}>
+                            <ListyItemMeta avatar={<EnvironmentOutlined style={{ fontSize: 24 }} />}
+                                title={<Space wrap><strong>{address.title || 'Address'}</strong>
+                                    {address.is_default && <Tag color="blue">Default</Tag>}
+                                    <Tag color={address.verified ? 'green' : 'default'}>{address.verified ? 'Verified' : 'Not verified'}</Tag>
+                                </Space>}
+                                description={<>
+                                    <div>{address.full_address}</div>
+                                    {address.city?.title && <div>{address.city.title}</div>}
+                                    {address.delivery_instructions && <div>Delivery instructions: {address.delivery_instructions}</div>}
+                                    {hasPin && <a href={`https://www.google.com/maps?q=${coordinates![1]},${coordinates![0]}`} target="_blank" rel="noopener noreferrer">View location on map</a>}
+                                </>} />
+                        </ListyItem>;
+                    }} />}
         </Card>
-
-    </>)
+    );
 }
 
 export default function AddressesClient() {
-    return (
-        <CustomerWrapper
-            render={({ user, session, refresh }: { user: any; session: any; refresh: () => void }) => (
-                <Addresses user={user} session={session} refresh={refresh} />
-            )}
-        />
-    );
+    return <CustomerWrapper render={({ user }) => <Addresses key={user._id} user={user} />} />;
 }
