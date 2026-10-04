@@ -57,13 +57,13 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
                 }
             })
         }
-        if (values?.styles?.margins?.top) {
+        if (values?.styles?.margin?.top) {
             Object.assign(styles, {
-                margins: {
-                    top: values?.styles?.margins?.top || 0,
-                    right: values?.styles?.margins?.right || 0,
-                    bottom: values?.styles?.margins?.bottom || 0,
-                    left: values?.styles?.margins?.left || 0,
+                margin: {
+                    top: values?.styles?.margin?.top || 0,
+                    right: values?.styles?.margin?.right || 0,
+                    bottom: values?.styles?.margin?.bottom || 0,
+                    left: values?.styles?.margin?.left || 0,
                 }
             })
         }

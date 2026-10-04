@@ -359,7 +359,8 @@ function EditAppPage() {
 
         // verify that there is no empty ROW
         if (!input.rows || input.rows.length < 1 || input.rows.includes(false)) {
-            setError("Loooks like you have one or more empty rows, please populate the row(s) or remove!")
+            let total = input?.rows?.filter(a=>!a)?.length | 0;
+            setError(`Loooks like you have ${total} empty row${total>1 ? 's' : ''}, please populate or remove it to continue!`)
             return false;
         }
 

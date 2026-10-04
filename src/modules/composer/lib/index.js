@@ -84,12 +84,12 @@ export function parseStylesInput(styles = {}) {
             image: bgImage,
         }
     })
-    if (styles.margins) Object.assign(input, {
-        margins: {
-            top: styles?.margins?.top || 0,
-            right: styles?.margins?.right || 0,
-            bottom: styles?.margins?.bottom || 0,
-            left: styles?.margins?.left || 0,
+    if (styles.margin) Object.assign(input, {
+        margin: {
+            top: styles?.margin?.top || 0,
+            right: styles?.margin?.right || 0,
+            bottom: styles?.margin?.bottom || 0,
+            left: styles?.margin?.left || 0,
         }
     })
     if (styles.padding) Object.assign(input, {

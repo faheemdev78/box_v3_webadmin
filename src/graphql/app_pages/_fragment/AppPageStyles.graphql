@@ -7,6 +7,6 @@ fragment AppPageStylesInfo on AppPageStyles {
     color1 color2
     image { ...ImageSchemaInfo }
   }
-  margins { top right bottom left }
+  margin { top right bottom left }
   padding { top right bottom left }
 }

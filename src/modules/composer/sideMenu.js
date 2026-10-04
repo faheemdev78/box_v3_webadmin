@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react'
 import { useDrop, useDrag } from 'ahooks';
 import { Col, Row, Space } from 'antd'
 import { Button } from '@/components'
-import { textArray, categoriesArray, carouselArray, productsArray, animationsArray } from './components';
+import { ui_elementsArray, textArray, categoriesArray, carouselArray, productsArray, animationsArray } from './components';
 import styles from './Composer.module.scss';
 
 const DragItem = ({ data }) => {
@@ -35,6 +35,7 @@ export function SideMenu() {
     const [selectedMenu, set_selectedMenu] = useState(null)
 
     var itemAray = null;
+    if (selectedMenu == 'ui_elements') itemAray = ui_elementsArray;
     if (selectedMenu == 'text') itemAray = textArray;
     if (selectedMenu == 'categories') itemAray = categoriesArray;
     if (selectedMenu == 'carousel') itemAray = carouselArray;
@@ -46,6 +47,7 @@ export function SideMenu() {
         <Row className="nowrap" style={{ height: "inherit" }}>
             <Col style={{ borderRight: "1px solid #D0DAE5", padding: "10px", height: "inherit" }}><div>
                 <Space orientation='vertical'>
+                    <Button onClick={() => set_selectedMenu('ui_elements')} block>UI Elements</Button>
                     <Button onClick={() => set_selectedMenu('text')} block>Text</Button>
                     <Button onClick={() => set_selectedMenu('categories')} block>Categories</Button>
                     <Button onClick={() => set_selectedMenu('carousel')} block>Carousel</Button>

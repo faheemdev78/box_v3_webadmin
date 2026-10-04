@@ -16,12 +16,52 @@ import { publishStatus } from '@/configs';
 import { __error } from '@/lib/consoleHelper';
 import { useAppSelector } from '@/rStore/hooks';
 import { getSettings } from '@/rStore/slices/systemSlice';
+import { RenderProduct } from './RenderProduct'
 
+interface ComposerProduct {
+    _id?: string;
+    title?: string;
+    picture?: { thumbnails?: string[] } | null;
+    attributes?: { val?: React.ReactNode; title?: React.ReactNode }[] | null;
+    price?: number | null;
+    price_was?: number | null;
+}
 
-function ProductList({ onProductsLoad, item: { data, schedule_start, schedule_end, values, sort_order, styles, status, name } }) {
+interface ProductListValues {
+    title?: { show?: boolean; text?: string };
+    all_btn?: { show?: boolean; link?: string };
+    num_products?: number | string;
+    theme?: string;
+    products?: ComposerProduct[];
+    open_as?: string;
+}
+
+interface ProductListItem {
+    name: string;
+    data?: unknown;
+    values?: ProductListValues | null;
+    schedule_start?: string | number | null;
+    schedule_end?: string | number | null;
+    sort_order?: number;
+    styles?: Record<string, unknown>;
+    status?: string;
+}
+
+interface ProductListProps {
+    item: ProductListItem;
+    onProductsLoad?: (products: ComposerProduct[]) => void;
+}
+
+interface ProductPropsItem {
+    node: ComposerProduct;
+    name: string;
+    index: number;
+}
+
+function ProductList({ onProductsLoad, item: { data, schedule_start, schedule_end, values, sort_order, styles, status, name } }: ProductListProps) {
     const {currency} = useAppSelector(getSettings)
 
-    let style = parseStylesOutput(styles)
+    let style: React.CSSProperties = parseStylesOutput(styles)
     if (status == 'offline') Object.assign(style, { opacity: 0.5 })
 
     const { all_btn, num_products, theme, products } = values || {};
@@ -29,7 +69,7 @@ function ProductList({ onProductsLoad, item: { data, schedule_start, schedule_en
 
     let isScheduled = (schedule_start || schedule_end)
 
-    let itemsArray = products || new Array(_num_products).fill({})
+    let itemsArray: ComposerProduct[] = products || new Array<ComposerProduct>(_num_products).fill({})
 
     return (<>
         <div className={cssStyles.comp_prod_list} style={style}>
@@ -40,54 +80,35 @@ function ProductList({ onProductsLoad, item: { data, schedule_start, schedule_en
             {values?.title?.show && <h2>{values.title.text}</h2>}
 
             <Row gutter={[12, 10]}>
-                {itemsArray.map((item, i) => {
+                {itemsArray.map((item: ComposerProduct, i: number) => {
                     let off_percent = 0;
                     if (item.price && item.price_was && item.price_was > item.price) off_percent = 100 - ((item.price / item.price_was) * 100);
 
                     return (<Col span={8} key={i}>
-                        <div className={cssStyles.thumb} style={{}}>
-                            {item?.picture?.thumbnails ?
-                                <Image src={cdnImageUrl(item.picture.thumbnails[0])} width={142} height={142} alt={item.title} style={{ width: "100%", height: "auto" }} /> :
-                                <Icon style={{ fontSize: "64px", color: "#999999" }} icon="image" />
-                            }
-                        </div>
-
-                        {item?.attributes?.length > 0 && <Space size={2}>
-                            {item?.attributes?.map((o, ii) => (<div style={{ border: "1px solid #EDEFF3", borderRadius:"3px", backgroundColor: "#F5F6FB", fontSize:"11px" }} key={ii}>{o.val}{o.title}</div>))}
-                        </Space>}
-
-                        <div style={{ fontSize: "18px", color: "#3D3D3D" }}>{item.title || <Skeleton.Node style={{ width: "120px", height: "15px" }} />}</div>
-                        {off_percent > 0 && <div style={{ fontSize: "12px", color: "#1155CB" }}>{off_percent}% OFF</div>}
-
-                        <Row>
-                            <Col flex="auto" style={{ color: "#3D3D3D", fontSize: "14px", fontWeight: "bold" }}>{currency}<Skeleton.Node style={{ width: "50px", height: "15px" }} /></Col>
-                            <Col style={{ color: "#9097A9", fontSize: "14px" }}><Skeleton.Node style={{ width: "50px", height: "15px" }} /></Col>
-                        </Row>
+                        <RenderProduct item={item} off_percent={off_percent} currency={currency} />
                     </Col>)
                 })}
             </Row>
 
-            {values?.all_btn?.show && <div align="right" style={{ marginTop: "15px" }}><Button onClick={() => console.log(values.all_btn.link)} size="small">Show All</Button></div>}
+            {values?.all_btn?.show && <div style={{ marginTop: "15px", textAlign: "right" }}><Button onClick={() => console.log(values.all_btn?.link)} size="small">Show All</Button></div>}
         </div>
     </>)
 }
 
-const Product = ({ node, name, index }) => (<div style={{ border: "1px solid #999", height: "100px", overflow:"hidden", position:"relative", textAlign:"center" }}>
+const Product = ({ node, name, index }: ProductPropsItem) => (<div style={{ border: "1px solid #999", height: "100px", overflow:"hidden", position:"relative", textAlign:"center" }}>
     <div style={{ position: "relative", width:"100%", height:"80px" }}>
-        {node?.picture?.thumbnails && <Image src={node.picture.thumbnails[0]} _width={116} _height={100} fill={true} style={{ objectFit: 'contain' }} alt={node.title || ""} />}
+        {node?.picture?.thumbnails && <Image src={node.picture.thumbnails[0]} {...{ _width: 116, _height: 100 }} fill={true} style={{ objectFit: 'contain' }} alt={node.title || ""} />}
     </div>
     <div>{node.title}</div>
 </div>)
 
 
 
-function ProductProps({ item: { name, data, values } }) {
-    const form = useForm()
+function ProductProps({ item: { name, data, values } }: Pick<ProductListProps, 'item'>) {
+    const form = useForm<Record<string, unknown>>()
     const [showProdSelection, set_showProdSelection] = useState(false)
 
-    const getFieldValue = (field_name) => form.getFieldState(`${name}.${field_name}`)
-
-    // console.log("values.title.show: ", getFieldValue('values.title.show')?.value)
+    const getFieldValue = (field_name: string) => form.getFieldState(`${name}.${field_name}`)
 
     return (<>
         <Space orientation='vertical'>
@@ -95,7 +116,7 @@ function ProductProps({ item: { name, data, values } }) {
             <FormField name={`${name}.status`} type='select' label="Status" options={publishStatus} validate={rules.required} />
 
             <Card styles={{ body: { padding: "10px" } }}>
-                <Heading>Title</Heading>
+                <Heading style={undefined}>Title</Heading>
                 <Row gutter={5} align="bottom">
                     <Col flex="auto"><FormField name={`${name}.values.title.text`} type='text' validate={rules.required} /></Col>
                     <Col><FormField wrapperStyle={{ paddingBottom: "5px" }} name={`${name}.values.title.show`} type='switch' 
@@ -106,7 +127,7 @@ function ProductProps({ item: { name, data, values } }) {
             </Card>
 
             <Card styles={{ body: { padding: "10px" } }}>
-                <Heading>Theme</Heading>
+                <Heading style={undefined}>Theme</Heading>
                 <FormField name={`${name}.values.theme`} type='select' options={
                     [
                         { label: "Blue", value: "blue" },
@@ -116,40 +137,9 @@ function ProductProps({ item: { name, data, values } }) {
             </Card>
 
             <Card styles={{ body: { padding: "10px" } }}>
-                {/* <Heading>Thumbnail Background</Heading>
-                <Row gutter={[10, 10]} align="bottom">
-                    <Col span={8}><FormField name={`${name}.values.background.type`} type='select' label="Type" options={
-                        [
-                            { label: "Solid", value: "solid" },
-                            { label: "Gradient", value: "gradient" },
-                        ]
-                    } /></Col>
-                    <Col span={9}>
-                        {getFieldValue('values.background.type')?.value == 'gradient' && <>
-                            <FormField name={`${name}.values.background.direction`} type='select' label="Direction" options={
-                                [
-                                    { label: "Vertical", value: "vertical" },
-                                    { label: "Horizontal", value: "horizontal" },
-                                ]
-                            } />
-                        </>}
-                    </Col>
-
-                    <Col span={7}>
-                        {getFieldValue('values.background.type')?.value == 'solid' && <>
-                            <FormField name={`${name}.values.background.color1`} _label="Color 1" type="color" compact />
-                        </>}
-                        {getFieldValue('values.background.type')?.value == 'gradient' && <>
-                            <Space orientation='horizontal'>
-                                <FormField name={`${name}.values.background.color1`} _label="Color 1" type="color" compact />
-                                <FormField name={`${name}.values.background.color2`} _label="Color 2" type="color" compact />
-                            </Space>
-                        </>}
-                    </Col>
-                </Row> */}
                 <div style={{ height: "20px" }} />
 
-                <Heading>Number of Products</Heading>
+                <Heading style={undefined}>Number of Products</Heading>
                 <FormField name={`${name}.values.num_products`} type='select'
                     options={
                         [
@@ -157,9 +147,9 @@ function ProductProps({ item: { name, data, values } }) {
                             { label: "Row 2 / Col 3", value: "6" },
                         ]
                     }
-                    onChange={(val) => {
+                    onChange={(val: string | number) => {
                         let num = Number(val)
-                        form.change(`${name}.values.products`, new Array(num).fill({}))
+                        form.change(`${name}.values.products`, new Array<ComposerProduct>(num).fill({}))
                     }}
                 />
                 
@@ -167,7 +157,7 @@ function ProductProps({ item: { name, data, values } }) {
                 <div style={{ height: "10px" }} />
                 {/* <p>{`${name}.values.products`}</p> */}
                 <div onClick={() => set_showProdSelection(true)}>
-                    <FieldArray name={`${name}.values.products`}>
+                    <FieldArray<ComposerProduct> name={`${name}.values.products`}>
                         {({ fields }) => {
                             return (<>
                                 <Row gutter={[5, 5]}>
@@ -189,7 +179,7 @@ function ProductProps({ item: { name, data, values } }) {
             </Card>
 
             <Card styles={{ body: { padding: "10px" } }}>
-                <Heading>Buttons</Heading>
+                <Heading style={undefined}>Buttons</Heading>
                 {/* <FormField name={`${name}.values.all_btn.show`} type="checkbox">{`Show "All" Button`}</FormField> */}
                 <Row align="bottom" gutter={5}>
                     <Col flex="auto"><FormField name={`${name}.values.all_btn.link`} placeholder="Select page to link" label="All Button" type="text" /></Col>
@@ -201,7 +191,7 @@ function ProductProps({ item: { name, data, values } }) {
             </Card>
 
             <Card styles={{ body: { padding: "10px" } }}>
-                <Heading>Other Options</Heading>
+                <Heading style={undefined}>Other Options</Heading>
                 <FormField name={`${name}.values.open_as`} type='select' options={
                     [
                         { label: "Open as Pop-up", value: "popup" },
@@ -216,18 +206,18 @@ function ProductProps({ item: { name, data, values } }) {
         </Space>
 
         <Modal title="Select products" onCancel={() => set_showProdSelection(false)} footer={false} open={showProdSelection} width={'1000px'} destroyOnHidden>
-            <Field name={`${name}.values.num_products`} subscription={{ value: true }}>
+            <Field<number | string> name={`${name}.values.num_products`} subscription={{ value: true }}>
                 {({ input })=>{
                     let limit = input.value || 3;
 
                     return (<>
-                        <Field name={`${name}.values.products`} subscription={{ value: true }}>
+                        <Field<ComposerProduct[]> name={`${name}.values.products`} subscription={{ value: true }}>
                             {(products)=>{
                                 return (<>
                                     <ProductListSelector
                                         selected_products={products.input.value}
                                         limit={limit}
-                                        onSubmit={(selectdProds) => {
+                                        onSubmit={(selectdProds: ComposerProduct[]) => {
                                             let num = Number(limit || 0)
                                             if (num < 1) {
                                                 set_showProdSelection(false)
@@ -235,7 +225,7 @@ function ProductProps({ item: { name, data, values } }) {
                                                 return;
                                             }
 
-                                            let arr = new Array(num).fill({});
+                                            let arr = new Array<ComposerProduct>(num).fill({});
                                             arr = arr.map((o, i) => (selectdProds[i] || {}))
 
                                             set_showProdSelection(false)
