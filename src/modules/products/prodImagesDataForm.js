@@ -1,4 +1,4 @@
-import { uploadProductImages } from '@/lib/productImageUpload';
+import { uploadProductImages, uploadProductVideo as uploadProductVideoFile } from '@/lib/productImageUpload';
 import React, { useState, useEffect, useRef } from 'react'
 import { __error, __yellow } from '@/lib/consoleHelper';
 import { Alert, Card, Col, Divider, message, Row, Space } from 'antd';
@@ -7,14 +7,10 @@ import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-for
 import arrayMutators from 'final-form-arrays'
 import { FormField, SubmitButton, rules, submitHandler, Label } from '@/components/form';
 import { FieldArray } from 'react-final-form-arrays';
-import axios from 'axios';
 import { ensureArrayLength } from '@/lib/utill';
 import { PROD_GAL_SIZE } from '@/configs';
-import { useMutation } from '@apollo/client/react';
-import { checkApolloRequestErrors } from '@/lib/utill_apollo';
 import UPDATE_MAIN_IMG from '@/graphql/product/uploadProductImg.graphql';
 import UPDATE_GALL_IMG from '@/graphql/product/uploadGalleryItems.graphql';
-import UPDATE_VDO from '@/graphql/product/uploadProductVideo.graphql';
 
 
 
@@ -24,7 +20,6 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
     const [messageApi, contextHolder] = message.useMessage();
     // const [uploadProductImg] = useMutation(UPDATE_MAIN_IMG);
     // const [uploadGalleryItems] = useMutation(UPDATE_GALL_IMG);
-    const [uploadProductVideo] = useMutation(UPDATE_VDO);
 
     console.log({ initialValues })
 
@@ -87,25 +82,6 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
         return false;
     }
 
-    const uploadFilesToCdn = async (files, { folder, thumbnailSizes }) => {
-        if (!files || files.length < 1) return { error: { message: 'No files to upload' } };
-
-        const formData = new FormData();
-        formData.append('folder', folder);
-        if (thumbnailSizes) formData.append('thumbnails', JSON.stringify(thumbnailSizes));
-        files.forEach((file) => formData.append('files', file));
-
-        try {
-            return await axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/upload_files`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            })
-                .then((r) => ((r.data.error) ? r.data : r.data));
-        } catch (error) {
-            console.error('Upload failed:', error.response?.data || error.message);
-            return { error: { message: (error.response?.data?.error || error.response?.data || error.message) } }
-        }
-    }
-
     const onUpdateMainFile = async (files, _id) => {
         if (!(files?.originFileObj instanceof File)) return { error: { message: 'Picture file not found.' } };
         const result = await uploadProductImages({ files: [files.originFileObj], productId: _id, target: 'picture' });
@@ -165,25 +141,8 @@ export function ProdImagesDataForm({ onSuccess, onCancel, ...props }) {
         }
 
         messageApi.open({ key: "onSubmit", type: 'loading', content: "Uploading product video" })
-        const uploadResult = await uploadFilesToCdn([file.originFileObj], { folder: `prod/${_id}` });
-        if (uploadResult?.error) return uploadResult;
-
-        const uploadedFile = uploadResult?.files?.[0];
-        if (!uploadedFile) return { error: { message: 'Invalid CDN upload response' } };
-
-        messageApi.open({ key: "onSubmit", type: 'loading', content: "Saving product video" })
-        return uploadProductVideo({
-            variables: {
-                _id_product: _id,
-                file: {
-                    url: uploadedFile.url,
-                    type: uploadedFile.type,
-                    thumbnails: uploadedFile.thumbnails || [],
-                },
-            },
-        })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadProductVideo }))
-            .catch(error => ({ error: { message: error.message || 'Unable to save product video' } }));
+        const result = await uploadProductVideoFile({ file: file.originFileObj, productId: _id })
+        return result.error ? result : result.file
 
     }
     const onUpdateGalleryFiles = async (_files, _id) => {

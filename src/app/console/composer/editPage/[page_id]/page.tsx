@@ -329,7 +329,7 @@ function EditAppPage() {
                 continue
             }
             try {
-                preparedRows.push({ ...row, styles: await prepareStylesForSave(row.styles) })
+                preparedRows.push({ ...row, styles: await prepareStylesForSave(row.styles, pageData?._id) })
             } catch (err: any) {
                 const messageText = err?.message || 'Unable to upload the background picture.'
                 setError(messageText)

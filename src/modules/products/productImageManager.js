@@ -5,8 +5,7 @@ import { Drawer, Card, Divider, Alert, Space, message } from 'antd';
 import { __error, __yellow } from '@/lib/consoleHelper';
 import security from '@/lib/security';
 import { NOIMAGE, PROD_GAL_SIZE } from '@/configs';
-import axios from 'axios';
-import { uploadProductImages } from '@/lib/productImageUpload';
+import { uploadProductImages, uploadProductVideo as uploadProductVideoFile } from '@/lib/productImageUpload';
 import { useLazyQuery, useMutation } from '@apollo/client/react';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 
@@ -18,7 +17,6 @@ import DEL_MAIN_IMG from '@/graphql/product/deleteProductImg.graphql';
 import UPDATE_GALL_IMG from '@/graphql/product/uploadGalleryItems.graphql';
 import DEL_GAL_IMG from '@/graphql/product/deleteGalleryItem.graphql';
 
-import UPDATE_VDO from '@/graphql/product/uploadProductVideo.graphql';
 import DEL_VDO from '@/graphql/product/deleteProductVideo.graphql';
 
 
@@ -33,7 +31,6 @@ export function ProductImageManager({ session, ...props }) {
     // const [uploadGalleryItems, galup_updates] = useMutation(UPDATE_GALL_IMG); // { data, loading, error }
     const [deleteGalleryItem, galdel_updates] = useMutation(DEL_GAL_IMG); // { data, loading, error }
 
-    const [uploadProductVideo, vdoup_updates] = useMutation(UPDATE_VDO); // { data, loading, error }
     const [deleteProductVideo, vdodel_updates] = useMutation(DEL_VDO); // { data, loading, error }
 
     console.log({ initialValues })
@@ -121,37 +118,9 @@ export function ProductImageManager({ session, ...props }) {
     }
 
     async function on_uploadVideo ({ files }) {
-        console.log(__yellow("on_uploadVideo()"), files);
-        
-        messageApi.open({ key: "on_uploadVideo", type: 'loading', content: `Uploading...` })
-
-        const file = files[0]
-        let results = await uploadProductVideo({ variables: {
-            _id_product: initialValues._id,
-            file: {
-                url: file.url,
-                type: file.type,
-                thumbnails: file.thumbnails
-            }
-        }
-        })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr) => rr?.data?.uploadProductVideo }))
-            .catch(catchApolloError);
-
-        if (!results || results.error){
-            messageApi.open({ 
-                key: "on_uploadVideo", type: 'error', duration: 2,
-                content: (results && results?.error?.message) || "Invalid Response!", 
-            });
-            return;
-        }
-
-        set_initialValues({
-            ...initialValues,
-            video: results
-        })
-
-        messageApi.open({ key: "on_uploadVideo", type: 'success', content: "Success", duration: 2 });
+        const video = files?.[0]
+        if (!video) return
+        set_initialValues(previous => ({ ...previous, video }))
     }
 
     // const fetchData = async() =>{
@@ -259,6 +228,10 @@ export function ProductImageManager({ session, ...props }) {
 
                 <div align="center">
                     <FileUploader
+                        uploadRequest={async (files) => {
+                            const result = await uploadProductVideoFile({ file: files[0], productId: initialValues._id })
+                            return result.error ? result : { files: [result.file] }
+                        }}
                         thumbnail={{
                             resize: [{ width: 200, height: 200 }],
                             display: { width: 150, height: 150 },

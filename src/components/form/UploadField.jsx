@@ -328,7 +328,7 @@ export const UploadImage = props => {
 
     const uploadProps = {
         // fileList,
-        action: props.action, // || `${process.env.NEXT_PUBLIC_CDN_API_URI}/upload/assets`,
+        action: props.action,
         disabled: false,
         multiple: false,
         data: props.data,

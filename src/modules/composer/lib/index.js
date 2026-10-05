@@ -1,5 +1,5 @@
-import axios from 'axios'
 import { cdnImageUrl } from '@/lib/cdnImageUrl'
+import { uploadGalleryFiles } from '../gallery/uploadGalleryFile'
 
 export * from './componentStyling'
 export * from './componentSchedule'
@@ -129,39 +129,25 @@ export function parseStylesInput(styles = {}) {
     return input
 }
 
-export async function prepareStylesForSave(styles = {}) {
+export async function prepareStylesForSave(styles = {}, pageId) {
     const file = styles?.background?.upload_image?.[0]
     if (!(file?.originFileObj instanceof File)) return styles
+    if (!pageId) throw new Error('Save the page before uploading a background picture.')
 
-    const endpoint = process.env.NEXT_PUBLIC_CDN_API_URI
-    if (!endpoint) throw new Error('Background picture upload is not configured.')
-
-    const formData = new FormData()
-    formData.append('folder', 'composer/backgrounds')
-    formData.append('thumbnails', JSON.stringify([{ width: 960, height: 960 }]))
-    formData.append('files', file.originFileObj)
-
-    let uploaded
-    try {
-        const response = await axios.post(`${endpoint}/upload_files`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        uploaded = response?.data?.files?.[0]
-    } catch (error) {
-        const message = error?.response?.data?.error || error?.message || 'Background picture upload failed.'
-        throw new Error(message)
-    }
-
-    if (!uploaded?.url) throw new Error('Background picture upload failed.')
+    const [asset] = await uploadGalleryFiles([file.originFileObj], pageId)
+    const background = { ...styles.background }
+    delete background.upload_image
 
     return {
         ...styles,
         background: {
-            ...styles.background,
+            ...background,
             image: {
-                url: cdnImageUrl(uploaded.url),
-                type: uploaded.type || 'image',
-                thumbnails: (uploaded.thumbnails || []).map((item) => cdnImageUrl(item)).filter(Boolean),
+                url: asset.url,
+                url_bucket_path: asset.path,
+                type: asset.type || 'image',
+                thumbnails: asset.thumbnails || [],
+                thumb_bucket_path: asset.thumb_paths?.[0],
             },
         },
     }

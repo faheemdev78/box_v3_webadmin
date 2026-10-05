@@ -1,6 +1,5 @@
 // import { defaultDateFormat, defaultDateTimeFormat, defaultTZ } from '@/configs';
 import moment from 'moment';
-import axios from 'axios';
 import { __error, __yellow } from './consoleHelper';
 // import dayjs from 'dayjs';
 import { isString } from './lodash_alt';
@@ -100,109 +99,9 @@ export async function getSrcFromFile(file) {
 };
 
 //*
-export const uploadFile = async ({ file, data, thumbSize, headers, withCredentials, onUploadComplete, onError }) => {
-    // data{ upload_type: '', pathPrefix }
+export const uploadFile = async () => ({ error: { message: 'Uploads go through the backend.' } })
 
-    if (!file){
-        alert("Missing upload file")
-        return false;
-    }
-    if (!data){
-        alert("Missing upload data")
-        return false;
-    }
-
-    if (!data.upload_type){
-        alert("Missing upload_type")
-        return false;
-    }
-
-    function onUploadProgress({ total, loaded }) {
-        let percent = Math.round(loaded / total * 100).toFixed(2);
-        // console.log("onUploadProgress()", { total, loaded, percent })
-    }
-    
-    let formData = {
-        ...data,
-        file
-    }
-
-    await axios.post(process.env.NEXT_PUBLIC_CDN_API_URI+`/upload_files`, formData, { 
-            withCredentials, 
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }, 
-            onUploadProgress
-        })
-        .then(({ data: response }) => onUploadComplete(response, file))
-        .catch(onError || console.log);
-
-    return {
-        abort() {
-            console.log('upload progress is aborted.');
-        },
-    };
-}
-
-export const uploadFiles = async ({ files, data, thumbSize, headers, withCredentials, onUploadComplete, onError }) => {
-    if (!files){
-        alert("Missing upload files")
-        return false;
-    }
-    if (!data || !data._id){
-        alert("Missing upload ID")
-        return false;
-    }
-    if (!data.uploadType){
-        alert("Missing upload type")
-        return false;
-    }
-
-    function onUploadProgress({ total, loaded }) {
-        let percent = Math.round(loaded / total * 100).toFixed(2);
-        return percent;
-        // console.log("onUploadProgress()", { total, loaded, percent })
-    }
-
-
-    const formData = new FormData();
-        Object.keys(data).forEach(key => {
-            formData.append(key, data[key]);
-        });
-        files.forEach((file) => {
-            if (file.originFileObj instanceof File) {
-                formData.append('files', file.originFileObj); // Append each file
-            } else {
-                console.error('Invalid file format:', file);
-            }
-        });
-
-    let resutls = await axios.post(process.env.NEXT_PUBLIC_CDN_API_URI+`/upload_files`, formData, { 
-            withCredentials, 
-            headers: { 'Content-Type': 'multipart/form-data' }, 
-            onUploadProgress
-        })
-        .then(({ data: response }) => (response))
-        .catch(err => {
-            console.log(__error("Upload Error: "), err)
-            return { error:{message:"Faild to upload files"}}
-        });
-
-    if (!resutls || resutls.error){
-        if (onError) onError((resutls && resutls?.error?.message) || "Invalid upload response!")
-        return { error: { message: (resutls && resutls?.error?.message) || "Invalid upload response!" }}
-    }
-
-    if (onUploadComplete) onUploadComplete(resutls)
-    return resutls;
-
-    // return {
-    //     abort() {
-    //         console.log('upload progress is aborted.');
-    //     },
-    // };
-}
-// */
+export const uploadFiles = async () => ({ error: { message: 'Uploads go through the backend.' } })
 
 
 

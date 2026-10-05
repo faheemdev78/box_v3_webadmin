@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import { Progress, message, Upload, Modal, Card, Alert, Row, Col, Space } from 'antd';
 import { InboxOutlined, PictureOutlined, PlaySquareOutlined } from '@ant-design/icons';
 import _, { debounce } from 'lodash';
-import axios from 'axios';
 import { DevBlock } from '@/components'
 import { Loader } from './loader';
 import { IconButton, Button, DeleteButton } from './button';
@@ -237,43 +236,23 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
             return false;
         }
 
-        const formData = new FormData();
-            formData.append('folder', config.folder);
-            if (config.type === 'image' && config.thumbnail.resize?.length) {
-                formData.append('thumbnails', JSON.stringify(config.thumbnail.resize));
-            }
-
         messageApi.open({ key: "on_uploadMainImage", type: 'loading', content: "Preparing files to upload...." })
         setUploading(true);
 
-        let fileErrors:any = false;
-        files.forEach(file => {
-            if (!(file.originFileObj instanceof File)) {
-                fileErrors = "File object not found!";
-                return false;
-            } else {
-                formData.append('files', file.originFileObj); // Append each file
-            }
-        });
-
-        if (fileErrors) {
-            console.error(files)
-            messageApi.open({ key: "on_uploadMainImage", type: 'error', content: fileErrors, duration: 3 });
+        if (!config.uploadRequest) {
+            messageApi.open({ key: "on_uploadMainImage", type: 'error', content: 'Uploads go through the backend.', duration: 3 });
+            setUploading(false);
+            return false;
+        }
+        if (files.some(file => !(file.originFileObj instanceof File))) {
+            messageApi.open({ key: "on_uploadMainImage", type: 'error', content: 'File object not found!', duration: 3 });
             setUploading(false);
             return false;
         }
 
         messageApi.open({ key: "on_uploadMainImage", type: 'loading', content: "Uploading files..." })
 
-        let uri:string = `upload_files`;
-
-        // Product images use the authenticated backend callback. Legacy transport remains for videos/other callers.
-        const results = await (config.uploadRequest
-            ? config.uploadRequest(files.map(file => file.originFileObj as File))
-            : axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/${uri}`, formData,
-                { headers: { 'Content-Type': 'multipart/form-data' } }
-            )
-            .then((r: any) => (r?.error || r?.data?.error || r.data)))
+        const results = await config.uploadRequest(files.map(file => file.originFileObj as File))
             .catch(err=>{
                 console.error(err);
                 return { error: { message:"upload Failed!" } }

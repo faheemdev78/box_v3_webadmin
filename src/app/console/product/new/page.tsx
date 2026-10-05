@@ -1,5 +1,5 @@
 'use client'
-import { uploadProductImages } from '@/lib/productImageUpload';
+import { uploadProductImages, uploadProductVideo as uploadProductVideoFile } from '@/lib/productImageUpload';
 import React, { useState, useEffect, useRef } from 'react'
 import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, DevBlock, Loader, FileUploader, IconButton, Icon } from '@/components';
 import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@/components/dropdowns';
@@ -13,7 +13,6 @@ import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-for
 import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, FormFieldGroup, UploadField, Label as FormLabel, TagsManager } from '@/components/form';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { ensureArrayLength } from '@/lib/utill';
 import { Page } from '@/template/page';
@@ -25,7 +24,6 @@ import GET_EXTRA_FIELDS from '@/graphql/fields_definations/fieldsDefinations.gra
 import RECORD_ADD from '@/graphql/product/addProduct.graphql'
 import UPLOAD_PRODUCT_IMG from '@/graphql/product/uploadProductImg.graphql'
 import UPLOAD_GALLERY_ITEMS from '@/graphql/product/uploadGalleryItems.graphql'
-import UPLOAD_PRODUCT_VIDEO from '@/graphql/product/uploadProductVideo.graphql'
 // import DELETE_PROD_IMG from '@/graphql/product/deleteProductImg.graphql'
 // import DELETE_PROD_GALL_IMG from '@/graphql/product/deleteGalleryItem.graphql'
 
@@ -85,7 +83,6 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
     const [addProduct, add_details] = useMutation<any>(RECORD_ADD); // { data, loading, error }
     // const [uploadProductImg] = useMutation<any>(UPLOAD_PRODUCT_IMG);
     // const [uploadGalleryItems] = useMutation<any>(UPLOAD_GALLERY_ITEMS);
-    const [uploadProductVideo] = useMutation<any>(UPLOAD_PRODUCT_VIDEO);
 
     const onChange = (value:number) => {
         // set_activeStep(value);
@@ -226,28 +223,6 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
     //     return true;
     // }
 
-    const uploadFilesToCdn = async (
-        files: File[],
-        { folder, thumbnailSizes }: { folder: string; thumbnailSizes?: Array<{ width: number; height: number }> }
-    ) => {
-        if (!files || files.length < 1) return { error: { message: 'No files to upload' } };
-
-        const formData = new FormData();
-        formData.append('folder', folder);
-        if (thumbnailSizes) formData.append('thumbnails', JSON.stringify(thumbnailSizes));
-        files.forEach((file) => formData.append('files', file));
-
-        try {
-            return await axios.post(`${process.env.NEXT_PUBLIC_CDN_API_URI}/upload_files`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            })
-                .then((r) => ((r.data.error) ? r.data : r.data));
-        } catch (error: any) {
-            console.error('Upload failed:', error.response?.data || error.message);
-            return { error: { message: (error.response?.data?.error || error.response?.data || error.message) } }
-        }
-    };
-
     const updateMainFile = async (files: any, _id: any) => {
         if (!(files?.originFileObj instanceof File)) return { error: { message: 'Picture file not found.' } };
         const result = await uploadProductImages({ files: [files.originFileObj], productId: _id, target: 'picture' });
@@ -307,25 +282,8 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
         }
 
         messageApi.open({ key: "onSubmit", type: 'loading', content: "Uploading product video" })
-        const uploadResult = await uploadFilesToCdn([file.originFileObj], { folder: `prod/${_id}` });
-        if (uploadResult?.error) return uploadResult;
-
-        const uploadedFile = uploadResult?.files?.[0];
-        if (!uploadedFile) return { error: { message: 'Invalid CDN upload response' } };
-
-        messageApi.open({ key: "onSubmit", type: 'loading', content: "Saving product video" })
-        return uploadProductVideo({
-            variables: {
-                _id_product: _id,
-                file: {
-                    url: uploadedFile.url,
-                    type: uploadedFile.type,
-                    thumbnails: uploadedFile.thumbnails || [],
-                },
-            },
-        })
-            .then((r) => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.uploadProductVideo }))
-            .catch((error: any) => ({ error: { message: error.message || 'Unable to save product video' } }));
+        const result = await uploadProductVideoFile({ file: file.originFileObj, productId: _id })
+        return result.error ? result : result.file
 
     }
     const updateGalleryFiles = async (_files: any, _id: any) => {
