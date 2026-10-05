@@ -24,6 +24,8 @@ import {
   faTemperatureLow,
   faEquals, faUndo,
   faCut,
+  faLink,
+  faLinkSlash,
   } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { FontAwesomeIconProps } from '@fortawesome/react-fontawesome';
@@ -36,7 +38,8 @@ library.add(
   faPen, faTrashAlt, faTrash, faCopy, faRefresh, faAddressCard, faLocation, faInfoCircle, faMapLocation, faBasketShopping,
   faLock, faPlay, faArrowLeft, faCheckCircle, faShoppingBasket, faShoppingBag, faExclamation,
   faSnowflake, faBox, faExclamationCircle, faTemperatureLow, faUndo, 
-  faCut
+  faCut,
+  faLink, faLinkSlash,
 )
  
 

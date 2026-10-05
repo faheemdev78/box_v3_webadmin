@@ -1,7 +1,7 @@
 import type { ComposerComponent } from '../types'
 import { CarouselPreview } from './CarouselPreview'
 import { CarouselProps } from './CarouselProps'
-import type { CarouselValues } from './types'
+import type { CarouselNavigation, CarouselValues } from './types'
 import type { ComposerProduct } from '../products/types'
 import { serializeComposerProduct } from '../products/serializeProduct'
 import { productInk } from '../products/theme'
@@ -21,6 +21,7 @@ export function defineCarousel({ type, label, desc, columns, fullBleed = false }
         placement: 'body',
         defaults: {
             theme: '#FFFFFF',
+            navigation: 'none',
             products: [],
         },
         fields: [],
@@ -28,6 +29,7 @@ export function defineCarousel({ type, label, desc, columns, fullBleed = false }
         Props: CarouselProps,
         serialize: (values) => ({
             theme: productInk(values?.theme),
+            navigation: (['dots', 'dashes', 'arrows'].includes(values?.navigation || '') ? values?.navigation : 'none') as CarouselNavigation,
             products: ((values?.products || []) as ComposerProduct[])
                 .filter((product) => product?._id)
                 .slice(0, 20)

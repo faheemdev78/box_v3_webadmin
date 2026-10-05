@@ -19,8 +19,8 @@ export function AttachmentFields({ name, link }: { name: string; link?: Composer
         ? [{ value: link._id, title: link.title, label: link.title }]
         : []
 
-    const rememberTitle = (_value: unknown, raw?: { title?: string }) => {
-        form.change(`${name}.title`, raw?.title || '')
+    const rememberTitle = (_value: unknown, raw?: { title?: string; label?: string }) => {
+        form.change(`${name}.title`, raw?.title || raw?.label || '')
     }
 
     return (

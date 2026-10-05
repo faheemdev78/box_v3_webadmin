@@ -37,6 +37,17 @@ export function CarouselProps({ item }: { item: ComposerItem<CarouselValues> }) 
             <Card styles={{ body: { padding: '10px' } }}>
                 <Heading style={undefined}>Theme</Heading>
                 <FormField name={`${name}.values.theme`} type="color" label="Text color" />
+                <FormField
+                    name={`${name}.values.navigation`}
+                    type="select"
+                    label="Show navigation"
+                    options={[
+                        { label: "Don't show", value: 'none' },
+                        { label: 'Show dots', value: 'dots' },
+                        { label: 'Show dash lines', value: 'dashes' },
+                        { label: 'Show arrows', value: 'arrows' },
+                    ]}
+                />
             </Card>
 
             <Card styles={{ body: { padding: '10px' } }}>

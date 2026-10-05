@@ -51,12 +51,43 @@ function assignSpacing(style, box, prefix) {
     if (left !== undefined) style[`${prefix}Left`] = left
 }
 
+function borderLine(styleName) {
+    if (styleName === 'dashed' || styleName === 'dotted') return styleName
+    return 'solid'
+}
+
+function borderThickness(border) {
+    if (border?.width === undefined || border?.width === null || border?.width === '') return 1
+    const n = Number(border.width)
+    return Number.isNaN(n) ? 1 : n
+}
+
+export function assignBorder(style, border) {
+    if (!border) return
+    const width = borderThickness(border)
+    const color = border.color ? cssColor(border.color, '#000000') : '#000000'
+    const line = borderLine(border.style)
+    ;['top', 'right', 'bottom', 'left'].forEach((side) => {
+        if (!border[side] || width <= 0) return
+        const sideName = side.charAt(0).toUpperCase() + side.slice(1)
+        style[`border${sideName}Width`] = `${width}px`
+        style[`border${sideName}Style`] = line
+        style[`border${sideName}Color`] = color
+    })
+    const radius = spacingPx(border.radius)
+    if (radius && Number(border.radius) > 0) {
+        style.borderRadius = radius
+        style.overflow = 'hidden'
+    }
+}
+
 export function parseStylesOutput(styles = {}) {
     if (!styles) return {}
     const style = {}
 
     assignSpacing(style, styles.padding, 'padding')
     assignSpacing(style, styles.margin, 'margin')
+    assignBorder(style, styles.border)
 
     const background = styles.background
     if (background) {
@@ -123,6 +154,20 @@ export function parseStylesInput(styles = {}) {
             right: spacingNumber(styles.padding.right),
             bottom: spacingNumber(styles.padding.bottom),
             left: spacingNumber(styles.padding.left),
+        }
+    }
+    if (styles.border) {
+        const width = styles.border.width === '' || styles.border.width == null ? undefined : spacingNumber(styles.border.width)
+        const radius = styles.border.radius === '' || styles.border.radius == null ? undefined : spacingNumber(styles.border.radius)
+        input.border = {
+            top: !!styles.border.top,
+            right: !!styles.border.right,
+            bottom: !!styles.border.bottom,
+            left: !!styles.border.left,
+            color: styles.border.color ? cssColor(styles.border.color, '') : undefined,
+            width,
+            style: styles.border.style || undefined,
+            radius,
         }
     }
 

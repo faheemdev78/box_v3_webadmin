@@ -9,4 +9,5 @@ fragment AppPageStylesInfo on AppPageStyles {
   }
   margin { top right bottom left }
   padding { top right bottom left }
+  border { top right bottom left color width style radius }
 }

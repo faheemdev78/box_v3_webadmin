@@ -1,5 +1,5 @@
 import React from 'react'
-import { Card, Col, Divider, Row, Space } from 'antd'
+import { Checkbox, Card, Col, Divider, Row, Space } from 'antd'
 // import { Heading } from '../typography'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler } from '@/components/form';
 import { useForm, Field } from 'react-final-form'
@@ -26,6 +26,38 @@ export function ComponentStyling({ name, showHeading=true }) {
             <Col span={6}><FormField name={name ? `${name}.styles.padding.bottom` : `styles.padding.bottom`} label="Bottom" type='number' validate={rules.required} /></Col>
             <Col span={6}><FormField name={name ? `${name}.styles.padding.left` : `styles.padding.left`} label="Left" type='number' validate={rules.required} /></Col>
         </Row>
+
+        <Divider>Border</Divider>
+        <Row gutter={[8, 8]}>
+            {['top', 'right', 'bottom', 'left'].map((side) => (
+                <Col span={6} key={side}>
+                    <Field name={name ? `${name}.styles.border.${side}` : `styles.border.${side}`} type="checkbox">
+                        {({ input }) => (
+                            <Checkbox checked={!!input.checked} onChange={(event) => input.onChange(event.target.checked)}>
+                                {side.charAt(0).toUpperCase() + side.slice(1)}
+                            </Checkbox>
+                        )}
+                    </Field>
+                </Col>
+            ))}
+        </Row>
+        <Row gutter={[10, 10]}>
+            <Col span={8}>
+                <FormField
+                    name={name ? `${name}.styles.border.style` : `styles.border.style`}
+                    type="select"
+                    label="Style"
+                    options={[
+                        { label: 'Solid', value: 'solid' },
+                        { label: 'Dashed', value: 'dashed' },
+                        { label: 'Dotted', value: 'dotted' },
+                    ]}
+                />
+            </Col>
+            <Col span={8}><FormField name={name ? `${name}.styles.border.width` : `styles.border.width`} label="Thickness" type="number" /></Col>
+            <Col span={8}><FormField name={name ? `${name}.styles.border.radius` : `styles.border.radius`} label="Radius" type="number" /></Col>
+        </Row>
+        <FormField name={name ? `${name}.styles.border.color` : `styles.border.color`} type="color" label="Color" />
 
         <Divider>Background</Divider>
 

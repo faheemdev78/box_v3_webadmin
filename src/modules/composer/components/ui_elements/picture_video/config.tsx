@@ -1,10 +1,10 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { Card, Col, Modal, Row, Space, message } from 'antd'
-import { useForm } from 'react-final-form'
+import { Button, Card, Modal, Space, message } from 'antd'
+import { useForm, useFormState } from 'react-final-form'
 import get from 'lodash/get'
-import { Image } from '@/components'
-import { FormField } from '@/components/form'
+import { DeleteButton, IconButton, Image } from '@/components'
+import thumbStyles from '@/components/FileUploader.module.scss'
 import { Heading } from '../../../typography'
 import { cdnImageUrl } from '@/lib/cdnImageUrl'
 import type { ComposerComponent, ComposerItem } from '../../types'
@@ -15,19 +15,13 @@ import { serializeAttachment } from '../attachment'
 import { GalleryPanel } from '../../../gallery/GalleryPanel'
 import { uploadGalleryFiles, type GalleryAsset } from '../../../gallery/uploadGalleryFile'
 
-export const DEFAULT_MEDIA_HEIGHT = 220
-
 export type MediaValues = {
     kind?: 'picture' | 'video'
-    height?: number | string
     asset?: GalleryAsset | null
     assets?: GalleryAsset[]
 }
 
-export function mediaHeight(values?: MediaValues | null): number {
-    const raw = Number(values?.height)
-    return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_MEDIA_HEIGHT
-}
+const liquidMedia = { width: '100%', height: 'auto', display: 'block' } as const
 
 export function mediaAssets(values?: MediaValues | null): GalleryAsset[] {
     if (Array.isArray(values?.assets) && values.assets.length) {
@@ -37,32 +31,30 @@ export function mediaAssets(values?: MediaValues | null): GalleryAsset[] {
     return []
 }
 
-function MediaSlide({ asset, height }: { asset: GalleryAsset; height: number }) {
-    const frame = { width: '100%', height, objectFit: 'cover' as const, display: 'block' }
-    const src = asset.url ? cdnImageUrl(asset.thumbnails?.[0] || asset.url) : ''
+function MediaSlide({ asset }: { asset: GalleryAsset }) {
+    const src = asset.url ? cdnImageUrl(asset.url) : ''
     if (asset.kind === 'video' && asset.url) {
-        return <video src={cdnImageUrl(asset.url)} controls style={{ ...frame, background: '#000' }} />
+        return <video src={cdnImageUrl(asset.url)} controls style={{ ...liquidMedia, background: '#000' }} />
     }
     if (src) {
-        return <Image src={src} width={640} height={height} alt={asset.name || 'picture'} style={frame} />
+        return <img src={src} alt={asset.name || 'picture'} style={liquidMedia} />
     }
     return null
 }
 
 function MediaPreview({ item }: { item: ComposerItem<MediaValues> }) {
     const assets = mediaAssets(item?.values)
-    const height = mediaHeight(item?.values)
     const carousel = assets.length > 1
 
     return (
         <div style={blockFrame(item)}>
             {!assets.length && <div style={{ color: '#999', paddingTop: 12, paddingBottom: 12 }}>No media</div>}
-            {assets.length === 1 && <MediaSlide asset={assets[0]} height={height} />}
+            {assets.length === 1 && <MediaSlide asset={assets[0]} />}
             {carousel && (
-                <div style={{ display: 'flex', overflowX: 'auto', width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', overflowX: 'auto', width: '100%' }}>
                     {assets.map((asset, index) => (
                         <div key={asset._id || index} style={{ flex: '0 0 100%', minWidth: '100%' }}>
-                            <MediaSlide asset={asset} height={height} />
+                            <MediaSlide asset={asset} />
                         </div>
                     ))}
                 </div>
@@ -75,10 +67,13 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
     const { name } = item
     const form = useForm()
     const pageId = form.getState().values?._id as string | undefined
-    const assets = mediaAssets(item?.values)
+    const formValues = useFormState({ subscription: { values: true } }).values
+    const assets = mediaAssets((get(formValues, `${name}.values`) || item?.values) as MediaValues)
     const fileRef = useRef<HTMLInputElement>(null)
     const [open, setOpen] = useState(false)
     const [busy, setBusy] = useState(false)
+    const [preview, setPreview] = useState<GalleryAsset | null>(null)
+    const [linkIndex, setLinkIndex] = useState<number | null>(null)
 
     const savedAssets = () => mediaAssets(get(form.getState().values, `${name}.values`) as MediaValues)
 
@@ -107,6 +102,23 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
         form.change(`${name}.values.asset`, null)
     }
 
+    const saveLink = () => {
+        if (linkIndex == null) return
+        const link = get(form.getState().values, `${name}.values.assets[${linkIndex}].link`)
+        if (link?.type && !link?._id) {
+            message.error('Choose the category, product, or brand to attach.')
+            return
+        }
+        form.change(`${name}.values.assets[${linkIndex}].link`, serializeAttachment(link))
+        setLinkIndex(null)
+    }
+
+    const clearLink = () => {
+        if (linkIndex == null) return
+        form.change(`${name}.values.assets[${linkIndex}].link`, null)
+        setLinkIndex(null)
+    }
+
     const upload = async (files?: FileList | null) => {
         if (!files?.length || !pageId) return
         const accepted = Array.from(files).filter((file) => file.type.startsWith('image/') || file.type.startsWith('video/'))
@@ -132,7 +144,6 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
         <BlockProps item={item}>
             <Card styles={{ body: { padding: '10px' } }}>
                 <Heading style={undefined}>Media</Heading>
-                <FormField name={`${name}.values.height`} type="number" label="Component height" />
                 <div style={{ marginTop: 8, marginBottom: 8, color: '#666' }}>
                     {assets.length > 1 ? `${assets.length} items, shown as a carousel` : `${assets.length} item`}
                 </div>
@@ -150,19 +161,19 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
                     hidden
                     onChange={(event) => upload(event.target.files)}
                 />
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+                    {assets.map((asset, index) => (
+                        <AssetTile
+                            key={asset._id || index}
+                            asset={asset}
+                            linked={!!serializeAttachment(asset.link)}
+                            onPreview={() => setPreview(asset)}
+                            onLink={() => setLinkIndex(index)}
+                            onRemove={() => removeAsset(index)}
+                        />
+                    ))}
+                </div>
             </Card>
-
-            {assets.map((asset, index) => (
-                <Card key={asset._id || index} styles={{ body: { padding: '10px' } }}>
-                    <Row align="middle" gutter={8}>
-                        <Col flex="auto">
-                            <Heading style={undefined}>{asset.kind === 'video' ? 'Video' : 'Picture'} {index + 1}{asset.name ? ` · ${asset.name}` : ''}</Heading>
-                        </Col>
-                        <Col><ButtonLike onClick={() => removeAsset(index)}>Remove</ButtonLike></Col>
-                    </Row>
-                    <AttachmentFields name={`${name}.values.assets[${index}].link`} link={asset.link} />
-                </Card>
-            ))}
 
             <Modal title="Add from gallery" open={open} onCancel={() => setOpen(false)} footer={null} width={720} destroyOnHidden>
                 {open && (
@@ -174,7 +185,62 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
                     />
                 )}
             </Modal>
+
+            <Modal
+                title={preview?.name || (preview?.kind === 'video' ? 'Video' : 'Picture')}
+                open={!!preview}
+                onCancel={() => setPreview(null)}
+                footer={null}
+                width={720}
+                destroyOnHidden
+            >
+                {preview?.kind === 'video' && preview.url
+                    ? <video src={cdnImageUrl(preview.url)} controls style={{ width: '100%', maxHeight: 480, background: '#000' }} />
+                    : preview?.url && <Image src={cdnImageUrl(preview.url)} width={680} height={480} alt={preview.name || 'picture'} style={{ width: '100%', height: 'auto', objectFit: 'contain' }} />}
+            </Modal>
+
+            <Modal
+                title={linkIndex == null ? 'Attach' : (assets[linkIndex]?.name || 'Attach')}
+                open={linkIndex != null}
+                onCancel={() => setLinkIndex(null)}
+                destroyOnHidden
+                footer={(
+                    <Space>
+                        <Button onClick={clearLink}>Clear</Button>
+                        <Button type="primary" onClick={saveLink}>Save</Button>
+                    </Space>
+                )}
+            >
+                {linkIndex != null && (
+                    <AttachmentFields name={`${name}.values.assets[${linkIndex}].link`} link={assets[linkIndex]?.link} />
+                )}
+            </Modal>
         </BlockProps>
+    )
+}
+
+function AssetTile({ asset, linked, onPreview, onLink, onRemove }: {
+    asset: GalleryAsset
+    linked: boolean
+    onPreview: () => void
+    onLink: () => void
+    onRemove: () => void
+}) {
+    const src = asset.kind === 'picture' ? cdnImageUrl(asset.thumbnails?.[0] || asset.url) : ''
+
+    return (
+        <div className={thumbStyles.gal_thumb_holder} style={{ width: 120, height: 120 }} title={asset.name || ''}>
+            {src
+                ? <Image src={src} width={120} height={120} alt={asset.name || 'picture'} className={thumbStyles.thumb_img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <div style={{ color: '#1677ff', fontSize: 28 }}>{asset.kind === 'video' ? '▶' : ''}</div>}
+            <div className={thumbStyles.hover_layer} style={{ alignItems: 'flex-end' }}>
+                <div style={{ display: 'flex', width: '100%', justifyContent: 'space-evenly', background: 'rgba(0,0,0,0.72)', paddingTop: 4, paddingBottom: 4 }}>
+                    <IconButton size="small" icon="eye" onClick={onPreview} />
+                    <IconButton size="small" icon={linked ? 'link' : 'link-slash'} onClick={onLink} />
+                    <DeleteButton size="small" onClick={onRemove} />
+                </div>
+            </div>
+        </div>
     )
 }
 
@@ -192,12 +258,11 @@ export const pictureVideoComponent: ComposerComponent<MediaValues> = {
     desc: 'Pictures or videos, a carousel when there is more than one',
     category: 'ui_elements',
     placement: 'body',
-    defaults: { height: DEFAULT_MEDIA_HEIGHT, assets: [] },
+    defaults: { assets: [] },
     fields: [],
     Preview: MediaPreview,
     Props: MediaProps,
     serialize: (values) => ({
-        height: mediaHeight(values),
         assets: mediaAssets(values).map((asset) => ({
             _id: asset._id,
             kind: asset.kind === 'video' ? 'video' : 'picture',
