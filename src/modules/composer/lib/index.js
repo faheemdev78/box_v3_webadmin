@@ -1,106 +1,169 @@
+import axios from 'axios'
+import { cdnImageUrl } from '@/lib/cdnImageUrl'
+
 export * from './componentStyling'
 export * from './componentSchedule'
-// import { getSrcFromFile } from '@/lib/utill'
 
+function spacingPx(value) {
+    if (value === undefined || value === null || value === '') return undefined
+    const n = Number(value)
+    return Number.isNaN(n) ? undefined : `${n}px`
+}
 
-export function parseStylesOutput(styles={}) {
+function spacingNumber(value) {
+    if (value === undefined || value === null || value === '') return 0
+    const n = Number(value)
+    return Number.isNaN(n) ? 0 : n
+}
+
+export function cssColor(value, fallback = '#ffffff') {
+    if (value == null || value === '') return fallback
+    if (typeof value === 'string') return value
+    if (typeof value.toHexString === 'function') return value.toHexString() || fallback
+    if (typeof value.toRgbString === 'function') return value.toRgbString() || fallback
+    return fallback
+}
+
+function cssUrl(value) {
+    if (!value) return ''
+    return `url("${String(value).replace(/"/g, '%22')}")`
+}
+
+export function backgroundImageUrl(background) {
+    const file = background?.upload_image?.[0]
+    const editing = file?.src?.image || file?.src?.url || file?.thumbUrl
+    if (editing) return editing
+
+    const saved = background?.image
+    if (!saved) return ''
+    return cdnImageUrl(saved.url || saved.thumbnails?.[0] || '')
+}
+
+function assignSpacing(style, box, prefix) {
+    if (!box) return
+    const top = spacingPx(box.top)
+    const right = spacingPx(box.right)
+    const bottom = spacingPx(box.bottom)
+    const left = spacingPx(box.left)
+    if (top !== undefined) style[`${prefix}Top`] = top
+    if (right !== undefined) style[`${prefix}Right`] = right
+    if (bottom !== undefined) style[`${prefix}Bottom`] = bottom
+    if (left !== undefined) style[`${prefix}Left`] = left
+}
+
+export function parseStylesOutput(styles = {}) {
     if (!styles) return {}
-    let style = {}
+    const style = {}
 
-    if (styles?.padding?.top) Object.assign(style, { paddingTop: `${styles.padding.top}px` })
-    if (styles?.padding?.right) Object.assign(style, { paddingRight: `${styles.padding.right}px` })
-    if (styles?.padding?.bottom) Object.assign(style, { paddingBottom: `${styles.padding.bottom}px` })
-    if (styles?.padding?.left) Object.assign(style, { paddingLeft: `${styles.padding.left}px` })
-        
-    if (styles?.margin?.top) Object.assign(style, { marginTop: `${styles.margin.top}px` })
-    if (styles?.margin?.right) Object.assign(style, { marginRight: `${styles.margin.right}px` })
-    if (styles?.margin?.bottom) Object.assign(style, { marginBottom: `${styles.margin.bottom}px` })
-    if (styles?.margin?.left) Object.assign(style, { marginLeft: `${styles.margin.left}px` })
+    assignSpacing(style, styles.padding, 'padding')
+    assignSpacing(style, styles.margin, 'margin')
 
-    if (styles.background) {
-        if (styles.background.type == 'solid') Object.assign(style, { backgroundColor: styles.background.color1 })
-        /*
-        background: rgb(2,0,36);
-        background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
-        */
-        // Background Color
-        if (styles.background.type == 'gradient') {
-            let color1 = styles?.background?.color1 || '#FFFFFF';
-            let color2 = styles?.background?.color2 || '#FFFFFF';
-            let angle = styles?.background?.direction == 'horizontal' ? 90 : 180;
+    const background = styles.background
+    if (background) {
+        const color1 = cssColor(background.color1, '#ffffff')
+        const color2 = cssColor(background.color2, color1)
 
-            Object.assign(style, {
-                background: color1,
-                background: `linear-gradient(${angle}deg, ${color1} 0%, ${color2} 100%)`
-            })
+        if (background.type === 'solid' && background.color1) {
+            style.backgroundColor = color1
         }
 
-        // Background Iamge
-        if (styles?.background?.upload_image && styles?.background?.upload_image[0]?.src?.image){
-            Object.assign(style, {
-                backgroundImage: `url("${styles.background.upload_image[0].src.image}")`,
-                backgroundRepeat: "no-repeat", 
-                backgroundPosition: "left top", // left top
-                backgroundSize: "contain", // width height, width% height%, cover, contain, initial
-                backgroundOrigin: "padding-box", // padding-box, border-box, content-box, initial
-            })
-        }
-        else if (styles?.background?.image?.url) {
-            Object.assign(style, {
-                backgroundImage: `url("${styles.background.image.url}")`,
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "left top", // left top
-                backgroundSize: "contain", // width height, width% height%, cover, contain, initial
-                backgroundOrigin: "padding-box", // padding-box, border-box, content-box, initial
-            })
+        if (background.type === 'gradient') {
+            const angle = background.direction === 'horizontal' ? '90deg' : '180deg'
+            style.backgroundColor = color1
+            style.backgroundImage = `linear-gradient(${angle}, ${color1} 0%, ${color2} 100%)`
         }
 
+        const image = backgroundImageUrl(background)
+        if (image) {
+            style.backgroundImage = cssUrl(image)
+            style.backgroundRepeat = 'no-repeat'
+            style.backgroundPosition = 'center'
+            style.backgroundSize = 'cover'
+        }
     }
 
-    return style;
+    return style
+}
+
+function imageInput(image) {
+    if (!image?.url || String(image.url).startsWith('data:')) return undefined
+    return {
+        url: image.url,
+        url_bucket_path: image.url_bucket_path || undefined,
+        type: image.type || 'image',
+        thumbnails: Array.isArray(image.thumbnails) ? image.thumbnails : undefined,
+        thumb_bucket_path: image.thumb_bucket_path || undefined,
+    }
 }
 
 export function parseStylesInput(styles = {}) {
     if (!styles) return {}
-    
-    let input = {}
-    let bgImage = (styles?.background?.upload_image && styles.background.upload_image[0]) && styles?.background?.upload_image[0];
-    if (bgImage) bgImage = {
-        name: bgImage?.name,
-        url: bgImage?.src?.url,
-        thumb: bgImage?.src?.thumb,
-        width: bgImage?.src?.width,
-        height: bgImage?.src?.height,
-        size: bgImage?.size,
-        type: bgImage?.type,
+
+    const input = {}
+    if (styles.background) {
+        input.background = {
+            type: styles.background.type || undefined,
+            direction: styles.background.direction || undefined,
+            color1: styles.background.color1 ? cssColor(styles.background.color1, '') : undefined,
+            color2: styles.background.color2 ? cssColor(styles.background.color2, '') : undefined,
+            image: imageInput(styles.background.image),
+        }
+    }
+    if (styles.margin) {
+        input.margin = {
+            top: spacingNumber(styles.margin.top),
+            right: spacingNumber(styles.margin.right),
+            bottom: spacingNumber(styles.margin.bottom),
+            left: spacingNumber(styles.margin.left),
+        }
+    }
+    if (styles.padding) {
+        input.padding = {
+            top: spacingNumber(styles.padding.top),
+            right: spacingNumber(styles.padding.right),
+            bottom: spacingNumber(styles.padding.bottom),
+            left: spacingNumber(styles.padding.left),
+        }
     }
 
-    if (styles.background) Object.assign(input, {
-        background: {
-            type: styles?.background?.type,
-            direction: styles?.background?.direction,
-            color1: styles?.background?.color1,
-            color2: styles?.background?.color2,
-            image: bgImage,
-        }
-    })
-    if (styles.margin) Object.assign(input, {
-        margin: {
-            top: styles?.margin?.top || 0,
-            right: styles?.margin?.right || 0,
-            bottom: styles?.margin?.bottom || 0,
-            left: styles?.margin?.left || 0,
-        }
-    })
-    if (styles.padding) Object.assign(input, {
-        padding: {
-            top: styles?.padding?.top || 0,
-            right: styles?.padding?.right || 0,
-            bottom: styles?.padding?.bottom || 0,
-            left: styles?.padding?.left || 0,
-        }
-    })
+    return input
+}
 
-    return input;
+export async function prepareStylesForSave(styles = {}) {
+    const file = styles?.background?.upload_image?.[0]
+    if (!(file?.originFileObj instanceof File)) return styles
+
+    const endpoint = process.env.NEXT_PUBLIC_CDN_API_URI
+    if (!endpoint) throw new Error('Background picture upload is not configured.')
+
+    const formData = new FormData()
+    formData.append('folder', 'composer/backgrounds')
+    formData.append('thumbnails', JSON.stringify([{ width: 960, height: 960 }]))
+    formData.append('files', file.originFileObj)
+
+    let uploaded
+    try {
+        const response = await axios.post(`${endpoint}/upload_files`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        uploaded = response?.data?.files?.[0]
+    } catch (error) {
+        const message = error?.response?.data?.error || error?.message || 'Background picture upload failed.'
+        throw new Error(message)
+    }
+
+    if (!uploaded?.url) throw new Error('Background picture upload failed.')
+
+    return {
+        ...styles,
+        background: {
+            ...styles.background,
+            image: {
+                url: cdnImageUrl(uploaded.url),
+                type: uploaded.type || 'image',
+                thumbnails: (uploaded.thumbnails || []).map((item) => cdnImageUrl(item)).filter(Boolean),
+            },
+        },
+    }
 }
 

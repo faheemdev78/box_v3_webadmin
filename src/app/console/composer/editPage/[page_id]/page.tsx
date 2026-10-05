@@ -21,7 +21,8 @@ import { components } from '@/modules/composer/components';
 import { useRouter, useParams } from 'next/navigation';
 import { adminRoot, defaultPageSize, defaultTZ } from '@/configs';
 import styles from '@/modules/composer/Composer.module.scss';
-import { parseStylesInput } from '@/modules/composer/lib';
+import { parseStylesInput, prepareStylesForSave } from '@/modules/composer/lib';
+import { GalleryButton } from '@/modules/composer/gallery/GalleryButton';
 import AppPageEditForm from '@/modules/composer/appPageEditForm';
 
 import AppScheduleEditForm from '../../components/appScheduleEditForm';
@@ -95,6 +96,7 @@ const SortableField = ({ id, name, remove, index, children, onClick, onEdit, onR
     selected: boolean
 }) => {
     const [busy, setBusy] = useState(false)
+    const pointerStart = useRef<{ x: number; y: number } | null>(null)
     // const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: id });
     const args = useSortable({ id: id });
     const { active, attributes, listeners, setNodeRef, transform, transition } = args;
@@ -106,19 +108,15 @@ const SortableField = ({ id, name, remove, index, children, onClick, onEdit, onR
     }
 
     const style = {
-        // display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        transform: CSS.Transform.toString(transform), //transition,
-        // border: "5px solid red",
+        transform: CSS.Transform.toString(transform ? { ...transform, scaleX: 1, scaleY: 1 } : null),
     };
-    // if (active && active.id == id) Object.assign(style, { height:"50px !important", overflow:"hidden", display:"block" })
-    // if (active) console.log("active: ", active)
 
     let className = `${styles.data_row}`
     if (selected) className += ` ${styles.selected}`
 
     return (<Loader loading={busy}>
-        <div className={className} ref={setNodeRef} style={style}>
-            <div onClick={onClick}>{children}</div>
+        <div className={className} ref={setNodeRef} style={style} onClick={onClick}>
+            <div>{children}</div>
 
             <div className={styles.data_row_menu}>
                 <Space>
@@ -131,7 +129,22 @@ const SortableField = ({ id, name, remove, index, children, onClick, onEdit, onR
                     <Col><Button disabled={!onRemove} size="small" onClick={onRemove}>Delete</Button></Col>
                 </Row> */}
             </div>
-            <div {...attributes} {...listeners} className={styles.data_row_dragger}><div className={styles.bg} /></div>
+            <div
+                {...attributes}
+                {...listeners}
+                className={styles.data_row_dragger}
+                onPointerDown={(event) => {
+                    pointerStart.current = { x: event.clientX, y: event.clientY }
+                    listeners?.onPointerDown?.(event)
+                }}
+                onPointerUp={(event) => {
+                    const start = pointerStart.current
+                    pointerStart.current = null
+                    if (!start) return
+                    const moved = Math.hypot(event.clientX - start.x, event.clientY - start.y)
+                    if (moved < 10) onClick(event as unknown as React.MouseEvent<HTMLDivElement>)
+                }}
+            ><div className={styles.bg} /></div>
 
             {(selected) && <div className={styles.selected} />}
         </div>
@@ -176,7 +189,7 @@ function PublishButton({ published, disabled, setError, onUpdate }: {
         color={published ? "green" : 'red'}
         loading={publishAppPage_details.loading}
         disabled={disabled}
-    >{published ? 'Published' : 'Un-Published'}</Button>)
+    >{published ? 'Published' : 'Publish Draft'}</Button>)
 }
 
 
@@ -309,29 +322,33 @@ function EditAppPage() {
             return false;
         }
 
-        let uploadArray: { file: any; row_index: number }[] = [];
+        const preparedRows = []
+        for (const row of rows) {
+            if (!row?.data?.type || !row?.styles?.background?.upload_image?.[0]?.originFileObj) {
+                preparedRows.push(row)
+                continue
+            }
+            try {
+                preparedRows.push({ ...row, styles: await prepareStylesForSave(row.styles) })
+            } catch (err: any) {
+                const messageText = err?.message || 'Unable to upload the background picture.'
+                setError(messageText)
+                message.error(messageText)
+                return false
+            }
+        }
 
         let input = {
             _id: pageData && pageData._id,
-            rows: rows.map((row: any, row_index: number) => {
+            rows: preparedRows.map((row: any, row_index: number) => {
                 if (!row?.data?.type) return false;
 
                 let _values;// = { ...row.values }
                 if (_.isString(row.values)) _values = row.values
-
-                else if (row.data.type == 'prod_list_3_2') {
-                    _values = JSON.stringify({
-                        ...row.values,
-                        products: row.values.products.map((prod: any) => ({ _id: prod._id }))
-                    })
-                }
-
                 else {
-                    _values = JSON.stringify(row.values)
-                }
-
-                if (row.styles?.background?.upload_image && row.styles.background.upload_image[0]) {
-                    uploadArray.push({ file: row.styles.background.upload_image[0], row_index })
+                    const definition = components.find((component) => component.type == row.data.type)
+                    const stored = definition?.serialize ? definition.serialize(row.values) : row.values
+                    _values = JSON.stringify(stored)
                 }
 
                 return ({
@@ -440,12 +457,27 @@ function EditAppPage() {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed, dirty } = formargs;
 
                 const onItemDrop = ({ item, zone, id }: any, { field, fields, index }: any) => {
-                    // alert(`custom: ${item.label} dropped into zone ${zone}`);
-                    // let data = field?.data?.slice() || [];
-                    //     data.push(item)
+                    if (!item?.type) return
 
-                    // fields.update(index, { ...field, data: item })
-                    fields.update(index, { id, zone, data: item })
+                    if (item.singleton) {
+                        const exists = (fields.value || []).some((row: any) => row?.data?.type === item.type && row?.id !== id)
+                        if (exists) {
+                            message.warning(`Only one ${item.label} can be added to a page`)
+                            return
+                        }
+                    }
+
+                    fields.update(index, {
+                        ...field,
+                        id,
+                        zone,
+                        data: {
+                            type: item.type,
+                            label: item.label,
+                            desc: item.desc,
+                        },
+                        values: item.defaults ? _.cloneDeep(item.defaults) : undefined,
+                    })
                 }
 
                 const hasNoRows = values?.rows?.length < 1;
@@ -462,6 +494,7 @@ function EditAppPage() {
                                 <Col span={8}><Space>
                                     <Button onClick={toggleSettings} tooltip={{ title: "Settings", placement: "bottom" }} icon={<Icon icon="cog" />} />
                                     <Button onClick={toggleSchedule} tooltip={{ title: "Schedule", placement: "bottom" }} icon={<Icon icon="clock" />} />
+                                    <GalleryButton pageId={pageData?._id} />
                                 </Space></Col>
                                 <Col span={8} style={{ textAlign: 'center' }}>
                                     {/* <Space separator="|"><div>Web</div><div>Mobile</div></Space> */}

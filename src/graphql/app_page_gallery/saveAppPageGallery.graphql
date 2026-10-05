@@ -1,0 +1,14 @@
+mutation saveAppPageGallery($input: Save_AppPageGallery!) {
+    saveAppPageGallery(input: $input) {
+        _id
+        _id_parent
+        kind
+        name
+        url
+        path
+        type
+        thumbnails
+        thumb_paths
+        error { message }
+    }
+}

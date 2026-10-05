@@ -19,27 +19,28 @@ interface RenderProductProps {
     item: ComposerProduct;
     off_percent: number;
     currency: string;
+    color?: string;
 }
 
-export function RenderProduct({ item, off_percent, currency }: RenderProductProps) {
+export function RenderProduct({ item, off_percent, currency, color = '#ffffff' }: RenderProductProps) {
     return (<>
         <div className={cssStyles.thumb} style={{}}>
             {item?.picture?.thumbnails ?
-                <Image src={cdnImageUrl(item.picture.thumbnails[0])} width={142} height={142} alt={item.title} style={{ width: "100%", height: "140px", overflow:"hidden", border:"1px solid #EEE" }} /> :
+                <Image src={cdnImageUrl(item.picture.thumbnails[0])} width={142} height={142} alt={item.title || ''} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> :
                 <Icon style={{ fontSize: "64px", color: "#999999" }} icon="image" />
             }
         </div>
 
         {(item?.attributes?.length ?? 0) > 0 && <Space size={2}>
-            {item?.attributes?.map((o, ii) => (<div style={{ border: "1px solid #EDEFF3", borderRadius: "3px", backgroundColor: "#F5F6FB", fontSize: "11px" }} key={ii}>{o.val}{o.title}</div>))}
+            {item?.attributes?.map((o, ii) => (<div style={{ border: "1px solid #EDEFF3", borderRadius: "3px", backgroundColor: "#F5F6FB", fontSize: "11px", color }} key={ii}>{o.val}{o.title}</div>))}
         </Space>}
 
-        <div style={{ fontSize: "18px", color: "#3D3D3D" }}>{item.title || <Skeleton.Node style={{ width: "120px", height: "15px" }} />}</div>
-        {off_percent > 0 && <div style={{ fontSize: "12px", color: "#1155CB" }}>{off_percent}% OFF</div>}
+        <div className={cssStyles.title} style={{ color }}>{item.title || <Skeleton.Node style={{ width: "120px", height: "15px" }} />}</div>
+        {off_percent > 0 && <div style={{ fontSize: "12px", color }}>{off_percent}% OFF</div>}
 
         <Row>
-            <Col flex="auto" style={{ color: "#3D3D3D", fontSize: "14px", fontWeight: "bold" }}>{currency}<Skeleton.Node style={{ width: "50px", height: "15px" }} /></Col>
-            <Col style={{ color: "#9097A9", fontSize: "14px" }}><Skeleton.Node style={{ width: "50px", height: "15px" }} /></Col>
+            <Col flex="auto" style={{ color, fontSize: "14px", fontWeight: "bold" }}>{currency} {item.price != null ? item.price : <Skeleton.Node style={{ width: "50px", height: "15px" }} />}</Col>
+            <Col style={{ color, fontSize: "14px" }}>{item.price_was != null && item.price_was > 0 ? item.price_was : ''}</Col>
         </Row>
     </>)
 }

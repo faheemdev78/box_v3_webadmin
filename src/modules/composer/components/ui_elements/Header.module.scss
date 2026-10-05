@@ -1,4 +1,40 @@
 .comp_header {
-    font-size: 22px;
-    font-weight: bold;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+.bar {
+    padding: 5px 0px;
+    // background: #f5f7fb;
+    border-radius: 4px;
+}
+.search_bar{
+    background-color: #FFF;
+    border-radius: 10;
+    font-size: 18px;
+    font-weight: 200;
+    padding: 5px;
+}
+.address_bar{
+    font-size: 14px;
+    color: #FFF;
+    font-weight: 200;
+    padding: 0px 10px;
+    line-height: 0.5;
+    border: 0px solid white;
+    margin: 0;
+}
+.cat {
+    display: inline-block;
+    padding: 4px 8px;
+    // background: #fff;
+    border: 1px solid #e6ebf2;
+    color: #FFF;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    height: 50px;
 }

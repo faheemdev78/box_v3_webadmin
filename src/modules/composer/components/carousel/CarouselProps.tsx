@@ -1,0 +1,72 @@
+'use client'
+import React, { useState } from 'react'
+import { Card, Col, Row, Space } from 'antd'
+import { FieldArray } from 'react-final-form-arrays'
+import { FormField } from '@/components/form'
+import { Image } from '@/components'
+import { publishStatus } from '@/configs'
+import { Heading } from '../../typography'
+import { ComponentSchedule, ComponentStyling } from '../../lib'
+import { ProductSelectModal } from '../products/ProductSelectModal'
+import type { ComposerItem } from '../types'
+import type { ComposerProduct } from '../products/types'
+import type { CarouselValues } from './types'
+import { CAROUSEL_PRODUCT_LIMIT } from './types'
+
+function ProductThumb({ node }: { node: ComposerProduct }) {
+    return (
+        <div style={{ border: '1px solid #999', minHeight: '100px', overflow: 'hidden', textAlign: 'center' }}>
+            <div style={{ position: 'relative', width: '100%', height: '80px' }}>
+                {node?.picture?.thumbnails && (
+                    <Image src={node.picture.thumbnails[0]} {...{ _width: 116, _height: 100 }} fill style={{ objectFit: 'contain' }} alt={node.title || ''} />
+                )}
+            </div>
+            <div>{node.title || 'Empty'}</div>
+        </div>
+    )
+}
+
+export function CarouselProps({ item }: { item: ComposerItem<CarouselValues> }) {
+    const { name } = item
+    const [open, setOpen] = useState(false)
+
+    return (<>
+        <Space orientation="vertical">
+            <FormField name={`${name}.status`} type="select" label="Status" options={publishStatus} />
+
+            <Card styles={{ body: { padding: '10px' } }}>
+                <Heading style={undefined}>Theme</Heading>
+                <FormField name={`${name}.values.theme`} type="color" label="Text color" />
+            </Card>
+
+            <Card styles={{ body: { padding: '10px' } }}>
+                <Heading style={undefined}>Products</Heading>
+                <div style={{ marginBottom: '8px' }}>Up to {CAROUSEL_PRODUCT_LIMIT}. Drag items in the selector to set their order.</div>
+                <div onClick={() => setOpen(true)}>
+                    <FieldArray<ComposerProduct> name={`${name}.values.products`}>
+                        {({ fields }) => (
+                            <Row gutter={[5, 5]}>
+                                {fields.map((fieldName, index) => (
+                                    <Col span={8} key={fieldName}>
+                                        <ProductThumb node={fields.value[index]} />
+                                    </Col>
+                                ))}
+                                {!fields.length && <Col span={24}><div style={{ color: '#999' }}>Click to select products</div></Col>}
+                            </Row>
+                        )}
+                    </FieldArray>
+                </div>
+            </Card>
+
+            <ComponentStyling name={name} />
+            <ComponentSchedule name={name} />
+        </Space>
+
+        <ProductSelectModal
+            open={open}
+            onClose={() => setOpen(false)}
+            fieldName={`${name}.values.products`}
+            limit={CAROUSEL_PRODUCT_LIMIT}
+        />
+    </>)
+}

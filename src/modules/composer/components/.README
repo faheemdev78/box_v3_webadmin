@@ -1,5 +1,79 @@
-setup following pages for components
+# Composer components
 
-> siteMenu.js
-> propsWindow
-> page.js
+This is the admin contract for a page block. The palette, the canvas, and the props panel all read it. The phone and the web client are separate apps; they only share the saved `type` and the `values` keys.
+
+## Layout
+
+```
+components/
+  types.ts              shared ComposerComponent shape
+  register.tsx          turns a config into a palette item and a canvas renderer
+  PropsFromFields.tsx   builds the props form from fields
+  ComposerProps.tsx     fields form + spacing/background, used when a block has no custom Props
+  PlaceholderPreview.tsx  empty canvas state for blocks that are not built yet
+  <category>/
+    registry.ts         list of blocks in that menu
+    index.tsx           registers the list
+    <block>/
+      config.ts         the definition
+      Preview.tsx       canvas render, when it is not a one-line placeholder
+      Props.tsx         custom props form, only when fields are not enough
+```
+
+Each category `index.tsx` calls `registerComponents`. Importing `@/modules/composer/components` loads every category, which fills the shared `components` list the canvas and props panel look up by `type`.
+
+## Definition
+
+A block is one `ComposerComponent` object:
+
+| Field | Role |
+|---|---|
+| `type` | Stored on the module as `data.type`. Lookup key. Never rename a type that is already saved. |
+| `label` / `desc` | Palette card. |
+| `category` | Which side-menu group lists it: `ui_elements`, `text`, `products`, `carousel`, `categories`, `animations`. |
+| `placement` | `body` is a normal stacked row. `chrome` configures an existing shell piece (header, and later footer). The admin still shows it as a row so it can be previewed. |
+| `singleton` | When true, a page can hold only one row of this `type`. |
+| `defaults` | Copied into `values` when the block is dropped. |
+| `fields` | Simple props. Each `key` is stored at `values.<key>`. Types: `switch`, `text`, `number`, `select`, `color`. |
+| `fieldsTitle` | Heading above those fields. Defaults to "Value". |
+| `Preview` | Canvas component. It receives `{ item }`. Read `item.values` and `item.styles`. |
+| `Props` | Optional custom props panel. Use this when the form needs a picker, a list, or a schedule. If omitted, `ComposerProps` renders `fields` and the shared styling fields. |
+| `serialize` | Optional. Runs on save and returns the object stored in `values`. Use it to trim a value down to ids. |
+
+`Preview` and `Props` receive the form row:
+
+```ts
+{
+  name,    // field path, e.g. "rows[0]". Props bind inputs to `${name}.values....`
+  values,  // the block content
+  styles,  // padding, margin, background
+  status,  // "online" | "offline"
+  schedule_start, schedule_end
+}
+```
+
+## What gets saved
+
+Dropping a block stores only identity on `data`: `{ type, label, desc }`. React components stay in the registry and are looked up again by `type`.
+
+`values` is saved as a JSON string. `styles` is the shared spacing and background object. `sort_order` is the row index. `status` defaults to `online`.
+
+## Add a block
+
+1. Create `<category>/<block>/config.ts` and export a `ComposerComponent`.
+2. Add that export to the category `registry.ts`.
+3. Give `Preview` a real component when the placeholder is no longer enough.
+4. Leave `Props` unset while `fields` can describe the form. Add `Props.tsx` when the form is custom, and include `ComponentStyling` (and `ComponentSchedule` if the block can be scheduled) inside that panel.
+5. Add `serialize` only when the stored value should differ from the form value.
+
+The side menu, the drop handler, and the props window do not need a change for a new block in an existing category.
+
+A new side-menu group needs a new `category` value, a folder with `registry.ts` and `index.tsx`, an export from `components/index.ts`, and one entry in `sideMenu.tsx`.
+
+## Simple block vs custom props
+
+Use `fields` when each control maps to one `values` key (a heading, a switch, a select).
+
+Use `Props` when the form has its own state: product picker, repeating slots, file upload, schedule. A custom `Props` replaces the generated form, so it must render styling itself.
+
+`defineText` and `definePlaceholder` are helpers for those two common cases. A block that outgrows them should replace the helper with its own `Preview` and, if needed, `Props`.

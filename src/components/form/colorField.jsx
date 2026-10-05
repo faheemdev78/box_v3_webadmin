@@ -10,6 +10,7 @@ export const ColorField = (props) => {
     return (<>
         <Field {...props.final_fieldProps}>
             {({ input, meta }) => {
+                console.log("input.value: ", input.value)
 
                 const fieldProps = {
                     onChange: (color, __) => {

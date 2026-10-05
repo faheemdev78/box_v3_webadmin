@@ -24,7 +24,7 @@ function itemParser (data){
         <Row gutter={[10]} align="middle">
             <Col>
                 {data?.picture?.thumbnails ? 
-                    <Image src={cdnImageUrl(data.picture.thumbnails[0])} width={50} height={50} alt={data.title} /> :
+                    <Image src={cdnImageUrl(data.picture.thumbnails[0])} width={50} height={50} alt={data.title} style={{ width: 50, height: 50, objectFit: 'contain' }} /> :
                     <Icon style={{ fontSize: "50px", color: "#999999" }} icon="image" />
                 }
             </Col>

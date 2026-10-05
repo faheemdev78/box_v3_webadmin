@@ -1,0 +1,14 @@
+query appPageGallery($filter: String, $others: String) {
+    appPageGallery(filter: $filter, others: $others) {
+        _id
+        _id_parent
+        kind
+        name
+        url
+        path
+        type
+        thumbnails
+        thumb_paths
+        error { message }
+    }
+}
