@@ -39,4 +39,4 @@ Config: `horizontal_line/config.tsx`. Body block. A plain horizontal line with n
 
 ## picture / video (`picture_video`)
 
-Config: `picture_video/config.tsx`. Body block. Add pictures and videos together from this page’s gallery, or upload new files. Each file’s type is read from the upload or the gallery record. One item shows on its own. Two or more show as a carousel. Each item can optionally link to a category, product, or brand. Uploads go to the CDN and are saved on the page gallery. Deleting the composer page deletes that gallery first.
+Config: `picture_video/config.tsx`. Body block. `values.height` is the component height in pixels. Default is `220`. Add pictures and videos together from this page’s gallery, or upload new files. Each file’s type is read from the upload or the gallery record. One item shows on its own. Two or more show as a carousel. Each item can optionally link to a category, product, or brand. Uploads go to the CDN and are saved on the page gallery. Deleting the composer page deletes that gallery first.

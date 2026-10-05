@@ -322,7 +322,7 @@ function EditAppPage() {
             return false;
         }
 
-        const preparedRows = []
+        const preparedRows: any[] = []
         for (const row of rows) {
             if (!row?.data?.type || !row?.styles?.background?.upload_image?.[0]?.originFileObj) {
                 preparedRows.push(row)

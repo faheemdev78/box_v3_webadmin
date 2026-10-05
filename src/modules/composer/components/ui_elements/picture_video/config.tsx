@@ -5,6 +5,7 @@ import { useMutation } from '@apollo/client/react'
 import { useForm } from 'react-final-form'
 import get from 'lodash/get'
 import { Image } from '@/components'
+import { FormField } from '@/components/form'
 import { Heading } from '../../../typography'
 import { cdnImageUrl } from '@/lib/cdnImageUrl'
 import type { ComposerComponent, ComposerItem } from '../../types'
@@ -16,10 +17,18 @@ import { GalleryPanel } from '../../../gallery/GalleryPanel'
 import { uploadGalleryFile, type GalleryAsset } from '../../../gallery/uploadGalleryFile'
 import SAVE_GALLERY from '@/graphql/app_page_gallery/saveAppPageGallery.graphql'
 
+export const DEFAULT_MEDIA_HEIGHT = 220
+
 export type MediaValues = {
     kind?: 'picture' | 'video'
+    height?: number | string
     asset?: GalleryAsset | null
     assets?: GalleryAsset[]
+}
+
+export function mediaHeight(values?: MediaValues | null): number {
+    const raw = Number(values?.height)
+    return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_MEDIA_HEIGHT
 }
 
 export function mediaAssets(values?: MediaValues | null): GalleryAsset[] {
@@ -30,30 +39,32 @@ export function mediaAssets(values?: MediaValues | null): GalleryAsset[] {
     return []
 }
 
-function MediaSlide({ asset }: { asset: GalleryAsset }) {
+function MediaSlide({ asset, height }: { asset: GalleryAsset; height: number }) {
+    const frame = { width: '100%', height, objectFit: 'cover' as const, display: 'block' }
     const src = asset.url ? cdnImageUrl(asset.thumbnails?.[0] || asset.url) : ''
     if (asset.kind === 'video' && asset.url) {
-        return <video src={cdnImageUrl(asset.url)} controls style={{ width: '100%', maxHeight: 280, background: '#000' }} />
+        return <video src={cdnImageUrl(asset.url)} controls style={{ ...frame, background: '#000' }} />
     }
     if (src) {
-        return <Image src={src} width={640} height={220} alt={asset.name || 'picture'} style={{ width: '100%', height: 220, objectFit: 'contain' }} />
+        return <Image src={src} width={640} height={height} alt={asset.name || 'picture'} style={frame} />
     }
     return null
 }
 
 function MediaPreview({ item }: { item: ComposerItem<MediaValues> }) {
     const assets = mediaAssets(item?.values)
+    const height = mediaHeight(item?.values)
     const carousel = assets.length > 1
 
     return (
         <div style={blockFrame(item)}>
             {!assets.length && <div style={{ color: '#999', paddingTop: 12, paddingBottom: 12 }}>No media</div>}
-            {assets.length === 1 && <MediaSlide asset={assets[0]} />}
+            {assets.length === 1 && <MediaSlide asset={assets[0]} height={height} />}
             {carousel && (
                 <div style={{ display: 'flex', overflowX: 'auto', width: '100%' }}>
                     {assets.map((asset, index) => (
                         <div key={asset._id || index} style={{ flex: '0 0 100%', minWidth: '100%' }}>
-                            <MediaSlide asset={asset} />
+                            <MediaSlide asset={asset} height={height} />
                         </div>
                     ))}
                 </div>
@@ -145,6 +156,7 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
         <BlockProps item={item}>
             <Card styles={{ body: { padding: '10px' } }}>
                 <Heading style={undefined}>Media</Heading>
+                <FormField name={`${name}.values.height`} type="number" label="Component height" />
                 <div style={{ marginTop: 8, marginBottom: 8, color: '#666' }}>
                     {assets.length > 1 ? `${assets.length} items, shown as a carousel` : `${assets.length} item`}
                 </div>
@@ -204,11 +216,12 @@ export const pictureVideoComponent: ComposerComponent<MediaValues> = {
     desc: 'Pictures or videos, a carousel when there is more than one',
     category: 'ui_elements',
     placement: 'body',
-    defaults: { assets: [] },
+    defaults: { height: DEFAULT_MEDIA_HEIGHT, assets: [] },
     fields: [],
     Preview: MediaPreview,
     Props: MediaProps,
     serialize: (values) => ({
+        height: mediaHeight(values),
         assets: mediaAssets(values).map((asset) => ({
             _id: asset._id,
             kind: asset.kind === 'video' ? 'video' : 'picture',
