@@ -72,6 +72,7 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
     const fileRef = useRef<HTMLInputElement>(null)
     const [open, setOpen] = useState(false)
     const [busy, setBusy] = useState(false)
+    const [queueLabel, setQueueLabel] = useState('')
     const [preview, setPreview] = useState<GalleryAsset | null>(null)
     const [linkIndex, setLinkIndex] = useState<number | null>(null)
 
@@ -128,14 +129,20 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
         }
 
         setBusy(true)
+        setQueueLabel(`Uploading 1 of ${accepted.length}`)
         try {
-            const saved = await uploadGalleryFiles(accepted, pageId)
-            addAssets(saved)
+            const saved = await uploadGalleryFiles(accepted, pageId, {
+                onStart: (index, total) => setQueueLabel(`Uploading ${index + 1} of ${total}`),
+                onSaved: (asset) => addAssets([asset]),
+            })
             message.success(saved.length > 1 ? `Added ${saved.length} files to the page gallery` : 'Added to the page gallery')
         } catch (error: any) {
+            const savedCount = Array.isArray(error?.saved) ? error.saved.length : 0
+            if (savedCount) message.success(`Added ${savedCount} file${savedCount > 1 ? 's' : ''} to the page gallery`)
             message.error(error?.message || 'Upload failed.')
         } finally {
             setBusy(false)
+            setQueueLabel('')
             if (fileRef.current) fileRef.current.value = ''
         }
     }
@@ -150,7 +157,7 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
                 <Space>
                     <ButtonLike onClick={() => setOpen(true)}>Choose from gallery</ButtonLike>
                     <ButtonLike onClick={() => fileRef.current?.click()} disabled={busy || !pageId}>
-                        {busy ? 'Uploading…' : 'Upload new'}
+                        {busy ? (queueLabel || 'Uploading…') : 'Upload new'}
                     </ButtonLike>
                 </Space>
                 <input
