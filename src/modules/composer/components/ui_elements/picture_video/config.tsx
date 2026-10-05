@@ -1,7 +1,6 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
 import { Card, Col, Modal, Row, Space, message } from 'antd'
-import { useMutation } from '@apollo/client/react'
 import { useForm } from 'react-final-form'
 import get from 'lodash/get'
 import { Image } from '@/components'
@@ -14,8 +13,7 @@ import { blockFrame } from '../blockFrame'
 import { AttachmentFields } from '../AttachmentFields'
 import { serializeAttachment } from '../attachment'
 import { GalleryPanel } from '../../../gallery/GalleryPanel'
-import { uploadGalleryFile, type GalleryAsset } from '../../../gallery/uploadGalleryFile'
-import SAVE_GALLERY from '@/graphql/app_page_gallery/saveAppPageGallery.graphql'
+import { uploadGalleryFiles, type GalleryAsset } from '../../../gallery/uploadGalleryFile'
 
 export const DEFAULT_MEDIA_HEIGHT = 220
 
@@ -81,7 +79,6 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
     const fileRef = useRef<HTMLInputElement>(null)
     const [open, setOpen] = useState(false)
     const [busy, setBusy] = useState(false)
-    const [saveGallery] = useMutation<any>(SAVE_GALLERY)
 
     const savedAssets = () => mediaAssets(get(form.getState().values, `${name}.values`) as MediaValues)
 
@@ -120,28 +117,7 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
 
         setBusy(true)
         try {
-            const saved: GalleryAsset[] = []
-            for (const file of accepted) {
-                const uploaded = await uploadGalleryFile(file, pageId)
-                const response = await saveGallery({
-                    variables: {
-                        input: {
-                            _id_parent: pageId,
-                            kind: uploaded.kind,
-                            name: uploaded.name || '',
-                            url: uploaded.url,
-                            path: uploaded.path || '',
-                            type: uploaded.type || '',
-                            thumbnails: uploaded.thumbnails || [],
-                            thumb_paths: uploaded.thumb_paths || [],
-                        },
-                    },
-                })
-                const record = response?.data?.saveAppPageGallery
-                if (record?.error) throw new Error(record.error.message)
-                if (!record?._id) throw new Error('The gallery did not save this file.')
-                saved.push(record)
-            }
+            const saved = await uploadGalleryFiles(accepted, pageId)
             addAssets(saved)
             message.success(saved.length > 1 ? `Added ${saved.length} files to the page gallery` : 'Added to the page gallery')
         } catch (error: any) {

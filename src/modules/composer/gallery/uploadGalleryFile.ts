@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { cdnImageUrl } from '@/lib/cdnImageUrl'
+import { getSessionToken } from '@/lib/auth'
 import type { ComposerAttachment } from '../components/ui_elements/attachment'
 
 export type GalleryAsset = {
@@ -15,35 +15,31 @@ export type GalleryAsset = {
     link?: ComposerAttachment | null
 }
 
-export async function uploadGalleryFile(file: File, pageId: string): Promise<Omit<GalleryAsset, '_id' | '_id_parent'>> {
-    const endpoint = process.env.NEXT_PUBLIC_CDN_API_URI
-    if (!endpoint) throw new Error('Media upload is not configured.')
+export async function uploadGalleryFiles(files: File[], pageId: string): Promise<GalleryAsset[]> {
+    if (!files.length) throw new Error('Choose picture or video files.')
+    const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URI
+    if (!graphqlUrl) throw new Error('Backend GraphQL URL is not configured.')
 
-    const isPicture = file.type.startsWith('image/')
-    const formData = new FormData()
-    formData.append('folder', `composer/gallery/${pageId}`)
-    if (isPicture) formData.append('thumbnails', JSON.stringify([{ width: 960, height: 960 }]))
-    formData.append('files', file)
+    const endpoint = new URL(graphqlUrl)
+    endpoint.pathname = endpoint.pathname.replace(/\/graphql\/?$/, '') + `/api/pages/${encodeURIComponent(pageId)}/gallery`
+    endpoint.search = ''
+    endpoint.hash = ''
 
-    let uploaded
+    const form = new FormData()
+    files.forEach((file) => form.append('files', file))
+
     try {
-        const response = await axios.post(`${endpoint}/upload_files`, formData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
+        const { data } = await axios.post(endpoint.toString(), form, {
+            headers: { Authorization: `Bearer ${getSessionToken()}` },
+            withCredentials: true,
+            timeout: 240000,
         })
-        uploaded = response?.data?.files?.[0]
+        const saved = Array.isArray(data?.files) ? data.files : []
+        if (!saved.length || saved.some((item: GalleryAsset) => !item?._id)) {
+            throw new Error('The gallery did not save this file.')
+        }
+        return saved
     } catch (error: any) {
-        throw new Error(error?.response?.data?.error || error?.message || 'Upload failed.')
-    }
-
-    if (!uploaded?.url) throw new Error('Upload failed.')
-
-    return {
-        kind: isPicture ? 'picture' : 'video',
-        name: file.name,
-        url: cdnImageUrl(uploaded.url),
-        path: uploaded.url,
-        type: uploaded.type || (isPicture ? 'image' : 'video'),
-        thumbnails: (uploaded.thumbnails || []).map((item: string) => cdnImageUrl(item)).filter(Boolean),
-        thumb_paths: uploaded.thumbnails || [],
+        throw new Error(error?.response?.data?.error?.message || error?.message || 'Upload failed.')
     }
 }
