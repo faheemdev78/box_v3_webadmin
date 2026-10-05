@@ -7,6 +7,9 @@ import { ExclamationCircleFilled } from '@ant-design/icons';
 import { Tooltip, message } from 'antd';
 import { moveToErrorPosition } from './lib';
 
+/**
+ * @param {{ children: import('react').ReactNode, isRequired?: boolean, htmlFor?: string, style?: import('react').CSSProperties }} props
+ */
 export const Label = ({ children, isRequired, htmlFor, style }) => !children ? null : <label htmlFor={htmlFor} className={`${styles.label}`} style={{ ...style, display:"inline-block" }}>{isRequired && "* "}{children}</label>;
 
 export const RenderError = meta => {
@@ -79,4 +82,3 @@ export const submitHandler = (formProps, props) => {
         size: 'small',
     }
 }
-

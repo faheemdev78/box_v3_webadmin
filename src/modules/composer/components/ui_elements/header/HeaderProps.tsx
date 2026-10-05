@@ -126,7 +126,7 @@ function BarItem({ name, item, onRemove }: { name: string; item?: HeaderBarItem;
             </div></Col>
             <Col span={12}><FormField name={`${name}.label`} type="text" label="Label" /></Col>
             <Col span={24}><BarItemLink name={`${name}.link`} link={item?.link} /></Col>
-            <Col span={24} align="right"><DeleteButton onClick={onRemove} /></Col>
+            <Col span={24} style={{ textAlign: 'right' }}><DeleteButton onClick={onRemove} /></Col>
         </Row>
     </Card>)
     return (
