@@ -613,7 +613,7 @@ export const SelectField = props => {
                 })
 
                 return (<div className={`${styles.field} ${styles.select}`} style={props.wrapperStyle}>
-                    <Space orientation={props.direction || 'vertical'} size={props.gutter || 5}>
+                    <Space orientation={props.direction || 'vertical'} size={props.gutter || 0}>
                         {props.label && <Label style={{ width: props.label_width || undefined }} isRequired={props.isRequired}>{props.label}</Label>}
                         <div className={`${styles.field_wrapper}`}>
                             <Row style={{ width: props.width || 'inherit' }}>

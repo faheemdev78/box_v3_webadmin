@@ -11,6 +11,8 @@ import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-for
 // import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@/components/form';
+import { IconSelect } from './IconSelect';
+import { uploadCategoryIcon } from './uploadCategoryIcon';
 
 
 import RECORD_EDIT from '@/graphql/product_cat/editProductCat.graphql';
@@ -35,6 +37,7 @@ export const CategoriesForm = props => {
     const onSubmit = async (values) => {
         const _id = fields ? fields._id : false;
 
+        const source = values.icon_source === 'svg' ? 'svg' : 'awesome'
         let input = {
             title: values.title,
             slug: values.slug,
@@ -43,6 +46,8 @@ export const CategoriesForm = props => {
             // title_img: values.title_img,
             seo_title: values.seo_title,
             seo_desc: values.seo_desc,
+            icon: source === 'awesome' ? (values.icon || null) : null,
+            icon_img: source === 'svg' ? (values.icon_img || null) : null,
 
             _id_parent_cat: values._id_parent_cat || null,
             parent_cat_title: values.parent_cat_title || null
@@ -55,6 +60,18 @@ export const CategoriesForm = props => {
         setLoading(true)
         if (_id) results = await _editProductCat(input)
         else results = await _addProductCat(input)
+
+        const savedId = _id || results?._id
+        if (!results?.error && !_id && savedId) setFields({ ...(props.fields || {}), _id: String(savedId) })
+        if (!results?.error && source === 'svg' && values.icon_file && savedId) {
+            try {
+                await uploadCategoryIcon(values.icon_file, String(savedId))
+            } catch (uploadError) {
+                setLoading(false)
+                message.error(uploadError?.message || 'The category was saved, but the SVG did not upload.')
+                return
+            }
+        }
         setLoading(false)
 
         if (results.error){
@@ -67,15 +84,29 @@ export const CategoriesForm = props => {
         onClose();
     }
 
+    const requestErrorMessage = (error, fallback) => {
+        const graphQL = error?.graphQLErrors?.map((item) => item?.message).filter((item) => typeof item === 'string').join('\n')
+        if (graphQL) return graphQL
+        const cause = error?.cause?.result?.errors?.map((item) => item?.message).filter((item) => typeof item === 'string').join('\n')
+        if (cause) return cause
+        if (typeof error?.message === 'string' && error.message && !error.message.startsWith('Response not successful')) return error.message
+        return fallback
+    }
+
+    const asSaveError = (results, fallback) => {
+        const message = results?.error?.message
+        return { error: { message: typeof message === 'string' && message ? message : fallback } }
+    }
+
     const _editProductCat = async (input) => {
         let results = await editProductCat({ variables: { input } })
             .then((r) => (r?.data?.editProductCat))
             .catch(error => {
                 console.error(error)
-                return { error:{message:"Request Error!"}}
+                return { error: { message: requestErrorMessage(error, 'Request Error!') } }
             });
 
-        if (!results || results.error) return { error: { message: (results || results?.error?.message) || "Invalid response" } }
+        if (!results || results.error) return asSaveError(results, 'Invalid response')
         return results;
     }
     
@@ -84,10 +115,10 @@ export const CategoriesForm = props => {
             .then((r) => (r?.data?.addProductCat))
             .catch(error => {
                 console.error(error)
-                return { error: { message:"Request Error" } }
+                return { error: { message: requestErrorMessage(error, 'Request Error') } }
             });
 
-        if (!results || results.error) return { error: { message: (results || results?.error?.message) || "Invalid response" } }
+        if (!results || results.error) return asSaveError(results, 'Invalid response')
         return results;
     }
 
@@ -179,7 +210,10 @@ export const CategoriesForm = props => {
             // </>}
             title={`${fields && fields._id ? 'Edit' : 'Add'} Product Category`}
         >
-            <FinalForm onSubmit={onSubmit} initialValues={props.fields}
+            <FinalForm onSubmit={onSubmit} initialValues={{
+                ...props.fields,
+                icon_source: props.fields?.icon_img ? 'svg' : 'awesome',
+            }}
                 mutators={{ 
                     ...arrayMutators,
                     onParentCatChange: (newValueArray, state, tools) => {
@@ -217,6 +251,9 @@ export const CategoriesForm = props => {
                                 </Col>
                                 <Col span={24}>
                                     <FormField type="select" name="status" label="Status" options={publishStatus} validate={rules.required} />
+                                </Col>
+                                <Col span={24}>
+                                    <IconSelect />
                                 </Col>
                                 <Col span={24}></Col>
                             </Row>

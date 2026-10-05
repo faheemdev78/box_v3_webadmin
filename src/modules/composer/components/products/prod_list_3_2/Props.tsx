@@ -1,7 +1,8 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, Col, Row, Space } from 'antd'
-import { Field, useForm } from 'react-final-form'
+import { useForm, useFormState } from 'react-final-form'
+import get from 'lodash/get'
 import { FieldArray } from 'react-final-form-arrays'
 import { FormField, rules } from '@/components/form'
 import { Image } from '@/components'
@@ -9,8 +10,14 @@ import { publishStatus } from '@/configs'
 import { Heading } from '../../../typography'
 import { ComponentSchedule, ComponentStyling } from '../../../lib'
 import type { ComposerItem } from '../../types'
-import type { ComposerProduct, ProductListValues } from '../types'
+import { productGrid, type ComposerProduct, type ProductListValues } from '../types'
 import { ProductSelectModal } from '../ProductSelectModal'
+
+function committedCount(value: unknown, max: number) {
+    const count = Number(value)
+    if (!Number.isFinite(count) || count < 1) return null
+    return Math.min(max, Math.floor(count))
+}
 
 function ProductThumb({ node }: { node: ComposerProduct }) {
     return (
@@ -28,7 +35,27 @@ function ProductThumb({ node }: { node: ComposerProduct }) {
 export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> }) {
     const { name } = item
     const form = useForm<Record<string, unknown>>()
+    const formValues = useFormState({ subscription: { values: true } }).values
+    const listValues = get(formValues, `${name}.values`) as ProductListValues | undefined
+    const columns = committedCount(listValues?.columns, 6)
+    const rows = committedCount(listValues?.rows, 4)
+    const grid = productGrid(listValues)
+    const slotCount = (columns ?? grid.columns) * (rows ?? grid.rows)
     const [showProdSelection, set_showProdSelection] = useState(false)
+
+    useEffect(() => {
+        if (columns == null || rows == null) return
+        const limit = columns * rows
+        const state = form.getState().values
+        const current = get(state, `${name}.values.products`)
+        const list = (Array.isArray(current) ? current : []) as ComposerProduct[]
+        const numProducts = get(state, `${name}.values.num_products`)
+        if (list.length === limit && String(numProducts) === String(limit)) return
+        const next = list.slice(0, limit)
+        while (next.length < limit) next.push({})
+        form.change(`${name}.values.products`, next)
+        form.change(`${name}.values.num_products`, String(limit))
+    }, [columns, rows, form, name])
 
     return (<>
         <Space orientation="vertical">
@@ -57,20 +84,16 @@ export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> 
             </Card>
 
             <Card styles={{ body: { padding: '10px' } }}>
-                <div style={{ height: '20px' }} />
-                <Heading style={undefined}>Number of Products</Heading>
-                <FormField
-                    name={`${name}.values.num_products`}
-                    type="select"
-                    options={[
-                        { label: 'Row 1 / Col 3', value: '3' },
-                        { label: 'Row 2 / Col 3', value: '6' },
-                    ]}
-                    onChange={(val: string | number) => {
-                        const num = Number(val)
-                        form.change(`${name}.values.products`, new Array<ComposerProduct>(num).fill({}))
-                    }}
-                />
+                <Heading style={undefined}>Layout</Heading>
+                <Row gutter={8}>
+                    <Col span={12}>
+                        <FormField name={`${name}.values.columns`} type="number" label="Columns" min={1} max={6} />
+                    </Col>
+                    <Col span={12}>
+                        <FormField name={`${name}.values.rows`} type="number" label="Rows" min={1} max={4} />
+                    </Col>
+                </Row>
+                <FormField name={`${name}.values.gutter`} type="number" label="Gutter" min={0} max={80} />
 
                 <div style={{ height: '10px' }} />
                 <div onClick={() => set_showProdSelection(true)}>
@@ -122,16 +145,12 @@ export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> 
             <ComponentSchedule name={name} />
         </Space>
 
-        <Field<number | string> name={`${name}.values.num_products`} subscription={{ value: true }}>
-            {({ input }) => (
-                <ProductSelectModal
-                    open={showProdSelection}
-                    onClose={() => set_showProdSelection(false)}
-                    fieldName={`${name}.values.products`}
-                    limit={Number(input.value || 3)}
-                    padTo={Number(input.value || 3)}
-                />
-            )}
-        </Field>
+        <ProductSelectModal
+            open={showProdSelection}
+            onClose={() => set_showProdSelection(false)}
+            fieldName={`${name}.values.products`}
+            limit={slotCount}
+            padTo={slotCount}
+        />
     </>)
 }

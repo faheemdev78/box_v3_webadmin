@@ -1,5 +1,12 @@
 'use client'
-import { registerComponents } from '../register'
-import { carouselComponents } from './registry'
+import { registerComponents, toDragItem } from '../register'
+import { pictureVideoComponent } from '../ui_elements/picture_video/config'
+import { carousel } from './config'
+import { legacyCarouselComponents } from './registry'
 
-export const carouselArray = registerComponents(carouselComponents)
+const palette = [carousel, pictureVideoComponent]
+
+registerComponents([...palette, ...legacyCarouselComponents])
+
+export const carouselArray = palette.map(toDragItem)
+export const carouselTitleItems = [...palette, ...legacyCarouselComponents].map(toDragItem)

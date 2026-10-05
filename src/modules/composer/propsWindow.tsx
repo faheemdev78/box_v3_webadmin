@@ -2,7 +2,7 @@
 import React from 'react'
 import { Alert, Col, Row } from 'antd'
 import { Button } from '@/components'
-import { animationsArray, carouselArray, categoriesArray, components, productsArray, textArray, ui_elementsArray } from './components'
+import { animationsArray, carouselTitleItems, categoriesArray, components, productsArray, textArray, ui_elementsArray } from './components'
 import styles from './Composer.module.scss'
 import type { ComposerDragItem, ComposerItem } from './components/types'
 
@@ -10,14 +10,15 @@ const categoryGroups: { label: string; items: ComposerDragItem[] }[] = [
     { label: 'UI Elements', items: ui_elementsArray },
     { label: 'Text', items: textArray },
     { label: 'Categories', items: categoriesArray },
-    { label: 'Carousel', items: carouselArray },
+    { label: 'Carousel', items: carouselTitleItems },
     { label: 'Products', items: productsArray },
     { label: 'Animations', items: animationsArray },
 ]
 
 function propsTitle(item: ComposerItem) {
-    const label = item?.data?.label || ''
     const category = categoryGroups.find((group) => group.items.some((entry) => entry.type === item?.data?.type))
+    const current = category?.items.find((entry) => entry.type === item?.data?.type)
+    const label = current?.label || item?.data?.label || ''
     if (category && label) return `${category.label}: ${label}`
     return label
 }

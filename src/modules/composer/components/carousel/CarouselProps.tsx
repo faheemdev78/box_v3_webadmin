@@ -37,6 +37,9 @@ export function CarouselProps({ item }: { item: ComposerItem<CarouselValues> }) 
             <Card styles={{ body: { padding: '10px' } }}>
                 <Heading style={undefined}>Theme</Heading>
                 <FormField name={`${name}.values.theme`} type="color" label="Text color" />
+                <FormField name={`${name}.values.columns`} type="number" label="Columns" />
+                <FormField name={`${name}.values.rows`} type="number" label="Rows" />
+                <FormField name={`${name}.values.gutter`} type="number" label="Gutter" min={0} max={80} />
                 <FormField
                     name={`${name}.values.navigation`}
                     type="select"

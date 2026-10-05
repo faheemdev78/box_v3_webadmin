@@ -5,6 +5,7 @@ import { useForm, useFormState } from 'react-final-form'
 import get from 'lodash/get'
 import { DeleteButton, IconButton, Image } from '@/components'
 import thumbStyles from '@/components/FileUploader.module.scss'
+import { FormField } from '@/components/form'
 import { Heading } from '../../../typography'
 import { cdnImageUrl } from '@/lib/cdnImageUrl'
 import type { ComposerComponent, ComposerItem } from '../../types'
@@ -15,10 +16,24 @@ import { serializeAttachment } from '../attachment'
 import { GalleryPanel } from '../../../gallery/GalleryPanel'
 import { uploadGalleryFiles, type GalleryAsset } from '../../../gallery/uploadGalleryFile'
 
+export type MediaNavigation = 'none' | 'dots' | 'dashes' | 'arrows'
+
 export type MediaValues = {
     kind?: 'picture' | 'video'
+    navigation?: MediaNavigation
     asset?: GalleryAsset | null
     assets?: GalleryAsset[]
+}
+
+const NAVIGATION_OPTIONS = [
+    { label: "Don't show", value: 'none' },
+    { label: 'Show dots', value: 'dots' },
+    { label: 'Show dash lines', value: 'dashes' },
+    { label: 'Show arrows', value: 'arrows' },
+]
+
+function mediaNavigation(value?: string | null): MediaNavigation {
+    return value === 'dots' || value === 'dashes' || value === 'arrows' ? value : 'none'
 }
 
 const liquidMedia = { width: '100%', height: 'auto', display: 'block' } as const
@@ -45,20 +60,83 @@ function MediaSlide({ asset }: { asset: GalleryAsset }) {
 function MediaPreview({ item }: { item: ComposerItem<MediaValues> }) {
     const assets = mediaAssets(item?.values)
     const carousel = assets.length > 1
+    const navigation = mediaNavigation(item?.values?.navigation)
+    const scroller = useRef<HTMLDivElement>(null)
+    const [page, setPage] = useState(0)
+
+    const scrollToPage = (next: number) => {
+        const node = scroller.current
+        if (!node?.clientWidth) return
+        node.scrollTo({ left: Math.min(assets.length - 1, Math.max(0, next)) * node.clientWidth, behavior: 'smooth' })
+    }
 
     return (
         <div style={blockFrame(item)}>
             {!assets.length && <div style={{ color: '#999', paddingTop: 12, paddingBottom: 12 }}>No media</div>}
             {assets.length === 1 && <MediaSlide asset={assets[0]} />}
             {carousel && (
-                <div style={{ display: 'flex', alignItems: 'flex-start', overflowX: 'auto', width: '100%' }}>
-                    {assets.map((asset, index) => (
-                        <div key={asset._id || index} style={{ flex: '0 0 100%', minWidth: '100%' }}>
-                            <MediaSlide asset={asset} />
-                        </div>
-                    ))}
+                <div style={{ position: 'relative', width: '100%' }}>
+                    <div
+                        ref={scroller}
+                        onScroll={() => {
+                            const node = scroller.current
+                            if (!node?.clientWidth) return
+                            setPage(Math.min(assets.length - 1, Math.max(0, Math.round(node.scrollLeft / node.clientWidth))))
+                        }}
+                        style={{ display: 'flex', alignItems: 'flex-start', overflowX: 'auto', width: '100%' }}
+                    >
+                        {assets.map((asset, index) => (
+                            <div key={asset._id || index} style={{ flex: '0 0 100%', minWidth: '100%' }}>
+                                <MediaSlide asset={asset} />
+                            </div>
+                        ))}
+                    </div>
+                    {navigation !== 'none' && <MediaNav navigation={navigation} page={page} pages={assets.length} onArrow={scrollToPage} />}
                 </div>
             )}
+        </div>
+    )
+}
+
+function MediaNav({ navigation, page, pages, onArrow }: {
+    navigation: MediaNavigation
+    page: number
+    pages: number
+    onArrow: (page: number) => void
+}) {
+    if (navigation === 'arrows') {
+        const button = (side: 'left' | 'right'): React.CSSProperties => ({
+            position: 'absolute',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            [side]: 6,
+            width: 32,
+            height: 32,
+            border: 0,
+            borderRadius: 16,
+            background: 'rgba(0,0,0,0.35)',
+            color: '#fff',
+            cursor: 'pointer',
+            zIndex: 2,
+        })
+        return (
+            <>
+                <button type="button" aria-label="Previous" style={button('left')} onClick={() => onArrow(page - 1)}>‹</button>
+                <button type="button" aria-label="Next" style={button('right')} onClick={() => onArrow(page + 1)}>›</button>
+            </>
+        )
+    }
+
+    const mark = (active: boolean): React.CSSProperties => ({
+        width: navigation === 'dashes' ? 10 : 6,
+        height: navigation === 'dashes' ? 5 : 6,
+        borderRadius: navigation === 'dashes' ? 1 : 6,
+        background: active ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.45)',
+    })
+
+    return (
+        <div style={{ position: 'absolute', left: '50%', bottom: 8, transform: 'translateX(-50%)', display: 'flex', gap: 4, pointerEvents: 'none', zIndex: 2, background: 'rgba(0,0,0,0.28)', borderRadius: 8, padding: '4px 8px' }}>
+            {Array.from({ length: pages }, (_, index) => <span key={index} style={mark(index === page)} />)}
         </div>
     )
 }
@@ -151,6 +229,7 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
         <BlockProps item={item}>
             <Card styles={{ body: { padding: '10px' } }}>
                 <Heading style={undefined}>Media</Heading>
+                <FormField name={`${name}.values.navigation`} type="select" label="Show navigation" options={NAVIGATION_OPTIONS} />
                 <div style={{ marginTop: 8, marginBottom: 8, color: '#666' }}>
                     {assets.length > 1 ? `${assets.length} items, shown as a carousel` : `${assets.length} item`}
                 </div>
@@ -236,9 +315,9 @@ function AssetTile({ asset, linked, onPreview, onLink, onRemove }: {
     const src = asset.kind === 'picture' ? cdnImageUrl(asset.thumbnails?.[0] || asset.url) : ''
 
     return (
-        <div className={thumbStyles.gal_thumb_holder} style={{ width: 120, height: 120 }} title={asset.name || ''}>
+        <div className={thumbStyles.gal_thumb_holder} style={{ width: 110, height: 110 }} title={asset.name || ''}>
             {src
-                ? <Image src={src} width={120} height={120} alt={asset.name || 'picture'} className={thumbStyles.thumb_img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ? <Image src={src} width={110} height={110} alt={asset.name || 'picture'} className={thumbStyles.thumb_img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 : <div style={{ color: '#1677ff', fontSize: 28 }}>{asset.kind === 'video' ? '▶' : ''}</div>}
             <div className={thumbStyles.hover_layer} style={{ alignItems: 'flex-end' }}>
                 <div style={{ display: 'flex', width: '100%', justifyContent: 'space-evenly', background: 'rgba(0,0,0,0.72)', paddingTop: 4, paddingBottom: 4 }}>
@@ -262,14 +341,15 @@ function ButtonLike({ children, onClick, disabled }: { children: React.ReactNode
 export const pictureVideoComponent: ComposerComponent<MediaValues> = {
     type: 'picture_video',
     label: 'Picture / Video',
-    desc: 'Pictures or videos, a carousel when there is more than one',
-    category: 'ui_elements',
+    desc: 'static or auto carousel',
+    category: 'carousel',
     placement: 'body',
-    defaults: { assets: [] },
+    defaults: { navigation: 'none', assets: [] },
     fields: [],
     Preview: MediaPreview,
     Props: MediaProps,
     serialize: (values) => ({
+        navigation: mediaNavigation(values?.navigation),
         assets: mediaAssets(values).map((asset) => ({
             _id: asset._id,
             kind: asset.kind === 'video' ? 'video' : 'picture',

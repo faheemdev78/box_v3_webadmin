@@ -1,11 +1,13 @@
 'use client'
 import React from 'react'
-import { Avatar, Col, Row, Space } from 'antd'
+import { Avatar, Col, Row } from 'antd'
 import { parseStylesOutput } from '../../../lib'
 import cssStyles from '../Header.module.scss'
 import { Icon, Image } from '@/components'
+import { CategoryIcon } from '@/modules/categories/IconSelect'
 import type { ComposerItem } from '../../types'
 import { productInk } from '../../products/theme'
+import type { HeaderBarItem } from './config'
 
 type HeaderValues = {
     theme?: string
@@ -14,6 +16,7 @@ type HeaderValues = {
     address_bar?: boolean
     search_bar?: boolean
     cat_bar?: boolean
+    items?: HeaderBarItem[]
 }
 
 const logos = {
@@ -57,17 +60,17 @@ function SearchBar() {
     )
 }
 
-function CatBar({ color }: { color: string }) {
+function CatBar({ color, items }: { color: string; items?: HeaderBarItem[] }) {
+    const list = (items || []).filter((item) => item?.label || item?.icon)
+
     return (
-        <div className={cssStyles.bar}>
-            <Space>
-                {[1, 2, 3, 4, 5, 6, 7].map((item) => (
-                    <div className={cssStyles.cat} key={item} style={{ color, borderColor: color, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', lineHeight: '14px' }}>
-                        <Icon icon="shopping-bag" color={color} />
-                        <div>Cat {item}</div>
-                    </div>
-                ))}
-            </Space>
+        <div className={cssStyles.bar} style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
+            {list.map((item, index) => (
+                <div className={cssStyles.cat} key={`${index}-${item.label || ''}`} style={{ color, borderColor: color, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', lineHeight: '14px', flex: '0 0 auto' }}>
+                    <CategoryIcon name={item.icon} size={18} color={color} />
+                    <div>{item.label}</div>
+                </div>
+            ))}
         </div>
     )
 }
@@ -85,7 +88,7 @@ export function HeaderPreview({ item }: { item: ComposerItem<HeaderValues> }) {
             {values?.top_bar && <TopBar logo={values?.logo} theme={values?.theme} />}
             {values?.address_bar && <AddressBar color={ink} />}
             {values?.search_bar && <SearchBar />}
-            {values?.cat_bar && <CatBar color={ink} />}
+            {values?.cat_bar && <CatBar color={ink} items={values?.items} />}
             {!barsOn && <span style={{ color: '#999', fontWeight: 500 }}>Header hidden</span>}
         </div>
     )

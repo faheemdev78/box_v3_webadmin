@@ -9,12 +9,13 @@ import { useAppSelector } from '@/rStore/hooks'
 import { getSettings } from '@/rStore/slices/systemSlice'
 import type { ComposerItem } from '../types'
 import type { ComposerProduct } from '../products/types'
-import type { CarouselNavigation, CarouselValues } from './types'
+import { gutterPx } from '../products/types'
+import { carouselCount, type CarouselNavigation, type CarouselValues } from './types'
 
-export function CarouselPreview({ item, columns, fullBleed = false }: {
+export function CarouselPreview({ item, columns: fallbackColumns, rows: fallbackRows = 1 }: {
     item: ComposerItem<CarouselValues>
     columns: number
-    fullBleed?: boolean
+    rows?: number
 }) {
     const { currency } = useAppSelector(getSettings)
     const { values, styles, status } = item
@@ -23,11 +24,15 @@ export function CarouselPreview({ item, columns, fullBleed = false }: {
 
     const products = (values?.products || []).filter((product) => product?._id || product?.title)
     const ink = productInk(values?.theme)
-    const width = `${100 / columns}%`
+    const columns = carouselCount(values?.columns, fallbackColumns, 6)
+    const rows = carouselCount(values?.rows, fallbackRows, 4)
+    const gutter = gutterPx(values?.gutter)
+    const pageSize = columns * rows
     const scroller = useRef<HTMLDivElement>(null)
     const [page, setPage] = useState(0)
-    const pages = products.length ? Math.ceil(products.length / columns) : 0
+    const pages = products.length ? Math.ceil(products.length / pageSize) : 0
     const navigation = (values?.navigation || 'none') as CarouselNavigation
+    const slides = Array.from({ length: pages }, (_, index) => products.slice(index * pageSize, (index + 1) * pageSize))
 
     const onScroll = () => {
         const node = scroller.current
@@ -48,19 +53,23 @@ export function CarouselPreview({ item, columns, fullBleed = false }: {
                 <div
                     ref={scroller}
                     onScroll={onScroll}
-                    style={{ display: 'flex', overflowX: 'auto', paddingLeft: fullBleed ? 0 : 8, paddingRight: fullBleed ? 0 : 8 }}
+                    style={{ display: 'flex', overflowX: 'auto' }}
                 >
-                    {products.map((product, index) => {
-                        let offPercent = 0
-                        if (product.price && product.price_was && product.price_was > product.price) {
-                            offPercent = 100 - ((product.price / product.price_was) * 100)
-                        }
-                        return (
-                            <div key={product._id || index} style={{ flex: `0 0 ${width}`, minWidth: width }}>
-                                <RenderProduct item={product as ComposerProduct} off_percent={offPercent} currency={currency} color={ink} />
-                            </div>
-                        )
-                    })}
+                    {slides.map((slide, slideIndex) => (
+                        <div key={slideIndex} style={{ flex: '0 0 100%', minWidth: '100%', display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: gutter, alignContent: 'flex-start' }}>
+                            {slide.map((product, index) => {
+                                let offPercent = 0
+                                if (product.price && product.price_was && product.price_was > product.price) {
+                                    offPercent = 100 - ((product.price / product.price_was) * 100)
+                                }
+                                return (
+                                    <div key={product._id || index}>
+                                        <RenderProduct item={product as ComposerProduct} off_percent={offPercent} currency={currency} color={ink} />
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    ))}
                 </div>
                 {navigation !== 'none' && pages > 0 && (
                     <CarouselNavigationView navigation={navigation} page={page} pages={pages} onArrow={scrollToPage} />
@@ -85,9 +94,8 @@ function CarouselNavigationView({ navigation, page, pages, onArrow }: {
             width: 32,
             height: 32,
             border: 0,
-            borderRadius: 16,
-            background: 'rgba(0,0,0,0.35)',
-            color: '#fff',
+            background: 'transparent',
+            color: 'rgba(255,255,255,0.85)',
             cursor: 'pointer',
             zIndex: 2,
         })
@@ -108,7 +116,7 @@ function CarouselNavigationView({ navigation, page, pages, onArrow }: {
         : { width: 6, height: 6, borderRadius: 6, background: active ? '#fff' : 'rgba(255,255,255,0.45)', boxShadow: '0 0 2px rgba(0,0,0,0.65)' }
 
     return (
-        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 8, display: 'flex', justifyContent: 'center', gap: 4, pointerEvents: 'none', zIndex: 2 }}>
+        <div style={{ position: 'absolute', left: '50%', bottom: 8, transform: 'translateX(-50%)', display: 'flex', justifyContent: 'center', gap: 4, pointerEvents: 'none', zIndex: 2 }}>
             {Array.from({ length: pages }, (_, index) => <span key={index} style={mark(index === page)} />)}
         </div>
     )

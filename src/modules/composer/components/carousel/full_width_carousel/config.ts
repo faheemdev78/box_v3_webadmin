@@ -5,5 +5,5 @@ export const fullWidthCarousel = defineCarousel({
     label: 'Full Width',
     desc: '1 row, full width',
     columns: 1,
-    fullBleed: true,
+    rows: 1,
 })

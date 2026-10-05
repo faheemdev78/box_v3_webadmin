@@ -54,10 +54,12 @@ export function ComponentStyling({ name, showHeading=true }) {
                     ]}
                 />
             </Col>
-            <Col span={8}><FormField name={name ? `${name}.styles.border.width` : `styles.border.width`} label="Thickness" type="number" /></Col>
-            <Col span={8}><FormField name={name ? `${name}.styles.border.radius` : `styles.border.radius`} label="Radius" type="number" /></Col>
+            <Col span={5}><FormField name={name ? `${name}.styles.border.width` : `styles.border.width`} label="Thickness" type="number" /></Col>
+            <Col span={5}><FormField name={name ? `${name}.styles.border.radius` : `styles.border.radius`} label="Radius" type="number" /></Col>
+            <Col span={'auto'}>
+                <FormField name={name ? `${name}.styles.border.color` : `styles.border.color`} type="color" label="Color" />
+            </Col>
         </Row>
-        <FormField name={name ? `${name}.styles.border.color` : `styles.border.color`} type="color" label="Color" />
 
         <Divider>Background</Divider>
 

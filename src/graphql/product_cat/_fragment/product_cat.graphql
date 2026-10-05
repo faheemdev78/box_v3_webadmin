@@ -8,6 +8,7 @@ fragment ProductCatInfo on ProductCat {
   parent_cat_title
   parents { _id title cat_path }
 
+  icon
   icon_img
   icon_img_thumb
   

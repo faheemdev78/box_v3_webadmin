@@ -5,6 +5,7 @@ import { useMutation, useLazyQuery } from '@apollo/client/react'
 import { Card, Col, message, Popconfirm, Row, Space, Tag } from 'antd';
 import { Button, IconButton, Loader, Table } from '@/components';
 import { CategoriesForm } from '@/modules/categories';
+import { CategoryIcon } from '@/modules/categories/IconSelect';
 import { PageHeader } from '@/template';
 import { __error, __yellow } from '@/lib';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
@@ -63,6 +64,12 @@ function CategoriesPage () {
             title: 'Category Title',
             dataIndex: 'title',
             key: 'title',
+            render: (txt: string, rec: { icon?: string; icon_img?: string }) => (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                    <CategoryIcon name={rec.icon} iconImg={rec.icon_img} />
+                    {txt}
+                </span>
+            ),
         },
         {
             title: 'Path',

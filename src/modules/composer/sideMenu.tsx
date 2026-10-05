@@ -16,6 +16,25 @@ const menus: Record<string, ComposerDragItem[]> = {
     animations: animationsArray,
 }
 
+const menuItems: { key: string; label: string }[] = [
+    { key: 'ui_elements', label: 'UI Elements' },
+    { key: 'text', label: 'Text' },
+    { key: 'categories', label: 'Categories' },
+    { key: 'carousel', label: 'Carousel' },
+    { key: 'products', label: 'Products' },
+    { key: 'animations', label: 'Animations' },
+]
+
+// Keep the open parent on the same primary blue through hover/active.
+const selectedMenuStyle = {
+    '--ant-btn-bg-color-hover': 'var(--ant-btn-bg-color)',
+    '--ant-btn-bg-color-active': 'var(--ant-btn-bg-color)',
+    '--ant-btn-text-color-hover': 'var(--ant-btn-text-color)',
+    '--ant-btn-text-color-active': 'var(--ant-btn-text-color)',
+    '--ant-btn-border-color-hover': 'var(--ant-btn-border-color)',
+    '--ant-btn-border-color-active': 'var(--ant-btn-border-color)',
+} as React.CSSProperties
+
 const DragItem = ({ data }: { data: ComposerDragItem }) => {
     const dragRef = useRef(null)
     const [dragging, setDragging] = useState(false)
@@ -46,12 +65,21 @@ export function SideMenu() {
             <Row className="nowrap" style={{ height: 'inherit' }}>
                 <Col style={{ borderRight: '1px solid #D0DAE5', padding: '10px', height: 'inherit' }}><div>
                     <Space orientation="vertical">
-                        <Button onClick={() => set_selectedMenu('ui_elements')} block>UI Elements</Button>
-                        <Button onClick={() => set_selectedMenu('text')} block>Text</Button>
-                        <Button onClick={() => set_selectedMenu('categories')} block>Categories</Button>
-                        <Button onClick={() => set_selectedMenu('carousel')} block>Carousel</Button>
-                        <Button onClick={() => set_selectedMenu('products')} block>Products</Button>
-                        <Button onClick={() => set_selectedMenu('animations')} block>Animations</Button>
+                        {menuItems.map((item) => {
+                            const selected = selectedMenu === item.key
+                            return (
+                                <Button
+                                    key={item.key}
+                                    block
+                                    color={selected ? 'primary' : 'default'}
+                                    variant={selected ? 'solid' : 'outlined'}
+                                    style={selected ? selectedMenuStyle : undefined}
+                                    onClick={() => set_selectedMenu(item.key)}
+                                >
+                                    {item.label}
+                                </Button>
+                            )
+                        })}
                     </Space>
                 </div></Col>
 
