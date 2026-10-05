@@ -139,6 +139,11 @@
         }
     }
 
+    &.selected{
+        border-bottom: 1px dashed #4a4a4a;
+        border-top: 1px dashed #4a4a4a;
+    }
+
     .selected{
         position: absolute;
         top: 0;
@@ -168,8 +173,8 @@
 
     &:hover{
         // border: 1px solid yellow;
-        border-bottom: 1px solid #4a4a4a;
-        border-top: 1px solid #4a4a4a;
+        // border-bottom: 1px solid #4a4a4a;
+        // border-top: 1px solid #4a4a4a;
 
         // .item_menu {
         //     display: inline-block;
