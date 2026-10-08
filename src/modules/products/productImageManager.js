@@ -33,8 +33,6 @@ export function ProductImageManager({ session, ...props }) {
 
     const [deleteProductVideo, vdodel_updates] = useMutation(DEL_VDO); // { data, loading, error }
 
-    console.log({ initialValues })
-
     useEffect(() => {
         if (!initialValues) return; // skip this for the frist time
         set_initialValues(props.initialValues)

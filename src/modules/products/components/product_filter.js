@@ -38,11 +38,13 @@ export const ProductFilter = props => {
         const { unfit_for_dispatch, ...rest } = values || {}
         // formToFilter coerces booleans poorly — apply unfit flag explicitly
         let filter = formToFilter(rest)
+
         if (unfit_for_dispatch === 'true' || unfit_for_dispatch === true) {
             filter.unfit_for_dispatch = true
         } else if (unfit_for_dispatch === 'false' || unfit_for_dispatch === false) {
             filter.unfit_for_dispatch = false
         }
+
         props.onChange({ filter })
     }
 
@@ -120,11 +122,20 @@ export const ProductFilter = props => {
                                     size="small"
                                 />
                             </div>}
-                            
-                            <div style={{ paddingTop:"16px"}}>
+
+                            {exclude.indexOf('out_of_stock') < 0 && <div style={{ width: "150px" }}>
+                                <FormField type="switch" // prefix={<Icon icon="user" color="#CCC" />} 
+                                    name="out_of_stock" label="Out Of Stock" compact size="small"
+                                />
+                            </div>}
+
+                            <div style={{ paddingTop:"0px", paddingLeft:"16px", borderLeft:"1px solid #DDD" }}>
                                 <Button className="send_button" loading={props.loading} htmlType="submit"><Icon icon="search" /></Button>
                             </div>
                         </Space>
+
+
+                        {/* <DevBlock obj={values} /> */}
 
                     </form>
                 </>)

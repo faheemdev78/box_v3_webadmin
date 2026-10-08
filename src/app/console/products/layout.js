@@ -12,7 +12,7 @@ function Layout({ children }) {
       <PageBar 
         menuArray={[
           { title: 'Catelogue', href: `${adminRoot}/products/list` },
-          { title: 'Out of Stock', href: `${adminRoot}/products/list/out_of_stock` },
+          // { title: 'Out of Stock', href: `${adminRoot}/products/list/out_of_stock` },
           { title: 'Without Images', href: `${adminRoot}/products/list/without_images` },
           // { title: 'Product Fields', href: `${adminRoot}/products/fields` },
           // { title: 'Categories', href: `${adminRoot}/products/categories` },

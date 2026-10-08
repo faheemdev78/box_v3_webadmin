@@ -26,7 +26,11 @@ const defaultProps = {
 };
 
 
-export const ProductsList = ({ pagination, parseEditLink, pageView = defaultProps.pageView, columns = defaultProps.columns, loading, filter, dataSource, fetchData, busy, setBusy, searchFilterConfig, ...props }) => {
+export const ProductsList = ({ 
+  pagination, parseEditLink, pageView = defaultProps.pageView, columns = defaultProps.columns, 
+  loading, filter, dataSource, fetchData, busy, setBusy, searchFilterConfig, 
+  ...props
+}) => {
   const router = useRouter()
   const session = useAppSelector((state) => state.session);
   const settings = useAppSelector(getSettings)

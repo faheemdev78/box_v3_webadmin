@@ -97,7 +97,6 @@ export function ProductView({ session, store, refresh, ...props }) {
         return status;
     }
 
-
     return (<>
         <Row className='nowrap' style={{ border: "0px solid black", minHeight: "100%" }}>
             <Col flex="300px">
