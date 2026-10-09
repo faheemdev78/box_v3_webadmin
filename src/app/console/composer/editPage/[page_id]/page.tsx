@@ -19,7 +19,8 @@ import { catchApolloError, checkApolloRequestErrors, dateToUtc, parseJson, sleep
 import { PageTypeSelection, PageSettings, SideMenu, PropsWindow } from '@/modules/composer';
 import { components } from '@/modules/composer/components';
 import { useRouter, useParams } from 'next/navigation';
-import { adminRoot, defaultPageSize, defaultTZ } from '@/configs';
+import { adminRoot, defaultTZ } from '@/configs';
+import { nextModulePage } from '@/modules/composer/lib/modulePages.mjs';
 import styles from '@/modules/composer/Composer.module.scss';
 import { parseStylesInput, prepareStylesForSave } from '@/modules/composer/lib';
 import { GalleryButton } from '@/modules/composer/gallery/GalleryButton';
@@ -184,12 +185,12 @@ function PublishButton({ published, disabled, setError, onUpdate }: {
         onUpdate?.(result);
     }
 
-    return (<Button
+    return published ? <div style={{ backgroundColor:'#1fa11f', padding:'5px 15px', borderRadius:5, color:'#FFF' }}>Published</div> : (<Button
         onClick={updatePublish}
         color={published ? "green" : 'red'}
         loading={publishAppPage_details.loading}
         disabled={disabled}
-    >{published ? 'Published' : 'Publish Draft'}</Button>)
+    >{published ? 'Published' : 'Draft ready to Publish'}</Button>)
 }
 
 
@@ -234,7 +235,7 @@ function EditAppPage() {
             return false;
         }
 
-        let modules = await fetchModules(1);
+        let modules = await fetchModules();
         if (modules === false) console.log("modules: ", modules)
         if (modules === false) return false;
 
@@ -242,27 +243,41 @@ function EditAppPage() {
         return false;
     }
 
-    const fetchModules = async (_modulesPageNum: number) => {
+    const fetchModules = async () => {
         set_loadingModules(true);
-        set_modulesPageNum(_modulesPageNum)
+        const limit = 100;
+        const edges: any[] = [];
+        let page = 1;
 
-        let results = await appPagesModulesQuery({
-            variables: {
-                limit: defaultPageSize,
-                page: _modulesPageNum, //_pagination.pageSize * (_pagination.current - 1),
-                filter: JSON.stringify({ _id_parent: page_id }),
-                others: JSON.stringify({ sort: { sort_order: 1 } })
-            },
-        })
-            .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.appPagesModulesQuery }))
-            .catch(catchApolloError)
-        set_loadingModules(false);
+        try {
+            while (page) {
+                const results = await appPagesModulesQuery({
+                    variables: {
+                        limit,
+                        page,
+                        filter: JSON.stringify({ _id_parent: page_id }),
+                        others: JSON.stringify({ sort: { sort_order: 1 } })
+                    },
+                })
+                    .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.appPagesModulesQuery }))
+                    .catch(catchApolloError)
 
-        if (!results || results.error) {
-            set_fatelError((results && results?.error?.message) || 'No Modules found!');
-            return false;
+                if (!results || results.error) {
+                    set_fatelError((results && results?.error?.message) || 'No Modules found!');
+                    return false;
+                }
+
+                edges.push(...(results.edges || []));
+                const nextPage = nextModulePage(results.pagination, edges.length);
+                if (!nextPage || nextPage === page || page > 50) break;
+                page = nextPage;
+            }
+        } finally {
+            set_loadingModules(false);
         }
-        return results;
+
+        set_modulesPageNum(page);
+        return { edges };
     }
 
     const parseData = (_data: any) => {
@@ -351,8 +366,10 @@ function EditAppPage() {
                     _values = JSON.stringify(stored)
                 }
 
+                const persistedId = /^[a-f\d]{24}$/i.test(String(row._id || '')) ? row._id : undefined
+
                 return ({
-                    _id: row._id,
+                    _id: persistedId,
                     _id_parent: pageData && pageData._id,
                     schedule_start: row.schedule_start ? dateToUtc(row.schedule_start.startOf('day'), { tz: defaultTZ }) : undefined,
                     schedule_end: row.schedule_end ? dateToUtc(row.schedule_end.endOf('day'), { tz: defaultTZ }) : undefined,
@@ -385,17 +402,23 @@ function EditAppPage() {
         let results = await saveAppPagesModules({ variables: { input: input.rows } }).then((r: any) => (r?.data?.saveAppPagesModules))
             .catch((err: Error) => {
                 console.log(__error("Error: "), err)
-                return { error: { message: "Unable to complete your request at the moment." } }
+                return { error: { message: err?.message || "Unable to complete your request at the moment." } }
             })
 
-        if (results.error) {
-            setError(results.error.message);
-            message.error(results.error.message)
+        const savedRows = Array.isArray(results) ? results : null
+        const rowError = savedRows?.find((row) => row?.error?.message)?.error?.message
+        const missingRow = savedRows?.some((row) => !row?._id)
+        if (!savedRows || rowError || missingRow || results?.error) {
+            const messageText = rowError || results?.error?.message || "Unable to save the new row."
+            setError(messageText)
+            message.error(messageText)
+            setSaving(false)
+            return false
         }
-        else message.success("Saved")
 
-        // await sleep(1500)
-        // parseData({ ...pageData, rows: results, published: false })
+        message.success("Saved")
+
+        // Reload every module. Page 1 alone drops a row appended past the page size, and the form then resets to that shorter list.
         await fetchData();
         setSaving(false)
         return false;
@@ -490,7 +513,7 @@ function EditAppPage() {
                     <form id="page_composer_form" {...submitHandler(formargs)}>
 
                         <div style={{ borderBottom: "1px solid #D0DAE5", padding: "10px", backgroundColor: "#FFF" }}>
-                            <Row gutter={[20, 20]}>
+                            <Row gutter={[20, 20]} align={'middle'}>
                                 <Col span={8}><Space>
                                     <Button onClick={toggleSettings} tooltip={{ title: "Settings", placement: "bottom" }} icon={<Icon icon="cog" />} />
                                     <Button onClick={toggleSchedule} tooltip={{ title: "Schedule", placement: "bottom" }} icon={<Icon icon="clock" />} />
@@ -502,13 +525,15 @@ function EditAppPage() {
                                 </Col>
                                 <Col span={8} style={{ textAlign: 'right' }}><Space>
                                     {/* {dirty && <Alert type='warning' showIcon title="Error" description="Contents updated" />} */}
-                                    <ExternalSubmitButton
-                                        color="orange"
-                                        disabled={disableSave}
-                                        loading={saving}
-                                        label="Save"
-                                        form_id="page_composer_form"
-                                    />
+                                    {!disableSave && 
+                                        <ExternalSubmitButton
+                                            color="orange"
+                                            disabled={disableSave}
+                                            loading={saving}
+                                            label="Save"
+                                            form_id="page_composer_form"
+                                        />
+                                    }
                                     <PublishButton
                                         published={pageData.published}
                                         disabled={!!disablePublish}

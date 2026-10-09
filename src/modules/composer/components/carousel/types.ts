@@ -5,6 +5,7 @@ export type CarouselNavigation = 'none' | 'dots' | 'dashes' | 'arrows'
 export interface CarouselValues {
     theme?: string
     navigation?: CarouselNavigation
+    autoplay?: number
     columns?: number
     rows?: number
     gutter?: number | string

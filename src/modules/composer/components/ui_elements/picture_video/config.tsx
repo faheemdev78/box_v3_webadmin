@@ -15,12 +15,14 @@ import { AttachmentFields } from '../AttachmentFields'
 import { serializeAttachment } from '../attachment'
 import { GalleryPanel } from '../../../gallery/GalleryPanel'
 import { uploadGalleryFiles, type GalleryAsset } from '../../../gallery/uploadGalleryFile'
+import { autoplaySeconds, useAutoplay } from '../../autoplay'
 
 export type MediaNavigation = 'none' | 'dots' | 'dashes' | 'arrows'
 
 export type MediaValues = {
     kind?: 'picture' | 'video'
     navigation?: MediaNavigation
+    autoplay?: number
     asset?: GalleryAsset | null
     assets?: GalleryAsset[]
 }
@@ -32,7 +34,7 @@ const NAVIGATION_OPTIONS = [
     { label: 'Show arrows', value: 'arrows' },
 ]
 
-function mediaNavigation(value?: string | null): MediaNavigation {
+export function mediaNavigation(value?: string | null): MediaNavigation {
     return value === 'dots' || value === 'dashes' || value === 'arrows' ? value : 'none'
 }
 
@@ -63,12 +65,24 @@ function MediaPreview({ item }: { item: ComposerItem<MediaValues> }) {
     const navigation = mediaNavigation(item?.values?.navigation)
     const scroller = useRef<HTMLDivElement>(null)
     const [page, setPage] = useState(0)
+    const pageRef = useRef(page)
+    pageRef.current = page
 
     const scrollToPage = (next: number) => {
         const node = scroller.current
-        if (!node?.clientWidth) return
-        node.scrollTo({ left: Math.min(assets.length - 1, Math.max(0, next)) * node.clientWidth, behavior: 'smooth' })
+        const count = assets.length
+        if (!node?.clientWidth || count < 1) return
+        const clamped = Math.min(count - 1, Math.max(0, next))
+        node.scrollTo({ left: clamped * node.clientWidth, behavior: 'smooth' })
     }
+
+    useAutoplay(autoplaySeconds(item?.values?.autoplay), assets.length > 1, page, () => {
+        const node = scroller.current
+        const count = assets.length
+        if (!node?.clientWidth || count < 2) return
+        const next = (pageRef.current + 1) % count
+        node.scrollTo({ left: next * node.clientWidth, behavior: next === 0 ? 'auto' : 'smooth' })
+    })
 
     return (
         <div style={blockFrame(item)}>
@@ -141,7 +155,7 @@ function MediaNav({ navigation, page, pages, onArrow }: {
     )
 }
 
-function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
+export function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
     const { name } = item
     const form = useForm()
     const pageId = form.getState().values?._id as string | undefined
@@ -230,6 +244,11 @@ function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
             <Card styles={{ body: { padding: '10px' } }}>
                 <Heading style={undefined}>Media</Heading>
                 <FormField name={`${name}.values.navigation`} type="select" label="Show navigation" options={NAVIGATION_OPTIONS} />
+                <FormField name={`${name}.values.autoplay`} type="number" label="Auto play (seconds)" min={0} max={300} step={1} />
+                <div style={{ color: '#666', marginBottom: 8 }}>Seconds between moves. Use 0 to keep auto play off.</div>
+                {item?.data?.type === 'picture_3d_carousel' && (
+                    <div style={{ color: '#666', marginBottom: 8 }}>Use at least 3 pictures. The center picture is larger, and the two beside it are smaller.</div>
+                )}
                 <div style={{ marginTop: 8, marginBottom: 8, color: '#666' }}>
                     {assets.length > 1 ? `${assets.length} items, shown as a carousel` : `${assets.length} item`}
                 </div>
@@ -338,18 +357,10 @@ function ButtonLike({ children, onClick, disabled }: { children: React.ReactNode
     )
 }
 
-export const pictureVideoComponent: ComposerComponent<MediaValues> = {
-    type: 'picture_video',
-    label: 'Picture / Video',
-    desc: 'static or auto carousel',
-    category: 'carousel',
-    placement: 'body',
-    defaults: { navigation: 'none', assets: [] },
-    fields: [],
-    Preview: MediaPreview,
-    Props: MediaProps,
-    serialize: (values) => ({
+export function serializeMedia(values?: MediaValues) {
+    return {
         navigation: mediaNavigation(values?.navigation),
+        autoplay: autoplaySeconds(values?.autoplay),
         assets: mediaAssets(values).map((asset) => ({
             _id: asset._id,
             kind: asset.kind === 'video' ? 'video' : 'picture',
@@ -359,5 +370,18 @@ export const pictureVideoComponent: ComposerComponent<MediaValues> = {
             thumbnails: asset.thumbnails || [],
             link: serializeAttachment(asset.link),
         })),
-    }),
+    }
+}
+
+export const pictureVideoComponent: ComposerComponent<MediaValues> = {
+    type: 'picture_video',
+    label: 'Picture / Video',
+    desc: 'static or auto carousel',
+    category: 'carousel',
+    placement: 'body',
+    defaults: { navigation: 'none', autoplay: 0, assets: [] },
+    fields: [],
+    Preview: MediaPreview,
+    Props: MediaProps,
+    serialize: serializeMedia,
 }

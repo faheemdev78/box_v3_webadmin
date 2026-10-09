@@ -297,6 +297,7 @@ export const TextField = props => {
                                     suffix={props.suffix}
                                     onChange={onChange}
                                     style={props.style}
+                                    allowClear={!!props.allowClear}
                                     disabled={props?.final_fieldProps?.disabled}
                                     className={`${props.isRequired && styles.is_required_field}`}
                                     styles={{

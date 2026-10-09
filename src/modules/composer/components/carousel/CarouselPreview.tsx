@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Icon } from '@/components'
 import { parseStylesOutput } from '../../lib'
+import { autoplaySeconds, useAutoplay } from '../autoplay'
 import { RenderProduct } from '../products/RenderProduct'
 import { productInk } from '../products/theme'
 import { useAppSelector } from '@/rStore/hooks'
@@ -11,17 +12,92 @@ import type { ComposerItem } from '../types'
 import type { ComposerProduct } from '../products/types'
 import { gutterPx } from '../products/types'
 import { carouselCount, type CarouselNavigation, type CarouselValues } from './types'
+import { useGlideScroll } from './glideScroll'
 
-export function CarouselPreview({ item, columns: fallbackColumns, rows: fallbackRows = 1 }: {
+function previewStyle(item: ComposerItem<CarouselValues>) {
+    const style = parseStylesOutput(item.styles || {}) as CSSProperties
+    if (item.status == 'offline') style.opacity = 0.5
+    return style
+}
+
+function ProductCell({ product, ink, currency }: { product: ComposerProduct; ink: string; currency: string }) {
+    let offPercent = 0
+    if (product.price && product.price_was && product.price_was > product.price) {
+        offPercent = 100 - ((product.price / product.price_was) * 100)
+    }
+    return <RenderProduct item={product} off_percent={offPercent} currency={currency} color={ink} />
+}
+
+export function CarouselPreview({ item, columns: fallbackColumns, rows: fallbackRows = 1, behavior = 'slides' }: {
+    item: ComposerItem<CarouselValues>
+    columns: number
+    rows?: number
+    behavior?: 'slides' | 'scroll'
+}) {
+    if (behavior === 'scroll') return <ScrollCarouselPreview item={item} columns={fallbackColumns} />
+    return <SlideCarouselPreview item={item} columns={fallbackColumns} rows={fallbackRows} />
+}
+
+function ScrollCarouselPreview({ item, columns: fallbackColumns }: {
+    item: ComposerItem<CarouselValues>
+    columns: number
+}) {
+    const { currency } = useAppSelector(getSettings)
+    const { values } = item
+    const style = previewStyle(item)
+    const products = (values?.products || []).filter((product) => product?._id || product?.title)
+    const ink = productInk(values?.theme)
+    const columns = carouselCount(values?.columns, fallbackColumns, 6)
+    const gutter = gutterPx(values?.gutter)
+    const navigation = (values?.navigation || 'none') as CarouselNavigation
+    const { ref, scrollBy } = useGlideScroll()
+
+    const nudge = (direction: number) => {
+        const node = ref.current
+        const card = node?.firstElementChild as HTMLElement | null
+        const width = (card?.getBoundingClientRect().width || node?.clientWidth || 0) + gutter
+        scrollBy(direction * width)
+    }
+
+    return (
+        <div style={style}>
+            {!products.length && <div style={{ color: ink, padding: '12px' }}>Empty carousel</div>}
+            <div style={{ position: 'relative' }}>
+                <div
+                    ref={ref}
+                    style={{
+                        display: 'flex',
+                        gap: gutter,
+                        overflowX: 'auto',
+                        overflowY: 'hidden',
+                        userSelect: 'none',
+                        scrollbarWidth: 'thin',
+                        overscrollBehaviorX: 'contain',
+                        WebkitOverflowScrolling: 'touch',
+                    }}
+                >
+                    {products.map((product, index) => (
+                        <div key={product._id || index} style={{ flex: `0 0 calc((100% - ${(columns - 1) * gutter}px) / ${columns})`, minWidth: 0 }}>
+                            <ProductCell product={product as ComposerProduct} ink={ink} currency={currency} />
+                        </div>
+                    ))}
+                </div>
+                {navigation === 'arrows' && products.length > columns && (
+                    <CarouselNavigationView navigation="arrows" page={0} pages={products.length} free onArrow={nudge} />
+                )}
+            </div>
+        </div>
+    )
+}
+
+function SlideCarouselPreview({ item, columns: fallbackColumns, rows: fallbackRows = 1 }: {
     item: ComposerItem<CarouselValues>
     columns: number
     rows?: number
 }) {
     const { currency } = useAppSelector(getSettings)
-    const { values, styles, status } = item
-    const style = parseStylesOutput(styles || {}) as CSSProperties
-    if (status == 'offline') Object.assign(style, { opacity: 0.5 })
-
+    const { values } = item
+    const style = previewStyle(item)
     const products = (values?.products || []).filter((product) => product?._id || product?.title)
     const ink = productInk(values?.theme)
     const columns = carouselCount(values?.columns, fallbackColumns, 6)
@@ -30,6 +106,8 @@ export function CarouselPreview({ item, columns: fallbackColumns, rows: fallback
     const pageSize = columns * rows
     const scroller = useRef<HTMLDivElement>(null)
     const [page, setPage] = useState(0)
+    const pageRef = useRef(page)
+    pageRef.current = page
     const pages = products.length ? Math.ceil(products.length / pageSize) : 0
     const navigation = (values?.navigation || 'none') as CarouselNavigation
     const slides = Array.from({ length: pages }, (_, index) => products.slice(index * pageSize, (index + 1) * pageSize))
@@ -42,9 +120,17 @@ export function CarouselPreview({ item, columns: fallbackColumns, rows: fallback
 
     const scrollToPage = (next: number) => {
         const node = scroller.current
-        if (!node?.clientWidth) return
-        node.scrollTo({ left: next * node.clientWidth, behavior: 'smooth' })
+        if (!node?.clientWidth || pages < 1) return
+        const clamped = Math.min(pages - 1, Math.max(0, next))
+        node.scrollTo({ left: clamped * node.clientWidth, behavior: 'smooth' })
     }
+
+    useAutoplay(autoplaySeconds(values?.autoplay), pages > 1, page, () => {
+        const node = scroller.current
+        if (!node?.clientWidth || pages < 2) return
+        const next = (pageRef.current + 1) % pages
+        node.scrollTo({ left: next * node.clientWidth, behavior: next === 0 ? 'auto' : 'smooth' })
+    })
 
     return (
         <div style={style}>
@@ -57,17 +143,11 @@ export function CarouselPreview({ item, columns: fallbackColumns, rows: fallback
                 >
                     {slides.map((slide, slideIndex) => (
                         <div key={slideIndex} style={{ flex: '0 0 100%', minWidth: '100%', display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: gutter, alignContent: 'flex-start' }}>
-                            {slide.map((product, index) => {
-                                let offPercent = 0
-                                if (product.price && product.price_was && product.price_was > product.price) {
-                                    offPercent = 100 - ((product.price / product.price_was) * 100)
-                                }
-                                return (
-                                    <div key={product._id || index}>
-                                        <RenderProduct item={product as ComposerProduct} off_percent={offPercent} currency={currency} color={ink} />
-                                    </div>
-                                )
-                            })}
+                            {slide.map((product, index) => (
+                                <div key={product._id || index}>
+                                    <ProductCell product={product as ComposerProduct} ink={ink} currency={currency} />
+                                </div>
+                            ))}
                         </div>
                     ))}
                 </div>
@@ -79,11 +159,12 @@ export function CarouselPreview({ item, columns: fallbackColumns, rows: fallback
     )
 }
 
-function CarouselNavigationView({ navigation, page, pages, onArrow }: {
+function CarouselNavigationView({ navigation, page, pages, onArrow, free = false }: {
     navigation: CarouselNavigation
     page: number
     pages: number
     onArrow: (page: number) => void
+    free?: boolean
 }) {
     if (navigation === 'arrows') {
         const button = (side: 'left' | 'right'): CSSProperties => ({
@@ -101,10 +182,10 @@ function CarouselNavigationView({ navigation, page, pages, onArrow }: {
         })
         return (
             <>
-                <button type="button" aria-label="Previous" style={button('left')} onClick={() => onArrow(Math.max(0, page - 1))}>
+                <button type="button" aria-label="Previous" style={button('left')} onClick={() => onArrow(free ? -1 : Math.max(0, page - 1))}>
                     <Icon icon="arrow-left" />
                 </button>
-                <button type="button" aria-label="Next" style={button('right')} onClick={() => onArrow(Math.min(pages - 1, page + 1))}>
+                <button type="button" aria-label="Next" style={button('right')} onClick={() => onArrow(free ? 1 : Math.min(pages - 1, page + 1))}>
                     <Icon icon="arrow-right" />
                 </button>
             </>

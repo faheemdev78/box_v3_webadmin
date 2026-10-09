@@ -26,9 +26,22 @@ function ProductThumb({ node }: { node: ComposerProduct }) {
     )
 }
 
+const SLIDE_NAVIGATION = [
+    { label: "Don't show", value: 'none' },
+    { label: 'Show dots', value: 'dots' },
+    { label: 'Show dash lines', value: 'dashes' },
+    { label: 'Show arrows', value: 'arrows' },
+]
+
+const SCROLL_NAVIGATION = [
+    { label: "Don't show", value: 'none' },
+    { label: 'Show arrows', value: 'arrows' },
+]
+
 export function CarouselProps({ item }: { item: ComposerItem<CarouselValues> }) {
     const { name } = item
     const [open, setOpen] = useState(false)
+    const freeScroll = item?.data?.type === 'scroll_product'
 
     return (<>
         <Space orientation="vertical">
@@ -38,19 +51,19 @@ export function CarouselProps({ item }: { item: ComposerItem<CarouselValues> }) 
                 <Heading style={undefined}>Theme</Heading>
                 <FormField name={`${name}.values.theme`} type="color" label="Text color" />
                 <FormField name={`${name}.values.columns`} type="number" label="Columns" />
-                <FormField name={`${name}.values.rows`} type="number" label="Rows" />
+                {!freeScroll && <FormField name={`${name}.values.rows`} type="number" label="Rows" />}
                 <FormField name={`${name}.values.gutter`} type="number" label="Gutter" min={0} max={80} />
                 <FormField
                     name={`${name}.values.navigation`}
                     type="select"
                     label="Show navigation"
-                    options={[
-                        { label: "Don't show", value: 'none' },
-                        { label: 'Show dots', value: 'dots' },
-                        { label: 'Show dash lines', value: 'dashes' },
-                        { label: 'Show arrows', value: 'arrows' },
-                    ]}
+                    options={freeScroll ? SCROLL_NAVIGATION : SLIDE_NAVIGATION}
                 />
+                {freeScroll && <div style={{ color: '#666', marginBottom: 8 }}>Shoppers drag this row sideways, and it eases to a stop. Columns is how many products fit on screen.</div>}
+                {!freeScroll && <>
+                    <FormField name={`${name}.values.autoplay`} type="number" label="Auto play (seconds)" min={0} max={300} step={1} />
+                    <div style={{ color: '#666', marginBottom: 8 }}>Seconds between moves. Use 0 to keep auto play off.</div>
+                </>}
             </Card>
 
             <Card styles={{ body: { padding: '10px' } }}>
