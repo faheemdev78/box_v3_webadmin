@@ -10,6 +10,8 @@ import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-for
 import arrayMutators from 'final-form-arrays'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@/components/form';
 import { ManufacturersDD } from '@/components/dropdowns';
+import { IconSelect } from '@/modules/categories/IconSelect';
+import { uploadBrandIcon } from './uploadBrandIcon';
 
 import RECORD_EDIT from '@/graphql/brand/editBrand.graphql';
 import RECORD_ADD from '@/graphql/brand/addBrand.graphql';
@@ -32,6 +34,7 @@ export const BrandForm = props => {
     const onSubmit = async (values) => {
         const _id = fields ? fields._id : false;
 
+        const source = values.icon_source === 'svg' || values.icon_source === 'image' ? values.icon_source : 'awesome'
         let input = {
             title: values.title,
             code: values.code,
@@ -47,53 +50,53 @@ export const BrandForm = props => {
             status: values.status,
             seo_title: values.seo_title,
             seo_desc: values.seo_desc,
+            icon: source === 'awesome' ? (values.icon || null) : null,
+            icon_img: source === 'awesome' ? null : (values.icon_img || null),
             img: values.img,
             img_thumb: values.img_thumb
         };
 
-        if (_id) {
-            Object.assign(input, { _id })
-            return _editBrand(input)
+        if (_id) Object.assign(input, { _id })
+        setLoading(true)
+        try {
+            let results = _id ? await _editBrand(input) : await _addBrand(input)
+            if (!results || results.error) {
+                message.error(results?.error?.message || 'Invalid response')
+                return
+            }
+            const savedId = _id || results._id
+            if (!savedId) {
+                message.error('The brand did not save.')
+                return
+            }
+            if (!_id) setFields({ ...(props.fields || {}), _id: String(savedId) })
+            if ((source === 'svg' || source === 'image') && values.icon_file) {
+                try {
+                    const uploaded = await uploadBrandIcon(values.icon_file, String(savedId))
+                    results = { ...results, icon: null, icon_img: uploaded.icon_img, icon_img_thumb: null }
+                } catch (uploadError) {
+                    message.error(uploadError?.message || 'The brand was saved, but the icon did not upload.')
+                    return
+                }
+            }
+            message.success('Success')
+            if (callback) callback(_id ? 'updated' : 'added', results)
+            onClose(results)
+        } finally {
+            setLoading(false)
         }
-        else return _addBrand(input)
     }
 
     const _editBrand = async (input) => {
-        setLoading(true)
-        let results = await editBrand({ variables: { input } })
-            .then((r) => (r?.data?.editBrand))
-        .catch(error => {
-            console.error(error);
-            return { error:{message:"Request Error!"}}
-        });
-        setLoading(false)
-
-        if (!results || results.error){
-            message.error((results || results?.error?.message) || "Invalid response")
-            return false;
-        }
-
-        message.success("Success");
-        if (callback) callback('updated', results)
-        onClose(results);
+        return editBrand({ variables: { input } })
+            .then((r) => r?.data?.editBrand)
+            .catch(error => ({ error: { message: error?.message || 'Request Error!' } }))
     }
-    
+
     const _addBrand = async (input) => {
-        let results = await addBrand({ variables: { input }})
-            .then((r) => (r.data.addBrand))
-        .catch(error => {
-            console.error(error);
-            return { error: { message:"Request Error" } }
-        });
-
-        if (!results || results.error) {
-            message.error((results || results?.error?.message) || "Invalid response")
-            return false;
-        }
-
-        message.success("Success");
-        if (callback) callback('added', results)
-        onClose(results);
+        return addBrand({ variables: { input } })
+            .then((r) => r?.data?.addBrand)
+            .catch(error => ({ error: { message: error?.message || 'Request Error!' } }))
     }
 
     const onFileDeleteClicked = async (fileInfo) => {
@@ -131,7 +134,12 @@ export const BrandForm = props => {
             footer={false}
             title={`${fields && fields._id ? 'Edit' : 'Add'} Brand`}
         >
-            <FinalForm onSubmit={onSubmit} initialValues={props.fields}
+            <FinalForm onSubmit={onSubmit} initialValues={{
+                ...props.fields,
+                icon_source: props.fields?.icon_img
+                    ? (/\.svg($|\?)/i.test(String(props.fields.icon_img)) ? 'svg' : 'image')
+                    : 'awesome',
+            }}
                 mutators={{ 
                     ...arrayMutators,
                     onManufacturerChange: (newValueArray, state, tools) => {
@@ -155,6 +163,7 @@ export const BrandForm = props => {
                                 <Col span={16}><FormField type="text" name="serial" label="Serial" /></Col>
                                 <Col span={8}><FormField type="select" name="status" label="Status" options={publishStatus} validate={rules.required} /></Col>
                                 <Col span={24}><FormField type="textarea" name="description" label="Description" /></Col>
+                                <Col span={24}><IconSelect /></Col>
                                 <Col span={24}><Divider>SEO Details</Divider></Col>
                                 <Col span={24}><FormField type="text" name="seo_title" label="SEO Title" /></Col>
                                 <Col span={24}><FormField type="text" name="seo_desc" label="SEO Desc" /></Col>
@@ -172,7 +181,7 @@ export const BrandForm = props => {
 
                             <Row>
                                 <Col flex="auto" />
-                                <Col><SubmitButton loading={submitting} label={'Save'} /></Col>
+                                <Col><SubmitButton loading={submitting || loading} label={'Save'} /></Col>
                             </Row>
 
                             <DevBlock obj={values} title="values" />

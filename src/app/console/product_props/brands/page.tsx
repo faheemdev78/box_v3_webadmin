@@ -4,6 +4,8 @@ import { useMutation, useLazyQuery } from '@apollo/client/react'
 import { Card, Col, message, Popconfirm, Row, Space, Tag } from 'antd';
 import { Button, IconButton, Loader, Table } from '@/components';
 import { BrandForm } from '@/modules/brand/brandForm';
+import { CategoryIcon } from '@/modules/categories/IconSelect';
+import { cdnImageUrl } from '@/lib/cdnImageUrl';
 import { defaultPageSize } from '@/configs';
 import { PageHeader } from '@/template';
 import { __error, __yellow } from '@/lib';
@@ -82,6 +84,12 @@ function Brands(props: any) {
             title: 'Brand Name',
             dataIndex: 'title',
             key: 'title',
+            render: (title: string, rec: { icon?: string; icon_img?: string; icon_img_thumb?: string }) => (
+                <Space>
+                    <CategoryIcon name={rec.icon} iconImg={cdnImageUrl(rec.icon_img_thumb || rec.icon_img)} />
+                    <span>{title}</span>
+                </Space>
+            ),
         },
         {
             title: 'Status',

@@ -12,6 +12,8 @@ export function Footer({  }) {
     const session = useAppSelector(getSession)
     const settings = useAppSelector(getSettings)
 
+    return null;
+
     return (<div>
         <DevBlock obj={settings} title="settings" />
         <DevBlock obj={session} title="redux session" />

@@ -29,6 +29,7 @@ export function toDragItem(component: ComposerComponent<any>): ComposerDragItem 
         desc: component.desc,
         placement: component.placement,
         singleton: !!component.singleton,
+        disabled: !!component.disabled,
         defaults: component.defaults,
     }
 }

@@ -7,14 +7,14 @@ import styles from './Composer.module.scss'
 
 // import mySvg from '../public/my-icon.svg';
 
-const pageTypeArray = [
+export const pageTypeArray = [
     { title: "Home Page", desc: "based on homepage template", type: "home_page", icon: "/images/home_page_icon.svg", disabled:true },
     { title: "Category Page", desc: "based on category page", type: "category_page", icon: "/images/cat_page_icon.svg" },
-    { title: "Store Page", desc: "based on store page", type: "store_page", icon: "/images/store_page_icon.svg", disabled: true },
+    { title: "Store Page", desc: "based on store page", type: "store_page", icon: "/images/store_page_icon.svg", disabled: false },
     { title: "Brand Page", desc: "based on brand page", type: "brand_page", icon: "/images/brand_page_icon.svg" },
     { title: "Product Details", desc: "based on product page", type: "prod_page", icon: "/images/prod_page_icon.svg", disabled: true },
     { title: "Product Collection", desc: "free style custom product collection", type: "prod_collection_page", icon: "/images/collection_page_icon.svg", disabled: true },
-    { title: "Blank Page", desc: "empty page for custom build", type: "blank_page", icon: "/images/blank_page_icon.svg", disabled: true },
+    { title: "Custom Page", desc: "custom page", type: "custom_page", icon: "/images/blank_page_icon.svg", disabled: false },
 ]
 
 export function PageTypeSelection({ onUpdate }) {

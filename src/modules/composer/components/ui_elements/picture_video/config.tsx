@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { Button, Card, Modal, Space, message } from 'antd'
+import { Button, Card, Col, Modal, Row, Space, message } from 'antd'
 import { useForm, useFormState } from 'react-final-form'
 import get from 'lodash/get'
 import { DeleteButton, IconButton, Image } from '@/components'
@@ -23,6 +23,7 @@ export type MediaValues = {
     kind?: 'picture' | 'video'
     navigation?: MediaNavigation
     autoplay?: number
+    centerWidth?: number
     asset?: GalleryAsset | null
     assets?: GalleryAsset[]
 }
@@ -176,7 +177,13 @@ export function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
             form.change(`${name}.values.assets`, [values.asset])
             form.change(`${name}.values.asset`, null)
         }
-    }, [form, name])
+        if (item?.data?.type === 'picture_3d_carousel') {
+            const centerWidth = (values as { centerWidth?: unknown } | undefined)?.centerWidth
+            if (centerWidth === undefined || centerWidth === null || centerWidth === '') {
+                form.change(`${name}.values.centerWidth`, 54)
+            }
+        }
+    }, [form, item?.data?.type, name])
 
     const addAssets = (incoming: GalleryAsset[]) => {
         const next = savedAssets()
@@ -199,7 +206,7 @@ export function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
         if (linkIndex == null) return
         const link = get(form.getState().values, `${name}.values.assets[${linkIndex}].link`)
         if (link?.type && !link?._id) {
-            message.error('Choose the category, product, or brand to attach.')
+            message.error('Choose the category, product, brand, or page to attach.')
             return
         }
         form.change(`${name}.values.assets[${linkIndex}].link`, serializeAttachment(link))
@@ -243,20 +250,25 @@ export function MediaProps({ item }: { item: ComposerItem<MediaValues> }) {
         <BlockProps item={item}>
             <Card styles={{ body: { padding: '10px' } }}>
                 <Heading style={undefined}>Media</Heading>
-                <FormField name={`${name}.values.navigation`} type="select" label="Show navigation" options={NAVIGATION_OPTIONS} />
-                <FormField name={`${name}.values.autoplay`} type="number" label="Auto play (seconds)" min={0} max={300} step={1} />
+                <Row gutter={[10, 10]}>
+                    <Col span={12}><FormField name={`${name}.values.navigation`} type="select" label="Show navigation" options={NAVIGATION_OPTIONS} /></Col>
+                    <Col span={12}><FormField name={`${name}.values.autoplay`} type="number" label="Auto play (seconds)" min={0} max={300} step={1} /></Col>
+                    {item?.data?.type === 'picture_3d_carousel' && (
+                        <Col span={12}><FormField name={`${name}.values.centerWidth`} type="number" label="Center width (%)" min={30} max={90} step={1} /></Col>
+                    )}
+                </Row>
                 <div style={{ color: '#666', marginBottom: 8 }}>Seconds between moves. Use 0 to keep auto play off.</div>
                 {item?.data?.type === 'picture_3d_carousel' && (
-                    <div style={{ color: '#666', marginBottom: 8 }}>Use at least 3 pictures. The center picture is larger, and the two beside it are smaller.</div>
+                    <div style={{ color: '#666', marginBottom: 8 }}>The frame follows the first picture, so the whole image fits. Center width sets how wide that picture is.</div>
                 )}
                 <div style={{ marginTop: 8, marginBottom: 8, color: '#666' }}>
                     {assets.length > 1 ? `${assets.length} items, shown as a carousel` : `${assets.length} item`}
                 </div>
                 <Space>
-                    <ButtonLike onClick={() => setOpen(true)}>Choose from gallery</ButtonLike>
-                    <ButtonLike onClick={() => fileRef.current?.click()} disabled={busy || !pageId}>
+                    <Button onClick={() => setOpen(true)}>Choose from gallery</Button>
+                    <Button onClick={() => fileRef.current?.click()} disabled={busy || !pageId}>
                         {busy ? (queueLabel || 'Uploading…') : 'Upload new'}
-                    </ButtonLike>
+                    </Button>
                 </Space>
                 <input
                     ref={fileRef}

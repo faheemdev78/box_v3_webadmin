@@ -7,7 +7,7 @@ import { Field, useForm } from 'react-final-form'
 import { FieldArray } from 'react-final-form-arrays'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { FormField, SearchableSelect } from '@/components/form'
-import { ProdCatsDD, ProductsDD } from '@/components/dropdowns'
+import { BrandsDD, ProdCatsDD, ProductsDD } from '@/components/dropdowns'
 import { Heading } from '../../../typography'
 import { ComponentStyling } from '../../../lib'
 import { PropsFromFields } from '../../PropsFromFields'
@@ -29,6 +29,7 @@ const linkTypes = [
     { label: 'Page', value: 'page' },
     { label: 'Category', value: 'category' },
     { label: 'Product', value: 'product' },
+    { label: 'Brand', value: 'brand' },
 ]
 
 function IconChoice({ name }: { name?: string | null }) {
@@ -54,7 +55,7 @@ function BarItemLink({ name, link }: { name: string; link?: HeaderBarLink | null
                 <FormField
                     name={`${name}.type`}
                     type="select"
-                    label="Link to"
+                    label="Attach to"
                     allowClear
                     options={linkTypes}
                     onChange={() => {
@@ -72,13 +73,14 @@ function BarItemLink({ name, link }: { name: string; link?: HeaderBarLink | null
                                     key="page"
                                     query={PAGES}
                                     queryName="appPages"
+                                    static_filter={{ draft: false }}
                                     name={`${name}._id`}
                                     label="Page"
                                     preload
                                     defaultData={current}
                                     resultParser={(results: { _id: string; title?: string; slug?: string; draft?: boolean }[]) => results.map((page) => ({
                                         value: page._id,
-                                        label: [page.title, page.slug, page.draft ? 'draft' : ''].filter(Boolean).join(' · '),
+                                        label: [page.title, page.slug].filter(Boolean).join(' · '),
                                         title: page.title,
                                         raw: page,
                                     }))}
@@ -91,6 +93,9 @@ function BarItemLink({ name, link }: { name: string; link?: HeaderBarLink | null
                         }
                         if (input.value === 'product') {
                             return <ProductsDD key="product" name={`${name}._id`} label="Product" preload defaultData={current} onChange={rememberTitle} />
+                        }
+                        if (input.value === 'brand') {
+                            return <BrandsDD key="brand" name={`${name}._id`} label="Brand" preload defaultData={current} onChange={rememberTitle} />
                         }
                         return null
                     }}
@@ -171,7 +176,7 @@ export function HeaderProps({ item }: { item: ComposerItem<HeaderValues> }) {
                 <PropsFromFields item={item} fields={headerFields} />
             </Card>
             <Card styles={{ body: { padding: '10px' } }}>
-                <Heading style={{}}>{'Category bar'}</Heading>
+                <Heading style={{}}>{'Tab Bar'}</Heading>
                 <FieldArray<HeaderBarItem> name={`${name}.values.items`}>
                     {({ fields }) => (
                         <Space orientation="vertical" style={{ width: '100%' }}>

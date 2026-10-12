@@ -18,6 +18,25 @@ import { utcToDateField } from '@/lib/utill';
 
 const { RangePicker } = AntDatePicker;
 
+// An empty form value is "". Parsing that makes an invalid dayjs, and the picker prints "Invalid Date".
+function toPickerDate(value) {
+    if (value == null || value === '') return null;
+    if (dayjs.isDayjs(value)) return value.isValid() ? value : null;
+    if (moment.isMoment(value)) {
+        if (!value.isValid()) return null;
+        const next = dayjs(value.format('YYYY-MM-DD HH:mm'));
+        return next.isValid() ? next : null;
+    }
+    if (_.isString(value)) return utcToDateField(value);
+    return null;
+}
+
+function toPickerRange(value) {
+    if (!Array.isArray(value)) return null;
+    const next = value.map((item) => toPickerDate(item));
+    return next.every((item) => item == null) ? null : next;
+}
+
 export const DateField = props => {
     dayjs.extend(utc)
     dayjs.extend(timezone)
@@ -46,8 +65,7 @@ export const DateField = props => {
                     if (props.onChange) props.onChange(m, dateString)
                 }
 
-                let value = input.value;
-                if (_.isString(input.value)) value = utcToDateField(value);
+                const value = toPickerDate(input.value);
 
                 return (
                     <div className={`${styles.field} ${styles.date}`} style={props.wrapperStyle}>
@@ -95,9 +113,7 @@ export const DateField = props => {
             {({ input, meta }) => {
                 // ant-picker ant-picker-range css-dev-only-do-not-override-byeoj0
 
-                const value = Array.isArray(input.value)
-                    ? input.value.map(item => _.isString(item) ? utcToDateField(item) : item)
-                    : input.value || null;
+                const value = toPickerRange(input.value);
 
                 return (
                     <div className={`${styles.field} ${styles.date}`} style={props.wrapperStyle}>

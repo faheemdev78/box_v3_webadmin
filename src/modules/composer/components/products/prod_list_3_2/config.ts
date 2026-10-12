@@ -4,6 +4,7 @@ import { ProdListProps } from './Props'
 import { gutterPx, productGrid, type ProductListValues } from '../types'
 import { productInk } from '../theme'
 import { serializeComposerProduct } from '../serializeProduct'
+import { serializeAttachment } from '../../ui_elements/attachment'
 
 export const prodListComponent: ComposerComponent<ProductListValues> = {
     type: 'prod_list_3_2',
@@ -19,7 +20,7 @@ export const prodListComponent: ComposerComponent<ProductListValues> = {
         num_products: '3',
         theme: '#FFFFFF',
         products: [{}, {}, {}],
-        all_btn: { show: false, link: '' },
+        all_btn: { show: false, text: 'Show All', attachment: null },
         open_as: 'goto_screen',
     },
     fields: [],
@@ -29,6 +30,13 @@ export const prodListComponent: ComposerComponent<ProductListValues> = {
         const grid = productGrid(values)
         return {
             ...values,
+            open_as: values?.open_as || 'goto_screen',
+            all_btn: {
+                ...values?.all_btn,
+                show: !!values?.all_btn?.show,
+                text: values?.all_btn?.text?.trim() || 'Show All',
+                attachment: serializeAttachment(values?.all_btn?.attachment),
+            },
             columns: grid.columns,
             rows: grid.rows,
             gutter: gutterPx(values?.gutter),

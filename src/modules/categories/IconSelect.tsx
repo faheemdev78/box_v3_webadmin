@@ -51,7 +51,7 @@ export function IconSelect() {
         icon_img?: string | null
         icon_file?: File | null
     }
-    const source = values.icon_source === 'svg' ? 'svg' : 'awesome'
+    const source = values.icon_source === 'svg' || values.icon_source === 'image' ? values.icon_source : 'awesome'
 
     return (
         <div>
@@ -63,6 +63,7 @@ export function IconSelect() {
                     options={[
                         { value: 'awesome', label: 'Font Awesome' },
                         { value: 'svg', label: 'Upload SVG' },
+                        { value: 'image', label: 'Upload image' },
                     ]}
                     onChange={(value) => form.change('icon_source', value)}
                 />
@@ -87,6 +88,38 @@ export function IconSelect() {
                         )}
                     </Field>
                 )}
+
+                {source === 'image' && (
+                    <Field name="icon_file">
+                        {({ input }) => (
+                            <Space align="center">
+                                <SvgPreview file={input.value} url={values.icon_img} />
+                                <Upload
+                                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                                    maxCount={1}
+                                    showUploadList={false}
+                                    beforeUpload={(file) => {
+                                        input.onChange(file)
+                                        return false
+                                    }}
+                                >
+                                    <Button>{input.value || values.icon_img ? 'Replace image' : 'Choose image'}</Button>
+                                </Upload>
+                                {(input.value || values.icon_img) && (
+                                    <Button
+                                        onClick={() => {
+                                            input.onChange(null)
+                                            form.change('icon_img', null)
+                                        }}
+                                    >
+                                        Clear
+                                    </Button>
+                                )}
+                            </Space>
+                        )}
+                    </Field>
+                )}
+                {source === 'image' && <span style={{ color: '#8c8c8c' }}>One image, stored at most 200 × 200. No thumbnail.</span>}
 
                 {source === 'svg' && (
                     <Field name="icon_file">

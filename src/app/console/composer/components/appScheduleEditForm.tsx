@@ -4,6 +4,7 @@ import { useMutation } from '@apollo/client/react';
 import { __error } from '@/lib/consoleHelper';
 import { FormField, rules } from '@/components/form';
 import { Alert, Col, Divider, message, Row, Space } from 'antd';
+import { defaultDateTimeFormat } from '@/configs';
 import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@/lib/utill';
 import { Button, DevBlock } from '@/components';
 
@@ -17,15 +18,21 @@ function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpd
     const [scheduleAppPage, update_details] = useMutation<any>(EDIT_DATA); // { data, loading, error }
 
     const saveSettings = async() => {
-        setBusy(true)
+        const values:any = form.getState().values;
+        if (!values.scheduled_from || !values.scheduled_to) {
+            alert("Please prodivde schedule dates")
+            return;
+        }
+
         setError(null)
-        const values:any = form.getState().values
+        setBusy(true)
 
         const input = {
             _id: values._id,
             scheduled_from: values.scheduled_from,
             scheduled_to: values.scheduled_to,
         }
+        
         let results = await scheduleAppPage({ variables: { input } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.scheduleAppPage }))
             .catch(catchApolloError)
@@ -42,17 +49,16 @@ function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpd
 
         return false;
     }
-    
 
-    let values = form.getState().values
+    let values = form.getState().values;
 
     return (<div>
         {error && <Alert title="Error!" description={error} type="error" showIcon />}
         {/* <Divider>Schedule Date</Divider> */}
 
-        <Space>
-            <FormField name="scheduled_from" label="From" type="date" validate={rules.required} />
-            <FormField name="scheduled_to" label="To" type="date" validate={rules.required} />
+        <Space orientation="vertical" size={8} style={{ width: '100%' }}>
+            <FormField name="scheduled_from" label="From" type="date" validate={rules.required} showTime format={defaultDateTimeFormat} style={{ width: '100%' }} />
+            <FormField name="scheduled_to" label="To" type="date" validate={rules.required} showTime format={defaultDateTimeFormat} style={{ width: '100%' }} />
         </Space>
 
         <hr />
@@ -62,7 +68,10 @@ function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpd
             <Col><Button loading={busy} onClick={saveSettings} color="orange">Save</Button></Col>
         </Row>
 
-        <DevBlock obj={values} />
+        <DevBlock obj={{ 
+            scheduled_from: values.scheduled_from,
+            scheduled_to: values.scheduled_to
+            }} />
         
     </div>)
 }

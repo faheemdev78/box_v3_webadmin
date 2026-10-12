@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { ComposerAttachment } from '../ui_elements/attachment'
 
 export interface ComposerProduct {
     _id?: string
@@ -11,7 +12,7 @@ export interface ComposerProduct {
 
 export interface ProductListValues {
     title?: { show?: boolean; text?: string }
-    all_btn?: { show?: boolean; link?: string }
+    all_btn?: { show?: boolean; text?: string; attachment?: ComposerAttachment | null; link?: string }
     num_products?: number | string
     columns?: number | string
     rows?: number | string

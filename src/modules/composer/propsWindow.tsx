@@ -2,7 +2,9 @@
 import React from 'react'
 import { Alert, Col, Row } from 'antd'
 import { Button } from '@/components'
-import { animationsArray, carouselTitleItems, categoriesArray, components, productsArray, textArray, ui_elementsArray } from './components'
+import {
+    // animationsArray,
+    carouselTitleItems, categoriesArray, listsArray, components, productsArray, textArray, ui_elementsArray } from './components'
 import styles from './Composer.module.scss'
 import type { ComposerDragItem, ComposerItem } from './components/types'
 
@@ -10,9 +12,10 @@ const categoryGroups: { label: string; items: ComposerDragItem[] }[] = [
     { label: 'UI Elements', items: ui_elementsArray },
     { label: 'Text', items: textArray },
     { label: 'Categories', items: categoriesArray },
+    { label: 'Lists', items: listsArray },
     { label: 'Carousel', items: carouselTitleItems },
     { label: 'Products', items: productsArray },
-    { label: 'Animations', items: animationsArray },
+    // { label: 'Animations', items: animationsArray },
 ]
 
 function propsTitle(item: ComposerItem) {

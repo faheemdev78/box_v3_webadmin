@@ -73,8 +73,11 @@ export const submitHandler = (formProps, props) => {
             // }
 
             if (invalid && hasValidationErrors) {
-                message.error("Oops! seems like you missed something.");
-                moveToErrorPosition(errors)
+                if (typeof props?.onInvalid === 'function') props.onInvalid(errors);
+                else {
+                    message.error("Oops! seems like you missed something.");
+                    moveToErrorPosition(errors)
+                }
             }
 
         },

@@ -16,9 +16,9 @@ export async function uploadCategoryIcon(file: File, catId: string) {
             withCredentials: true,
             timeout: 60000,
         })
-        if (!data?.icon_img) throw new Error('The SVG did not save.')
+        if (!data?.icon_img) throw new Error('The icon did not save.')
         return data as { icon_img: string }
     } catch (error: any) {
-        throw new Error(error?.response?.data?.error?.message || error?.message || 'SVG upload failed.')
+        throw new Error(error?.response?.data?.error?.message || error?.message || 'Icon upload failed.')
     }
 }

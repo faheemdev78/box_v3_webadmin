@@ -4,7 +4,7 @@ import { HeaderProps } from './HeaderProps'
 
 export type HeaderLogo = 'white' | 'green'
 
-export type HeaderBarLinkType = 'page' | 'category' | 'product'
+export type HeaderBarLinkType = 'page' | 'category' | 'product' | 'brand'
 
 export type HeaderBarLink = {
     type?: HeaderBarLinkType | '' | null
@@ -30,7 +30,7 @@ export type HeaderValues = {
 
 export function serializeHeaderBarLink(link?: HeaderBarLink | null) {
     if (!link?._id) return null
-    if (link.type !== 'page' && link.type !== 'category' && link.type !== 'product') return null
+    if (link.type !== 'page' && link.type !== 'category' && link.type !== 'product' && link.type !== 'brand') return null
     return { type: link.type, _id: link._id, title: link.title || '' }
 }
 
@@ -48,7 +48,7 @@ export const headerFields: ComposerField[] = [
     { key: 'top_bar', label: 'Top Bar', type: 'switch' },
     { key: 'address_bar', label: 'Address bar', type: 'switch' },
     { key: 'search_bar', label: 'Search bar', type: 'switch' },
-    { key: 'cat_bar', label: 'Category bar', type: 'switch' },
+    { key: 'cat_bar', label: 'Tab bar', type: 'switch' },
 ]
 
 export const headerComponent: ComposerComponent<HeaderValues> = {

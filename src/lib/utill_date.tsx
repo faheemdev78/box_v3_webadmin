@@ -56,7 +56,13 @@ export const utcToDate = (utc_string?:string | any, format?:string) => {
     return format ? moment(utc_string, format) : moment(utc_string);
 }
 
-export const utcToDateField = (val:string) => dayjs(utcToDate(val).format("YYYY-MM-DD HH:mm"));
+export const utcToDateField = (val: string) => {
+    if (val == null || String(val).trim() === '') return null;
+    const parsed = utcToDate(val);
+    if (!parsed || !parsed.isValid()) return null;
+    const next = dayjs(parsed.format("YYYY-MM-DD HH:mm"));
+    return next.isValid() ? next : null;
+};
 
 export const dayjs_to_moment = (mDate:any, timezone = defaultTZ) => {
     let d = dateToUtc(mDate, { tz: timezone })

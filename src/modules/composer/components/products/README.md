@@ -18,8 +18,10 @@ This form is custom. `fields` is empty because the panel is a product picker, no
 | `gutter` | Pixels between columns and rows, 0–80. Missing values use 8 |
 | `num_products` | Slot count, kept as a string of columns times rows |
 | `products` | Selected products. The form keeps full product objects so the canvas can show titles and images |
-| `all_btn.link` / `all_btn.show` | Optional "Show All" link |
-| `open_as` | `popup` or `goto_screen` |
+| `all_btn.show` / `all_btn.text` | Optional button with custom text (defaults to "Show All") |
+| `all_btn.attachment` | Category, product, brand, or page target; draft pages are excluded |
+| `all_btn.link` | Preserved legacy raw link; a selected attachment takes precedence |
+| `open_as` | Navigate to page (`goto_screen`, default) or open as bottom drawer (`popup`) |
 
 The row also has `status` (`online` / `offline`) and `schedule_start` / `schedule_end`. Offline rows render at half opacity. A schedule shows a clock icon. Those fields live on the module, not inside `values`.
 

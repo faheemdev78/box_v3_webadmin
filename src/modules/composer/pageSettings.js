@@ -5,9 +5,9 @@ import { Form as FinalForm, Field as FinalField } from 'react-final-form';
 import { FormField, SubmitButton, rules, composeValidators, submitHandler } from '@/components/form';
 import arrayMutators from 'final-form-arrays'
 import { DevBlock } from '@/components';
-import { string_to_slug } from '@/lib/utill';
+import { normalizePageSlug } from './pageSlug';
 import { ComponentStyling } from './lib';
-import { BrandsDD, ProdCatsDD } from '@/components/dropdowns';
+import { BrandsDD, ProdCatsDD, ManufacturersDD } from '@/components/dropdowns';
 
 
 function PageSettingsForm({ onUpdate, initialValues }) {
@@ -15,7 +15,7 @@ function PageSettingsForm({ onUpdate, initialValues }) {
 
     const onSubmit = async (values) => {
         setError(null);
-        await onUpdate(values).then(r=>{
+        await onUpdate({ ...values, slug: normalizePageSlug(values.slug) }).then(r=>{
             if (r.error) setError(r.error.message)
         })
         return false;
@@ -36,7 +36,7 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                             let val = {
                                 _id: raw._id,
                                 title: raw.title,
-                                path: raw.path
+                                path: normalizePageSlug(raw.path)
                             }
                             
                             tools.changeValue(state, 'page_source', () => val)
@@ -83,8 +83,24 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                                 </>;
                                 break;
 
+                            case "store_page":
+                                sourceField = <>
+                                    <ManufacturersDD
+                                        name="page_source._id" label="Store" validate={rules.required}
+                                        onChange={(val, raw) => {
+                                            form.mutators.selectSource({
+                                                _id: raw._id,
+                                                title: raw.title,
+                                                path: `/${raw.slug}`
+                                            });
+                                        }}
+                                    />
+                                    {values?.page_source?.path && <Tag>{values.page_source.path}</Tag>}
+                                </>;
+                                break;
+
                             default:
-                                sourceField = "nothing";
+                                sourceField = null;
                         }
 
                         return (<>
@@ -101,9 +117,16 @@ function PageSettingsForm({ onUpdate, initialValues }) {
 
                                         {sourceField}
 
-                                        <FormField name="slug" label="Page Slug" type="text" disabled
-                                            // placeholder={'section1/section2/section3'}
-                                            // onChange={(e, callback) => callback(string_to_slug(e.target.value, "/"))}
+                                        <FormField name="slug" label="Page Slug" type="text"
+                                            disabled={['category_page', 'brand_page', 'store_page'].includes(values.page_type.type)}
+                                            fieldProps={{ onBlur: () => {
+                                                form.change('slug', normalizePageSlug(values.slug));
+                                                form.blur('slug');
+                                            } }}
+                                            onChange={(e, callback) => {
+                                                const value = e.target.value.toLowerCase();
+                                                callback(value ? `/${value.replace(/^\/+/, '')}` : '');
+                                            }}
                                             validate={rules.required}
                                         />
 
@@ -170,7 +193,8 @@ export function PageSettings({ initialValues, ...props }){
             }
         },
         p_limit: 20,
-        ...initialValues
+        ...initialValues,
+        slug: normalizePageSlug(initialValues?.slug)
     }
     return (<PageSettingsForm {...props} initialValues={_initialValues} />)
 }

@@ -7,7 +7,7 @@ export type ComposerField = {
     options?: { label: string; value: string }[]
 }
 
-export type ComposerCategory = 'ui_elements' | 'text' | 'products' | 'carousel' | 'categories' | 'animations'
+export type ComposerCategory = 'ui_elements' | 'text' | 'products' | 'carousel' | 'categories' | 'lists' | 'animations'
 
 export type ComposerItem<V = Record<string, unknown>> = {
     name?: string
@@ -27,6 +27,7 @@ export type ComposerComponent<V = Record<string, unknown>> = {
     category: ComposerCategory
     placement: 'chrome' | 'body'
     singleton?: boolean
+    disabled?: boolean
     defaults: V
     fields: ComposerField[]
     fieldsTitle?: string
@@ -41,5 +42,6 @@ export type ComposerDragItem<V = Record<string, unknown>> = {
     desc: string
     placement: 'chrome' | 'body'
     singleton: boolean
+    disabled?: boolean
     defaults: V
 }

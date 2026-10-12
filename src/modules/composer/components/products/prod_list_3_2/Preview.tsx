@@ -49,7 +49,7 @@ export function ProdListPreview({ item }: { item: ComposerItem<ProductListValues
 
             {values?.all_btn?.show && (
                 <div style={{ marginTop: '15px', textAlign: 'right' }}>
-                    <Button onClick={() => console.log(values.all_btn?.link)} size="small">Show All</Button>
+                    <Button onClick={() => console.log(values.all_btn?.attachment || values.all_btn?.link)} size="small">{values.all_btn?.text?.trim() || 'Show All'}</Button>
                 </div>
             )}
         </div>

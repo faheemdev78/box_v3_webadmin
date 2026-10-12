@@ -3,7 +3,7 @@ import { Checkbox, Card, Col, Divider, Row, Space } from 'antd'
 // import { Heading } from '../typography'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler } from '@/components/form';
 import { useForm, Field } from 'react-final-form'
-import { IconButton } from '@/components'
+import { BackgroundPicture } from './BackgroundPicture'
 
 export function ComponentStyling({ name, showHeading=true }) {
     // const form = useForm()
@@ -42,7 +42,7 @@ export function ComponentStyling({ name, showHeading=true }) {
             ))}
         </Row>
         <Row gutter={[10, 10]}>
-            <Col span={8}>
+            <Col span={7}>
                 <FormField
                     name={name ? `${name}.styles.border.style` : `styles.border.style`}
                     type="select"
@@ -54,9 +54,9 @@ export function ComponentStyling({ name, showHeading=true }) {
                     ]}
                 />
             </Col>
-            <Col span={5}><FormField name={name ? `${name}.styles.border.width` : `styles.border.width`} label="Thickness" type="number" /></Col>
-            <Col span={5}><FormField name={name ? `${name}.styles.border.radius` : `styles.border.radius`} label="Radius" type="number" /></Col>
-            <Col span={'auto'}>
+            <Col span={6}><FormField name={name ? `${name}.styles.border.width` : `styles.border.width`} label="Thickness" type="number" /></Col>
+            <Col span={6}><FormField name={name ? `${name}.styles.border.radius` : `styles.border.radius`} label="Radius" type="number" /></Col>
+            <Col>
                 <FormField name={name ? `${name}.styles.border.color` : `styles.border.color`} type="color" label="Color" />
             </Col>
         </Row>
@@ -108,22 +108,7 @@ export function ComponentStyling({ name, showHeading=true }) {
             </Col>
         </Row>
 
-        <Space size={5} orientation='horizontal'>
-
-
-        </Space>
-
-        <div>
-            <FormField name={name ? `${name}.styles.background.upload_image` : `styles.background.upload_image`} label="Background Picture"
-                accept=".jpg,.jpeg,.png" limit={1} multiple={false} type="image" compact
-                itemRender={(originNode, file, fileList, actions) => { // { download, preview, remove }
-                    return (<Row gutter={[0]} align="middle" style={{ border: "1px solid #EEE", borderRadius: "5px" }} className='nowrap'>
-                        <Col flex="auto"><div style={{ width: "300px" }} className='ellipsis'>{file.name} {file.name}</div></Col>
-                        <Col style={{ marginLeft: "10px" }}><IconButton size="small" onClick={() => actions.remove()} icon='trash-alt' /></Col>
-                    </Row>)
-                }}
-            />
-        </div>
+        <BackgroundPicture key={name || 'page'} name={name} />
 
     </>)
 }

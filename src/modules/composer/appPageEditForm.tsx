@@ -6,8 +6,10 @@ import { useMutation } from '@apollo/client/react';
 import { __error } from '@/lib/consoleHelper';
 import { Alert, Col, Divider, message, Row, Tag } from 'antd';
 import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@/lib/utill';
-import { ComponentStyling } from './lib';
+import { ComponentStyling, parseStylesInput } from './lib';
 import { Button, DevBlock } from '@/components';
+
+import { normalizePageSlug } from './pageSlug';
 
 import EDIT_DATA from '@/graphql/app_pages/editAppPage.graphql'
 
@@ -32,52 +34,12 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
         const input = {
             _id: values._id,
             title: values.title,
-            slug: values.slug,
+            slug: normalizePageSlug(values.slug),
             description: values.description,
             p_limit: values.p_limit || 10
         }
 
-        let styles = {};
-        if (values?.styles?.background?.type) {
-            Object.assign(styles, {
-                background: {
-                    type: values?.styles?.background?.type,
-                    direction: values?.styles?.background?.direction,
-                    color1: values?.styles?.background?.color1,
-                    color2: values?.styles?.background?.color2,
-                    image: {
-                        name: values?.styles?.background?.image?.name,
-                        url: values?.styles?.background?.image?.url,
-                        thumb: values?.styles?.background?.image?.thumb,
-                        type: values?.styles?.background?.image?.type,
-                        width: values?.styles?.background?.image?.width,
-                        height: values?.styles?.background?.image?.height,
-                        size: values?.styles?.background?.image?.size,
-                    }
-                }
-            })
-        }
-        if (values?.styles?.margin?.top) {
-            Object.assign(styles, {
-                margin: {
-                    top: values?.styles?.margin?.top || 0,
-                    right: values?.styles?.margin?.right || 0,
-                    bottom: values?.styles?.margin?.bottom || 0,
-                    left: values?.styles?.margin?.left || 0,
-                }
-            })
-        }
-        if (values?.styles?.padding?.top) {
-            Object.assign(styles, {
-                padding: {
-                    top: values?.styles?.padding?.top || 0,
-                    right: values?.styles?.padding?.right || 0,
-                    bottom: values?.styles?.padding?.bottom || 0,
-                    left: values?.styles?.padding?.left || 0,
-                }
-            })
-        }
-        if (Object.keys(styles).length > 0) Object.assign(input, { styles })
+        if (values.styles) Object.assign(input, { styles: parseStylesInput(values.styles) })
 
 
         let results = await editAppPage({ variables: { input } })
@@ -115,8 +77,15 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
             </>;
             break;
 
+        case "store_page":
+            sourceField = <>
+                <div>Store: {values?.page_type?.page_source?.title}</div>
+                {values?.page_type?.page_source?.path && <Tag>{values.page_type.page_source.path}</Tag>}
+            </>;
+            break;
+
         default:
-            sourceField = "nothing";
+            sourceField = "";
     }
     
 

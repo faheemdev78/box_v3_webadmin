@@ -5,7 +5,8 @@ import { Button, DeleteButton, DevBlock, Icon, IconButton, Loader } from '@/comp
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { FieldArray } from 'react-final-form-arrays'
 import arrayMutators from 'final-form-arrays'
-import { submitHandler, ExternalSubmitButton } from '@/components/form';
+import { submitHandler, ExternalSubmitButton, moveToErrorPosition } from '@/components/form';
+import { describeFormErrors } from '@/components/form/formErrors';
 import { useMutation, useLazyQuery } from '@apollo/client/react';
 import _ from 'lodash'
 import { __error, __yellow } from '@/lib/consoleHelper';
@@ -20,7 +21,7 @@ import { PageTypeSelection, PageSettings, SideMenu, PropsWindow } from '@/module
 import { components } from '@/modules/composer/components';
 import { useRouter, useParams } from 'next/navigation';
 import { adminRoot, defaultTZ } from '@/configs';
-import { nextModulePage } from '@/modules/composer/lib/modulePages.mjs';
+import { nextModulePage } from '@/modules/composer/lib/modulePages';
 import styles from '@/modules/composer/Composer.module.scss';
 import { parseStylesInput, prepareStylesForSave } from '@/modules/composer/lib';
 import { GalleryButton } from '@/modules/composer/gallery/GalleryButton';
@@ -210,6 +211,7 @@ function EditAppPage() {
     const [modulesPageNum, set_modulesPageNum] = useState(1);
     const [showPageEdit, set_showPageEdit] = useState(false);
     const [showScheduleEdit, set_showScheduleEdit] = useState(false);
+    const [saveProblems, setSaveProblems] = useState<{ path: string, detail: string }[]>([]);
 
     const [deleteAppPagesModules, delRow_details] = useMutation<any>(DELETE_ROW); // { data, loading, error }
     const [saveAppPagesModules, saveRows_details] = useMutation<any>(SAVE_ROWS); // { data, loading, error }
@@ -480,7 +482,7 @@ function EditAppPage() {
                 const { handleSubmit, submitting, form, values, invalid, errors, submitFailed, dirty } = formargs;
 
                 const onItemDrop = ({ item, zone, id }: any, { field, fields, index }: any) => {
-                    if (!item?.type) return
+                    if (!item?.type || item.disabled) return
 
                     if (item.singleton) {
                         const exists = (fields.value || []).some((row: any) => row?.data?.type === item.type && row?.id !== id)
@@ -510,7 +512,13 @@ function EditAppPage() {
 
                 return (<>
                     {error && <Alert title="Error" description={error} showIcon type='error' />}
-                    <form id="page_composer_form" {...submitHandler(formargs)}>
+                    <form id="page_composer_form" {...submitHandler(formargs, {
+                        onInvalid: (fieldErrors: any) => {
+                            const problems = describeFormErrors(fieldErrors, values);
+                            setSaveProblems(problems.length ? problems : [{ path: 'form', detail: 'A required field is empty.' }]);
+                            moveToErrorPosition(fieldErrors);
+                        },
+                    })}>
 
                         <div style={{ borderBottom: "1px solid #D0DAE5", padding: "10px", backgroundColor: "#FFF" }}>
                             <Row gutter={[20, 20]} align={'middle'}>
@@ -635,6 +643,22 @@ function EditAppPage() {
 
                         {/* <DevBlock obj={{ ...values }} /> */}
                     </form>
+
+                    <Modal
+                        title="These fields need attention"
+                        open={saveProblems.length > 0}
+                        onCancel={() => setSaveProblems([])}
+                        onOk={() => setSaveProblems([])}
+                        okText="Close"
+                        cancelButtonProps={{ style: { display: 'none' } }}
+                    >
+                        <p>Fix these before saving:</p>
+                        <ul style={{ margin: 0, paddingLeft: 18, maxHeight: 360, overflow: 'auto' }}>
+                            {saveProblems.map((item) => (
+                                <li key={item.path} style={{ marginBottom: 8 }}>{item.detail}</li>
+                            ))}
+                        </ul>
+                    </Modal>
                 </>)
 
             }}

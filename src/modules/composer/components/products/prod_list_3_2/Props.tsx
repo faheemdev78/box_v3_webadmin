@@ -12,6 +12,7 @@ import { ComponentSchedule, ComponentStyling } from '../../../lib'
 import type { ComposerItem } from '../../types'
 import { productGrid, type ComposerProduct, type ProductListValues } from '../types'
 import { ProductSelectModal } from '../ProductSelectModal'
+import { AttachmentFields } from '../../ui_elements/AttachmentFields'
 
 function committedCount(value: unknown, max: number) {
     const count = Number(value)
@@ -42,6 +43,10 @@ export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> 
     const grid = productGrid(listValues)
     const slotCount = (columns ?? grid.columns) * (rows ?? grid.rows)
     const [showProdSelection, set_showProdSelection] = useState(false)
+
+    useEffect(() => {
+        if (!listValues?.open_as) form.change(`${name}.values.open_as`, 'goto_screen')
+    }, [form, name, listValues?.open_as])
 
     useEffect(() => {
         if (columns == null || rows == null) return
@@ -78,22 +83,20 @@ export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> 
                 </Row>
             </Card>
 
-            <Card styles={{ body: { padding: '10px' } }}>
+            {/* <Card styles={{ body: { padding: '10px' } }}>
                 <Heading style={undefined}>Theme</Heading>
                 <FormField name={`${name}.values.theme`} type="color" label="Text color" />
-            </Card>
+            </Card> */}
 
             <Card styles={{ body: { padding: '10px' } }}>
                 <Heading style={undefined}>Layout</Heading>
-                <Row gutter={8}>
-                    <Col span={12}>
-                        <FormField name={`${name}.values.columns`} type="number" label="Columns" min={1} max={6} />
-                    </Col>
-                    <Col span={12}>
-                        <FormField name={`${name}.values.rows`} type="number" label="Rows" min={1} max={4} />
-                    </Col>
-                </Row>
-                <FormField name={`${name}.values.gutter`} type="number" label="Gutter" min={0} max={80} />
+
+                <Space orientation='horizontal'>
+                    <FormField name={`${name}.values.theme`} type="color" label="Text" />
+                    <FormField name={`${name}.values.columns`} type="number" label="Columns" min={1} max={6} />
+                    <FormField name={`${name}.values.rows`} type="number" label="Rows" min={1} max={4} />
+                    <FormField name={`${name}.values.gutter`} type="number" label="Gutter" min={0} max={80} />
+                </Space>
 
                 <div style={{ height: '10px' }} />
                 <div onClick={() => set_showProdSelection(true)}>
@@ -115,10 +118,10 @@ export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> 
             </Card>
 
             <Card styles={{ body: { padding: '10px' } }}>
-                <Heading style={undefined}>Buttons</Heading>
+                <Heading style={undefined}>Button</Heading>
                 <Row align="bottom" gutter={5}>
                     <Col flex="auto">
-                        <FormField name={`${name}.values.all_btn.link`} placeholder="Select page to link" label="All Button" type="text" />
+                        <FormField name={`${name}.values.all_btn.text`} placeholder="Show All" label="Button text" type="text" />
                     </Col>
                     <Col>
                         <FormField
@@ -131,15 +134,21 @@ export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> 
                         />
                     </Col>
                 </Row>
+                <AttachmentFields name={`${name}.values.all_btn.attachment`} link={listValues?.all_btn?.attachment} compact />
+
+                {/* <FormField name={`${name}.values.open_as`} type="select" label="Open as" options={[
+                    { label: 'navigate to page', value: 'goto_screen' },
+                    { label: 'open as bottom drawer', value: 'popup' },
+                ]} /> */}
             </Card>
 
-            <Card styles={{ body: { padding: '10px' } }}>
+            {/* <Card styles={{ body: { padding: '10px' } }}>
                 <Heading style={undefined}>Other Options</Heading>
                 <FormField name={`${name}.values.open_as`} type="select" options={[
-                    { label: 'Open as Pop-up', value: 'popup' },
-                    { label: 'Go to screen', value: 'goto_screen' },
+                    { label: 'navigate to page', value: 'goto_screen' },
+                    { label: 'open as bottom drawer', value: 'popup' },
                 ]} />
-            </Card>
+            </Card> */}
 
             <ComponentStyling name={name} />
             <ComponentSchedule name={name} />

@@ -26,7 +26,16 @@ export function RenderProduct({ item, off_percent, currency, color = '#ffffff' }
     return (<>
         <div className={cssStyles.thumb} style={{}}>
             {item?.picture?.thumbnails ?
-                <Image src={cdnImageUrl(item.picture.thumbnails[0])} width={142} height={142} alt={item.title || ''} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> :
+                <Image 
+                    src={cdnImageUrl(item.picture.thumbnails[0])} 
+                    width={142} height={142} 
+                    alt={item.title || ''} 
+                    style={{ 
+                        width: '100%', height: '100%', 
+                        objectFit: 'contain',  // 'cover', 'contain', 'fill', 'none', 'scale-down'
+                        // border:"1px solid black"
+                    }}
+                /> :
                 <Icon style={{ fontSize: "64px", color: "#999999" }} icon="image" />
             }
         </div>

@@ -6,9 +6,12 @@ import { Heading } from '../../../typography'
 import type { ComposerComponent, ComposerItem } from '../../types'
 import { BlockProps } from '../BlockProps'
 import { canvasShell } from '../blockFrame'
+import { AttachmentFields } from '../AttachmentFields'
+import { serializeAttachment, type ComposerAttachment } from '../attachment'
 
 export type SpacerValues = {
     height?: number | string
+    link?: ComposerAttachment | null
 }
 
 function SpacerPreview({ item }: { item: ComposerItem<SpacerValues> }) {
@@ -29,6 +32,7 @@ function SpacerProps({ item }: { item: ComposerItem<SpacerValues> }) {
                 <Heading style={undefined}>Height</Heading>
                 <FormField name={`${item.name}.values.height`} type="number" label="Component height" />
             </Card>
+            <AttachmentFields name={`${item.name}.values.link`} link={item.values?.link} />
         </BlockProps>
     )
 }
@@ -45,5 +49,6 @@ export const spacerComponent: ComposerComponent<SpacerValues> = {
     Props: SpacerProps,
     serialize: (values) => ({
         height: Number.isFinite(Number(values?.height)) && Number(values?.height) >= 0 ? Number(values?.height) : 24,
+        link: serializeAttachment(values?.link),
     }),
 }

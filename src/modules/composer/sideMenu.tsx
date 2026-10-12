@@ -3,7 +3,9 @@ import React, { useState, useRef } from 'react'
 import { useDrag } from 'ahooks'
 import { Col, Row, Space } from 'antd'
 import { Button } from '@/components'
-import { ui_elementsArray, textArray, categoriesArray, carouselArray, productsArray, animationsArray } from './components'
+import { ui_elementsArray, textArray, categoriesArray, listsArray, carouselArray, productsArray,
+    // animationsArray
+} from './components'
 import styles from './Composer.module.scss'
 import type { ComposerDragItem } from './components/types'
 
@@ -11,18 +13,20 @@ const menus: Record<string, ComposerDragItem[]> = {
     ui_elements: ui_elementsArray,
     text: textArray,
     categories: categoriesArray,
+    lists: listsArray,
     carousel: carouselArray,
     products: productsArray,
-    animations: animationsArray,
+    // animations: animationsArray,
 }
 
 const menuItems: { key: string; label: string }[] = [
     { key: 'ui_elements', label: 'UI Elements' },
     { key: 'text', label: 'Text' },
     { key: 'categories', label: 'Categories' },
+    { key: 'lists', label: 'Lists' },
     { key: 'carousel', label: 'Carousel' },
     { key: 'products', label: 'Products' },
-    { key: 'animations', label: 'Animations' },
+    // { key: 'animations', label: 'Animations' },
 ]
 
 // Keep the open parent on the same primary blue through hover/active.
@@ -34,6 +38,15 @@ const selectedMenuStyle = {
     '--ant-btn-border-color-hover': 'var(--ant-btn-border-color)',
     '--ant-btn-border-color-active': 'var(--ant-btn-border-color)',
 } as React.CSSProperties
+
+function DisabledDragItem({ data }: { data: ComposerDragItem }) {
+    return (
+        <div className={styles.dragItem} aria-disabled="true" style={{ opacity: 0.45, cursor: 'not-allowed' }}>
+            <div>{data.label}</div>
+            <div style={{ fontSize: '10px' }}>Disabled</div>
+        </div>
+    )
+}
 
 const DragItem = ({ data }: { data: ComposerDragItem }) => {
     const dragRef = useRef(null)
@@ -93,7 +106,11 @@ export function SideMenu() {
 
                     <div style={{ padding: '10px' }}>
                         <Space wrap size={10}>
-                            {itemArray.map((item) => (<DragItem key={item.type} data={item} />))}
+                            {itemArray.map((item) => (
+                                item.disabled
+                                    ? <DisabledDragItem key={item.type} data={item} />
+                                    : <DragItem key={item.type} data={item} />
+                            ))}
                         </Space>
                     </div>
                 </Col>}

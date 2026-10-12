@@ -10,6 +10,9 @@ fragment BrandInfo on Brand {
   # updatedAt
   seo_title
   seo_desc
+  icon
+  icon_img
+  icon_img_thumb
   img
   img_thumb
   

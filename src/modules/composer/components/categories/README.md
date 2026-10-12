@@ -1,16 +1,10 @@
 # Categories
 
-Body blocks. All six are placeholders built with `definePlaceholder`. The canvas shows an empty label. Props are the shared styling fields only. None of them have a `values` shape yet.
+Two body blocks. `cat_list` is Category List. It stores selected categories, a picture for each one, columns, rows, gutter, a section title, and a switch for the name under each picture.
 
-Styles live in `Categories.module.scss` (`.categories`). The names are row/column layouts: R1 is one row, C2 / C3 / C4 is the column count. The `_2`, `_3`, and `_4` suffixes are alternate layouts of the 1×3 grid, not extra rows.
+`cat_icon_list` uses the category icon saved from Products instead of a custom composer picture. Selected category icon names and uploaded icon URLs are saved with the block. Choose categories again to refresh their icons after editing them.
 
-| Folder | `type` | Palette label | Description |
+| Folder | `type` | Palette label | Behavior |
 |---|---|---|---|
-| `cat_r1_c2` | `cat_r1_c2` | R1 / C2 | R1 / C2 |
-| `cat_r1_c3` | `cat_r1_c3` | R1 / C3 | R1 / C3 |
-| `cat_r1_c3_2` | `cat_r1_c3_2` | R1 / C3 | R1 / C3 (2) |
-| `cat_r1_c3_3` | `cat_r1_c3_3` | R1 / C3 | R1 / C3 (3) |
-| `cat_r1_c3_4` | `cat_r1_c3_4` | R1 / C3 | R1 / C3 (4) |
-| `cat_r1_c4` | `cat_r1_c4` | R1 / C4 | R1 / C4 |
-
-To build one, replace its `definePlaceholder` config with a real `Preview` and either `fields` or a `Props` file. Keep the existing `type`.
+| `cat_list` | `cat_list` | Category List | Grid of categories. Picture size follows the column count. |
+| `cat_icon_list` | `cat_icon_list` | Category Icon List | Same grid using Font Awesome or uploaded category icons. No picture upload controls. |

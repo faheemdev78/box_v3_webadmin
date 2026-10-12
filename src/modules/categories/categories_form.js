@@ -37,7 +37,7 @@ export const CategoriesForm = props => {
     const onSubmit = async (values) => {
         const _id = fields ? fields._id : false;
 
-        const source = values.icon_source === 'svg' ? 'svg' : 'awesome'
+        const source = values.icon_source === 'svg' || values.icon_source === 'image' ? values.icon_source : 'awesome'
         let input = {
             title: values.title,
             slug: values.slug,
@@ -47,7 +47,7 @@ export const CategoriesForm = props => {
             seo_title: values.seo_title,
             seo_desc: values.seo_desc,
             icon: source === 'awesome' ? (values.icon || null) : null,
-            icon_img: source === 'svg' ? (values.icon_img || null) : null,
+            icon_img: source === 'awesome' ? null : (values.icon_img || null),
 
             _id_parent_cat: values._id_parent_cat || null,
             parent_cat_title: values.parent_cat_title || null
@@ -63,12 +63,12 @@ export const CategoriesForm = props => {
 
         const savedId = _id || results?._id
         if (!results?.error && !_id && savedId) setFields({ ...(props.fields || {}), _id: String(savedId) })
-        if (!results?.error && source === 'svg' && values.icon_file && savedId) {
+        if (!results?.error && (source === 'svg' || source === 'image') && values.icon_file && savedId) {
             try {
                 await uploadCategoryIcon(values.icon_file, String(savedId))
             } catch (uploadError) {
                 setLoading(false)
-                message.error(uploadError?.message || 'The category was saved, but the SVG did not upload.')
+                message.error(uploadError?.message || 'The category was saved, but the image did not upload.')
                 return
             }
         }
@@ -212,7 +212,9 @@ export const CategoriesForm = props => {
         >
             <FinalForm onSubmit={onSubmit} initialValues={{
                 ...props.fields,
-                icon_source: props.fields?.icon_img ? 'svg' : 'awesome',
+                icon_source: props.fields?.icon_img
+                    ? (/\.svg($|\?)/i.test(String(props.fields.icon_img)) ? 'svg' : 'image')
+                    : 'awesome',
             }}
                 mutators={{ 
                     ...arrayMutators,

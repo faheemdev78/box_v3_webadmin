@@ -1,7 +1,8 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { autoplaySeconds, useAutoplay } from '../autoplay'
+import { coverCenterWidth, coverPose, coverSlideSpan, settleCoverPosition, stepToSlide, wrapOffset } from './coverflowMotion'
 
 export type CoverSlide = {
     key?: string
@@ -12,37 +13,84 @@ export type CoverSlide = {
 
 export type CoverNavigation = 'none' | 'dots' | 'dashes' | 'arrows'
 
-function neighborOffset(index: number, active: number, count: number) {
-    let offset = index - active
-    if (count > 1) {
-        if (offset > count / 2) offset -= count
-        if (offset < -count / 2) offset += count
-    }
-    return offset
-}
-
-export function Coverflow({ slides, navigation, autoplay, emptyLabel }: {
+export function Coverflow({ slides, navigation, autoplay, centerWidth, animated = true, emptyLabel }: {
     slides: CoverSlide[]
     navigation: CoverNavigation
     autoplay?: number
+    centerWidth?: number
+    animated?: boolean
     emptyLabel: string
 }) {
     const count = slides.length
-    const [index, setIndex] = useState(0)
+    const width = coverCenterWidth(centerWidth)
+    const imageRatio = useFirstMediaRatio(slides[0])
+    const stageRef = useRef<HTMLDivElement>(null)
+    const positionRef = useRef(0)
+    const dragRef = useRef<{ pointerId: number; x: number; lastX: number; lastTime: number; velocity: number; moved: boolean; start: number } | null>(null)
+    const suppressClick = useRef(false)
+    const [position, setPosition] = useState(0)
+    const [dragging, setDragging] = useState(false)
     const seconds = autoplaySeconds(autoplay)
-    const active = count ? index % count : 0
+    const page = count ? ((Math.round(position) % count) + count) % count : 0
 
-    useEffect(() => {
-        if (count && index >= count) setIndex(0)
-    }, [count, index])
+    const moveTo = (next: number) => {
+        positionRef.current = next
+        setPosition(next)
+    }
 
-    useAutoplay(seconds, count > 1, active, () => {
-        setIndex((current) => (current + 1) % count)
+    useAutoplay(seconds, animated && count > 1 && !dragging, page, () => {
+        moveTo(positionRef.current + 1)
     })
 
-    const go = (next: number) => {
-        if (!count) return
-        setIndex(((next % count) + count) % count)
+    const span = () => coverSlideSpan(stageRef.current?.clientWidth || 0, width)
+
+    const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+        if (!animated || count < 2) return
+        if (event.pointerType === 'mouse' && event.button !== 0) return
+        if ((event.target as HTMLElement).closest('[data-coverflow-control]')) return
+        dragRef.current = {
+            pointerId: event.pointerId,
+            x: event.clientX,
+            lastX: event.clientX,
+            lastTime: performance.now(),
+            velocity: 0,
+            moved: false,
+            start: positionRef.current,
+        }
+        setDragging(true)
+        event.currentTarget.setPointerCapture(event.pointerId)
+    }
+
+    const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+        const drag = dragRef.current
+        if (!drag || drag.pointerId !== event.pointerId) return
+        const now = performance.now()
+        const step = event.clientX - drag.lastX
+        const dt = Math.max(16, now - drag.lastTime)
+        drag.velocity = step / dt
+        drag.lastX = event.clientX
+        drag.lastTime = now
+        const dx = event.clientX - drag.x
+        if (Math.abs(dx) > 6) drag.moved = true
+        moveTo(drag.start - dx / span())
+    }
+
+    const finishDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+        const drag = dragRef.current
+        if (!drag || drag.pointerId !== event.pointerId) return
+        dragRef.current = null
+        setDragging(false)
+        const dx = event.clientX - drag.x
+        if (drag.moved) suppressClick.current = true
+        const settled = settleCoverPosition(drag.start, dx, drag.velocity, span())
+        requestAnimationFrame(() => moveTo(settled))
+    }
+
+    const onClickCapture = (event: React.MouseEvent) => {
+        if (!suppressClick.current) return
+        suppressClick.current = false
+        event.preventDefault()
+        event.stopPropagation()
     }
 
     if (!count) return <div style={{ color: '#999', paddingTop: 12, paddingBottom: 12 }}>{emptyLabel}</div>
@@ -50,43 +98,90 @@ export function Coverflow({ slides, navigation, autoplay, emptyLabel }: {
     return (
         <div>
             {count < 3 && <div style={{ color: '#999', fontSize: 12, paddingBottom: 6 }}>Add at least 3 pictures.</div>}
-            <div style={{ position: 'relative', width: '100%', aspectRatio: '2 / 1', overflow: 'hidden' }}>
+            <div
+                ref={stageRef}
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={finishDrag}
+                onPointerCancel={finishDrag}
+                onClickCapture={onClickCapture}
+                style={{
+                    position: 'relative',
+                    width: '100%',
+                    aspectRatio: imageRatio ? `100 / ${width * imageRatio}` : undefined,
+                    minHeight: imageRatio ? undefined : 80,
+                    overflow: 'hidden',
+                    touchAction: 'pan-y',
+                    userSelect: 'none',
+                    cursor: animated && count > 1 ? (dragging ? 'grabbing' : 'grab') : 'default',
+                }}
+            >
                 {slides.map((slide, slideIndex) => {
-                    const offset = neighborOffset(slideIndex, active, count)
-                    const distance = Math.abs(offset)
-                    const shift = Math.max(-1.35, Math.min(1.35, offset)) * 48
+                    const pose = coverPose(wrapOffset(slideIndex, position, count), width)
                     const style: CSSProperties = {
                         position: 'absolute',
                         top: '50%',
-                        left: `calc(50% + ${shift}%)`,
-                        width: '54%',
-                        height: '86%',
+                        left: `calc(50% + ${pose.shift}%)`,
+                        width: `${width}%`,
+                        height: '100%',
                         border: 0,
                         padding: 0,
                         borderRadius: 18,
                         overflow: 'hidden',
                         background: '#f3f4f6',
-                        cursor: 'pointer',
-                        zIndex: distance > 1 ? 0 : distance === 0 ? 5 : 2,
-                        opacity: distance > 1 ? 0 : 1,
-                        pointerEvents: distance > 1 ? 'none' : 'auto',
-                        transform: `translate(-50%, -50%) scale(${offset === 0 ? 1 : 0.78})`,
-                        transition: 'left 480ms cubic-bezier(0.22, 0.8, 0.28, 1), transform 480ms cubic-bezier(0.22, 0.8, 0.28, 1), opacity 480ms ease',
-                        boxShadow: offset === 0 ? '0 10px 24px rgba(0,0,0,0.16)' : '0 6px 14px rgba(0,0,0,0.1)',
+                        cursor: 'inherit',
+                        zIndex: pose.zIndex,
+                        opacity: pose.opacity,
+                        pointerEvents: animated && pose.visible ? 'auto' : 'none',
+                        transform: `translate(-50%, -50%) scale(${pose.scale})`,
+                        transition: animated && !dragging ? 'left 420ms cubic-bezier(0.22, 0.8, 0.28, 1), transform 420ms cubic-bezier(0.22, 0.8, 0.28, 1), opacity 420ms ease' : 'none',
+                        boxShadow: Math.abs(wrapOffset(slideIndex, position, count)) < 0.5 ? '0 10px 24px rgba(0,0,0,0.16)' : '0 6px 14px rgba(0,0,0,0.1)',
                     }
                     return (
-                        <button key={slide.key || slideIndex} type="button" style={style} onClick={() => go(slideIndex)} aria-label={slide.alt || `Picture ${slideIndex + 1}`}>
+                        <button key={slide.key || slideIndex} type="button" style={style} onClick={() => { if (animated) moveTo(stepToSlide(positionRef.current, slideIndex, count)) }} aria-label={slide.alt || `Picture ${slideIndex + 1}`}>
                             {slide.src && (slide.video
-                                ? <video src={slide.src} muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }} />
-                                : <img src={slide.src} alt={slide.alt || ''} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }} />)}
+                                ? <video src={slide.src} muted playsInline style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', pointerEvents: 'none' }} />
+                                : <img src={slide.src} alt={slide.alt || ''} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', pointerEvents: 'none' }} />)}
                         </button>
                     )
                 })}
-                {navigation === 'arrows' && <CoverArrows onPrev={() => go(active - 1)} onNext={() => go(active + 1)} />}
-                {(navigation === 'dots' || navigation === 'dashes') && <CoverMarks navigation={navigation} page={active} pages={count} />}
+                {animated && navigation === 'arrows' && count > 1 && (
+                    <CoverArrows onPrev={() => moveTo(positionRef.current - 1)} onNext={() => moveTo(positionRef.current + 1)} />
+                )}
+                {(navigation === 'dots' || navigation === 'dashes') && count > 1 && <CoverMarks navigation={navigation} page={page} pages={count} />}
             </div>
         </div>
     )
+}
+
+function useFirstMediaRatio(slide?: CoverSlide) {
+    const [ratio, setRatio] = useState(0)
+    const src = slide?.src || ''
+    const video = !!slide?.video
+
+    useEffect(() => {
+        if (!src) {
+            setRatio(0)
+            return
+        }
+        let alive = true
+        const apply = (mediaWidth: number, mediaHeight: number) => {
+            if (alive && mediaWidth > 0 && mediaHeight > 0) setRatio(mediaHeight / mediaWidth)
+        }
+        if (video) {
+            const node = document.createElement('video')
+            node.preload = 'metadata'
+            node.onloadedmetadata = () => apply(node.videoWidth, node.videoHeight)
+            node.src = src
+            return () => { alive = false }
+        }
+        const node = new Image()
+        node.onload = () => apply(node.naturalWidth, node.naturalHeight)
+        node.src = src
+        return () => { alive = false }
+    }, [src, video])
+
+    return ratio
 }
 
 function CoverArrows({ onPrev, onNext }: { onPrev: () => void; onNext: () => void }) {
@@ -102,19 +197,19 @@ function CoverArrows({ onPrev, onNext }: { onPrev: () => void; onNext: () => voi
         background: 'rgba(0,0,0,0.35)',
         color: '#fff',
         cursor: 'pointer',
-        zIndex: 6,
+        zIndex: 8,
     })
     return (
         <>
-            <button type="button" aria-label="Previous" style={button('left')} onClick={onPrev}>‹</button>
-            <button type="button" aria-label="Next" style={button('right')} onClick={onNext}>›</button>
+            <button type="button" data-coverflow-control="" aria-label="Previous" style={button('left')} onPointerDown={(event) => event.stopPropagation()} onClick={onPrev}>‹</button>
+            <button type="button" data-coverflow-control="" aria-label="Next" style={button('right')} onPointerDown={(event) => event.stopPropagation()} onClick={onNext}>›</button>
         </>
     )
 }
 
 function CoverMarks({ navigation, page, pages }: { navigation: 'dots' | 'dashes'; page: number; pages: number }) {
     return (
-        <div style={{ position: 'absolute', left: '50%', bottom: 8, transform: 'translateX(-50%)', display: 'flex', gap: 4, pointerEvents: 'none', zIndex: 6, background: 'rgba(0,0,0,0.28)', borderRadius: 8, padding: '4px 8px' }}>
+        <div style={{ position: 'absolute', left: '50%', bottom: 8, transform: 'translateX(-50%)', display: 'flex', gap: 4, pointerEvents: 'none', zIndex: 8, background: 'rgba(0,0,0,0.28)', borderRadius: 8, padding: '4px 8px' }}>
             {Array.from({ length: pages }, (_, mark) => (
                 <span
                     key={mark}

@@ -1,14 +1,16 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Alert, Col, message, Modal, Row, Space, Tabs, Tag, Card } from "antd";
+import { Alert, Col, message, Modal, Row, Space, Tabs, Tag, Card, Radio } from "antd";
 import { Form as FinalForm } from 'react-final-form';
-import { defaultPagination, defaultPageSize, defaultDateTimeFormat, defaultDateFormat } from "@/configs";
+import { defaultPagination, defaultPageSize, defaultDateTimeFormat } from "@/configs";
+import { instantMs, pageScheduleStatus } from "./scheduleStatus";
 import { Button, DeleteButton, Icon, Table } from "@/components";
 import { FormField, submitHandler } from '@/components/form';
-import { BrandsDD, ProdCatsDD } from '@/components/dropdowns';
+import { BrandsDD, ProdCatsDD, ManufacturersDD } from '@/components/dropdowns';
 import { useLazyQuery, useMutation } from '@apollo/client/react'
+import { pageTypeArray } from "@/modules/composer/pageTypeSelection";
 import AppPageCreatorForm from "@/modules/composer/appPageCreatorForm";
 import { catchApolloError, checkApolloRequestErrors, utcToDate } from "@/lib/utill";
 import { __error } from "@/lib/consoleHelper";
@@ -20,44 +22,72 @@ import DEL_PAGE from '@/graphql/app_pages/deleteAppPage.graphql'
 
 type ListWindow = 'active' | 'expired';
 
+const PAGE_TYPE_TABS = [
+    { key: 'default_page', label: 'Default Page' },
+    ...pageTypeArray.filter(item => !item.disabled).map(item => ({ key: item.type, label: item.title })),
+];
+
 const PAGE_STATUS_OPTIONS = [
     { label: 'Published', value: 'published' },
     { label: 'Unpublished', value: 'unpublished' },
 ];
 
-function buildPagesListFilter(values: any, listWindow: ListWindow) {
-    const filter: Record<string, any> = { draft: true, list_window: listWindow };
+const ACTIVE_STATUS_LABEL = {
+    scheduled: { color: 'blue', label: 'Scheduled' },
+    active: { color: 'green', label: 'Active' },
+    expired: { color: 'red', label: 'Expired' },
+};
+
+// moment() treats a plain object as "now", which would paint a fake schedule time.
+function scheduleMoment(value: any) {
+    if (!hasScheduleValue(value)) return null;
+    const direct = instantMs(value);
+    if (direct != null) return utcToDate(direct);
+    const parsed = typeof value === 'string' ? utcToDate(value) : null;
+    return parsed?.isValid?.() ? parsed : null;
+}
+
+function hasScheduleValue(value: any) {
+    if (value == null || value === '') return false;
+    if (value instanceof Date || typeof value === 'number' || typeof value === 'string') return true;
+    if (typeof value === 'object') {
+        if (value.$date != null || value._isAMomentObject || value.$isDayjsObject || value.$d instanceof Date) return true;
+        if (typeof value.valueOf === 'function' && value.valueOf() !== value) return true;
+    }
+    return false;
+}
+
+function buildPagesListFilter(values: any, listWindow: ListWindow, pageType: string) {
+    const filter: Record<string, any> = { draft: true, list_window: listWindow, 'page_type.type': pageType };
     const keywords = String(values?.search?.keywords || '').trim();
     if (keywords) filter.search = { keywords };
 
     if (values?.published === 'published') filter.published = true;
     else if (values?.published === 'unpublished') filter.published = false;
 
-    // Brand and category are mutually exclusive. A selected brand wins if both are present.
-    if (values?.brand) {
-        filter['page_type.type'] = 'brand_page';
-        filter['page_type.page_source._id'] = values.brand;
-    } else if (values?.category) {
-        filter['page_type.type'] = 'category_page';
-        filter['page_type.page_source._id'] = values.category;
+    const sourceField = ({ brand_page: 'brand', store_page: 'store', category_page: 'category' } as Record<string, string>)[pageType];
+    if (sourceField && values?.[sourceField]) {
+        filter['page_type.page_source._id'] = values[sourceField];
     }
 
     return filter;
 }
 
-function PagesFilter({ loading, onApply }: { loading: boolean; onApply: (values: any) => void }) {
+function PagesFilter({ loading, onApply, pageType, initialValues }: { loading: boolean; onApply: (values: any) => void; pageType: string; initialValues: any }) {
     return (
-        <FinalForm onSubmit={(values) => { onApply(values); return false; }} initialValues={{}}
+        <FinalForm onSubmit={(values) => { onApply(values); }} initialValues={initialValues}
             render={(formargs) => {
                 const { form } = formargs;
 
-                const applyExclusive = (field: 'brand' | 'category', val: any) => {
+                const applyExclusive = (field: 'brand' | 'category' | 'store', val: any) => {
                     const selected = val || undefined;
                     const nextValues = { ...form.getState().values, [field]: selected };
                     if (selected) {
-                        const other = field === 'brand' ? 'category' : 'brand';
-                        form.change(other, undefined);
-                        nextValues[other] = undefined;
+                        for (const other of ['brand', 'category', 'store']) {
+                            if (other === field) continue;
+                            form.change(other, undefined);
+                            nextValues[other] = undefined;
+                        }
                     }
                     onApply(nextValues);
                 };
@@ -80,7 +110,7 @@ function PagesFilter({ loading, onApply }: { loading: boolean; onApply: (values:
                                     }}
                                 />
                             </div>
-                            <div style={{ width: 200 }}><BrandsDD
+                            {pageType === 'brand_page' && <div style={{ width: 200 }}><BrandsDD
                                     name="brand"
                                     label="Brand"
                                     placeholder="Brand"
@@ -91,8 +121,8 @@ function PagesFilter({ loading, onApply }: { loading: boolean; onApply: (values:
                                     filter={{}}
                                     onChange={(val: any) => applyExclusive('brand', val)}
                                 />
-                            </div>
-                            <div style={{ width: 200 }}><ProdCatsDD
+                            </div>}
+                            {pageType === 'category_page' && <div style={{ width: 200 }}><ProdCatsDD
                                     name="category"
                                     label="Category"
                                     placeholder="Category"
@@ -102,7 +132,18 @@ function PagesFilter({ loading, onApply }: { loading: boolean; onApply: (values:
                                     size="small"
                                     onChange={(val: any) => applyExclusive('category', val)}
                                 />
-                            </div>
+                            </div>}
+                            {pageType === 'store_page' && <div style={{ width: 200 }}><ManufacturersDD
+                                    name="store"
+                                    label="Store"
+                                    placeholder="Store"
+                                    compact
+                                    allowClear
+                                    preload
+                                    size="small"
+                                    onChange={(val: any) => applyExclusive('store', val)}
+                                />
+                            </div>}
                             <div style={{ width: 150 }}>
                                 <FormField
                                     type="select"
@@ -128,9 +169,12 @@ function PagesFilter({ loading, onApply }: { loading: boolean; onApply: (values:
 }
 
 function PagesHome() {
+    const latestRequest = useRef(0);
     const [busy, setBusy] = useState(false);
     const [pagination, setPagination] = useState(defaultPagination);
-    const [filter, setFilter] = useState<Record<string, any>>({ draft: true, list_window: 'active' });
+    const [filter, setFilter] = useState<Record<string, any>>(buildPagesListFilter({}, 'active', 'default_page'));
+    const [pageType, setPageType] = useState('default_page');
+    const [filterValues, setFilterValues] = useState<Record<string, any>>({});
     const [listWindow, setListWindow] = useState<ListWindow>('active');
     const [dataArray, set_dataArray] = useState<any>(null)
     const [error, setError] = useState<string | null>(null)
@@ -143,6 +187,7 @@ function PagesHome() {
     const [deleteAppPage] = useMutation<any>(DEL_PAGE);
 
     const fetchData = async (nextFilter: Record<string, any> = {}, nextPagination: { page?: number, pageSize?: number } = {}) => {
+        const requestId = ++latestRequest.current;
         const pageSize = nextPagination.pageSize || defaultPageSize;
         const page = nextPagination.page || 1;
 
@@ -160,6 +205,7 @@ function PagesHome() {
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr: any) => rr?.data?.appPagesQuery }))
             .catch(catchApolloError)
 
+        if (requestId !== latestRequest.current) return;
         if (!results || results.error){
             setError((results && results.error.message) || 'Invalid response received!');
         }
@@ -178,13 +224,20 @@ function PagesHome() {
     }
 
     const onApplyFilter = (values: any) => {
-        fetchData(buildPagesListFilter(values, listWindow), { page: 1, pageSize: pagination.pageSize });
+        setFilterValues(values);
+        fetchData(buildPagesListFilter(values, listWindow, pageType), { page: 1, pageSize: pagination.pageSize });
     }
 
-    const onTabChange = (key: string) => {
-        const nextWindow: ListWindow = key === 'expired' ? 'expired' : 'active';
+    const onTabChange = (nextType: string) => {
+        setPageType(nextType);
+        const nextValues = { ...filterValues, brand: undefined, store: undefined, category: undefined };
+        setFilterValues(nextValues);
+        fetchData(buildPagesListFilter(nextValues, listWindow, nextType), { page: 1, pageSize: pagination.pageSize });
+    }
+
+    const onWindowChange = (nextWindow: ListWindow) => {
         setListWindow(nextWindow);
-        fetchData({ ...filter, list_window: nextWindow }, { page: 1, pageSize: pagination.pageSize });
+        fetchData(buildPagesListFilter(filterValues, nextWindow, pageType), { page: 1, pageSize: pagination.pageSize });
     }
 
     const onDeletePage = async (_id:string) => {
@@ -211,10 +264,18 @@ function PagesHome() {
 
     const columns: any = [
         { title: "Page Name", dataIndex: 'title', render: (text: string, rec: any) => {
-                return (<Row align="middle" gutter={[5, 5]}>
-                    <Col><Link href={`./editPage/${rec._id}`} className='a'>{rec.title}</Link></Col>
-                    <Col><DeleteButton size="small" onClick={() => onDeletePage(rec._id)} /></Col>
-                </Row>)
+            return (<>
+                <Link href={`./editPage/${rec._id}`} className='a'>{rec.title}</Link>
+            </>)
+            }
+        },
+        { title: "", dataIndex: 'actions', render: (text: string, rec: any) => {
+            const locked = rec?.deleteable === false || rec?.page_type?.type === 'default_page';
+            return (<>
+                {locked
+                    ? <Tag color="blue">Default</Tag>
+                    : <DeleteButton size="small" onClick={() => onDeletePage(rec._id)} />}
+            </>)
             }
         },
         { title: 'Description', dataIndex: 'description', align: "left" as const, render:(___:string, rec:any) => {
@@ -222,22 +283,28 @@ function PagesHome() {
                 <div>{rec.slug.replace(/\/draft$/, "")}</div>
             </>)
         } },
-        { title: 'Status', dataIndex: 'published', align: 'center' as const, width: 80, render: (published: boolean) => (<Tag color={published ? 'green' : 'red'}>{published ? "YES" : "NO"}</Tag>) },
-        { title: 'Schedule', dataIndex: 'scheduled_from', align: "left" as const, width: 160, render:(___:string, rec:any) => {
-            if (!rec.scheduled_from) return null;
+        { title: 'Status', dataIndex: 'published', align: 'center' as const, width: 170, render: (published: boolean) => (<Tag color={published ? 'green' : 'red'}>{published ? "Published" : "Unpublished changes"}</Tag>) },
+        { title: 'Schedule', dataIndex: 'scheduled_from', align: "left" as const, width: 230, render:(___:string, rec:any) => {
+            const from = scheduleMoment(rec?.scheduled_from);
+            const to = scheduleMoment(rec?.scheduled_to);
+            const status = pageScheduleStatus(from?.valueOf?.() ?? null, to?.valueOf?.() ?? null);
+            const shown = status === 'active' || status === 'scheduled' || status === 'expired'
+                ? ACTIVE_STATUS_LABEL[status]
+                : null;
+            if (!shown && !from && !to) return null;
             return (<>
-                <div><b>From:</b> {utcToDate(rec.scheduled_from).format(defaultDateFormat)}</div>
-                <div><b>To:</b> {utcToDate(rec.scheduled_to).format(defaultDateFormat)}</div>
+                {shown ? <div style={{ marginBottom: 4 }}><Tag color={shown.color}>{shown.label}</Tag></div> : null}
+                {from ? <div><b>From:</b> {from.format(defaultDateTimeFormat)}</div> : null}
+                {to ? <div><b>To:</b> {to.format(defaultDateTimeFormat)}</div> : null}
             </>)
         } },
         { title: 'Type', dataIndex: ['page_type', 'title'], align: "left" as const, width: 150 },
-        { title: 'Created by', dataIndex: 'created_by', align: "left" as const, width: 180, render: (created_by: string) => utcToDate(created_by).format(defaultDateTimeFormat) },
         { title: 'Last Updated', dataIndex: 'updatedAt', align: "left" as const, width: 180, render: (updatedAt: string) => utcToDate(updatedAt).format(defaultDateTimeFormat)},
     ];
 
     useEffect(() => {
         if (called || loading) return;
-        fetchData({ draft: true, list_window: 'active' }, { page: 1, pageSize: defaultPageSize });
+        fetchData(buildPagesListFilter({}, 'active', 'default_page'), { page: 1, pageSize: defaultPageSize });
     }, [called, loading])
 
 
@@ -248,28 +315,32 @@ function PagesHome() {
 
 
         <Page>
-            <Card styles={{
+            {/* <Card styles={{
                 body:{
                     padding:'10px'
                 }
             }}>
-                <PagesFilter loading={busy} onApply={onApplyFilter} />
-            </Card>
+                <PagesFilter key={pageType} loading={busy} onApply={onApplyFilter} pageType={pageType} initialValues={filterValues} />
+            </Card> */}
 
-            <Row>
-                <Col flex="auto" />
-                <Col>
-                    <Tabs
-                        activeKey={listWindow}
-                        onChange={onTabChange}
-                        items={[
-                            { key: 'active', label: 'Active' },
-                            { key: 'expired', label: 'Expired' },
+            <Tabs
+                activeKey={pageType}
+                onChange={onTabChange}
+                items={PAGE_TYPE_TABS}
+                tabBarExtraContent={{ right: (
+                    <Radio.Group
+                        value={listWindow}
+                        onChange={event => onWindowChange(event.target.value)}
+                        optionType="button"
+                        buttonStyle="solid"
+                        options={[
+                            { label: 'Active', value: 'active' },
+                            { label: 'Expired', value: 'expired' },
                         ]}
+                        style={{ marginLeft: 16 }}
                     />
-                </Col>
-                <Col flex="auto" />
-            </Row>
+                ) }}
+            />
 
 
             {error && <Alert title="Error" description={error} showIcon type="error" />}

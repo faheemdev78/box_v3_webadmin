@@ -1,4 +1,4 @@
-export type AttachmentType = 'category' | 'product' | 'brand'
+export type AttachmentType = 'category' | 'product' | 'brand' | 'page'
 
 export type ComposerAttachment = {
     type?: AttachmentType | '' | null
@@ -7,7 +7,7 @@ export type ComposerAttachment = {
 }
 
 export function serializeAttachment(link?: ComposerAttachment | null) {
-    if (!link?._id || (link.type !== 'category' && link.type !== 'product' && link.type !== 'brand')) return null
+    if (!link?._id || (link.type !== 'category' && link.type !== 'product' && link.type !== 'brand' && link.type !== 'page')) return null
     return {
         type: link.type,
         _id: link._id,

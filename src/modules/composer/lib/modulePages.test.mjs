@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { nextModulePage, pageOfModules } from './modulePages.mjs';
+import { nextModulePage, pageOfModules } from './modulePages.ts';
 
 test('the first composer page drops a row appended after the page size', () => {
     const modules = Array.from({ length: 11 }, (_, sort_order) => ({
