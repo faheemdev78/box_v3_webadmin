@@ -26,7 +26,7 @@ export function Header({  }) {
     const router = useRouter()
 
     const pathname = usePathname();
-    if (pathname.startsWith("/console/store") && !pathname.startsWith("/console/stores")) return null; // disable for store routes
+    if (pathname.startsWith("/console/branch") && !pathname.startsWith("/console/branches")) return null; // disable for store routes
     if (pathname === '/login' || !session || !session.token) return null; // <Alert title="Error" description="not logged in" type="error" showIcon />;
 
     // async function logout(args) {

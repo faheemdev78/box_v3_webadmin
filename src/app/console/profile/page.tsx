@@ -47,7 +47,7 @@ const DUMMY_PERMISSIONS = [
     'View Reports',
     'Manage Inventory',
     'Process Refunds',
-    'Manage Stores',
+    'Manage Branches',
     'System Settings'
 ];
 
@@ -271,7 +271,7 @@ function Profile() {
                         </Col>
                         <Col xs={12} sm={8} md={6}>
                             <Statistic
-                                title="Stores Managed"
+                                title="Branches Managed"
                                 value={DUMMY_ADMIN_STATS.stores_managed}
                                 prefix={<TrophyOutlined />}
                             />

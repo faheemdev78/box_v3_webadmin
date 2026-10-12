@@ -25,6 +25,8 @@ import { nextModulePage } from '@/modules/composer/lib/modulePages';
 import styles from '@/modules/composer/Composer.module.scss';
 import { parseStylesInput, prepareStylesForSave } from '@/modules/composer/lib';
 import { GalleryButton } from '@/modules/composer/gallery/GalleryButton';
+import { StorePageComposer } from '@/modules/composer/store_page/StorePageComposer';
+import { storePageComponent } from '@/modules/composer/store_page/registry';
 import AppPageEditForm from '@/modules/composer/appPageEditForm';
 
 import AppScheduleEditForm from '../../components/appScheduleEditForm';
@@ -319,7 +321,10 @@ function EditAppPage() {
             }
 
             let rows = pageData && pageData.rows.filter((o: any) => (o._id !== row._id))
-            set_pageData((prev: any) => ({ ...prev, rows }))
+            // Keep storefront edits in the live form when removing a saved banner.
+            if (pageData?.page_type?.type !== 'store_page') {
+                set_pageData((prev: any) => ({ ...prev, rows }))
+            }
             message.success("Modules removed!")
         }
         else {
@@ -336,6 +341,11 @@ function EditAppPage() {
 
         if (!rows || rows.length < 1 || !rows[0]?.id) {
             setError("Oops! Seems like your havent added anything into the page yet!")
+            return false;
+        }
+
+        if (pageData?.page_type?.type === 'store_page' && rows.some((row: any) => !storePageComponent(row?.data?.type))) {
+            setError('This Store Page contains an unsupported component. Remove it before saving.');
             return false;
         }
 
@@ -363,7 +373,9 @@ function EditAppPage() {
                 let _values;// = { ...row.values }
                 if (_.isString(row.values)) _values = row.values
                 else {
-                    const definition = components.find((component) => component.type == row.data.type)
+                    const definition = pageData?.page_type?.type === 'store_page'
+                        ? storePageComponent(row.data.type)
+                        : components.find((component) => component.type == row.data.type)
                     const stored = definition?.serialize ? definition.serialize(row.values) : row.values
                     _values = JSON.stringify(stored)
                 }
@@ -555,7 +567,7 @@ function EditAppPage() {
                         </div>
 
 
-                        <Row gutter={[0, 0]}>
+                        {pageData?.page_type?.type === 'store_page' ? <StorePageComposer onDeleteRow={onDeleteRow} /> : <Row gutter={[0, 0]}>
                             <Col><SideMenu /></Col>
 
                             <Col flex="auto" style={{ border: "0px solid black", textAlign: 'center' }}>
@@ -612,7 +624,7 @@ function EditAppPage() {
                             </Col>
 
                             {showProps && <Col><PropsWindow item={showProps} onClose={() => set_showProps(false)} /></Col>}
-                        </Row>
+                        </Row>}
 
 
                         <Modal

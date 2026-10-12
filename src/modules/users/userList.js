@@ -14,7 +14,7 @@ export const UsersList = ({ dataSource, pagination = false, handleDelete, loadin
                     <Avatar src={rec.avatarUrl} />
                     <div>
                         {rec?.store?._id
-                            ? <Link href={`${adminRoot}/store/${rec.store._id}/staff/${rec._id}/view`}>{rec.name}</Link>
+                            ? <Link href={`${adminRoot}/branch/${rec.store._id}/staff/${rec._id}/view`}>{rec.name}</Link>
                             : <Link href={`${adminRoot}/user/${rec._id}/view`}>{rec.name}</Link>}
                         {/* <Link href={`${adminRoot}/user/${rec._id}/view`}>{rec.name}</Link> */}
                         <div>{rec.email}</div>
@@ -22,7 +22,7 @@ export const UsersList = ({ dataSource, pagination = false, handleDelete, loadin
                 </Space>)
             }
         },
-        { title: 'Store', dataIndex: ['store', 'title'], key: 'store' },
+        { title: 'Branch', dataIndex: ['store', 'title'], key: 'store' },
         { title: 'Type', dataIndex: 'acc_type', key: 'acc_type', width: 200 },
         { title: 'Group', dataIndex: 'acc_group', key: 'acc_group', width: 100 },
         { title: 'Status', dataIndex: 'status', key: 'status', width: 100, align: 'center' },

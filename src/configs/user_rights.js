@@ -20,12 +20,12 @@ export const UserRightsArray = [
         ]
     },
 
-    { _id: 103, title: 'Stores',
+    { _id: 103, title: 'Branches',
         rules: [
-            { title: 'View Other Stores', key: '103.0' },
-            { title: 'Create Store', key: '103.1' },
-            { title: 'Edit Store', key: '103.2' },
-            { title: 'Delete Store', key: '103.3' },
+            { title: 'View Other Branches', key: '103.0' },
+            { title: 'Create Branch', key: '103.1' },
+            { title: 'Edit Branch', key: '103.2' },
+            { title: 'Delete Branch', key: '103.3' },
         ]
     },
 

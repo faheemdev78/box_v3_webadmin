@@ -177,7 +177,7 @@ function UserTypes() {
   const onEditClick = () => {}
 
   const columns: ColumnsType<any> = [
-    { title: 'Store Name', dataIndex: 'title', key: 'title' },
+    { title: 'Branch Name', dataIndex: 'title', key: 'title' },
     { title: 'Key', dataIndex: 'acc_type', key: 'acc_type' },
     { title: 'Allowed Apps', dataIndex: 'allowed_apps', key: 'allowed_apps', render:(txt: string[] = []) => txt.map((item: string, i: number) => (<Tag key={i}>{item}</Tag>)) },
     { title: 'Actions', dataIndex: 'actions', key: 'actions', align: 'right' as const, width: 120,

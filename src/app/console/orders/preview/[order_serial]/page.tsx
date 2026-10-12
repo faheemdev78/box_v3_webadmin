@@ -44,7 +44,7 @@ function OrderPreviewRedirectPage() {
     const storeId = order?.store?._id || order?._id_store;
     if (!storeId) return;
 
-    router.replace(`${adminRoot}/store/${storeId}/orders/preview/${orderIdentifier}`);
+    router.replace(`${adminRoot}/branch/${storeId}/orders/preview/${orderIdentifier}`);
   }, [data, order_serial, router]);
 
   if (loading || !called) return <Loader loading={true} />;

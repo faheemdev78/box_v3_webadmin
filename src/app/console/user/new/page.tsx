@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { publishStatus, gendersArray, userAccountGroups, adminRoot, userStatus } from '@/configs';
 import Alert from 'antd/es/alert/Alert';
 import { Card, Col, message, Row, Space } from 'antd';
-import { AccTypesDD, StoresDD } from '@/components/dropdowns';
+import { AccTypesDD, BranchesDD } from '@/components/dropdowns';
 import { DevBlock } from '@/components';
 import { PageHeader } from '@/template';
 import { Page } from '@/template/page';
@@ -98,7 +98,7 @@ function UserForm () {
                                         />
                                         <FormField type="select" name="status" label="Status" className={values.status == 'enabled' ? "active" : "inactive"} options={userStatus} validate={rules.required} />
                                         {/* {(values?.acc_type?._id && String(values?.acc_type?.acc_type).indexOf("admin") < 0) && <>
-                                            <StoresDD onChange={(___: any, raw: any) => form.mutators.onStoreChanged(raw)} preload name="store._id" label="Store" validate={rules.required} />
+                                            <BranchesDD onChange={(___: any, raw: any) => form.mutators.onStoreChanged(raw)} preload name="store._id" label="Branch" validate={rules.required} />
                                         </>} */}
                                     </Space></div>
 

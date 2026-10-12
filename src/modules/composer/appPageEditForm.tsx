@@ -64,22 +64,23 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
     let sourceField;
     switch (values?.page_type?.type) {
         case "category_page":
+        case "store_page":
             sourceField = <>
                 <div>Category: {values?.page_type?.page_source?.title}</div>
-                {values?.page_source?.path && <Tag>{values?.page_source?.path}</Tag>}
+                {values?.page_type?.page_source?.path && <Tag>{values?.page_type?.page_source?.path}</Tag>}
             </>;
             break;
 
         case "brand_page":
             sourceField = <>
                 <div>Brand: {values?.page_type?.page_source?.title}</div>
-                {values?.page_source?.path && <Tag>{values?.page_source?.path}</Tag>}
+                {values?.page_type?.page_source?.path && <Tag>{values?.page_type?.page_source?.path}</Tag>}
             </>;
             break;
 
-        case "store_page":
+        case "manufacturer_page":
             sourceField = <>
-                <div>Store: {values?.page_type?.page_source?.title}</div>
+                <div>Manufacturer: {values?.page_type?.page_source?.title}</div>
                 {values?.page_type?.page_source?.path && <Tag>{values.page_type.page_source.path}</Tag>}
             </>;
             break;

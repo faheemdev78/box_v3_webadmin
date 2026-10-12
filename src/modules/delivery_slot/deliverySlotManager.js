@@ -273,8 +273,8 @@ export function DeliverySlotManager({ store, zone }) {
         <PageHeader title={`Delivery Slots`}
             sub={<Breadcrumb
                 items={[
-                    { title: <Link href={`${adminRoot}/store/${store._id}`}>{store.title}</Link> },
-                    { title: zone && <Link href={`${adminRoot}/store/${store._id}/zone/${zone._id}`}>{zone.title}</Link> },
+                    { title: <Link href={`${adminRoot}/branch/${store._id}`}>{store.title}</Link> },
+                    { title: zone && <Link href={`${adminRoot}/branch/${store._id}/zone/${zone._id}`}>{zone.title}</Link> },
                     { title: "Delivery Slots" },
                 ]}
             />}

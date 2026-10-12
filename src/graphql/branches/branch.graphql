@@ -1,0 +1,7 @@
+#import "./_fragment/branch.graphql"
+
+query branch($_id: ID!) {
+    store(_id: $_id) {
+        ... BranchInfo
+    }
+}

@@ -65,7 +65,7 @@ function buildPagesListFilter(values: any, listWindow: ListWindow, pageType: str
     if (values?.published === 'published') filter.published = true;
     else if (values?.published === 'unpublished') filter.published = false;
 
-    const sourceField = ({ brand_page: 'brand', store_page: 'store', category_page: 'category' } as Record<string, string>)[pageType];
+    const sourceField = ({ brand_page: 'brand', manufacturer_page: 'manufacturer', store_page: 'category', category_page: 'category' } as Record<string, string>)[pageType];
     if (sourceField && values?.[sourceField]) {
         filter['page_type.page_source._id'] = values[sourceField];
     }
@@ -79,11 +79,11 @@ function PagesFilter({ loading, onApply, pageType, initialValues }: { loading: b
             render={(formargs) => {
                 const { form } = formargs;
 
-                const applyExclusive = (field: 'brand' | 'category' | 'store', val: any) => {
+                const applyExclusive = (field: 'brand' | 'category' | 'manufacturer', val: any) => {
                     const selected = val || undefined;
                     const nextValues = { ...form.getState().values, [field]: selected };
                     if (selected) {
-                        for (const other of ['brand', 'category', 'store']) {
+                        for (const other of ['brand', 'category', 'manufacturer']) {
                             if (other === field) continue;
                             form.change(other, undefined);
                             nextValues[other] = undefined;
@@ -122,7 +122,7 @@ function PagesFilter({ loading, onApply, pageType, initialValues }: { loading: b
                                     onChange={(val: any) => applyExclusive('brand', val)}
                                 />
                             </div>}
-                            {pageType === 'category_page' && <div style={{ width: 200 }}><ProdCatsDD
+                            {['category_page', 'store_page'].includes(pageType) && <div style={{ width: 200 }}><ProdCatsDD
                                     name="category"
                                     label="Category"
                                     placeholder="Category"
@@ -133,15 +133,15 @@ function PagesFilter({ loading, onApply, pageType, initialValues }: { loading: b
                                     onChange={(val: any) => applyExclusive('category', val)}
                                 />
                             </div>}
-                            {pageType === 'store_page' && <div style={{ width: 200 }}><ManufacturersDD
-                                    name="store"
-                                    label="Store"
-                                    placeholder="Store"
+                            {pageType === 'manufacturer_page' && <div style={{ width: 200 }}><ManufacturersDD
+                                    name="manufacturer"
+                                    label="Manufacturer"
+                                    placeholder="Manufacturer"
                                     compact
                                     allowClear
                                     preload
                                     size="small"
-                                    onChange={(val: any) => applyExclusive('store', val)}
+                                    onChange={(val: any) => applyExclusive('manufacturer', val)}
                                 />
                             </div>}
                             <div style={{ width: 150 }}>
@@ -230,7 +230,7 @@ function PagesHome() {
 
     const onTabChange = (nextType: string) => {
         setPageType(nextType);
-        const nextValues = { ...filterValues, brand: undefined, store: undefined, category: undefined };
+        const nextValues = { ...filterValues, brand: undefined, manufacturer: undefined, category: undefined };
         setFilterValues(nextValues);
         fetchData(buildPagesListFilter(nextValues, listWindow, nextType), { page: 1, pageSize: pagination.pageSize });
     }

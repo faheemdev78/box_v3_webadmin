@@ -11,12 +11,12 @@ export const VehiclesList = ({ dataSource, pagination = false, handleDelete, loa
         { title: 'Title', dataIndex: 'title', key: 'title',
             render: (___, rec) => {
                 return (<>
-                    <Link href={`${adminRoot}/store/${rec.store._id}/vehicle/${rec._id}/view`}>{rec.title}</Link>
+                    <Link href={`${adminRoot}/branch/${rec.store._id}/vehicle/${rec._id}/view`}>{rec.title}</Link>
                     <p>Reg.# {rec.registration_no}</p>
                 </>)
             }
         },
-        { title: 'Store', dataIndex: ['store', 'title'], key: 'store' },
+        { title: 'Branch', dataIndex: ['store', 'title'], key: 'store' },
         { title: 'Zones', dataIndex: "zones", key: 'zones', render:(__, rec) => {
             return rec?.zones?.map(o=>(o.title)).join(", ")
         } },

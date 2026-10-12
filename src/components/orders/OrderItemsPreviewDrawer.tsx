@@ -78,7 +78,7 @@ export function OrderItemsPreviewDrawer({
   const resolvedStoreId = storeId || order?.store?._id
   const detailsHref = order?.serial
     ? (resolvedStoreId
-      ? `${adminRoot}/store/${resolvedStoreId}/orders/preview/${order.serial}`
+      ? `${adminRoot}/branch/${resolvedStoreId}/orders/preview/${order.serial}`
       : `${adminRoot}/orders/preview/${order.serial}`)
     : null
 

@@ -47,7 +47,7 @@ const OrdersList: React.FC<OrdersListProps> = ({
   const getOrderPreviewHref = (order: any) => {
     const storeId = order?.store?._id || order?._id_store || session?.user?.store?._id;
     return storeId
-      ? `${adminRoot}/store/${storeId}/orders/preview/${order?.serial}`
+      ? `${adminRoot}/branch/${storeId}/orders/preview/${order?.serial}`
       : `${adminRoot}/orders/preview/${order?.serial}`;
   };
 
@@ -117,7 +117,7 @@ const OrdersList: React.FC<OrdersListProps> = ({
         <div><b>Customer:</b> {customer.name}</div>
       </>)
     } },
-    { title: 'Store', dataIndex: ['zone', 'title'], key: 'store', align: 'left', render: (_: any, rec: any) => (<div>
+    { title: 'Branch', dataIndex: ['zone', 'title'], key: 'store', align: 'left', render: (_: any, rec: any) => (<div>
         <div>{rec.store.title}</div>
         <div><b>ZONE:</b> {rec.zone.title}</div>
       </div>) },

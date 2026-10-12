@@ -233,10 +233,10 @@ export const CategoriesForm = props => {
                         <form id="ProdCatForm" {...submitHandler(formargs)}>
                             <Row gutter={[10, 10]}>
                                 <Col span={24}>
-                                    <FormField type="text" name="title" label="Title" validate={[rules.required, rules.minChar(4)]} />
+                                    <FormField type="text" name="title" label="Title" validate={[rules.required, rules.minChar(3)]} />
                                 </Col>
                                 <Col span={24}>
-                                    <FormField onChange={(e, onChange) => onChange(string_to_slug(e.target.value))} type="text" name="slug" label="Slug (no space)" validate={[rules.required, rules.nospace, rules.minChar(4)]} />
+                                    <FormField onChange={(e, onChange) => onChange(string_to_slug(e.target.value))} type="text" name="slug" label="Slug (no space)" validate={[rules.required, rules.nospace, rules.minChar(3)]} />
                                 </Col>
                                 <Col span={24}>
                                     <ProdCatsDD allowClear preload

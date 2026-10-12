@@ -147,7 +147,7 @@ function UserViewPage() {
                             <Descriptions.Item label="Status">{user.status || '-'}</Descriptions.Item>
                             <Descriptions.Item label="Type">{user.acc_type || '-'}</Descriptions.Item>
                             <Descriptions.Item label="Group">{user.acc_group || '-'}</Descriptions.Item>
-                            <Descriptions.Item label="Store" span={2}>{user?.store?.title || '-'}</Descriptions.Item>
+                            <Descriptions.Item label="Branch" span={2}>{user?.store?.title || '-'}</Descriptions.Item>
                             <Descriptions.Item label="Notes" span={2}>{user.note || '-'}</Descriptions.Item>
                         </Descriptions>
                     </Card>

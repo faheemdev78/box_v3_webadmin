@@ -1,0 +1,150 @@
+// /**
+//  * Till Verification Queue Page
+//  * Route: /console/branch/[branch_id]/till-verification
+//  */
+
+// // 'use client';
+
+// // import React from 'react';
+// import { OrdersList } from './components/ordersList.tsx';
+
+// export default async function OrdersReadyToDispatchPage({ params }) {
+//   const { branch_id: store_id } = await params;
+
+//   return <OrdersList _id_store={store_id} />;
+// }
+
+
+
+'use client';
+
+import { useEffect, useState } from "react";
+import { useMutation, useLazyQuery } from '@apollo/client/react';
+import { __error } from '@/lib/consoleHelper';
+import { adminRoot, defaultPageSize, defaultPagination } from "@/configs";
+import { Card, message, Row, Space, Tag, Typography } from "antd";
+import { catchApolloError, checkApolloRequestErrors } from "@/lib/utill_apollo";
+import { Button, DevBlock, OrderTable, usePageProps } from '@/components';
+import { Page } from "@/template";
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+import LIST_DATA from '@/graphql/order/getReadyToDispatchQueue.graphql';
+import BoxReceiptPreviewButton from '@/components/receipts/BoxReceiptPreviewButton';
+import ProductReceiptPreviewButton from '@/components/receipts/ProductReceiptPreviewButton';
+
+dayjs.extend(relativeTime);
+
+const { Title, Text } = Typography;
+const defaultFilter = {};
+
+
+function ReadytoDispatchList(props:any) {
+  const { store } = usePageProps() as unknown as { store: any }
+  
+  const [state, setState] = useState({
+      pagination: defaultPagination,
+      pageView: "list",
+      dataSource: null,
+      filter: { ...defaultFilter },
+      _id_store: store._id,
+  })
+
+  const [getReadyToDispatchQueue, { called, loading }] = useLazyQuery<any>(LIST_DATA, { fetchPolicy: 'network-only' });
+  
+  const fetchData = async ({ filter = {}, pagination={} }: { filter?: any; pagination?: { pageSize?: number; current?: number } }) => {
+      const variables = {
+          limit: pagination?.pageSize || state.pagination.pageSize,
+          page: pagination?.current || state.pagination.current,
+          filter: filter || state.filter || {},
+          others: (state as any).others || {},
+          _id_store: store._id,
+      }
+
+    const resutls = await getReadyToDispatchQueue({ 
+          variables: {
+              ...variables,
+              filter: JSON.stringify({ ...variables.filter, 'store._id': store._id }),
+              others: JSON.stringify(variables.others || {})
+          }
+        })
+        .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.getReadyToDispatchQueue }))
+          .catch(catchApolloError)
+
+      if (resutls && resutls.error) {
+          message.error(resutls.error.message);
+          return;
+      }
+
+      setState({
+          ...state,
+          pagination: { 
+              ...state.pagination,
+              current: resutls.pagination.page,
+              total: resutls.pagination.totalDocs,
+              // resutls.pagination.totalPages,
+              pageSize: resutls.pagination.limit,
+          },
+          filter: variables.filter,
+          dataSource: resutls?.edges,
+      })
+
+  }
+
+  useEffect(() => {
+      if (called || loading) return
+      fetchData({})
+  }, [called, loading])
+    
+
+  return (<>
+    <Page>
+      <Card
+          title={<Space>
+              <Title level={3} style={{ margin: 0 }}>Ready To Dispatch</Title>
+              {!loading && <Tag color="green">{state?.pagination?.total || 0} orders found</Tag>}
+          </Space>}
+          extra={<Button onClick={() => fetchData({ filter: state.filter, pagination: state.pagination })} loading={loading}>Refresh</Button>}
+          styles={{ body: { padding: 0 } }}
+      >
+          <OrderTable
+            busy={false} 
+            columns={[
+              'serial',
+              'picker_baskets',
+              'dispatch_baskets',
+              'customer',
+              'picker',
+              'order',
+              'delivery_slot',
+              'status',
+              'createdAt',
+              {
+                key: 'actions',
+                title: 'Actions',
+                width: 100,
+                render: (_: unknown, order: any) => (
+                  <Space wrap size="small">
+                    <BoxReceiptPreviewButton
+                      orderId={order._id}
+                      orderSerial={order.serial}
+                    />
+                    <ProductReceiptPreviewButton
+                      orderId={order._id}
+                      orderSerial={order.serial}
+                    />
+                  </Space>
+                ),
+              },
+            ]}
+            dataSource={state.dataSource || []}
+            pagination={state.pagination}
+            scroll={{ x: 1200 }}
+          />
+      </Card>
+    </Page>
+
+  </>)
+}
+
+export default ReadytoDispatchList;

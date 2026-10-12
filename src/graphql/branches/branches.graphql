@@ -1,0 +1,7 @@
+#import "./_fragment/branch.graphql"
+
+query branches($filter: String, $others:String) {
+    stores(filter: $filter, others:$others) {
+        ... BranchInfo
+    }
+}

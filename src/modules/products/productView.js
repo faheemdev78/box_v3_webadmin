@@ -302,7 +302,7 @@ export function ProductView({ session, store, refresh, ...props }) {
                         {(initialValues.have_variations === true) && <div style={{ border: "1px solid #EEE", marginTop: "10px" }}>
                             <ProductsList
                                 loading={loading}
-                                parseEditLink={(item) => (`${adminRoot}/store/${session?.user?.store?._id}/product/${item._id}/view`)}
+                                parseEditLink={(item) => (`${adminRoot}/branch/${session?.user?.store?._id}/product/${item._id}/view`)}
                                 dataSource={variations}
                                 searchFilterConfig={{ hide: true }}
                                 hideListHeader={true}

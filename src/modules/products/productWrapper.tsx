@@ -39,8 +39,8 @@ interface StatusUpdateValues {
 
 export function ProductWrapper({ render, store, ...props }: ProductWrapperProps) {
     const session = useAppSelector((state: any) => state.session) as any;
-    const { prod_id, store_id: route_store_id } = useParams<{ prod_id: string, store_id?: string }>()
-    // const { prod_id, store_id } = useParams < { prod_id: string, store_id: string } > ()
+    const { prod_id, branch_id: route_store_id } = useParams<{ prod_id: string, branch_id?: string }>()
+    // const { prod_id, branch_id: store_id } = useParams < { prod_id: string, store_id: string } > ()
 
     const store_id = route_store_id || session?.user?.store?._id;
     const variables = useMemo(() => {
@@ -119,7 +119,7 @@ export function ProductWrapper({ render, store, ...props }: ProductWrapperProps)
             </Space>}
         >
             {data?._id_parent && (isStoreUser
-                ? <Link href={`${adminRoot}/store/${store_id}/product/${data?._id_parent}/view`}>Parent Product</Link>
+                ? <Link href={`${adminRoot}/branch/${store_id}/product/${data?._id_parent}/view`}>Parent Product</Link>
                 : <Link href={`${adminRoot}/product/${data?._id_parent}/view`}>Parent Product</Link>
             )}
         </PageHeader>

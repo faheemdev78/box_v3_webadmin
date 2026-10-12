@@ -51,7 +51,7 @@ function TillVerification({ serial }: { serial:string }) {
 
             if (result?.error) {
                 set_fatelError(result.error.message)
-                // router.push(`${adminRoot}/store/${store._id}/orders-on-till`);
+                // router.push(`${adminRoot}/branch/${store._id}/orders-on-till`);
                 return;
             }
 
@@ -123,7 +123,7 @@ function TillVerification({ serial }: { serial:string }) {
 
             // Navigate back to till orders list after verification
             setTimeout(() => {
-                router.push(`${adminRoot}/store/${store._id}/orders-on-till`);
+                router.push(`${adminRoot}/branch/${store._id}/orders-on-till`);
             }, 1500);
 
         } catch (error) {
@@ -249,7 +249,7 @@ function TillVerification({ serial }: { serial:string }) {
                     }
                     {/* <Text type="secondary">Order not found or not available for verification</Text> */}
                     <br />
-                    <Button type="link" onClick={() => router.push(`${adminRoot}/store/${store._id}/orders-on-till`)}>Back to Till Orders</Button>
+                    <Button type="link" onClick={() => router.push(`${adminRoot}/branch/${store._id}/orders-on-till`)}>Back to Till Orders</Button>
                 </div>
             </Card>
         );
@@ -262,7 +262,7 @@ function TillVerification({ serial }: { serial:string }) {
                     <Button
                         type="text"
                         icon={<ArrowLeftOutlined />}
-                        onClick={() => router.push(`${adminRoot}/store/${store._id}/orders-on-till`)}
+                        onClick={() => router.push(`${adminRoot}/branch/${store._id}/orders-on-till`)}
                         className="mb-2"
                     >
                         Back to Till Orders

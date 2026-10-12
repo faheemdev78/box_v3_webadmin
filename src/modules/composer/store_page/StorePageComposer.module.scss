@@ -1,0 +1,66 @@
+.composer {
+    display: flex;
+    align-items: stretch;
+    min-height: calc(100vh - 160px);
+    background: #f4f6f8;
+}
+
+.sidebar {
+    flex: 0 0 240px;
+    padding: 20px;
+    background: #fff;
+    border-right: 1px solid #d0dae5;
+
+    p { color: #68788a; margin-bottom: 20px; }
+}
+
+.workspace {
+    flex: 1;
+    min-width: 0;
+    padding: 24px;
+}
+
+.heading { margin-bottom: 24px; }
+
+.component {
+    margin-bottom: 20px;
+    border: 1px solid #d0dae5;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.selected { border-color: #1677ff; }
+
+.componentHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    border-bottom: 1px solid #d0dae5;
+}
+
+.preview {
+    max-width: 428px;
+    margin: 0 auto;
+    min-height: 80px;
+}
+
+.configuration {
+    flex: 0 0 420px;
+    min-width: 0;
+    background: #d0dae5;
+}
+
+.properties {
+    padding: 15px;
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+}
+
+@media (max-width: 1100px) {
+    .composer { flex-wrap: wrap; }
+    .configuration { flex: 1 1 100%; }
+}

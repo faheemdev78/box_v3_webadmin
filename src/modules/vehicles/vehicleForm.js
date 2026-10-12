@@ -77,7 +77,7 @@ function FormComp({ initialValues, ...props}) {
         }
 
         message.success("Saved");
-        router.push(`${adminRoot}/store/${resutls.store._id}/vehicles`)
+        router.push(`${adminRoot}/branch/${resutls.store._id}/vehicles`)
         return false;
     }
 
@@ -207,7 +207,7 @@ export function VehicleForm({ store, ...props }) {
         
     }, [props.initialValues])
 
-    const onSuccess = (val) => router.push(`${adminRoot}/store/${store_id}/vehicles`);
+    const onSuccess = (val) => router.push(`${adminRoot}/branch/${store_id}/vehicles`);
 
     if (error) return <Alert title="Error" description={error} type="error" showIcon />
     if (props?.initialValues?._id && (loading || !initialValues)) return <Loader loading={true} />

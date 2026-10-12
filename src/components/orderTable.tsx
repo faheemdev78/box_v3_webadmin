@@ -92,7 +92,7 @@ export function OrderTable({
     const getOrderPreviewHref = (order: any) => {
         const storeId = order?.store?._id || order?._id_store;
         return storeId
-            ? `${adminRoot}/store/${storeId}/orders/preview/${order?.serial}`
+            ? `${adminRoot}/branch/${storeId}/orders/preview/${order?.serial}`
             : `${adminRoot}/orders/preview/${order?.serial}`;
     };
 
@@ -188,7 +188,7 @@ export function OrderTable({
                 <Text>{handledBy?.name || 'N/A'}</Text>
             </Space>),
         },
-        { title: 'Store', dataIndex: ['zone', 'title'], key: 'store', align: 'left', 
+        { title: 'Branch', dataIndex: ['zone', 'title'], key: 'store', align: 'left', 
             render: (_: any, rec: any) => (<div>
                 <div>{rec?.store?.title}</div>
                 <div><b>ZONE:</b> {rec?.zone?.title}</div>
@@ -266,13 +266,13 @@ export function OrderTable({
 
                         {((record.locked_by && record.is_locked_by_me) || !record.locked_by) && <>
                             <Button size="small" color="blue"
-                                onClick={() => router.push(`${adminRoot}/store/${record.store._id}/till-verification/${record.serial}/verify`)}
+                                onClick={() => router.push(`${adminRoot}/branch/${record.store._id}/till-verification/${record.serial}/verify`)}
                                 icon={<PlayCircleOutlined />}>{record.is_locked_by_me ? 'Resume' : 'Start'}</Button>
                         </>}
                     </>}
 
                     {(record.locked_by && hasActions?.options?.till_verification) && <>
-                        <Link href={`${adminRoot}/store/${record.store._id}/till-verification/${record.serial}/verify`}><Space size={2}>
+                        <Link href={`${adminRoot}/branch/${record.store._id}/till-verification/${record.serial}/verify`}><Space size={2}>
                             <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
                         </Space></Link>
                     </>}
@@ -320,7 +320,7 @@ export function OrderTable({
                 console.log("Order not found: ", val)
                 return;
             }
-            const url = `${adminRoot}/store/${thisOrder.store._id}/till-verification/${thisOrder.barcode}/verify`;
+            const url = `${adminRoot}/branch/${thisOrder.store._id}/till-verification/${thisOrder.barcode}/verify`;
             router.push(url)
         }} onError={console.log} /> */}
 

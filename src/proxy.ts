@@ -22,10 +22,10 @@ export const config = {
 export default async function proxy(request: NextRequest) {
 
     const { pathname } = request.nextUrl;
-    type StoreJwtPayload = JwtPayload & { _id_store?: string };
+    type BranchJwtPayload = JwtPayload & { _id_store?: string };
 
     const token = await getSessionToken()
-    let decoded: StoreJwtPayload | undefined;
+    let decoded: BranchJwtPayload | undefined;
     if (token) {
         try {
             decoded = jwtDecode<JwtPayload>(token)
@@ -39,13 +39,13 @@ export default async function proxy(request: NextRequest) {
         }
     }
 
-    // Restrict store user access
+    // Restrict branch user access
     if (decoded && decoded._id_store && pathname.startsWith("/console")) {
-        const requriedStorePath = `/console/store/${decoded._id_store}`;
+        const requiredBranchPath = `/console/branch/${decoded._id_store}`;
 
-        if (pathname !== requriedStorePath && !pathname.startsWith(`/console/store/${decoded._id_store}/`)) {
-            console.error("Invalid store access")
-            return NextResponse.redirect(new URL(`/console/store/${decoded._id_store}`, request.url));
+        if (pathname !== requiredBranchPath && !pathname.startsWith(`/console/branch/${decoded._id_store}/`)) {
+            console.error("Invalid branch access")
+            return NextResponse.redirect(new URL(`/console/branch/${decoded._id_store}`, request.url));
         }
     }
 

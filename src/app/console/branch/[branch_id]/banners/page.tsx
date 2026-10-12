@@ -1,0 +1,20 @@
+'use client'
+
+import { DevBlock, usePageProps } from '@/components';
+
+function BannersPage() {
+    const { store } = usePageProps() as unknown as { store: any }
+
+    return (<>
+        <h1>Incomplete page</h1>
+
+        <DevBlock obj={store} />
+    </>)
+}
+
+
+export default BannersPage;
+
+// export default function Wrapper(props){
+//     return (<BranchWrapper {...props} render={({ store }) => (<BannersPage store={store} {...props} />)} />)
+// }

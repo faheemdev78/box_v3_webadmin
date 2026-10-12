@@ -1,0 +1,7 @@
+#import "./_fragment/branch.graphql"
+
+mutation editBranch($input: Edit_StoreInput!) {
+    editStore(input: $input) {
+        ... BranchInfo
+    }
+}

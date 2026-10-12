@@ -13,7 +13,7 @@ import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 import { __error } from '@/lib/consoleHelper';
 
 import LIST_DATA from '@/graphql/users/adminQuery.graphql'
-// import RECORD_DELETE from '@/graphql/stores/deleteStore.graphql';
+// import RECORD_DELETE from '@/graphql/branches/deleteBranch.graphql';
 
 const defaultFilter = { status: 'online' }
 

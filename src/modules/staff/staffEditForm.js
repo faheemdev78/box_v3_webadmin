@@ -41,7 +41,7 @@ const FormComponent = ({ onSuccess, initialValues }) => {
             return;
         }
         message.success("Saved");
-        // router.push(`${adminRoot}/store/${results._id}`)
+        // router.push(`${adminRoot}/branch/${results._id}`)
         
         if (onSuccess) onSuccess(results)
         return results;

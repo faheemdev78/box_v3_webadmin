@@ -9,7 +9,7 @@ import { useMutation, useLazyQuery, useQuery } from '@apollo/client/react';
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import arrayMutators from 'final-form-arrays'
 import { FormField, SubmitButton, rules, composeValidators, submitHandler, ExternalSubmitButton, UploadField } from '@/components/form';
-import { LocationsDD, ManufacturersDD, StoresDD } from '@/components/dropdowns';
+import { LocationsDD, ManufacturersDD, BranchesDD } from '@/components/dropdowns';
 import { useRouter } from 'next/navigation';
 
 import RECORD_EDIT from '@/graphql/geo_zone/editGeoZone.graphql';
@@ -173,7 +173,7 @@ function FormComp({ onSuccess, initialValues, store, ...props }) {
                                         }}
                                     /></Col>
                                 {/* <Col flex="150px">
-                                    <StoresDD name="store._id" label="Store" preload validate={rules.required} disabled={(initialValues && initialValues._id)}
+                                    <BranchesDD name="store._id" label="Branch" preload validate={rules.required} disabled={(initialValues && initialValues._id)}
                                         onChange={(___, raw) => {
                                             form.mutators.onStoreChange(raw)
                                             loadRelatedZones({ ...values, store: raw })
@@ -254,7 +254,7 @@ function GeoZoneForm({ zone_id, store, ...props }) {
         fetchZone();
     }, [zone_id])
 
-    const onSuccess = (val) => router.push(`${adminRoot}/store/${store._id}/zones`);
+    const onSuccess = (val) => router.push(`${adminRoot}/branch/${store._id}/zones`);
 
     if (error) return <Alert title="Error" description={error} type="error" showIcon />
     if (zone_id && (loading || !initialValues)) return <Loader loading={true} />

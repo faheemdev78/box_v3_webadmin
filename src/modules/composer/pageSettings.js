@@ -50,9 +50,10 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                         switch (values.page_type.type) {
 
                             case "category_page":
+                            case "store_page":
                                 sourceField = <>
                                     <ProdCatsDD
-                                        name="page_source._id" label="Cateogry" validate={rules.required}
+                                        name="page_source._id" label="Category" validate={rules.required}
                                         onChange={(val, raw, callback) => {
                                             form.mutators.selectSource({
                                                 _id: raw._id,
@@ -83,10 +84,10 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                                 </>;
                                 break;
 
-                            case "store_page":
+                            case "manufacturer_page":
                                 sourceField = <>
                                     <ManufacturersDD
-                                        name="page_source._id" label="Store" validate={rules.required}
+                                        name="page_source._id" label="Manufacturer" validate={rules.required}
                                         onChange={(val, raw) => {
                                             form.mutators.selectSource({
                                                 _id: raw._id,
@@ -118,7 +119,7 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                                         {sourceField}
 
                                         <FormField name="slug" label="Page Slug" type="text"
-                                            disabled={['category_page', 'brand_page', 'store_page'].includes(values.page_type.type)}
+                                            disabled={['category_page', 'brand_page', 'manufacturer_page', 'store_page'].includes(values.page_type.type)}
                                             fieldProps={{ onBlur: () => {
                                                 form.change('slug', normalizePageSlug(values.slug));
                                                 form.blur('slug');
@@ -133,7 +134,7 @@ function PageSettingsForm({ onUpdate, initialValues }) {
 
                                         {/* {values.page_type.type === "category_page" && <>
                                             <ProdCatsDD 
-                                                name="page_source._id" label="Cateogry" validate={rules.required}
+                                                name="page_source._id" label="Category" validate={rules.required}
                                                 onChange={(val, raw, callback) => {
                                                     form.mutators.selectSource({
                                                         _id: raw._id,

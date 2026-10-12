@@ -74,7 +74,7 @@
 //         } catch (error: any) {
 //           console.error('Failed to start order:', error);
 //           message.error(error.message || 'Failed to start order verification');
-//           router.push(`${adminRoot}/store/${store_id}/till-verification`);
+//           router.push(`${adminRoot}/branch/${store_id}/till-verification`);
 //         }
 //       } else {
 //         // Order already locked - just set as current
@@ -102,7 +102,7 @@
 //       setSelectedBasketIds([]);
 //       setCompleteNotes('');
 //       dispatch(setCurrentOrder(null));
-//       router.push(`${adminRoot}/store/${store_id}/till-verification`);
+//       router.push(`${adminRoot}/branch/${store_id}/till-verification`);
 //     } catch (error: any) {
 //       message.error(error.message || 'Failed to complete verification');
 //     }
@@ -128,7 +128,7 @@
 //   const handleBack = () => {
 //     // Just navigate back - order stays locked (auto-hold)
 //     dispatch(setCurrentOrder(null));
-//     router.push(`${adminRoot}/store/${store_id}/till-verification`);
+//     router.push(`${adminRoot}/branch/${store_id}/till-verification`);
 //   };
 
 //   // Check if shift is active
@@ -140,7 +140,7 @@
 //             <ExclamationCircleOutlined style={{ fontSize: 48, color: '#faad14' }} />
 //             <Title level={4}>No Active Shift</Title>
 //             <Text>You must have an active shift to verify orders.</Text>
-//             <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>
+//             <Button type="primary" onClick={() => router.push(`${adminRoot}/branch/${store_id}/till-verification`)}>
 //               Go to Queue
 //             </Button>
 //           </Space>
@@ -171,7 +171,7 @@
 //             <Text>Could not load order data. The order might not be available for verification.</Text>
 //             <Space>
 //               <Button onClick={() => window.location.reload()}>Reload Page</Button>
-//               <Button type="primary" onClick={() => router.push(`${adminRoot}/store/${store_id}/till-verification`)}>
+//               <Button type="primary" onClick={() => router.push(`${adminRoot}/branch/${store_id}/till-verification`)}>
 //                 Back to Queue
 //               </Button>
 //             </Space>

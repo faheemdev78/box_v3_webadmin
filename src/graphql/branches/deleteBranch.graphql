@@ -1,0 +1,6 @@
+mutation deleteBranch($id: ID!) {
+    deleteStore(id: $id) {
+        _id
+        error{ message }
+    }
+}

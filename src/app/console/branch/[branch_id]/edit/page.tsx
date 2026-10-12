@@ -1,0 +1,88 @@
+'use client'
+
+import React, { useEffect, useState } from 'react'
+import { BranchForm } from '@/modules/branch/branchForm'
+import { useMutation, useLazyQuery } from '@apollo/client/react';
+import { adminRoot } from "@/configs";
+import Link from 'next/link';
+import { Alert, Col, Row, Space } from 'antd';
+import { Loader } from '@/components';
+import { useParams } from 'next/navigation';
+import { __error } from '@/lib/consoleHelper';
+import { checkApolloRequestErrors } from '@/lib/utill_apollo';
+
+import GET_STORE from '@/graphql/branches/branch.graphql';
+import { Page, PageHeader } from '@/template';
+
+// function AddBranchPage(props) {
+//   return (<>
+//     <BranchForm {...props} store_id={props?.params?.branch_id} />
+//   </>)
+// }
+
+
+function BranchWrapper(props: any) {
+  const { branch_id: store_id } = useParams<{ branch_id: string }>()
+  // const { branch_id: store_id } = await props.params;
+
+  const [fatelError, set_fatelError] = useState(null)
+
+  const [get_store, { loading, data, called }] = useLazyQuery<any>(GET_STORE, { fetchPolicy: 'network-only' });
+
+  const fetchZone = async () => {
+    let resutls = await get_store({ variables: { _id: store_id } })
+      .then(r => checkApolloRequestErrors({ results: r, allowEmpty: true, parseReturn: (rr:any) => rr?.data?.store }))
+      .catch(err => {
+        console.log(__error("Query Error: "), err)
+        return { error: { message: "Query Error" } }
+      })
+
+    if (!resutls || resutls.error) {
+      set_fatelError((resutls && resutls?.error?.message) || "Branch not found!")
+      return;
+    }
+
+    return resutls;
+  }
+
+  useEffect(() => {
+    if (called || loading || !store_id) return;
+    fetchZone();
+  }, [store_id, called, loading])
+
+  if (!store_id || fatelError) return <Alert title="Error" description={fatelError || "No Branch ID found!"} type='error' showIcon />
+  if (loading) return <Loader loading={true}>Fetching branch...</Loader>
+  if (!data || !data?.store?._id) return <Alert title="Error" description="Branch not found!" showIcon />
+
+  return (<>
+    <PageHeader title={data.store.title} />
+
+    <Page>
+      {/* <Row gutter={[50, 50]} style={{ borderBottom: "1px solid black" }}>
+        <Col><h1>{data.store.title}</h1></Col>
+        <Col><Space style={{ width: "100%" }} orientation="vertical">
+          {[
+            { title: 'Geo Zones', href: `${adminRoot}/branch/${data.store._id}/zones` },
+          ].map((item, i) => {
+            return <Link href={item.href} key={i}>{item.title}</Link>
+          })}
+        </Space></Col>
+        <Col><Space style={{ width: "100%" }} orientation="vertical">
+          {[
+            { title: 'Products', href: `${adminRoot}/branch/${data.store._id}/products` },
+          ].map((item, i) => {
+            return <Link href={item.href} key={i}>{item.title}</Link>
+          })}
+        </Space></Col>
+      </Row> */}
+
+      <BranchForm store_id={store_id} />
+
+    </Page>
+    
+
+  </>)
+
+}
+
+export default BranchWrapper;

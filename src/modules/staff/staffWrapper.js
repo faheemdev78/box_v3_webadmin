@@ -72,8 +72,8 @@ export function StaffWrapper({ render, ...props }) {
     return (<>
         {/* <div className='page-bar'>
             <PageBar menuArray={[
-                { title: 'Baskets', href: `${adminRoot}/store/${data.store._id}/baskets` },
-                { title: 'Banners', href: `${adminRoot}/store/${data.store._id}/banners` },
+                { title: 'Baskets', href: `${adminRoot}/branch/${data.store._id}/baskets` },
+                { title: 'Banners', href: `${adminRoot}/branch/${data.store._id}/banners` },
             ]} />
         </div> */}
 

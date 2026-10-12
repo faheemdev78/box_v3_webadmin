@@ -23,16 +23,16 @@ export const topMenuArray = [
     //         { title: 'Carts', href: `${adminRoot}/cart`, rolePermessions: '104.1' },
     //     ]
     // },
-    { title: 'Stores', href: `${adminRoot}/stores`, rolePermessions: "103.0",
+    { title: 'Branches', href: `${adminRoot}/branches`, rolePermessions: "103.0",
         children: [
-            // { title: 'Baskets', href: `${adminRoot}/store/{ID}/baskets` },
-            // { title: 'Banners', href: `${adminRoot}/store/{ID}/banners` },
-            // { title: 'Delivery Slots', href: `${adminRoot}/store/{ID}/delivery_slots` },
-            // { title: 'Discount Vouchers', href: `${adminRoot}/store/{ID}/discount_vouchers` },
-            // { title: 'Offers', href: `${adminRoot}/store/{ID}/offers` },
-            // { title: 'Staff', href: `${adminRoot}/store/{ID}/staff` },
-            // { title: 'Vehicles', href: `${adminRoot}/store/{ID}/vehicles` },
-            // { title: 'Vendors', href: `${adminRoot}/store/{ID}/vendors` },
+            // { title: 'Baskets', href: `${adminRoot}/branch/{ID}/baskets` },
+            // { title: 'Banners', href: `${adminRoot}/branch/{ID}/banners` },
+            // { title: 'Delivery Slots', href: `${adminRoot}/branch/{ID}/delivery_slots` },
+            // { title: 'Discount Vouchers', href: `${adminRoot}/branch/{ID}/discount_vouchers` },
+            // { title: 'Offers', href: `${adminRoot}/branch/{ID}/offers` },
+            // { title: 'Staff', href: `${adminRoot}/branch/{ID}/staff` },
+            // { title: 'Vehicles', href: `${adminRoot}/branch/{ID}/vehicles` },
+            // { title: 'Vendors', href: `${adminRoot}/branch/{ID}/vendors` },
         ]
     },
     { title: 'Composer', href: `${adminRoot}/composer/pages`, modulePermessions: '1000',
@@ -58,7 +58,7 @@ export const topMenuArray = [
     },
 ]
 
-export const store_topMenuArray = ({ baseUrl="" }) => ([
+export const branch_topMenuArray = ({ baseUrl="" }) => ([
     { title: 'Dashbord', href: `${baseUrl}` },
     // { title: 'Discount Vouchers', href: `${baseUrl}/discount_vouchers` },
     // { title: 'Offers', href: `${baseUrl}/offers` },

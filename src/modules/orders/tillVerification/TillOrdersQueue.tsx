@@ -84,13 +84,13 @@
 //     try {
 //       await startOrder(orderId);
 //       message.success('Order verification started');
-//       router.push(`${adminRoot}/store/${_id_store}/till-verification/${orderId}/verify`);
+//       router.push(`${adminRoot}/branch/${_id_store}/till-verification/${orderId}/verify`);
 //     } catch (error: any) {
 //       message.error(error.message || 'Failed to start order verification');
 //     }
 //   };
 
-//   // const handleStartVerification = (orderId: string) => router.push(`${adminRoot}/store/${_id_store}/till-verification/${orderId}/verify`);
+//   // const handleStartVerification = (orderId: string) => router.push(`${adminRoot}/branch/${_id_store}/till-verification/${orderId}/verify`);
 
 //   const columns = [
 //     { title: 'Order #', dataIndex: 'serial', key: 'serial', width: 200,
@@ -148,14 +148,14 @@
 //         {/* <Link href={``}><PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}</Link> */}
 
 //         {!(record.locked_by && !record.is_locked_by_me) ? '' :
-//           <Link href={`${adminRoot}/store/${_id_store}/till-verification/${record._id}/verify`}><Space size={2}>
+//           <Link href={`${adminRoot}/branch/${_id_store}/till-verification/${record._id}/verify`}><Space size={2}>
 //             <PlayCircleOutlined />
 //             {record.is_locked_by_me ? 'Resume' : 'Start'}
 //           </Space></Link>
 //         }
 
 //         {/* {!(record.locked_by && !record.is_locked_by_me) && 
-//           <Link className='button' href={`${adminRoot}/store/${_id_store}/till-verification/${record._id}/verify`}>
+//           <Link className='button' href={`${adminRoot}/branch/${_id_store}/till-verification/${record._id}/verify`}>
 //             <PlayCircleOutlined />
 //             {record.is_locked_by_me ? 'Resume' : 'Start'}
 //           </Link>
@@ -165,7 +165,7 @@
 //           // icon={<PlayCircleOutlined />} 
 //           disabled={record.locked_by && !record.is_locked_by_me}
 //           >
-//           <Link href={`${adminRoot}/store/${_id_store}/till-verification/${record._id}/verify`}>
+//           <Link href={`${adminRoot}/branch/${_id_store}/till-verification/${record._id}/verify`}>
 //             <PlayCircleOutlined /> {record.is_locked_by_me ? 'Resume' : 'Start'}
 //           </Link>
 //         </Button>
@@ -278,7 +278,7 @@
 //                 <Button
 //                   type="primary"
 //                   icon={<PlayCircleOutlined />}
-//                   onClick={() => router.push(`${adminRoot}/store/${_id_store}/till-verification/${order._id}/verify`)}
+//                   onClick={() => router.push(`${adminRoot}/branch/${_id_store}/till-verification/${order._id}/verify`)}
 //                 >
 //                   Continue
 //                 </Button>

@@ -130,7 +130,7 @@ const DASHBOARD_DATA = {
         { day: 30, revenue: 24580 }
     ],
 
-    // Orders by Status (All Stores)
+    // Orders by Status (All Branches)
     ordersByStatus: {
         pending: 89,
         processing: 124,
@@ -141,7 +141,7 @@ const DASHBOARD_DATA = {
         declined: 38
     },
 
-    // Top Products Across All Stores
+    // Top Products Across All Branches
     topProducts: [
         { id: 1, name: 'Organic Vegetables Bundle', sold: 2145, revenue: 64350.00, stores: 7 },
         { id: 2, name: 'Fresh Milk (1L)', sold: 3420, revenue: 20520.00, stores: 8 },
@@ -197,7 +197,7 @@ const DASHBOARD_DATA = {
 };
 
 export function ConsoleHome() {
-    //http://192.168.88.10:3001/console/store/68755e0e245e63fc0f79a2f2/till-verification
+    //http://192.168.88.10:3001/console/branch/68755e0e245e63fc0f79a2f2/till-verification
     const { currency } = useAppSelector(getSettings)
 
     const CurrencyIcon = ({ size = "25", style = {} }) => (<span style={{ 
@@ -226,7 +226,7 @@ export function ConsoleHome() {
     };
 
     const storeColumns = [
-        { title: 'Store Name', dataIndex: 'name', key: 'name',
+        { title: 'Branch Name', dataIndex: 'name', key: 'name',
             render: (text: string, record: any) => (
                 <Space>
                     <ShopOutlined />
@@ -283,7 +283,7 @@ export function ConsoleHome() {
             sorter: (a: any, b: any) => a.revenue - b.revenue
         },
         {
-            title: 'Stores',
+            title: 'Branches',
             dataIndex: 'stores',
             key: 'stores',
             render: (stores: number) => `${stores}/${DASHBOARD_DATA.overallStats.totalStores}`
@@ -303,7 +303,7 @@ export function ConsoleHome() {
             key: 'customer'
         },
         {
-            title: 'Store',
+            title: 'Branch',
             dataIndex: 'store',
             key: 'store'
         },
@@ -417,7 +417,7 @@ export function ConsoleHome() {
                 <Col xs={24} sm={12} md={6} lg={4}>
                     <Card>
                         <Statistic
-                            title="Active Stores"
+                            title="Active Branches"
                             value={DASHBOARD_DATA.overallStats.activeStores}
                             suffix={`/ ${DASHBOARD_DATA.overallStats.totalStores}`}
                             prefix={<ShopOutlined />}
@@ -491,7 +491,7 @@ export function ConsoleHome() {
                     </Card>
 
                     {/* Order Status Overview */}
-                    <Card title="Order Status Overview (All Stores)" style={{ marginBottom: 16 }}>
+                    <Card title="Order Status Overview (All Branches)" style={{ marginBottom: 16 }}>
                         <Row gutter={[16, 16]}>
                             <Col xs={12} sm={8} md={6}>
                                 <Statistic
@@ -582,7 +582,7 @@ export function ConsoleHome() {
                     </Card>
 
                     {/* Top Products */}
-                    <Card title="Top Selling Products (All Stores)" style={{ marginBottom: 16 }} styles={{ body: { padding: 0 } }}>
+                    <Card title="Top Selling Products (All Branches)" style={{ marginBottom: 16 }} styles={{ body: { padding: 0 } }}>
                         <Table
                             columns={topProductColumns}
                             dataSource={DASHBOARD_DATA.topProducts}
@@ -788,7 +788,7 @@ export function ConsoleHome() {
                                         title={item.product}
                                         description={
                                             <Space orientation="vertical" size={0}>
-                                                <span>{item.affected_stores} stores affected</span>
+                                                <span>{item.affected_stores} branches affected</span>
                                                 <Space>
                                                     <span>Total Stock: {item.total_stock}</span>
                                                     <Tag color={item.status === 'critical' ? 'error' : 'warning'}>

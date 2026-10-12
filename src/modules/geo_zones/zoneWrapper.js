@@ -71,7 +71,7 @@ function ZoneWrapper({ render, ...props }) {
             </Col>
             <Col flex="auto"><Space separator="|">
                 {[
-                    { title: 'Geo Zones', href: `${adminRoot}/store/${data.zone.store._id}/zone/${data.zone._id}` },
+                    { title: 'Geo Zones', href: `${adminRoot}/branch/${data.zone.store._id}/zone/${data.zone._id}` },
                 ].map((item, i) => {
                     return <Link href={item.href} key={i}>{item.title}</Link>
                 })}

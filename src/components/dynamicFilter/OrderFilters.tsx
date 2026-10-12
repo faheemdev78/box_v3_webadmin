@@ -34,7 +34,7 @@ const DEFAULT_COLUMNS = [
   { title: 'Serial', key: 'serial', dataIndex: 'serial' },
   { title: 'Customer', key: 'customer', dataIndex: ['customer', 'name'] },
   { title: 'Picker', key: 'picker', dataIndex: ['processing_stages', 'picking'] },
-  { title: 'Store', key: 'store', dataIndex: 'store' },
+  { title: 'Branch', key: 'store', dataIndex: 'store' },
   { title: 'Order', key: 'current_order', dataIndex: 'current_order' },
   { title: 'Slot', key: 'delivery_slot', dataIndex: 'delivery_slot' },
   { title: 'Stage', key: 'current_stage', dataIndex: 'current_stage', width: 130 },
