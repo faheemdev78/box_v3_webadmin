@@ -69,8 +69,8 @@ function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpd
         </Row>
 
         <DevBlock obj={{ 
-            scheduled_from: values.scheduled_from,
-            scheduled_to: values.scheduled_to
+            scheduled_from: values && values?.scheduled_from,
+            scheduled_to: values && values?.scheduled_to
             }} />
         
     </div>)
