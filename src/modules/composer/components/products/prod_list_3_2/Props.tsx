@@ -3,34 +3,21 @@ import React, { useEffect, useState } from 'react'
 import { Card, Col, Row, Space } from 'antd'
 import { useForm, useFormState } from 'react-final-form'
 import get from 'lodash/get'
-import { FieldArray } from 'react-final-form-arrays'
 import { FormField, Label, rules } from '@/components/form'
-import { Image } from '@/components'
+import { Button } from '@/components'
 import { publishStatus } from '@/configs'
 import { Heading } from '../../../typography'
 import { ComponentSchedule, ComponentStyling } from '../../../lib'
 import type { ComposerItem } from '../../types'
 import { productGrid, type ComposerProduct, type ProductListValues } from '../types'
 import { ProductSelectModal } from '../ProductSelectModal'
+import { ProductPictures } from '../ProductPictures'
 import { AttachmentFields } from '../../ui_elements/AttachmentFields'
 
 function committedCount(value: unknown, max: number) {
     const count = Number(value)
     if (!Number.isFinite(count) || count < 1) return null
     return Math.min(max, Math.floor(count))
-}
-
-function ProductThumb({ node }: { node: ComposerProduct }) {
-    return (
-        <div style={{ border: '1px solid #999', height: '100px', overflow: 'hidden', position: 'relative', textAlign: 'center' }}>
-            <div style={{ position: 'relative', width: '100%', height: '80px' }}>
-                {node?.picture?.thumbnails && (
-                    <Image src={node.picture.thumbnails[0]} {...{ _width: 116, _height: 100 }} fill={true} style={{ objectFit: 'contain' }} alt={node.title || ''} />
-                )}
-            </div>
-            <div>{node.title}</div>
-        </div>
-    )
 }
 
 export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> }) {
@@ -104,22 +91,8 @@ export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> 
                 
 
                 <div style={{ height: '10px' }} />
-                <div onClick={() => set_showProdSelection(true)}>
-                    <FieldArray<ComposerProduct> name={`${name}.values.products`}>
-                        {({ fields }) => (
-                            <Row gutter={[5, 5]}>
-                                {fields.map((p_name, index) => {
-                                    const thisNode = fields.value[index]
-                                    return (
-                                        <Col span={8} key={index}>
-                                            <ProductThumb node={thisNode} />
-                                        </Col>
-                                    )
-                                })}
-                            </Row>
-                        )}
-                    </FieldArray>
-                </div>
+                <Button htmlType="button" onClick={() => set_showProdSelection(true)}>Choose products</Button>
+                <ProductPictures name={name || ''} />
             </Card>
 
             <Card styles={{ body: { padding: '10px' } }}>

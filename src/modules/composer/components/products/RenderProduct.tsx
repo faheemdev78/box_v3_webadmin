@@ -5,15 +5,7 @@ import { Col, Row, Skeleton, Space } from 'antd';
 import cssStyles from './productList.module.scss'
 import { Image, Icon } from '@/components';
 import { __error } from '@/lib/consoleHelper';
-
-interface ComposerProduct {
-    _id?: string;
-    title?: string;
-    picture?: { thumbnails?: string[] } | null;
-    attributes?: { val?: React.ReactNode; title?: React.ReactNode }[] | null;
-    price?: number | null;
-    price_was?: number | null;
-}
+import { composerImageObjectFit, composerProductImage, type ComposerProduct } from './types';
 
 interface RenderProductProps {
     item: ComposerProduct;
@@ -24,16 +16,17 @@ interface RenderProductProps {
 }
 
 export function RenderProduct({ item, off_percent, currency, color = '#ffffff', thumb_background='transparent' }: RenderProductProps) {
+    const picture = composerProductImage(item)
     return (<>
         <div className={cssStyles.thumb} style={{ backgroundColor: thumb_background }}>
-            {item?.picture?.thumbnails ?
+            {picture ?
                 <Image 
-                    src={cdnImageUrl(item.picture.thumbnails[0])} 
+                    src={cdnImageUrl(picture)}
                     width={142} height={142} 
                     alt={item.title || ''} 
                     style={{ 
                         width: '100%', height: '100%', 
-                        objectFit: 'contain',  // 'cover', 'contain', 'fill', 'none', 'scale-down'
+                        objectFit: composerImageObjectFit(item.image_fit),
                         // border:"1px solid black"
                     }}
                 /> :
@@ -42,7 +35,7 @@ export function RenderProduct({ item, off_percent, currency, color = '#ffffff', 
         </div>
 
         {(item?.attributes?.length ?? 0) > 0 && <div>
-            <div style={{ border: "1px solid #EDEFF3", borderRadius: "3px", backgroundColor: "#F5F6FB", fontSize: "11px", color }}>{item.attributes[0].val}{item.attributes[0].title}</div>
+            <div style={{ border: "1px solid #EDEFF3", borderRadius: "3px", backgroundColor: "#F5F6FB", fontSize: "11px", color }}>{item.attributes?.[0]?.val}{item.attributes?.[0]?.title}</div>
         </div>}
 
         {/* {(item?.attributes?.length ?? 0) > 0 && <Space size={2}>

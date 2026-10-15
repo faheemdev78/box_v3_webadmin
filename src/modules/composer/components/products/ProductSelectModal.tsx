@@ -23,7 +23,12 @@ export function ProductSelectModal({ open, onClose, fieldName, limit, padTo }: {
                         selected_products={(products.input.value || []).filter((item) => item?._id)}
                         limit={max}
                         onSubmit={(selected: ComposerProduct[]) => {
-                            const picked = (selected || []).slice(0, max)
+                            const previous = new Map((products.input.value || []).filter(item => item?._id).map(item => [item._id, item]))
+                            const picked = (selected || []).slice(0, max).map(item => ({
+                                ...item,
+                                custom_picture: previous.get(item._id)?.custom_picture || null,
+                                image_fit: previous.get(item._id)?.image_fit || 'contain',
+                            }))
                             const next = padTo && padTo > 0
                                 ? Array.from({ length: padTo }, (_, index) => picked[index] || {})
                                 : picked

@@ -1,4 +1,5 @@
 import type { ComposerProduct } from './types'
+import { composerImageFit } from './types'
 
 type StoreFields = {
     price?: number | null
@@ -29,6 +30,13 @@ export function serializeComposerProduct(product?: ProductSource | null): Compos
     return {
         ...withoutTypename(product),
         picture,
+        image_fit: composerImageFit(product.image_fit),
+        custom_picture: product.custom_picture ? {
+            _id: product.custom_picture._id,
+            url: product.custom_picture.url,
+            name: product.custom_picture.name,
+            thumbnails: product.custom_picture.thumbnails || [],
+        } : null,
         store,
         price: product.price ?? store?.price ?? null,
         price_was: product.price_was ?? store?.price_was ?? null,

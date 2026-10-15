@@ -4,10 +4,25 @@ import type { ComposerAttachment } from '../ui_elements/attachment'
 export interface ComposerProduct {
     _id?: string
     title?: string
-    picture?: { thumbnails?: string[] } | null
+    picture?: { url?: string; thumbnails?: string[] } | null
+    custom_picture?: { _id?: string; url?: string; name?: string; thumbnails?: string[] } | null
+    image_fit?: 'contain' | 'cover' | 'stretch' | 'center'
     attributes?: { val?: ReactNode; title?: ReactNode }[] | null
     price?: number | null
     price_was?: number | null
+}
+
+export function composerImageFit(value?: string) {
+    return value === 'cover' || value === 'stretch' || value === 'center' ? value : 'contain'
+}
+
+export function composerImageObjectFit(value?: string) {
+    const fit = composerImageFit(value)
+    return fit === 'stretch' ? 'fill' : fit === 'center' ? 'scale-down' : fit
+}
+
+export function composerProductImage(product?: ComposerProduct | null) {
+    return product?.custom_picture?.thumbnails?.[0] || product?.custom_picture?.url || product?.picture?.thumbnails?.[0] || product?.picture?.url || ''
 }
 
 export interface ProductListValues {
