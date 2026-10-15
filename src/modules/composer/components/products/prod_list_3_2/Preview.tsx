@@ -24,6 +24,8 @@ export function ProdListPreview({ item }: { item: ComposerItem<ProductListValues
     const itemsArray: ComposerProduct[] = (values?.products || []).slice(0, grid.columns * grid.rows)
     const ink = productInk(values?.theme)
 
+    if (!values) return <p>No Values found</p>
+
     return (
         <div className={cssStyles.comp_prod_list} style={style}>
             <div className={cssStyles.feature_icons}><Space orientation="vertical" size={2}>

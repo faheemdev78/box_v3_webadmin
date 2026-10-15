@@ -24,7 +24,7 @@ const typeOptions = [
     { label: 'Page', value: 'page' },
 ]
 
-export function AttachmentFields({ name, link, compact }: { name: string; link?: ComposerAttachment | null; compact?: false }) {
+export function AttachmentFields({ name, link, compact }: { name: string; link?: ComposerAttachment | null; compact?: boolean }) {
     const form = useForm()
     const current = link?._id && link.title
         ? [{ value: link._id, title: link.title, label: link.title }]
