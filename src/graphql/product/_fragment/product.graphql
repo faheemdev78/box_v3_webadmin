@@ -22,6 +22,9 @@ fragment StoreProductSchemaInfo on StoreProductSchema {
 fragment ProductInfo on Product {
   _id
   _id_parent
+  parent_product {
+    _id title slug
+  }
   title
   slug
   short_description

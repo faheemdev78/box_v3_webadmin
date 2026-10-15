@@ -1,5 +1,5 @@
-mutation deleteProductCatImg($id: ID!, $fields:String!) {
-    deleteProductCatImg(id: $id, fields: $fields) {
+mutation deleteProductCatImg($_id: ID!, $fields:String!) {
+    deleteProductCatImg(_id: $_id, fields: $fields) {
         _id
         error{ message }
     }

@@ -41,7 +41,7 @@ export function ProdListPreview({ item }: { item: ComposerItem<ProductListValues
 
                     return (
                         <div key={i}>
-                            <RenderProduct item={product} off_percent={off_percent} currency={currency} color={ink} />
+                            <RenderProduct thumb_background={values.thumb_background} item={product} off_percent={off_percent} currency={currency} color={ink} />
                         </div>
                     )
                 })}

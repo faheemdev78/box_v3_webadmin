@@ -4,7 +4,7 @@ import { Card, Col, Row, Space } from 'antd'
 import { useForm, useFormState } from 'react-final-form'
 import get from 'lodash/get'
 import { FieldArray } from 'react-final-form-arrays'
-import { FormField, rules } from '@/components/form'
+import { FormField, Label, rules } from '@/components/form'
 import { Image } from '@/components'
 import { publishStatus } from '@/configs'
 import { Heading } from '../../../typography'
@@ -97,6 +97,11 @@ export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> 
                     <FormField name={`${name}.values.rows`} type="number" label="Rows" min={1} max={4} />
                     <FormField name={`${name}.values.gutter`} type="number" label="Gutter" min={0} max={80} />
                 </Space>
+                {/* <Space>
+                    <FormField name={`${name}.values.thumb_background`} type="color" />
+                    <Label>Thumb Background</Label>
+                </Space> */}
+                
 
                 <div style={{ height: '10px' }} />
                 <div onClick={() => set_showProdSelection(true)}>
@@ -150,7 +155,9 @@ export function ProdListProps({ item }: { item: ComposerItem<ProductListValues> 
                 ]} />
             </Card> */}
 
-            <ComponentStyling name={name} />
+            <Card styles={{ body: { padding: '10px' } }}>
+                <ComponentStyling name={name} />
+            </Card>
             <ComponentSchedule name={name} />
         </Space>
 

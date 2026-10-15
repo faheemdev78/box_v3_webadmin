@@ -131,7 +131,7 @@ export const CategoriesForm = props => {
         setLoading(true)
         let resutls = await deleteProductCatImg({
             variables: {
-                id: fields._id, 
+                _id: fields._id, 
                 field: `${srcField},${thumbField}`
             }
         }).then((r) => (r?.data?.deleteProductCatImg))
@@ -240,6 +240,7 @@ export const CategoriesForm = props => {
                                 </Col>
                                 <Col span={24}>
                                     <ProdCatsDD allowClear preload
+                                        static_filter={{ parent_for_category: fields?._id || 'new' }}
                                         name="_id_parent_cat" label="Parent Category" black_list_ids={(fields && fields._id) ? `${fields._id}` : null}
                                         // onChange={form.mutators.onParentCatChange}
                                         // dataHandlr={(_data => {
@@ -250,6 +251,7 @@ export const CategoriesForm = props => {
                                         // })}
                                         data={defaultCatData}
                                     />
+                                    <div style={{ fontSize: 12, color: '#68788a' }}>Maximum depth: main category (0) → category (1) → subcategory (2). Leave the parent empty for a main category.</div>
                                 </Col>
                                 <Col span={24}>
                                     <FormField type="select" name="status" label="Status" options={publishStatus} validate={rules.required} />

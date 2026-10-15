@@ -429,7 +429,7 @@ function CreateProductForm ({ initialValues }: { initialValues: any }) {
             <Layout style={{ backgroundColor: "transparent" }}>
                 <Content style={{ margin: '0px 5px', padding: '24px', minHeight: '50vh', background: 'white', borderRadius: '5px', }}>
                     
-                    <div style={{ justifySelf: "center", margin:"10px 50px 50px 50px", border:"0px solid black" }}><Steps progressDot current={activeStep} items={stepsArray} /></div>
+                    <div style={{ justifySelf: "center", margin:"10px 50px 50px 50px", border:"0px solid black" }}><Steps type='dot' current={activeStep} items={stepsArray} /></div>
 
                     <FinalForm onSubmit={onSubmit} initialValues={initialValues}
                         mutators={{

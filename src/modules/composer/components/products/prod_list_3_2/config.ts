@@ -22,6 +22,7 @@ export const prodListComponent: ComposerComponent<ProductListValues> = {
         products: [{}, {}, {}],
         all_btn: { show: false, text: 'Show All', attachment: null },
         open_as: 'goto_screen',
+        thumb_background: 'transparent',
     },
     fields: [],
     Preview: ProdListPreview,
@@ -41,6 +42,7 @@ export const prodListComponent: ComposerComponent<ProductListValues> = {
             rows: grid.rows,
             gutter: gutterPx(values?.gutter),
             num_products: String(grid.columns * grid.rows),
+            thumb_background: String(values?.thumb_background || 'transparent'),
             theme: productInk(values?.theme),
             products: (values?.products || []).slice(0, grid.columns * grid.rows).map((prod) => serializeComposerProduct(prod)),
         }

@@ -1,18 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { Alert, Button, Empty, Space } from 'antd'
+import { Alert, Button, Space } from 'antd'
 import { useForm } from 'react-final-form'
 import { FieldArray } from 'react-final-form-arrays'
 import cloneDeep from 'lodash/cloneDeep'
+import { nanoid } from 'nanoid'
 import type { ComposerItem } from '../components/types'
-import { storePageComponent, storePageComponents } from './registry'
-import styles from './StorePageComposer.module.scss'
+import { categoryDetailPageComponent, categoryDetailPageComponents } from './registry'
+import { CategoryDetailPageCanvas } from './CategoryDetailPageCanvas'
+import styles from './CategoryDetailPageComposer.module.scss'
 
-type StoreRow = ComposerItem<any> & { id: string; _id?: string }
+type DetailRow = ComposerItem<any> & { id: string; _id?: string }
 
-export function StorePageComposer({ onDeleteRow }: {
-    onDeleteRow: (row: StoreRow, callback: () => void) => Promise<boolean>
+export function CategoryDetailPageComposer({ onDeleteRow }: {
+    onDeleteRow: (row: DetailRow, callback: () => void) => Promise<boolean>
 }) {
     const form = useForm()
     const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -20,21 +22,21 @@ export function StorePageComposer({ onDeleteRow }: {
 
     return <FieldArray name="rows">
         {({ fields }) => {
-            const rows: StoreRow[] = fields.value || []
+            const rows: DetailRow[] = fields.value || []
             const selectedIndex = rows.findIndex((row) => row.id === selectedId)
             const selected = rows[selectedIndex]
-            const definition = storePageComponent(selected?.data?.type)
+            const definition = categoryDetailPageComponent(selected?.data?.type)
             const Props = definition?.Props
 
             return <div className={styles.composer}>
                 <aside className={styles.sidebar}>
-                    <h3>Store components</h3>
+                    <h3>Category detail components</h3>
                     <p>Add a component, then configure it.</p>
-                    {storePageComponents.map((component) => <Button
+                    {categoryDetailPageComponents.map((component) => <Button
                         key={component.type}
                         block
                         onClick={() => {
-                            const id = crypto.randomUUID()
+                            const id = nanoid()
                             fields.push({
                                 id,
                                 data: { type: component.type, label: component.label, desc: component.desc },
@@ -44,18 +46,11 @@ export function StorePageComposer({ onDeleteRow }: {
                             setSelectedId(id)
                         }}
                     >+ {component.label}</Button>)}
-                </aside>
-
-                <main className={styles.workspace}>
-                    <div className={styles.heading}>
-                        <h3>Store Page</h3>
-                        <p>Category: {String((form.getState().values as any)?.page_type?.page_source?.title || '')}</p>
-                    </div>
-                    {!rows.length && <Empty description="Add a Picture Banner to configure your store page." />}
+                    <h4 className={styles.componentsTitle}>Page components</h4>
+                    {!rows.length && <p>No banners added yet.</p>}
                     {fields.map((name, index) => {
                         const row = rows[index]
-                        const component = storePageComponent(row.data?.type)
-                        const Preview = component?.Preview
+                        const component = categoryDetailPageComponent(row.data?.type)
 
                         return <section key={row.id} className={`${styles.component} ${selectedId === row.id ? styles.selected : ''}`}>
                             <div className={styles.componentHeader}>
@@ -68,7 +63,7 @@ export function StorePageComposer({ onDeleteRow }: {
                                         setRemovingId(row.id)
                                         try {
                                             await onDeleteRow(row, () => {
-                                                const currentIndex = (fields.value || []).findIndex((entry: StoreRow) => entry.id === row.id)
+                                                const currentIndex = (fields.value || []).findIndex((entry: DetailRow) => entry.id === row.id)
                                                 if (currentIndex >= 0) fields.remove(currentIndex)
                                                 if (selectedId === row.id) setSelectedId(null)
                                             })
@@ -78,13 +73,36 @@ export function StorePageComposer({ onDeleteRow }: {
                                     }}>Remove</Button>
                                 </Space>
                             </div>
-                            <div className={styles.preview}>
-                                {Preview
-                                    ? <Preview item={{ ...row, name }} />
-                                    : <Alert type="error" title={`Unsupported store component: ${row.data?.type || 'empty'}`} />}
-                            </div>
+
                         </section>
                     })}
+                </aside>
+
+                <main className={styles.workspace}>
+                    <div className={styles.heading}>
+                        <h3>Category Detail Page canvas</h3>
+                    </div>
+                    <CategoryDetailPageCanvas source={form.getState().values?.page_type?.page_source}>
+                        {fields.map((name, index) => {
+                            const row = rows[index]
+                            const component = categoryDetailPageComponent(row.data?.type)
+                            const Preview = component?.Preview
+                            return <div
+                                key={row.id}
+                                className={`${styles.canvasBanner} ${selectedId === row.id ? styles.selectedBanner : ''}`}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`Configure ${component?.label || 'banner'} ${index + 1}`}
+                                onClick={() => setSelectedId(row.id)}
+                                onKeyDown={(event) => {
+                                    if (event.target !== event.currentTarget) return
+                                    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setSelectedId(row.id) }
+                                }}
+                            >
+                                {Preview ? <Preview item={{ ...row, name }} /> : <Alert type="error" title="Unsupported category detail component" />}
+                            </div>
+                        })}
+                    </CategoryDetailPageCanvas>
                 </main>
 
                 {selected && <aside className={styles.configuration}>
@@ -93,7 +111,7 @@ export function StorePageComposer({ onDeleteRow }: {
                         <Button size="small" onClick={() => setSelectedId(null)}>Close</Button>
                     </div>
                     <div className={styles.properties}>
-                        {Props ? <Props key={selected.id} item={{ ...selected, name: `rows[${selectedIndex}]` }} /> : <Alert type="error" title="Store component settings unavailable" />}
+                        {Props ? <Props key={selected.id} item={{ ...selected, name: `rows[${selectedIndex}]` }} /> : <Alert type="error" title="Category detail component settings unavailable" />}
                     </div>
                 </aside>}
             </div>

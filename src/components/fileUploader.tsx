@@ -351,10 +351,17 @@ export const FileUploader: React.FC<FileUploaderProps> = (props) => {
 
         </Space>
 
-        <Modal open={previewImg !== null} onCancel={() => setPreviewImg(null)} width={'1000px'} title={false} footer={false} destroyOnHidden style={{ textAlign: "center" }}>
+        <Modal title="Preview" open={previewImg !== null} onCancel={() => setPreviewImg(null)} width={'500px'} footer={false} destroyOnHidden style={{ textAlign: "center" }} styles={{
+            body:{
+                textAlign:"center",
+                display:"flex",
+                flexDirection:"column",
+                alignItems:"center"
+            }
+        }}>
             {/* {(previewImg && !busy) && <Image src={previewImg} style={{ width: "100%" }} width={0} height={0} alt="" />} */}
             {/* Legacy: prefix previewImg with NEXT_PUBLIC_CDN_URL. */}
-            {(previewImg && !busy) && <Image unoptimized src={previewImg} width={500} height={500} alt="" />}
+            {(previewImg && !busy) && <Image unoptimized src={previewImg} width={400} height={400} alt="" />}
             {busy && <Loader loading={true} />}
         </Modal>
 

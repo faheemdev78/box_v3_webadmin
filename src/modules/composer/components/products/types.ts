@@ -20,6 +20,7 @@ export interface ProductListValues {
     theme?: string
     products?: ComposerProduct[]
     open_as?: string
+    thumb_background?: string
 }
 
 export function gutterPx(value: unknown, fallback = 8) {

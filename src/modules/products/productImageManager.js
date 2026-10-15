@@ -191,6 +191,12 @@ export function ProductImageManager({ session, ...props }) {
     return (<>
         {contextHolder}
         <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Product Images</Divider>
+        
+        
+        {/* <DevBlock obj={{
+            _id: initialValues._id,
+            picture: initialValues.picture
+            }} /> */}
 
         {/* <DevBlock obj={initialValues?.picture} /> */}
 

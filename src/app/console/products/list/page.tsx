@@ -34,7 +34,7 @@ function ProductsListPage() {
     const fetchData = async ({ filter, pagination = {} }: { filter?: any; pagination?: any }) => {
         const variables = {
             limit: pagination?.pageSize || state.pagination.pageSize,
-            page: pagination?.current || state.pagination.current,
+            page: filter !== undefined ? 1 : (pagination?.current || state.pagination.current),
             filter: filter || state.filter || {},
             others: state.others || {},
         }

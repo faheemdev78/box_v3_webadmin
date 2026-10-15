@@ -53,8 +53,8 @@ export const headerFields: ComposerField[] = [
 
 export const headerComponent: ComposerComponent<HeaderValues> = {
     type: 'header',
-    label: 'Header Ui',
-    desc: 'App Heading Ui',
+    label: 'Full Header',
+    desc: 'Full app header',
     category: 'ui_elements',
     placement: 'chrome',
     singleton: true,

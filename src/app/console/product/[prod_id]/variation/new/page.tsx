@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { Barcode, ProdCatTreeSelection, BarcodeScanner, Button, DevBlock, Loader, FileUploader, IconButton, Icon } from '@/components';
 import { BrandsDD, ProdAttributeDD, ProdTypeDD } from '@/components/dropdowns';
 import { message, Row, Col, Divider, Alert, Space, Steps, Popconfirm } from 'antd';
-import { adminRoot, publishStatus, tax_applition_on, tax_formula_types, tempSensitivityArray } from '@/configs';
+import { PROD_GAL_SIZE, adminRoot, publishStatus, tax_applition_on, tax_formula_types, tempSensitivityArray } from '@/configs';
 import { checkApolloRequestErrors, escapeText, sleep, string_to_slug, uploadFile, uploadFiles } from '@/lib/utill';
 import { __blue, __error, __yellow } from '@/lib/consoleHelper';
 import { useMutation, useLazyQuery } from '@apollo/client/react'
@@ -17,6 +17,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ProductWrapper from '@/modules/products/productWrapper';
 import { debounce } from 'lodash'; // Import debounce from lodash
+import { ensureArrayLength } from '@/lib/utill';
+import { uploadProductImages, uploadProductVideo as uploadProductVideoFile } from '@/lib/productImageUpload';
 
 
 import RECORD_ADD from '@/graphql/product/addProductVarient.graphql'
@@ -37,28 +39,29 @@ const imagePreset = [
 ]
 
 const stepsArray = [
-    { title: 'Product Category' },
+    // { title: 'Product Category' },
     { title: 'Product Identity' },
     { title: 'Vital Info' },
     { title: 'Limits & Tax' },
     { title: 'Product Details' },
+    { title: 'Product Pictures' },
     { title: 'Shopping' },
     { title: 'Keywords' },
 ]
 
-const defaultValues = {
-    gallery: imagePreset,
-    is_expirable: false,
-    temperature_sensitive: false,
-    // is_temp_sensitive: false,
-    temp_sensitivity: 'normal',
-    status: 'online',
-    available_qty: 0,
-    cart_limit: 10,
-    stock_level: { min: 10, max: 10 },
-    cost: 0,
-    price_was: 0,
-}
+// const defaultValues = {
+//     gallery: imagePreset,
+//     is_expirable: false,
+//     temperature_sensitive: false,
+//     // is_temp_sensitive: false,
+//     temp_sensitivity: 'normal',
+//     status: 'online',
+//     available_qty: 0,
+//     cart_limit: 10,
+//     stock_level: { min: 10, max: 10 },
+//     cost: 0,
+//     price_was: 0,
+// }
 
 const SpyWrapper = ({ values, debouncedSetFormValues }: { values: any; debouncedSetFormValues: any }) => {
     useEffect(() => {
@@ -75,6 +78,7 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
     const [activeStep, set_activeStep] = useState(0)
     const formRef = useRef<any>(null);
     const router = useRouter()
+    const [messageApi, contextHolder] = message.useMessage();
 
     // Keep the debounced callback stable and cancel it on unmount.
     const debouncedSetFormValues = useMemo(
@@ -95,6 +99,7 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
 
     const onSubmit = async (values: any) => {
         setError(null)
+        const { picture, video, gallery } = values;
 
         if (activeStep < stepsArray.length) {
             set_activeStep(activeStep + 1)
@@ -103,6 +108,7 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
 
         let input = {
             _id_parent: initialValues._id_parent,
+            // categories: values?.categories?.map((o: any) => ({ _id: o._id, title: o.title })),
             title: values.title,
             slug: values.slug,
             no_barcode: (values.no_barcode === true),
@@ -116,8 +122,8 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                 code: item.code,
             })),
             // is_temp_sensitive: (values.is_temp_sensitive === true),
-            temp_sensitivity: values.temp_sensitivity,
-            type: !values.type ? undefined : { _id: values.type._id, title: values.type.title, slug: values.type.slug },
+            // temp_sensitivity: values.temp_sensitivity,
+            // type: !values.type ? undefined : { _id: values.type._id, title: values.type.title, slug: values.type.slug },
             status: values.status || "draft",
             cart_limit: Number(values.cart_limit || 0),
             stock_level: { min: Number(values?.stock_level?.min || 0), max: Number(values?.stock_level?.max || 0) },
@@ -139,12 +145,19 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
             //     { name: 'description', val: values?.meta?.description },
             // ],
         }
+        // console.log({ initialValues })
+        // console.log({ values })
+        // console.log({ input })
+        // return;
+
+        messageApi.open({ key: "onSubmit", type: 'loading', content: 'Saving..' })
 
         let meta: any[] = [];
         Object.keys(values?.meta).forEach((key: string) => meta.push({ name: key, val: values?.meta && values?.meta[key] }));
         Object.assign(input, { meta })
 
-        let results;
+
+        let results:any;
         if (initialValues && initialValues._id){
             Object.assign(input, { _id: initialValues._id })
             results = await _editProductVarient(input);
@@ -154,14 +167,45 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
         }
 
         if (results.error) {
-            message.error(results.error.message)
+            messageApi.open({ key: "onSubmit", type: 'error', content: results.error.message, duration: 3 })
+            // message.error(results.error.message)
             setError(results.error.message)
             return false;
         }
 
-        onSuccess(results);
+        if (picture || video || gallery){
+            messageApi.open({ key: "onSubmit", type: 'loading', content: "Uploading images & video...", duration: 3 })
+            
+            if (picture) {
+                const uploadResult = await updateMainFile(picture, results._id)
+                console.log("Picture upload: ", uploadResult)
+                if (uploadResult?.error) {
+                    messageApi.open({ key: "onSubmit", type: 'error', content: uploadResult.error.message, duration: 3 })
+                    return false;
+                }
+            }
+            if (video) {
+                const uploadResult = await updateVideoFile(video, results._id)
+                console.log("Video upload: ", uploadResult)
+                if (uploadResult?.error) {
+                    messageApi.open({ key: "onSubmit", type: 'error', content: uploadResult.error.message, duration: 3 })
+                    return false;
+                }
+            }
+            if (gallery) {
+                const uploadResult = await updateGalleryFiles(gallery, results._id)
+                console.log("Gallery upload: ", uploadResult)
+                if (uploadResult?.error) {
+                    messageApi.open({ key: "onSubmit", type: 'error', content: uploadResult.error.message, duration: 3 })
+                    return false;
+                }
+            }
+        }
 
-        message.success("Success");
+
+        messageApi.open({ key: "onSubmit", type: 'success', content: "Saved", duration: 3 })
+        onSuccess(results);
+        // message.success("Success");
         return false;
     }
 
@@ -189,8 +233,46 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
         return results;
     }
 
+    const updateMainFile = async (files: any, _id: any) => {
+        if (!(files?.originFileObj instanceof File)) return { error: { message: 'Picture file not found.' } };
+        const result = await uploadProductImages({ files: [files.originFileObj], productId: _id, target: 'picture' });
+        return result.error ? result : result.files[0];
+    }
+    const updateVideoFile = async (files: any, _id: any) => {
+        console.log(__yellow("updateVideoFile()"), files)
+
+        const file = files
+        if (!file) {
+            console.log(__yellow("No video file found to uplaod"))
+            return false;
+        }
+
+        if (!(file.originFileObj instanceof File)) {
+            message.error("File object not found!")
+            return false;
+        }
+
+        messageApi.open({ key: "onSubmit", type: 'loading', content: "Uploading product video" })
+        const result = await uploadProductVideoFile({ file: file.originFileObj, productId: _id })
+        return result.error ? result : result.file
+
+    }
+    const updateGalleryFiles = async (_files: any, _id: any) => {
+        const files = (_files || []).filter((item: any) => item?.originFileObj instanceof File).map((item: any) => item.originFileObj);
+        if (!files.length) return { images: [], files: [] };
+        return uploadProductImages({ files, productId: _id, target: 'gallery' });
+    }
+
+
+
 
     return (<>
+        {contextHolder}
+
+        <div style={{ textAlign:"center" }}>
+            <h1><span style={{ fontSize: "12px", fontWeight: "normal" }}>Variation of:</span> <Link href={`${adminRoot}/product/${initialValues._id_parent}/view`}>{initialValues.title}</Link></h1>
+        </div>
+
         <FinalForm onSubmit={onSubmit} initialValues={formValues} subscription={{ submitting: true, pristine: true, values: true }}
             mutators={{
                 ...arrayMutators,
@@ -200,14 +282,14 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                     if (!cat || cat.length < 1) tools.changeValue(state, 'categories', () => undefined)
                     else tools.changeValue(state, 'categories', () => cat)
                 },
-                onBrandChange: (newValueArray, state, tools) => {
-                    let val = newValueArray[0];
-                    tools.changeValue(state, 'brand', () => val || undefined)
-                },
-                onTypeChange: (newValueArray, state, tools) => {
-                    let val = newValueArray[1];
-                    tools.changeValue(state, 'type', () => val)
-                },
+                // onBrandChange: (newValueArray, state, tools) => {
+                //     let val = newValueArray[0];
+                //     tools.changeValue(state, 'brand', () => val || undefined)
+                // },
+                // onTypeChange: (newValueArray, state, tools) => {
+                //     let val = newValueArray[1];
+                //     tools.changeValue(state, 'type', () => val)
+                // },
                 onAttributeTypeChange: (newValueArray, state, tools) => {
                     let attributes = newValueArray[0];
                     let values = newValueArray[1].slice();
@@ -223,6 +305,51 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                     if (!amount || amount < 1 || !formula || !price || price < 1) tools.changeValue(state, 'suffix_tax_total', () => undefined)
                     else if (formula == 'fix') tools.changeValue(state, 'suffix_tax_total', () => amount)
                     else if (formula == 'percent') tools.changeValue(state, 'suffix_tax_total', () => Number((price / 100) * amount).toFixed(2))
+                },
+                onUpdateMainFile: (newValueArray, state, tools) => {
+                    // console.log("onUpdateMainFile: ", newValueArray)
+                    let file = newValueArray[0][0]
+                    let action = newValueArray[1]
+
+                    if (action == 'add') tools.changeValue(state, 'picture', () => file)
+                    if (action == 'remove') tools.changeValue(state, 'picture', () => undefined)
+                },
+                onUpdateVideoFile: (newValueArray, state, tools) => {
+                    // console.log("onUpdateVideoFile: ", newValueArray)
+                    let file = newValueArray[0][0]
+                    let action = newValueArray[1]
+
+                    if (action == 'add') tools.changeValue(state, 'video', () => file)
+                    if (action == 'remove') tools.changeValue(state, 'video', () => undefined)
+                    // tools.changeValue(state, 'video', () => (newValueArray && newValueArray[0][0]) || undefined)
+                },
+                onUpdateGalleryFiles: (newValueArray, state, tools) => {
+                    // console.log("onUpdateGalleryFiles: ", newValueArray)
+                    let file = newValueArray[0][0]
+                    let action = newValueArray[1]
+
+                    let gallery = (state?.formState?.values as any)?.gallery?.slice() || []
+                    gallery = gallery.filter((o: any) => !!(o.uid))
+
+
+                    if (action == 'add') {
+                        gallery.push(file)
+                        gallery = ensureArrayLength(gallery, PROD_GAL_SIZE)
+                        tools.changeValue(state, 'gallery', () => gallery)
+                    }
+                    if (action == 'remove') {
+                        gallery = gallery.filter((o: any) => !(o.uid == file.uid))
+                        gallery = ensureArrayLength(gallery, PROD_GAL_SIZE)
+                        tools.changeValue(state, 'gallery', () => gallery)
+                    }
+
+                    // let images = Array.from({ length: 6 }, () => ({}))
+
+                    // if (newValueArray && newValueArray.length > 0) newValueArray.forEach((file, index) => {
+                    //     images[index] = file;
+                    // });
+
+                    // tools.changeValue(state, 'gallery', () => images)
                 },
             }}
             render={(formargs) => {
@@ -240,35 +367,34 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                         </FormSpy>
 
                         <Row className='nowrap' style={{ border: "0px solid black", minHeight: "100%" }}>
-                            <Col flex="300px">
+                            {/* <Col flex="300px">
                                 <p>Picture</p>
                                 <p>Title</p>
                                 <p>Barcode</p>
                                 <p>Categories</p>
                                 <p>Attributes filter</p>
-                            </Col>
+                            </Col> */}
                             <Col flex="auto" style={{ backgroundColor: "#FFF" }}>
-                                <h2>Variation <span style={{ color: "#999" }}>of <Link href={`${adminRoot}/product/${initialValues._id_parent}/view`}>{initialValues.title}</Link></span></h2>
+                                {/* <h2>Variation of <Link href={`${adminRoot}/product/${initialValues._id_parent}/view`}>{initialValues.title}</Link></h2> */}
 
                                 {error && <Alert title="Error" description={error} showIcon type='error' />}
 
-                                <div style={{ padding: "20px 100px 50px 100px" }}><Steps progressDot current={activeStep} items={stepsArray} /></div>
+                                <div style={{ padding: "20px 100px 50px 100px" }}><Steps type='dot' current={activeStep} items={stepsArray} /></div>
 
                                 <div style={{ textAlign: "center" }}>
                                     <div style={{ width: "800px", textAlign: "left", padding: "0 0 50px 0" }}>
 
-                                        {activeStep == 0 && <div style={{ border: "0px solid red" }}>
+                                        {/* {activeStep == 0 && <div style={{ border: "0px solid red" }}>
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Select a product category</Divider>
 
                                             <Row gutter={[0, 20]}>
                                                 <Col span={24}>
                                                     <ProdCatTreeSelection name="categories" onChange={form.mutators.onCatChange} validate={rules.required} />
-                                                    {/* <FormField type="hidden" name="categories" validate={rules.required} /> */}
                                                 </Col>
                                             </Row>
-                                        </div>}
+                                        </div>} */}
 
-                                        {activeStep == 1 && <div style={{ border: "0px solid red" }}>
+                                        {activeStep == 0 && <div style={{ border: "0px solid red" }}>
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Product Identity</Divider>
 
                                             <Row gutter={[10, 20]} align="top">
@@ -277,7 +403,7 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                                                 <Col span={8} style={{ textAlign: "right" }}><Label>Slug</Label></Col>
                                                 <Col span={16}><FormField prefix={`/`} type="text" name="slug" onChange={filterSlug} validate={rules.required} /></Col>
 
-                                                <Col span={8} style={{ textAlign: "right" }}><Label>Brand Name</Label></Col>
+                                                {/* <Col span={8} style={{ textAlign: "right" }}><Label>Brand Name</Label></Col>
                                                 <Col span={16}>
                                                     <BrandsDD name="brand._id" preload disabled={values.no_brand} allowClear required={!values.no_brand}
                                                         validate={(value: any, allValues: any) => !allValues.no_brand ? rules.required(value) : undefined}
@@ -287,7 +413,7 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                                                         if (val) form.mutators.onBrandChange(false)
                                                     }}
                                                         wrapperStyle={{ marginTop: "5px" }} type="checkbox" name="no_brand">This product does not have a brand name</FormField>
-                                                </Col>
+                                                </Col> */}
 
                                                 <Col span={8} style={{ textAlign: "right" }}><Label>Barcode</Label></Col>
                                                 <Col span={16}>
@@ -300,15 +426,15 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                                             </Row>
                                         </div>}
 
-                                        {activeStep == 2 && <div style={{ border: "0px solid red" }}>
+                                        {activeStep == 1 && <div style={{ border: "0px solid red" }}>
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Vital Info</Divider>
 
                                             <Row gutter={[10, 20]} align="top">
                                                 <Col span={8} style={{ textAlign: "right" }}><Label style={{ margin: 0 }}>Is product expirable?</Label></Col>
                                                 <Col span={16}><FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_expirable" /></Col>
 
-                                                <Col span={8} style={{ textAlign: "right" }}><Label>Country/Regin or Origin</Label></Col>
-                                                <Col span={16}><FormField type="text" name="origon" validate={rules.required} /></Col>
+                                                {/* <Col span={8} style={{ textAlign: "right" }}><Label>Country/Regin or Origin</Label></Col>
+                                                <Col span={16}><FormField type="text" name="origon" validate={rules.required} /></Col> */}
 
                                                 <Col span={8} style={{ textAlign: "right" }}><Label style={{ marginTop:"22px" }}>Attributes</Label></Col>
                                                 <Col span={16}>
@@ -344,16 +470,15 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                                                 <Col span={16}>
                                                     <FormField checkedChildren="Yes" unCheckedChildren="No" type="switch" name="is_temp_sensitive" />
                                                 </Col> */}
-                                                <Col span={8} style={{ textAlign: "right" }}><Label>Temperature Senctivity</Label></Col>
-                                                <Col span={16}><FormField options={tempSensitivityArray} type="select" name="temp_sensitivity" /></Col>
+                                                {/* <Col span={8} style={{ textAlign: "right" }}><Label>Temperature Senctivity</Label></Col>
+                                                <Col span={16}><FormField options={tempSensitivityArray} type="select" name="temp_sensitivity" /></Col> */}
 
-
-                                                <Col span={8} style={{ textAlign: "right" }}><Label>Product Type</Label></Col>
-                                                <Col span={16}><ProdTypeDD name="type._id" validate={rules.required} preload onChange={form.mutators.onTypeChange} /></Col>
+                                                {/* <Col span={8} style={{ textAlign: "right" }}><Label>Product Type</Label></Col>
+                                                <Col span={16}><ProdTypeDD name="type._id" validate={rules.required} preload onChange={form.mutators.onTypeChange} /></Col> */}
                                             </Row>
                                         </div>}
 
-                                        {activeStep == 3 && <div style={{ border: "0px solid red" }}>
+                                        {activeStep == 2 && <div style={{ border: "0px solid red" }}>
                                             <Row gutter={[10, 20]} align="top">
                                                 <Col span={24}><Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Limits</Divider></Col>
                                                 <Col span={6} style={{ textAlign: "right" }}><Label>Cart limit</Label></Col>
@@ -390,7 +515,7 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                                             </Row>
                                         </div>}
 
-                                        {activeStep == 4 && <div style={{ border: "0px solid red" }}>
+                                        {activeStep == 3 && <div style={{ border: "0px solid red" }}>
                                             <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Product Details</Divider>
 
                                             <Row gutter={[10, 20]} align="top">
@@ -444,6 +569,77 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                                                     </FieldArray>
                                                 </Col>
                                             </Row>
+                                        </div>}
+
+                                        {activeStep == 4 && <div style={{ border: "0px solid red" }}>
+                                            <Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Images</Divider>
+
+                                                <Row gutter={[10, 10]}>
+                                                    <Col span={6} style={{ textAlign: "center" }}>
+                                                        <FileUploader //name="picture"
+                                                            type="image"
+                                                            uploadMode="deferred"
+                                                            // thumbnail={{ displaySize: { width: 190, height: 190 } }}
+                                                            maxCount={1}
+                                                            multiple={false}
+                                                            debounceTime={100}
+                                                            // defaultValues={values?.picture && [{ ...values?.picture, _id: values._id, url: `${values?.picture?.url}`, thumb: `${values?.picture?.thumb}`}]}
+                                                            value={values?.picture ? [{ ...values?.picture }] : []}
+                                                            // uploadFiles={uploadProdImage}
+                                                            // deleteFile={onProdImageDelete}
+                                                            onUpdateFiles={form.mutators.onUpdateMainFile}
+                                                        />
+                                                        <div style={{ textAlign: "center" }}>MAIN</div>
+                                                    </Col>
+                                                    <Col span={6} style={{ textAlign: "center" }}>
+                                                        <FileUploader //name="video"
+                                                            type="video"
+                                                            uploadMode="deferred"
+                                                            icon="video"
+                                                            accept=".mp4"
+                                                            // thumbnail={{ displaySize: { width: 190, height: 190 } }}
+                                                            maxCount={1}
+                                                            multiple={false}
+                                                            debounceTime={100}
+                                                            value={values?.video ? [{ ...values?.video }] : []}
+                                                            // defaultValues={values?.picture && [{ ...values?.picture, _id: values._id, url: `${values?.picture?.url}`, thumb: `${values?.picture?.thumb}` }]}
+                                                            // uploadFiles={uploadProdImage}
+                                                            // deleteFile={onProdImageDelete}
+                                                            onUpdateFiles={form.mutators.onUpdateVideoFile}
+                                                        />
+                                                        <div style={{ textAlign: "center" }}>VIDEO</div>
+                                                    </Col>
+
+                                                    <FieldArray name="gallery">
+                                                        {({ fields }) => {
+                                                            return (<>
+                                                                {fields.map((name, index) => {
+                                                                    const thisNode = fields.value[index];
+
+                                                                    return (<Col key={index} span={6} style={{ textAlign: "center" }}>
+                                                                        <FileUploader
+                                                                            type="image"
+                                                                            uploadMode="deferred"
+                                                                            name={name}
+                                                                            // thumbnail={{ displaySize: { width: 190, height: 190 } }}
+                                                                            maxCount={1}
+                                                                            multiple={false}
+                                                                            debounceTime={100}
+                                                                            value={(thisNode && thisNode.uid) ? [thisNode] : []}
+                                                                            // defaultValues={values?.picture && [{ ...values?.picture, _id: values._id, url: `${values?.picture?.url}`, thumb: `${values?.picture?.thumb}` }]}
+                                                                            // uploadFiles={uploadProdImage}
+                                                                            // deleteFile={onProdImageDelete}
+                                                                            onUpdateFiles={form.mutators.onUpdateGalleryFiles}
+                                                                        />
+                                                                    </Col>)
+
+                                                                })}
+                                                            </>)
+                                                        }}
+                                                    </FieldArray>
+
+                                                </Row>
+
                                         </div>}
 
                                         {activeStep == 5 && <div style={{ border: "0px solid red" }}>
@@ -505,7 +701,7 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
                                         <Col span={12} style={{ textAlign: "right" }}>
                                             <Space size={50}>
                                                 <Button onClick={() => set_activeStep(activeStep - 1)} disabled={activeStep == 0}>Back</Button>
-                                                <SubmitButton label={activeStep == 7 ? "Save" : "Next"} loading={submitting} />
+                                                <SubmitButton label={activeStep == 6 ? "Save" : "Next"} loading={submitting} />
                                             </Space>
                                         </Col>
                                     </Row>
@@ -528,33 +724,41 @@ function ProdVariationForm({ initialValues }: { initialValues: any }) {
 }
 
 function ProdVariationFormWrapper(props:any){
-    return (<ProductWrapper {...props} render={({ product }: { product: any }) => {
-        let initialValues = {
-            ...product,
-            _id_parent: product._id,
-            _id: undefined,
-            barcode: undefined,
-            variations_count: undefined,
-            variations: undefined,
-            slug: undefined,
-            published_at: undefined,
-            // createdAt: undefined,
-            // updatedAt: undefined,
-            already_in_alert: undefined,
-            tags: (product?.tags && product?.tags?.split(",")) || [],
-        }
+    return (<ProductWrapper 
+        {...props} 
+        hide={{
+            status: 1, refresh: 1
+        }}
+        render={({ product }: { product: any }) => {
+            let initialValues = {
+                ...product,
+                _id_parent: product._id,
+                _id: undefined,
+                barcode: undefined,
+                variations_count: undefined,
+                variations: undefined,
+                have_variations: undefined,
+                slug: undefined,
+                published_at: undefined,
+                // createdAt: undefined,
+                // updatedAt: undefined,
+                already_in_alert: undefined,
+                picture: undefined,
+                tags: (product?.tags && product?.tags?.split(",")) || [],
+            }
 
-        let meta = product.meta ? product.meta.slice() : [];
-        let _meta: Record<string, any> = {};
-        meta.forEach((key: any) => {
-            Object.assign(_meta, {
-                [key.name]: key.val
+            let meta = product.meta ? product.meta.slice() : [];
+            let _meta: Record<string, any> = {};
+            meta.forEach((key: any) => {
+                Object.assign(_meta, {
+                    [key.name]: key.val
+                })
             })
-        })
-        Object.assign(initialValues, { meta: _meta })
+            Object.assign(initialValues, { meta: _meta })
         
-        return (<ProdVariationForm initialValues={initialValues} {...props} />)
-    }} />)
+            return (<ProdVariationForm initialValues={initialValues} {...props} />)
+        }}
+    />)
 }
 
 export default ProdVariationFormWrapper;

@@ -25,8 +25,8 @@ import { nextModulePage } from '@/modules/composer/lib/modulePages';
 import styles from '@/modules/composer/Composer.module.scss';
 import { parseStylesInput, prepareStylesForSave } from '@/modules/composer/lib';
 import { GalleryButton } from '@/modules/composer/gallery/GalleryButton';
-import { StorePageComposer } from '@/modules/composer/store_page/StorePageComposer';
-import { storePageComponent } from '@/modules/composer/store_page/registry';
+import { CategoryDetailPageComposer } from '@/modules/composer/category_detail_page/CategoryDetailPageComposer';
+import { categoryDetailPageComponent } from '@/modules/composer/category_detail_page/registry';
 import AppPageEditForm from '@/modules/composer/appPageEditForm';
 
 import AppScheduleEditForm from '../../components/appScheduleEditForm';
@@ -164,9 +164,9 @@ function PublishButton({ published, disabled, setError, onUpdate }: {
 
     const updatePublish = async () => {
         setError(null);
-        const { rows, _id } = form.getState().values || {};
+        const { rows, _id, page_type } = form.getState().values || {};
 
-        if (!rows?.length || !rows[0]?._id) {
+        if (page_type?.type !== 'category_detail_page' && (!rows?.length || !rows[0]?._id)) {
             setError("Oops! Seems like you haven't added anything into the page yet!");
             return;
         }
@@ -321,8 +321,8 @@ function EditAppPage() {
             }
 
             let rows = pageData && pageData.rows.filter((o: any) => (o._id !== row._id))
-            // Keep storefront edits in the live form when removing a saved banner.
-            if (pageData?.page_type?.type !== 'store_page') {
+            // Keep category detail edits in the live form when removing a saved banner.
+            if (pageData?.page_type?.type !== 'category_detail_page') {
                 set_pageData((prev: any) => ({ ...prev, rows }))
             }
             message.success("Modules removed!")
@@ -344,8 +344,8 @@ function EditAppPage() {
             return false;
         }
 
-        if (pageData?.page_type?.type === 'store_page' && rows.some((row: any) => !storePageComponent(row?.data?.type))) {
-            setError('This Store Page contains an unsupported component. Remove it before saving.');
+        if (pageData?.page_type?.type === 'category_detail_page' && rows.some((row: any) => !categoryDetailPageComponent(row?.data?.type))) {
+            setError('This Category Detail Page contains an unsupported component. Remove it before saving.');
             return false;
         }
 
@@ -373,8 +373,8 @@ function EditAppPage() {
                 let _values;// = { ...row.values }
                 if (_.isString(row.values)) _values = row.values
                 else {
-                    const definition = pageData?.page_type?.type === 'store_page'
-                        ? storePageComponent(row.data.type)
+                    const definition = pageData?.page_type?.type === 'category_detail_page'
+                        ? categoryDetailPageComponent(row.data.type)
                         : components.find((component) => component.type == row.data.type)
                     const stored = definition?.serialize ? definition.serialize(row.values) : row.values
                     _values = JSON.stringify(stored)
@@ -432,6 +432,8 @@ function EditAppPage() {
 
         message.success("Saved")
 
+        // Persisted IDs and field indexes can change when the saved rows reload.
+        set_showProps(false)
         // Reload every module. Page 1 alone drops a row appended past the page size, and the form then resets to that shorter list.
         await fetchData();
         setSaving(false)
@@ -461,14 +463,14 @@ function EditAppPage() {
 
         const { active, over } = event;
 
-        if (active.id !== over.id) {
+        if (active && over && active.id !== over.id) {
             // const oldIndex = fields.value.indexOf(active.id);
             // const newIndex = fields.value.indexOf(over.id);
-            const oldIndex = fields.value.findIndex((o: any) => o.id == active.id)
-            const newIndex = fields.value.findIndex((o: any) => o.id == over.id)
+            const oldIndex = fields.value?.findIndex((o: any) => o?.id == active.id) ?? -1
+            const newIndex = fields.value?.findIndex((o: any) => o?.id == over.id) ?? -1
             // console.log(`Move ${oldIndex} to ${newIndex}`)
 
-            fields.move(oldIndex, newIndex);
+            if (oldIndex >= 0 && newIndex >= 0) fields.move(oldIndex, newIndex);
         }
     };
 
@@ -567,7 +569,7 @@ function EditAppPage() {
                         </div>
 
 
-                        {pageData?.page_type?.type === 'store_page' ? <StorePageComposer onDeleteRow={onDeleteRow} /> : <Row gutter={[0, 0]}>
+                        {pageData?.page_type?.type === 'category_detail_page' ? <CategoryDetailPageComposer onDeleteRow={onDeleteRow} /> : <Row gutter={[0, 0]}>
                             <Col><SideMenu /></Col>
 
                             <Col flex="auto" style={{ border: "0px solid black", textAlign: 'center' }}>
@@ -586,11 +588,13 @@ function EditAppPage() {
                                                         onDragEnd={handleDragEnd(fields)}
                                                         modifiers={[restrictToVerticalAxis]}
                                                     >
-                                                        <SortableContext items={fields?.value?.map(({ id }) => id) || []} strategy={verticalListSortingStrategy}>
+                                                        <SortableContext items={fields?.value?.filter((row: any) => row?.id).map((row: any) => row.id) || []} strategy={verticalListSortingStrategy}>
                                                             {fields.map((name, index) => {
-                                                                const thisNode = fields.value[index];
+                                                                const thisNode = fields.value?.[index];
+                                                                // FieldArray names can briefly outlive their values during reinitialization.
+                                                                if (!thisNode?.id) return null;
 
-                                                                return (<div key={index}>
+                                                                return (<div key={thisNode.id}>
                                                                     <SortableField
                                                                         selected={showProps && (showProps.id == thisNode.id)}
                                                                         onClick={() => onItemClick({ ...thisNode, name })}

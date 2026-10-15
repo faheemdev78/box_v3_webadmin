@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useLazyQuery, useMutation } from '@apollo/client/react';
-import { Alert, Card, Col, message, Row, Space } from 'antd';
+import { Alert, Breadcrumb, Card, Col, message, Row, Space } from 'antd';
 import { Button, DevBlock, Loader, StatusTag } from '@/components';
 import { adminRoot, publishStatus } from '@/configs';
 import Link from 'next/link';
@@ -14,6 +14,7 @@ import { PageHeader } from '@/template';
 import { useParams } from 'next/navigation';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 import { __yellow } from '@/lib/consoleHelper';
+
 
 import GET_PRODUCT from '@/graphql/product/product.graphql';
 import UPDATE_STATUS from '@/graphql/product/updateProductStatus.graphql'
@@ -30,6 +31,7 @@ interface ProductWrapperProps {
     render: (args: ProductWrapperRenderArgs) => React.ReactNode;
     store?: any;
     [key: string]: unknown;
+    hide?: any
 }
 
 interface StatusUpdateValues {
@@ -37,7 +39,16 @@ interface StatusUpdateValues {
     status_notes?: string;
 }
 
-export function ProductWrapper({ render, store, ...props }: ProductWrapperProps) {
+
+const styles = {
+    root: { border: '1px solid #f0f0f0', padding: 8, borderRadius: 4 },
+    item: { color: '#009f32' },
+    separator: { color: 'rgba(0, 0, 0, 0.45)', fontWeight:'bold' },
+};
+
+
+export function ProductWrapper({ render, store, hide={}, ...props }: ProductWrapperProps) {
+
     const session = useAppSelector((state: any) => state.session) as any;
     const { prod_id, branch_id: route_store_id } = useParams<{ prod_id: string, branch_id?: string }>()
     // const { prod_id, branch_id: store_id } = useParams < { prod_id: string, store_id: string } > ()
@@ -110,7 +121,37 @@ export function ProductWrapper({ render, store, ...props }: ProductWrapperProps)
     const canEdit = security.verifyRole('104.4', session?.user?.permissions);
 
     return (<>
-        <PageHeader 
+        {/* <DevBlock obj={data.parent_product} /> */}
+        <Breadcrumb
+            styles={styles}
+            separator=""
+            items={[
+                { title: 'Products Catelogue', href: `${adminRoot}/products/list` },
+                { type: 'separator', separator: ':', },
+                data.parent_product ? { href: 
+                    `${adminRoot}/${isStoreUser ? `branch/${store_id}/` : ''}product/${data.parent_product._id}/view`, 
+                    title: data.parent_product.title, 
+                } : {},
+                { type: 'separator', separator: '/', },
+                {
+                    title: data.title,
+                    href: !data.parent_product ? `${adminRoot}/${isStoreUser ? `branch/${store_id}/` : ''}product/${data._id}/view` : undefined, 
+                },
+            ]}
+        />
+        <Row style={{ margin:'5px 10px' }}>
+            <Col flex="auto">
+                <div>ID: {data?._id}</div>
+            </Col>
+            <Col>
+                <Space>
+                    {!hide.status && <div><StatusTag value={data.status} editable={canEdit && !isStoreUser} options={publishStatus} onSubmit={onStatusUpdate} /></div>}
+                    {!hide.refresh && <Button onClick={() => fetchData()}>Refresh</Button>}
+                </Space>
+            </Col>
+        </Row>
+
+        {/* <PageHeader 
             title={data.title}
             sub={<Space separator="|">
                 <div>ID: {data?._id}</div>
@@ -122,7 +163,7 @@ export function ProductWrapper({ render, store, ...props }: ProductWrapperProps)
                 ? <Link href={`${adminRoot}/branch/${store_id}/product/${data?._id_parent}/view`}>Parent Product</Link>
                 : <Link href={`${adminRoot}/product/${data?._id_parent}/view`}>Parent Product</Link>
             )}
-        </PageHeader>
+        </PageHeader> */}
         {/* <hr /> */}
 
         {/* <DevBlock obj={session?.user?.store} title={store_id} /> */}

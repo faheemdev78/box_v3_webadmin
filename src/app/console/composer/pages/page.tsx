@@ -65,7 +65,7 @@ function buildPagesListFilter(values: any, listWindow: ListWindow, pageType: str
     if (values?.published === 'published') filter.published = true;
     else if (values?.published === 'unpublished') filter.published = false;
 
-    const sourceField = ({ brand_page: 'brand', manufacturer_page: 'manufacturer', store_page: 'category', category_page: 'category' } as Record<string, string>)[pageType];
+    const sourceField = ({ brand_page: 'brand', manufacturer_page: 'manufacturer', store_page: 'category', category_detail_page: 'category', category_page: 'category' } as Record<string, string>)[pageType];
     if (sourceField && values?.[sourceField]) {
         filter['page_type.page_source._id'] = values[sourceField];
     }
@@ -122,7 +122,7 @@ function PagesFilter({ loading, onApply, pageType, initialValues }: { loading: b
                                     onChange={(val: any) => applyExclusive('brand', val)}
                                 />
                             </div>}
-                            {['category_page', 'store_page'].includes(pageType) && <div style={{ width: 200 }}><ProdCatsDD
+                            {['category_page', 'store_page', 'category_detail_page'].includes(pageType) && <div style={{ width: 200 }}><ProdCatsDD
                                     name="category"
                                     label="Category"
                                     placeholder="Category"

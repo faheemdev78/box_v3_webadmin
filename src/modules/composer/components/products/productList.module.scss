@@ -10,7 +10,19 @@
         color: #1E6091;
         font-size: 22px;
     }
+
+    .icon_wrapper{
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        border-radius: 16;
+        background: #F3F6F4;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
+
 
 .dragable_item_list{
     border: 1px solid #89A3BE;

@@ -20,11 +20,12 @@ interface RenderProductProps {
     off_percent: number;
     currency: string;
     color?: string;
+    thumb_background?: string;
 }
 
-export function RenderProduct({ item, off_percent, currency, color = '#ffffff' }: RenderProductProps) {
+export function RenderProduct({ item, off_percent, currency, color = '#ffffff', thumb_background='transparent' }: RenderProductProps) {
     return (<>
-        <div className={cssStyles.thumb} style={{}}>
+        <div className={cssStyles.thumb} style={{ backgroundColor: thumb_background }}>
             {item?.picture?.thumbnails ?
                 <Image 
                     src={cdnImageUrl(item.picture.thumbnails[0])} 
@@ -40,9 +41,13 @@ export function RenderProduct({ item, off_percent, currency, color = '#ffffff' }
             }
         </div>
 
-        {(item?.attributes?.length ?? 0) > 0 && <Space size={2}>
+        {(item?.attributes?.length ?? 0) > 0 && <div>
+            <div style={{ border: "1px solid #EDEFF3", borderRadius: "3px", backgroundColor: "#F5F6FB", fontSize: "11px", color }}>{item.attributes[0].val}{item.attributes[0].title}</div>
+        </div>}
+
+        {/* {(item?.attributes?.length ?? 0) > 0 && <Space size={2}>
             {item?.attributes?.map((o, ii) => (<div style={{ border: "1px solid #EDEFF3", borderRadius: "3px", backgroundColor: "#F5F6FB", fontSize: "11px", color }} key={ii}>{o.val}{o.title}</div>))}
-        </Space>}
+        </Space>} */}
 
         <div className={cssStyles.title} style={{ color }}>{item.title || <Skeleton.Node style={{ width: "120px", height: "15px" }} />}</div>
         {off_percent > 0 && <div style={{ fontSize: "12px", color }}>{off_percent}% OFF</div>}

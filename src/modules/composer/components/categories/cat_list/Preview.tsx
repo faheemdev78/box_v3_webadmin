@@ -39,7 +39,7 @@ export function CategoryListPreview({ item, useCategoryIcons = false, entity = '
                     const src = tilePicture(entry)
                     return (
                         <div key={entry._id || index}>
-                            <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 16, background: '#F3F6F4', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div className={cssStyles.icon_wrapper}>
                                 {useCategoryIcons
                                     ? <CategoryIcon name={entry.icon} iconImg={cdnImageUrl(entry.icon_img_thumb || entry.icon_img || '') || undefined} size={48} color={ink} />
                                     : src

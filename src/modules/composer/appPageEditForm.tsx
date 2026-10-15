@@ -65,6 +65,7 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
     switch (values?.page_type?.type) {
         case "category_page":
         case "store_page":
+        case "category_detail_page":
             sourceField = <>
                 <div>Category: {values?.page_type?.page_source?.title}</div>
                 {values?.page_type?.page_source?.path && <Tag>{values?.page_type?.page_source?.path}</Tag>}

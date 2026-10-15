@@ -1,4 +1,5 @@
 import { headerComponent } from './header/config'
+import { searchHeaderComponent } from './search_header/config'
 // import { tabBarComponent } from './tab_bar/config'
 import { spacerComponent } from './spacer/config'
 import { dividerComponent } from './divider/config'
@@ -7,6 +8,7 @@ import type { ComposerComponent } from '../types'
 
 export const uiElements: ComposerComponent<any>[] = [
     headerComponent,
+    searchHeaderComponent,
     // tabBarComponent,
     spacerComponent,
     dividerComponent,

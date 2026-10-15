@@ -51,8 +51,12 @@ function PageSettingsForm({ onUpdate, initialValues }) {
 
                             case "category_page":
                             case "store_page":
+                            case "category_detail_page":
                                 sourceField = <>
                                     <ProdCatsDD
+                                        preload
+                                        key={values.page_type.type}
+                                        static_filter={values.page_type.type === 'category_detail_page' ? { category_level: 2 } : {}}
                                         name="page_source._id" label="Category" validate={rules.required}
                                         onChange={(val, raw, callback) => {
                                             form.mutators.selectSource({
@@ -70,6 +74,7 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                             case "brand_page":
                                 sourceField = <>
                                     <BrandsDD
+                                        preload
                                         name="page_source._id" label="Brand" validate={rules.required}
                                         onChange={(val, raw, callback) => {
                                             form.mutators.selectSource({
@@ -87,6 +92,7 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                             case "manufacturer_page":
                                 sourceField = <>
                                     <ManufacturersDD
+                                        preload
                                         name="page_source._id" label="Manufacturer" validate={rules.required}
                                         onChange={(val, raw) => {
                                             form.mutators.selectSource({
@@ -119,7 +125,7 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                                         {sourceField}
 
                                         <FormField name="slug" label="Page Slug" type="text"
-                                            disabled={['category_page', 'brand_page', 'manufacturer_page', 'store_page'].includes(values.page_type.type)}
+                                            disabled={['category_page', 'brand_page', 'manufacturer_page', 'store_page', 'category_detail_page'].includes(values.page_type.type)}
                                             fieldProps={{ onBlur: () => {
                                                 form.change('slug', normalizePageSlug(values.slug));
                                                 form.blur('slug');

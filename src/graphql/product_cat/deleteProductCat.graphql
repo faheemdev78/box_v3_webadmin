@@ -1,5 +1,5 @@
-mutation deleteProductCat($id: ID!) {
-    deleteProductCat(id: $id) {
+mutation deleteProductCat($_id: ID!) {
+    deleteProductCat(_id: $_id) {
         _id
         error{ message }
     }

@@ -64,10 +64,10 @@ function CategoriesPage () {
             title: 'Category Title',
             dataIndex: 'title',
             key: 'title',
-            render: (txt: string, rec: { icon?: string; icon_img?: string }) => (
+            render: (txt: string, rec: { icon?: string; icon_img?: string; product_count?: number }) => (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                     <CategoryIcon name={rec.icon} iconImg={rec.icon_img} />
-                    {txt}
+                    <span>{txt} ({rec.product_count ?? 0})</span>
                 </span>
             ),
         },

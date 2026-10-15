@@ -16,8 +16,9 @@ import security from '@/lib/security';
 import GET_VARIENTS from '@/graphql/product/products.graphql';
 import UPDATE_PROD_STATUS from '@/graphql/product/editStoreProductStatus.graphql';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
+import Link from 'next/link';
 
-const Label = ({ children, style }) => (<FormLabel style={{ marginTop: "7px", ...style }}>{children}</FormLabel>)
+const Label = ({ children, style }) => (<FormLabel style={{ margin: 0, ...style }}>{children}</FormLabel>)
 
 export function ProductView({ session, store, refresh, ...props }) {
     const [initialValues, set_initialValues] = useState(props.initialValues)
@@ -155,7 +156,7 @@ export function ProductView({ session, store, refresh, ...props }) {
 
                 <Card style={{ backgroundColor: !isStoreUser ? "#FFFFFF" : "#EEEEEE", padding: 0 }} styles={{ body: { padding: 0 } }}><Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Product Identity {(canEdit && !isStoreUser) && <IconButton onClick={() => set_editMode('editIdentity')} size="small" icon="pen" />} </Divider>
                     <div style={{ padding: "0 20px 20px 20px" }}>
-                        <Row gutter={[10, 20]} align="top">
+                        <Row gutter={[10, 20]} align="middle">
                             <Col span={8} align="right"><Label>Product Name</Label></Col>
                             <Col span={16}>{initialValues.title}</Col>
                             <Col span={8} align="right"><Label>Slug</Label></Col>
@@ -175,10 +176,10 @@ export function ProductView({ session, store, refresh, ...props }) {
                 <Card style={{ backgroundColor: !isStoreUser ? "#FFFFFF" : "#EEEEEE", padding: 0 }} styles={{ body: { padding: 0 } }}><Divider style={{ fontWeight: "bold", fontSize: "18px" }}>Vital Info {(canEdit && !isStoreUser) && <IconButton onClick={() => set_editMode('editVitalInfo')} size="small" icon="pen" />}</Divider>
                     <div style={{ padding: "0 20px 20px 20px" }}>
                         <Row gutter={[10, 20]} align="top">
-                            <Col span={8} align="right"><Label style={{ margin: 0 }}>Is product expirable?</Label></Col>
+                            <Col span={8} align="right"><Label>Is product expirable?</Label></Col>
                             <Col span={16}>{initialValues.is_expirable ? "YES" : "NO"}</Col>
 
-                            <Col span={8} align="right"><Label style={{ margin: 0 }}>Country/Regin or Origin</Label></Col>
+                            <Col span={8} align="right"><Label>Country/Regin or Origin</Label></Col>
                             <Col span={16}>{initialValues.origon}</Col>
 
                             <Col span={8} align="right"><Label style={{ margin: 0 }}>Attribute</Label></Col>
@@ -258,7 +259,8 @@ export function ProductView({ session, store, refresh, ...props }) {
                 </Card>
 
                 {/* Manage Images if its not a varition */}
-                {!initialValues._id_parent && <ProductImageManager session={session} initialValues={initialValues} />}
+                {/* {!initialValues._id_parent && <ProductImageManager session={session} initialValues={initialValues} />} */}
+                <ProductImageManager session={session} initialValues={initialValues} />
 
                 {/* <DevBlock obj={initialValues} /> */}
 
@@ -302,7 +304,10 @@ export function ProductView({ session, store, refresh, ...props }) {
                         {(initialValues.have_variations === true) && <div style={{ border: "1px solid #EEE", marginTop: "10px" }}>
                             <ProductsList
                                 loading={loading}
-                                parseEditLink={(item) => (`${adminRoot}/branch/${session?.user?.store?._id}/product/${item._id}/view`)}
+                                // parseEditLink={(item) => (`${adminRoot}/branch/${session?.user?.store?._id}/product/${item._id}/view`)}
+                                parseEditLink={(item) => session?.user?.store?._id ? `${adminRoot}/branch/${session?.user?.store?._id ? session?.user?.store?._id + "/" : ""}product/${item._id}/view` : 
+                                                                                    `${adminRoot}/product/${item._id}/view`
+                                     }
                                 dataSource={variations}
                                 searchFilterConfig={{ hide: true }}
                                 hideListHeader={true}
@@ -310,7 +315,8 @@ export function ProductView({ session, store, refresh, ...props }) {
                             />
                             {/* <Link href={`${adminRoot}/product/${initialValues._id}/variation/new`}>Add Variation</Link> */}
                             {canEdit && <div align="center" style={{ padding: "10px" }}>
-                                <Button type="dashed" onClick={() => reouter.push(`${adminRoot}/product/${initialValues._id}/variation/new`)} icon={<Icon icon="plus" />}>Add Variation</Button>
+                                <Link href={`${adminRoot}/product/${initialValues._id}/variation/new`}><Icon icon="plus" /> Add Variation</Link>
+                                {/* <Button type="dashed" onClick={() => reouter.push(`${adminRoot}/product/${initialValues._id}/variation/new`)} icon={<Icon icon="plus" />}>Add Variation</Button> */}
                             </div>}
                         </div>}
                     </div>

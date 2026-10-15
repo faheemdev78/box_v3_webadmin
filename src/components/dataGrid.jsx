@@ -6,7 +6,7 @@ import { DevBlock } from './devBlock'
 /**
  * DataGrid
  */
-export const DataGrid = ({ debug, loading, GridItem, dataSource, total, pageSize, current, onChange }) => {
+export const DataGrid = ({ debug, loading, GridItem, dataSource, total, pageSize, current, onChange, viewSource }) => {
 
   if (!dataSource || dataSource.length < 1) return <Loader loading={loading}>No records found.</Loader>
   

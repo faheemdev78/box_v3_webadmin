@@ -41,7 +41,7 @@ export const ProductsList = ({
   const changeView = (to) => setState({ ...state, pageView: to });
 
   const handleDelete = async (_id) => {
-    setBusy(true)
+    if (setBusy) setBusy(true)
 
     let resutls = await deleteProduct({ variables: { _id } })
       .then(r => (r?.data?.deleteProduct))
@@ -50,7 +50,7 @@ export const ProductsList = ({
         return { error: { message:"Unable to delete record"}}
       })
 
-    setBusy(false)
+    if (setBusy) setBusy(false)
     if (resutls && resutls.error){
       message.error((resutls && resutls?.error?.message) || "Invalid response!")
       return false;
@@ -83,7 +83,9 @@ export const ProductsList = ({
 
   const _columns = [
     // { title: 'ID', dataIndex: '_id', key:'_id', width: 80, align: 'left' },
-    { title: 'Name', dataIndex: 'title', key:'title', render: (text, record) => {
+    { title: 'Name', dataIndex: 'title', key:'title', 
+      render: (text, record) => {
+
         return (<Row gutter={16}>
           <Col><Avatar size={40} shape="square" src={record?.picture?.thumbnails ? cdnImageUrl(record?.picture?.thumbnails[0] || record?.picture?.url) : null} icon={<Icon icon="image" />} /></Col>
           <Col>
@@ -170,20 +172,22 @@ export const ProductsList = ({
 
 
   return (<>
-    <PageHeader 
-      title={<>{props.title || "Product Catalogue"} {props.titlePostfix}</>}
-      sub={<div>{pagination ? `Total ${pagination.total || 0} records found` : null}</div>}
-      ><>
-        <Space separator="|">
-          {/* {!props.hideAddProduct && <Button type="link" color="orange"><Link href={`${adminRoot}/product/new`}>Add New Product</Link></Button>} */}
-          {!props.hideAddProduct && <Link href={`${adminRoot}/product/new`}>Add New Product</Link>}
-          <Radio.Group size="small" value={pageView} buttonStyle="solid" onChange={({ target }) => changeView(target.value)}>
-            <Radio.Button value="list"><Icon icon='th-list' /></Radio.Button>
-            <Radio.Button disabled value="grid"><Icon icon='th-large' /></Radio.Button>
-          </Radio.Group>
-        </Space>
-      </>
-    </PageHeader>
+    {!props.hideListHeader===true && <>
+      <PageHeader 
+        title={<>{props.title || "Product Catalogue"} {props.titlePostfix}</>}
+        sub={<div>{pagination ? `Total ${pagination.total || 0} records found` : null}</div>}
+        ><>
+          <Space separator="|">
+            {/* {!props.hideAddProduct && <Button type="link" color="orange"><Link href={`${adminRoot}/product/new`}>Add New Product</Link></Button>} */}
+            {!props.hideAddProduct && <Link href={`${adminRoot}/product/new`}>Add New Product</Link>}
+            <Radio.Group size="small" value={pageView} buttonStyle="solid" onChange={({ target }) => changeView(target.value)}>
+              <Radio.Button value="list"><Icon icon='th-list' /></Radio.Button>
+              <Radio.Button disabled value="grid"><Icon icon='th-large' /></Radio.Button>
+            </Radio.Group>
+          </Space>
+        </>
+      </PageHeader>
+    </>}
 
     {/* {!(props.hideListHeader === true) && <ListHeader
       title={<>{props.title || "Product Catalogue"} {props.titlePostfix}</>}
@@ -202,7 +206,7 @@ export const ProductsList = ({
     <Page>
       {!(searchFilterConfig && searchFilterConfig.hide===true) && <Row>
         <Col flex="auto">
-          <ProductFilter exclude={props?.searchFilterConfig?.exclude} onChange={fetchData} defaultValue={filter} />
+          <ProductFilter exclude={searchFilterConfig?.exclude} onChange={fetchData} defaultValue={filter} />
         </Col>
         <Col flex="350px" style={{ paddingLeft: 20 }}>
           <ProductBarcodeFilter onEditClick={(record) => router.push(`${adminRoot}/product/${record._id}/view`)} />
@@ -238,7 +242,7 @@ export const ProductsList = ({
       />}
     </Page>
 
-    <DevBlock obj={dataSource} />
+    {/* <DevBlock obj={dataSource} /> */}
 
   </>)
 

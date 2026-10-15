@@ -12,20 +12,16 @@ import type { ComposerDragItem } from './components/types'
 const menus: Record<string, ComposerDragItem[]> = {
     ui_elements: ui_elementsArray,
     text: textArray,
-    categories: categoriesArray,
-    lists: listsArray,
+    lists: [...categoriesArray, ...productsArray, ...listsArray],
     carousel: carouselArray,
-    products: productsArray,
     // animations: animationsArray,
 }
 
 const menuItems: { key: string; label: string }[] = [
     { key: 'ui_elements', label: 'UI Elements' },
     { key: 'text', label: 'Text' },
-    { key: 'categories', label: 'Categories' },
     { key: 'lists', label: 'Lists' },
     { key: 'carousel', label: 'Carousel' },
-    { key: 'products', label: 'Products' },
     // { key: 'animations', label: 'Animations' },
 ]
 
@@ -73,6 +69,8 @@ export function SideMenu() {
     const [selectedMenu, set_selectedMenu] = useState<string | null>(null)
     const itemArray = selectedMenu ? menus[selectedMenu] : null
 
+    console.log({ menuItems })
+
     return (
         <div className={`${styles.modules_list_wrapper} ${styles.custom_scroller}`}>
             <Row className="nowrap" style={{ height: 'inherit' }}>
@@ -99,19 +97,26 @@ export function SideMenu() {
                 {itemArray && <Col style={{ borderRight: '1px solid #D0DAE5', width: '400px' }}>
                     <div style={{ padding: '5px 5px', borderBottom: '1px solid #D0DAE5' }}>
                         <Row align="middle">
-                            <Col flex="auto"><h3 style={{ textTransform: 'uppercase' }}>{selectedMenu}</h3></Col>
+                            <Col flex="auto"><h3 style={{ textTransform: 'uppercase', fontWeight:'bold' }}>{menuItems.find(o => o.key === selectedMenu)?.label}</h3></Col>
                             <Col><Button onClick={() => set_selectedMenu(null)}>Close</Button></Col>
                         </Row>
                     </div>
 
                     <div style={{ padding: '10px' }}>
-                        <Space wrap size={10}>
+                        <div style={{ display:"flex", flexDirection:'row', flexWrap: 'wrap', gap:10 }}>
                             {itemArray.map((item) => (
                                 item.disabled
                                     ? <DisabledDragItem key={item.type} data={item} />
                                     : <DragItem key={item.type} data={item} />
                             ))}
-                        </Space>
+                        </div>
+                        {/* <Space wrap size={10} style={{ width:"100%" }}>
+                            {itemArray.map((item) => (
+                                item.disabled
+                                    ? <DisabledDragItem key={item.type} data={item} />
+                                    : <DragItem key={item.type} data={item} />
+                            ))}
+                        </Space> */}
                     </div>
                 </Col>}
             </Row>

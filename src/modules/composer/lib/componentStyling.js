@@ -5,7 +5,7 @@ import { FormField, SubmitButton, rules, composeValidators, submitHandler } from
 import { useForm, Field } from 'react-final-form'
 import { BackgroundPicture } from './BackgroundPicture'
 
-export function ComponentStyling({ name, showHeading=true }) {
+export function ComponentStyling({ name, showHeading=true, showBorder=true }) {
     // const form = useForm()
     // const getFieldValue = (field_name) => form.getFieldState(name ? `${name}.${field_name}` : field_name)
 
@@ -27,7 +27,7 @@ export function ComponentStyling({ name, showHeading=true }) {
             <Col span={6}><FormField name={name ? `${name}.styles.padding.left` : `styles.padding.left`} label="Left" type='number' validate={rules.required} /></Col>
         </Row>
 
-        <Divider>Border</Divider>
+        {showBorder && <><Divider>Border</Divider>
         <Row gutter={[8, 8]}>
             {['top', 'right', 'bottom', 'left'].map((side) => (
                 <Col span={6} key={side}>
@@ -61,7 +61,8 @@ export function ComponentStyling({ name, showHeading=true }) {
             </Col>
         </Row>
 
-        <Divider>Background</Divider>
+        </>}
+        <Divider>Component Background</Divider>
 
         <Row gutter={[10, 10]}>
             <Col flex="100px">
