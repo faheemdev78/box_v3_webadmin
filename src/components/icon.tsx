@@ -26,6 +26,10 @@ import {
   faCut,
   faLink,
   faLinkSlash,
+  faWifi,
+  faBattery3,
+  faSignal,
+  faUser,
   } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { FontAwesomeIconProps } from '@fortawesome/react-fontawesome';
@@ -39,7 +43,7 @@ library.add(
   faLock, faPlay, faArrowLeft, faCheckCircle, faShoppingBasket, faShoppingBag, faExclamation,
   faSnowflake, faBox, faExclamationCircle, faTemperatureLow, faUndo, 
   faCut,
-  faLink, faLinkSlash,
+  faLink, faLinkSlash, faWifi, faBattery3, faSignal, faUser,
 )
  
 

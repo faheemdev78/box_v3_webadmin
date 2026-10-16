@@ -573,9 +573,19 @@ function EditAppPage() {
                             <Col><SideMenu /></Col>
 
                             <Col flex="auto" style={{ border: "0px solid black", textAlign: 'center' }}>
-
                                 <div className={`${styles.mob_view_wrapper} ${styles.custom_scroller}`}>
                                     <div className={styles.mob_view} style={{ textAlign: 'left' }}>
+                                        <div style={{ padding: '3px 10px', position: 'absolute', overflow: "hidden", height: "26px", display: "block", zIndex: 99, border: '0px solid black', background: 'rgba(255, 255, 255, 0.2)', width: "inherit", fontSize: '10px', color: pageData.statusbar_color==='dark-content' ? '#000000' : '#FFFFFF' }}>
+                                            <Row>
+                                                <Col flex='auto'><span style={{ fontSize: '10px' }}>00:00</span></Col>
+                                                <Col><Space style={{ fontSize: '10px' }}>
+                                                    <Icon icon='wifi' />
+                                                    <Icon icon='signal' />
+                                                    <Icon icon='battery-3' />
+                                                </Space></Col>
+                                            </Row>
+                                            
+                                        </div>
                                         <FieldArray name="rows">
                                             {({ fields }) => {
 

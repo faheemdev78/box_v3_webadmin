@@ -35,7 +35,7 @@ function TopBar({ logo, theme }: { logo?: string; theme?: string }) {
         <div className={cssStyles.bar}>
             <Row align="middle">
                 <Col flex="auto"><Image src={src} width={100} height={32} alt="logo" style={{ objectFit: 'contain', width: 100, height: 32 }} /></Col>
-                <Col><Avatar /></Col>
+                <Col><Avatar style={{ backgroundColor: '#000000' }} icon={<Icon icon='user' />} /></Col>
             </Row>
         </div>
     )

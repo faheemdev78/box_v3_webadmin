@@ -6,7 +6,7 @@ import { useMutation } from '@apollo/client/react';
 import { __error } from '@/lib/consoleHelper';
 import { Alert, Col, Divider, message, Row, Tag } from 'antd';
 import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@/lib/utill';
-import { ComponentStyling, parseStylesInput } from './lib';
+import { ComponentBackground, ComponentStyling, parseStylesInput } from './lib';
 import { Button, DevBlock } from '@/components';
 
 import { normalizePageSlug } from './pageSlug';
@@ -36,7 +36,8 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
             title: values.title,
             slug: normalizePageSlug(values.slug),
             description: values.description,
-            p_limit: values.p_limit || 10
+            p_limit: values.p_limit || 10,
+            statusbar_color: values.statusbar_color,
         }
 
         if (values.styles) Object.assign(input, { styles: parseStylesInput(values.styles) })
@@ -107,7 +108,15 @@ function AppPageEditForm({ onUpdate, onCancel }: { onUpdate: Function, onCancel:
                 <FormField name="p_limit" label="Pagination Limit" type="number" validate={rules.required} />
             </Col>
             <Col span={12}>
-                <ComponentStyling name="" showHeading={false} />
+                {/* <ComponentStyling name="" showHeading={false} /> */}
+                {/* <ComponentBackground name={'page_bg'} bgTypeName={bgTypeName} bgDirName={bgDirName} bgColor1Name={bgColor1Name} bgColor2Name={bgColor2Name} /> */}
+                {/* <FormField name={'statusbar_color'} type="color" label="Status Bar Color" /> */}
+                <FormField name={'statusbar_color'} type="select" label="Status Bar Color"
+                    options={[
+                        { value: 'dark-content', label:'dark-content' },
+                        { value: 'light-content', label:'light-content' },
+                    ]}
+                />
             </Col>
         </Row>
 

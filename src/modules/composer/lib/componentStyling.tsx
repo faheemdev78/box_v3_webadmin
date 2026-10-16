@@ -5,6 +5,65 @@ import { FormField, SubmitButton, rules, composeValidators, submitHandler } from
 import { useForm, Field } from 'react-final-form'
 import { BackgroundPicture } from './BackgroundPicture'
 
+export const ComponentBackground = ({ name, bgTypeName, bgDirName, bgColor1Name, bgColor2Name }:{
+    name: string,
+    bgTypeName: string,
+    bgDirName: string,
+    bgColor1Name: string,
+    bgColor2Name: string,
+}) => {
+    return (<>
+        <Divider>Component Background</Divider>
+
+        <Row gutter={[10, 10]}>
+            <Col flex="100px">
+                <FormField
+                    width="100px"
+                    name={bgTypeName}
+                    type="select"
+                    label="Color Type"
+                    options={[
+                        { label: "Solid", value: "solid" },
+                        { label: "Gradient", value: "gradient" },
+                    ]}
+                />
+            </Col>
+            <Col flex="auto">
+                <Field name={bgTypeName} subscription={{ value: true }}>
+                    {({ input }) => {
+                        const type = input.value;
+
+                        return (<Row gutter={[10, 10]}>
+                            {type === 'gradient' && (<Col flex="110px">
+                                <FormField
+                                    name={bgDirName}
+                                    type="select"
+                                    label="Direction"
+                                    options={[
+                                        { label: "Vertical", value: "vertical" },
+                                        { label: "Horizontal", value: "horizontal" },
+                                    ]}
+                                />
+                            </Col>)}
+
+                            {type === 'solid' && (<Col style={{ marginTop: "0px" }}>
+                                <FormField name={bgColor1Name} type="color" label="&nbsp;" compact />
+                            </Col>)}
+
+                            {type === 'gradient' && (<Col ><Space>
+                                <FormField name={bgColor1Name} type="color" label="&nbsp;" compact />
+                                <FormField name={bgColor2Name} type="color" label="&nbsp;" compact />
+                            </Space></Col>)}
+                        </Row>);
+                    }}
+                </Field>
+            </Col>
+        </Row>
+
+        <BackgroundPicture key={name || 'page'} name={name} />
+    </>)
+}
+
 export function ComponentStyling({ name, showHeading=true, showBorder=true }) {
     // const form = useForm()
     // const getFieldValue = (field_name) => form.getFieldState(name ? `${name}.${field_name}` : field_name)
@@ -62,54 +121,8 @@ export function ComponentStyling({ name, showHeading=true, showBorder=true }) {
         </Row>
 
         </>}
-        <Divider>Component Background</Divider>
 
-        <Row gutter={[10, 10]}>
-            <Col flex="100px">
-                <FormField
-                    width="100px"
-                    name={bgTypeName}
-                    type="select"
-                    label="Color Type"
-                    options={[
-                        { label: "Solid", value: "solid" },
-                        { label: "Gradient", value: "gradient" },
-                    ]}
-                />
-            </Col>
-            <Col flex="auto">
-                <Field name={bgTypeName} subscription={{ value: true }}>
-                    {({ input }) => {
-                        const type = input.value;
-
-                        return (<Row gutter={[10, 10]}>
-                            {type === 'gradient' && (<Col flex="110px">
-                                <FormField
-                                    name={bgDirName}
-                                    type="select"
-                                    label="Direction"
-                                    options={[
-                                        { label: "Vertical", value: "vertical" },
-                                        { label: "Horizontal", value: "horizontal" },
-                                    ]}
-                                />
-                            </Col>)}
-
-                            {type === 'solid' && (<Col style={{ marginTop: "27px" }}>
-                                <FormField name={bgColor1Name} type="color" _label="Color 1" compact />
-                            </Col>)}
-
-                            {type === 'gradient' && (<Col style={{ marginTop:"27px" }}><Space>
-                                <FormField name={bgColor1Name} type="color" _label="Color 1" compact />
-                                <FormField name={bgColor2Name} type="color" _label="Color 2" compact />
-                            </Space></Col>)}
-                        </Row>);
-                    }}
-                </Field>
-            </Col>
-        </Row>
-
-        <BackgroundPicture key={name || 'page'} name={name} />
+        <ComponentBackground name={name} bgTypeName={bgTypeName} bgDirName={bgDirName} bgColor1Name={bgColor1Name} bgColor2Name={bgColor2Name} />
 
     </>)
 }

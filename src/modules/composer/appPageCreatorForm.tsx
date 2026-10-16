@@ -39,7 +39,8 @@ function AppPageCreatorForm({ onClose }: { onClose:Function }) {
                     path: values.page_source.path
                 }
             },
-            p_limit: values.p_limit || 50
+            p_limit: values.p_limit || 50,
+            statusbar_color: values.statusbar_color,
         }
 
         let styles = {};

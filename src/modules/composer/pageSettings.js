@@ -174,7 +174,14 @@ function PageSettingsForm({ onUpdate, initialValues }) {
                                         <FormField name="p_limit" label="Pagination Limit" type="number" validate={rules.required} />
                                     </Col>
                                     <Col span={12}>
-                                        <ComponentStyling showHeading={false} />
+                                        {/* <ComponentStyling showHeading={false} /> */}
+                                        {/* <FormField name={'statusbar_color'} type="color" label="Status Bar Color" /> */}
+                                        <FormField name={'statusbar_color'} type="select" label="Status Bar Color"
+                                            options={[
+                                                { value: 'dark-content', label:'dark-content' },
+                                                { value: 'light-content', label:'light-content' },
+                                            ]}
+                                        />
                                     </Col>
                                 </Row>
 

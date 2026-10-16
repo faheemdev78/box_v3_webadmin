@@ -21,6 +21,7 @@ fragment AppPagesInfo on AppPages {
   }
   styles { ...AppPageStylesInfo }
   p_limit
+  statusbar_color
 
   published
   scheduled_from
