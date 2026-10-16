@@ -76,7 +76,7 @@ export function ComponentStyling({ name, showHeading=true, showBorder=true }) {
     // TODO: add text color option
 
     return (<>
-        {showHeading && <h2 align="center">Styling</h2>}
+        {showHeading && <h2 style={{ textAlign:"center" }}>Styling</h2>}
 
         <Divider>Spacing</Divider>
         <Row>
