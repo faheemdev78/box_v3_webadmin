@@ -92,7 +92,7 @@ function ProductsListPage() {
             fetchData={fetchData}
             loading={loading}
             hideAddProduct={true}
-            parseEditLink={(prod: any) => `${adminRoot}/product/${prod._id}/view`}
+            // parseEditLink={(prod: any) => `${adminRoot}/product/${prod._id}/view`}
             searchFilterConfig={{ hide:true}}
             // onEditRecord={(prod) => router.push(`${adminRoot}/product/${prod._id}/view`)}
         />

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Form as FinalForm, Field as FinalField, useForm } from 'react-final-form';
 import { useMutation } from '@apollo/client/react';
 import { __error } from '@/lib/consoleHelper';
-import { FormField, rules } from '@/components/form';
+import { FormField, rules, SubmitButton } from '@/components/form';
 import { Alert, Col, Divider, message, Row, Space } from 'antd';
 import { defaultDateTimeFormat } from '@/configs';
 import { catchApolloError, checkApolloRequestErrors, sleep, string_to_slug } from '@/lib/utill';
@@ -10,7 +10,7 @@ import { Button, DevBlock } from '@/components';
 
 import EDIT_DATA from '@/graphql/app_pages/scheduleAppPage.graphql'
 
-function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpdate: (args:any)=>void }) {
+function AppScheduleEditForm({ onCancel, onUpdate, initialValues={} }: { onCancel: ()=>void, onUpdate: (args:any)=>void }) {
     const [error, setError] = useState(null)
     const [busy, setBusy] = useState(false)
     const form = useForm()
@@ -32,6 +32,7 @@ function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpd
             scheduled_from: values.scheduled_from,
             scheduled_to: values.scheduled_to,
         }
+        // return setBusy(false)
         
         let results = await scheduleAppPage({ variables: { input } })
             .then(r => checkApolloRequestErrors({ results: r, allowEmpty: false, parseReturn: (rr: any) => rr?.data?.scheduleAppPage }))
@@ -52,9 +53,38 @@ function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpd
 
     let values = form.getState().values;
 
+    // return (<div>
+    //     <FinalForm onSubmit={console.log} initialValues={initialValues}
+    //         render={(formargs) => {
+    //             const { handleSubmit, submitting, form, values, invalid, errors, submitFailed, dirty } = formargs;
+
+    //             return (<>
+    //                 {error && <Alert title="Error!" description={error} type="error" showIcon />}
+
+    //                 <Row>
+    //                     <Col flex="12"><FormField name="scheduled_from" label="From" type="date" validate={rules.required} showTime format={defaultDateTimeFormat} /></Col>
+    //                     <Col flex="12"><FormField name="scheduled_to" label="To" type="date" validate={rules.required} showTime format={defaultDateTimeFormat} /></Col>
+    //                 </Row>
+
+    //                 <hr />
+
+    //                 <Row>
+    //                     <Col flex="auto"><Button onClick={onCancel} disabled={busy}>Cancel</Button></Col>
+    //                     <Col>
+    //                         <SubmitButton loading={submitting}>Save</SubmitButton>
+    //                         {/* <Button loading={busy} onClick={saveSettings} color="orange">Save</Button> */}
+    //                     </Col>
+    //                 </Row>
+    //             </>)
+    //         }}
+    //     />
+
+    // </div>)
+
+
+
     return (<div>
         {error && <Alert title="Error!" description={error} type="error" showIcon />}
-        {/* <Divider>Schedule Date</Divider> */}
 
         <Space orientation="vertical" size={8} style={{ width: '100%' }}>
             <FormField name="scheduled_from" label="From" type="date" validate={rules.required} showTime format={defaultDateTimeFormat} style={{ width: '100%' }} />
@@ -71,7 +101,7 @@ function AppScheduleEditForm({ onCancel, onUpdate }: { onCancel: ()=>void, onUpd
         <DevBlock obj={{ 
             scheduled_from: values && values?.scheduled_from,
             scheduled_to: values && values?.scheduled_to
-            }} />
+        }} />
         
     </div>)
 }

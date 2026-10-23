@@ -618,7 +618,7 @@ const RightColumn = ({
       customerPayable,
       bagPrice,
       totalBagQuantity,
-      deliveryFee,
+      shipping,
       fbrFee,
     } = orderCalculations;
 
@@ -687,9 +687,9 @@ const RightColumn = ({
           </Card1>
         </Col>
         <Col span={8}>
-          <Card1 icon={<Icon icon="plus" size='2x' color={deliveryFee > 0 ? "green" : 'gray'} />}>
+          <Card1 icon={<Icon icon="plus" size='2x' color={shipping > 0 ? "green" : 'gray'} />}>
             <div>Delivery Fee</div>
-            <div><span className='text-2xl font-bold'>{Number(deliveryFee).toFixed(2)}</span></div>
+            <div><span className='text-2xl font-bold'>{Number(shipping).toFixed(2)}</span></div>
           </Card1>
         </Col>
         <Col span={8}>
@@ -1061,9 +1061,9 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     const totals = rawOrderData?.current_order?.totals || {};
     // Delivery is an order-creation snapshot. FBR intentionally remains live
     // and is also enforced from server settings when verification completes.
-    const deliveryFee = roundAmount(toAmount(
-      totals.deliveryFee ??
-      rawOrderData?.original_order?.totals?.deliveryFee ??
+    const shipping = roundAmount(toAmount(
+      totals.shipping ??
+      rawOrderData?.original_order?.totals?.shipping ??
       totals.shipping ??
       rawOrderData?.original_order?.totals?.shipping
     ));
@@ -1104,7 +1104,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       },
       0
     ));
-    const customerPayable = roundAmount(scannedItemTotal + fbrFee + bagPrice + deliveryFee);
+    const customerPayable = roundAmount(scannedItemTotal + fbrFee + bagPrice + shipping);
     const originalOrderTotal = rawOrderData?.original_order?.totals?.grandTotal ?? totals.grandTotal ?? 0;
     const unavailableItemCount = orderItems.filter((item: any) => item.status === 'out_of_stock').length;
 
@@ -1120,7 +1120,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       scannedItemTotal,
       bagPrice,
       totalBagQuantity,
-      deliveryFee,
+      shipping,
       fbrFee,
       customerPayable,
       originalOrderTotal,
@@ -1136,7 +1136,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       ...totals,
       subtotal: orderCalculations.scannedItemTotal,
       bagTotal: orderCalculations.bagPrice,
-      deliveryFee: orderCalculations.deliveryFee,
+      shipping: orderCalculations.shipping,
       fbrFee: orderCalculations.fbrFee,
       grandTotal: orderCalculations.customerPayable,
     };
@@ -1144,7 +1144,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     if (
       Number(totals.subtotal || 0) === nextTotals.subtotal &&
       Number(totals.bagTotal || 0) === nextTotals.bagTotal &&
-      Number(totals.deliveryFee || 0) === nextTotals.deliveryFee &&
+      Number(totals.shipping || 0) === nextTotals.shipping &&
       Number(totals.fbrFee || 0) === nextTotals.fbrFee &&
       Number(totals.grandTotal || 0) === nextTotals.grandTotal
     ) {
@@ -1158,7 +1158,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
         totals: nextTotals,
       },
     };
-  }, [rawOrderData, orderCalculations.scannedItemTotal, orderCalculations.bagPrice, orderCalculations.customerPayable, orderCalculations.deliveryFee, orderCalculations.fbrFee]);
+  }, [rawOrderData, orderCalculations.scannedItemTotal, orderCalculations.bagPrice, orderCalculations.customerPayable, orderCalculations.shipping, orderCalculations.fbrFee]);
 
   useEffect(() => {
     if (!rawOrderData?._id || !rawOrderData?.current_order?.totals) return;
@@ -1168,7 +1168,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       ...totals,
       subtotal: orderCalculations.scannedItemTotal,
       bagTotal: orderCalculations.bagPrice,
-      deliveryFee: orderCalculations.deliveryFee,
+      shipping: orderCalculations.shipping,
       fbrFee: orderCalculations.fbrFee,
       grandTotal: orderCalculations.customerPayable,
     };
@@ -1176,7 +1176,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
     if (
       Number(totals.subtotal || 0) === nextTotals.subtotal &&
       Number(totals.bagTotal || 0) === nextTotals.bagTotal &&
-      Number(totals.deliveryFee || 0) === nextTotals.deliveryFee &&
+      Number(totals.shipping || 0) === nextTotals.shipping &&
       Number(totals.fbrFee || 0) === nextTotals.fbrFee &&
       Number(totals.grandTotal || 0) === nextTotals.grandTotal
     ) return;
@@ -1185,7 +1185,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
       orderId: rawOrderData._id,
       totals: nextTotals,
     }));
-  }, [dispatch, rawOrderData?._id, rawOrderData?.current_order?.totals, orderCalculations.scannedItemTotal, orderCalculations.bagPrice, orderCalculations.customerPayable, orderCalculations.deliveryFee, orderCalculations.fbrFee]);
+  }, [dispatch, rawOrderData?._id, rawOrderData?.current_order?.totals, orderCalculations.scannedItemTotal, orderCalculations.bagPrice, orderCalculations.customerPayable, orderCalculations.shipping, orderCalculations.fbrFee]);
 
   const initializeOrder = async (targetOrderBarcode: string) => {
     console.log(__yellow("initializeOrder()"))
@@ -1241,7 +1241,7 @@ const TillVerificationPOS = ({ shiftSession }: { shiftSession: any }) => {
         taxRate: Number(currentTotals.taxRate || 0),
         taxAmount: Number(currentTotals.taxAmount || 0),
         fbrFee: orderCalculations.fbrFee,
-        deliveryFee: orderCalculations.deliveryFee,
+        // deliveryFee: orderCalculations.deliveryFee,
         grandTotal: orderCalculations.customerPayable,
       };
 

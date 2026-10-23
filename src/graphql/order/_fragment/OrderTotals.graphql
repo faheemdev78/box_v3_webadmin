@@ -8,6 +8,5 @@ fragment OrderTotalsInfo on OrderTotals {
   taxRate
   taxAmount
   fbrFee
-  deliveryFee
   grandTotal
 }

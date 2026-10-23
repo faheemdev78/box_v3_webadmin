@@ -63,7 +63,7 @@ export const branch_topMenuArray = ({ baseUrl="" }) => ([
     // { title: 'Discount Vouchers', href: `${baseUrl}/discount_vouchers` },
     // { title: 'Offers', href: `${baseUrl}/offers` },
     // { title: 'Vendors', href: `${baseUrl}/vendors` },
-    { title: 'Products', href: `${baseUrl}/products`, rolePermessions: '104.0' },
+    { title: 'Products', href: `${baseUrl}/products/list`, rolePermessions: '104.0' },
     {
         title: 'Orders', modulePermessions: '106',
         children: [

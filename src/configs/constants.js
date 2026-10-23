@@ -80,6 +80,7 @@ export const settingCats = [
     { value: "applications", label: "Applications" },
     { value: "alerts", label: "Alerts" },
     { value: "login_management", label: "Login Management" },
+    // { value: "fees", label: "Fees" },
 ]
 
 export const timeZonesArray = [ "Asia/Karachi", ]

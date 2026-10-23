@@ -69,7 +69,7 @@ export function SideMenu() {
     const [selectedMenu, set_selectedMenu] = useState<string | null>(null)
     const itemArray = selectedMenu ? menus[selectedMenu] : null
 
-    console.log({ menuItems })
+    // console.log({ menuItems })
 
     return (
         <div className={`${styles.modules_list_wrapper} ${styles.custom_scroller}`}>

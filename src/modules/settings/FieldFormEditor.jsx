@@ -89,7 +89,7 @@ const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, c
                     {/* {error && <Alert title="Error" description={error} showIcon type='error' />} */}
                     <form id="SettingsFieldEditorForm" {...submitHandler(formargs)}>
 
-                        <Row>
+                        <Row gutter={[10, 10]}>
                             <Col flex="150px">
                                 <FormField
                                     onChange={(v, raw) => {
@@ -109,7 +109,7 @@ const FieldFormEditorComp = ({ department, initialValues, onSuccess, onCancel, c
                                     type="select" name="value_type" label="Type" validate={rules.required}
                                 />
                             </Col>
-                            <Col>
+                            <Col flex="200px">
                                 {/* {values.value_type && <FormField type="text" name="category" label="Category" validate={rules.required} />} */}
                                 {values.value_type && <FormField
                                     options={settingCats}

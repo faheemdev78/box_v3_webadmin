@@ -121,7 +121,6 @@ export const SearchableSelect = (props) => {
             placeholder={placeholder || " - Select -"}
             fetchOptions={fetchData}
             onChange={(val, raw, callback) => {
-                // console.log("val, raw: ", {val, raw})
                 if (props.onChange) props.onChange(val, raw, callback)
                 setValue(val);
                 return val;

@@ -143,7 +143,7 @@ const SortableTable = ({ fields, onUpdate }: { fields: any[]; onUpdate: (sorted:
             <Button loading={busy} onClick={saveSort} disabled={!isDirty}>Save The Order</Button>
         </div>
 
-        <DevBlock obj={data} />
+        {/* <DevBlock obj={data} /> */}
 
     </>)
 
@@ -289,7 +289,7 @@ function RenderGroup({ initialValues, title, refetchData, session, onEditField }
                                             const _field = renderField({ field, session })
 
                                             return (<Col span={["something"].includes(field.category) ? 24 : 12} key={index}>
-                                                <Row align="bottom" className='nowrap'>
+                                                <Row align="bottom" className='nowrap' style={{ border:"1px solid #EEE", borderRadius:10, padding:"5px 10px" }}>
                                                     <Col flex="auto">
                                                         {/* {field.error && <Alert title="Error" description={field.error.message} type='error' showIcon />} */}
                                                         {!field.error && <FormField name={`${name}.value`} {..._field} />}
@@ -477,12 +477,17 @@ function SettingsPage () {
             </Row>
         </Page>
 
+        <DevBlock obj={settingsArray} />
 
-        <FieldFormEditor show={showFieldForm !== false} initialValues={showFieldForm === true ? null : showFieldForm}
+
+        <FieldFormEditor 
+            show={showFieldForm !== false} 
+            initialValues={showFieldForm === true ? null : showFieldForm}
             department="sys_configs"
             onSuccess={onFieldsUpdate}
             onCancel={() => set_showFieldForm(false)}
         />
+
 
     </>)
 

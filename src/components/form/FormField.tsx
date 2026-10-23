@@ -20,7 +20,7 @@ import { CheckOutlined, CloseOutlined, UploadOutlined, InboxOutlined, InfoCircle
 import { useSize } from 'ahooks';
 import { __warning, __error, __success, __hilight } from '@/lib/consoleHelper';
 import { getSrcFromFile } from '@/lib/utill';
-import { Button } from '../';
+import { Button } from '..';
 import UploadField, { SimpleUploadField } from './UploadField';
 import DateField from './DateField';
 import { TimeField, TimeRangeField, TimePicker } from './TimeField'
@@ -397,38 +397,64 @@ export const TextareaField = props => {
     )
 }
 
-export const NumberField = props => {
+export const NumberField = ({ final_fieldProps, onChange, isRequired, gutter, wrapperStyle, direction, label_width, label_style, fieldProps, prefix, suffix, style, 
+    min, max, step, parser,
+    ...props}:{
+    wrapperStyle?: any;
+    gutter?: number;
+    direction?: 'vertical' | 'horizontal';
+    showLocalSearch?: boolean;
+    optionParser?: any;
+    fieldProps?: any;
+    final_fieldProps?: any;
+    mode?: 'multiple' | 'tags';
+    label?: string;
+    label_width?: string | number;
+    label_style?: any;
+    style?: any;
+    width?: string | number;
+    isRequired?: boolean;
+    preview?: boolean;
+    options?: any[];
+    info?: string;
+    onChange?: any;
+    prefix?: any;
+    suffix?: any;
+    min?: any;
+    max?: any;
+    step?: number;
+    parser?: any;
+}) => {
     return (
-        <Field {...props.final_fieldProps}>
+        <Field {...final_fieldProps}>
             {({ input, meta }) => {
-                let onChange = (e) => {
+                let _onChange = (e:any) => {
                     input.onChange(e);
-                    if (props.onChange) props.onChange(e, input.onChange);
+                    if (onChange) onChange(e, input.onChange);
                 }
 
-
-                return (<div className={`${styles.field} ${styles.number}`} style={props.wrapperStyle}>
-                    <Row align="middle" gutter={props.gutter || [0, 0]}>
-                        {props.label && <Col span={props.direction == 'horizontal' ? undefined : 24} flex={props.label_width || undefined}><Label style={{ ...props.label_style, width: props.label_width || undefined }} isRequired={props.isRequired}>{props.label}</Label></Col>}
+                return (<div className={`${styles.field} ${styles.number}`} style={wrapperStyle}>
+                    <Row align="middle" gutter={gutter || [0, 0]}>
+                        {props.label && <Col span={direction == 'horizontal' ? undefined : 24} flex={label_width || undefined}><Label style={{ ...label_style, width: label_width || undefined }} isRequired={isRequired}>{props.label}</Label></Col>}
                         <Col flex="auto">
                             {props.preview && <Row style={{ border: "1px solid #DDD", borderRadius: "3px", width: props.width || 'inherit' }}>
                                 <Col flex="auto" style={{ padding: "7px 10px", color: input.value ? '#000' : '#FFF' }}>{input.value || "."}</Col>
                             </Row>}
 
                             {!props.preview && <div className={`${styles.field_wrapper}`} style={{ width: props.width || 'inherit' }}>
-                                <AntInputNumber {...input} {...props.fieldProps}
-                                    prefix={props.prefix}
-                                    suffix={props.suffix}
+                                <AntInputNumber {...input} {...fieldProps}
+                                    prefix={prefix}
+                                    suffix={suffix}
 
-                                    className={`${props.isRequired && styles.is_required_field}`}
-                                    onChange={onChange}
-                                    style={props.style}
-                                    min={props.min}
-                                    max={props.max}
-                                    disabled={props?.final_fieldProps?.disabled}
-                                    step={props.step}
+                                    className={`${isRequired && styles.is_required_field}`}
+                                    onChange={_onChange}
+                                    style={style}
+                                    min={min}
+                                    max={max}
+                                    disabled={final_fieldProps && final_fieldProps?.disabled}
+                                    step={step}
                                     // onkeypress={props.onkeypress}
-                                    parser={props.parser}
+                                    parser={parser}
                                     styles={{
                                         root: {
                                             backgroundColor: FieldStyles.background,
@@ -532,20 +558,35 @@ export const CheckboxField = props => {
 }
 
 
-export const SelectField = props => {
+export const SelectField = ({ wrapperStyle, gutter, direction, showLocalSearch, optionParser, final_fieldProps, mode, label, label_width, isRequired, preview, width, options, info, ...props}:{
+    wrapperStyle?: any;
+    gutter?: number;
+    direction?: 'vertical' | 'horizontal';
+    showLocalSearch?: boolean;
+    optionParser?: any;
+    final_fieldProps?: any;
+    mode?: 'multiple' | 'tags';
+    label?: string;
+    label_width?: string | number;
+    width?: string | number;
+    isRequired?: boolean;
+    preview?: boolean;
+    options?: any[];
+    info?: string;
+}) => {
     // const keyMap = props.keyMap ? props.keyMap.split("=>") : ['value', 'label'];
 
-    const optionParser = (item) => {
-        return props.optionParser ? props.optionParser(item) : { ...item, children: item.label }
+    const _optionParser = (item:any) => {
+        return optionParser ? optionParser(item) : { ...item, children: item.label }
     };
 
     return (<div>
-        <Field {...props.final_fieldProps}>
+        <Field {...final_fieldProps}>
             {({ input, meta }) => {
 
                 let value = input.value;
-                if (props.mode == 'multiple') value = input.value || [];
-                if (props.mode == 'tags') value = input.value || [];
+                if (mode == 'multiple') value = input.value || [];
+                if (mode == 'tags') value = input.value || [];
 
                 const fieldProps = {
                     prefix: props.prefix, // prefix={<UserOutlined className="site-form-item-icon" />}
@@ -567,14 +608,13 @@ export const SelectField = props => {
                         // for multiple selection
                         if (_.isArray(v1)) {
                             raw = v1.map(_v1 => {
-                                let val = props?.options?.find(o => (o.value == _v1))
+                                let val = options?.find(o => (o.value == _v1))
                                 return !val ? val : (val.raw || val);
                             })
                         }
                         // for single selection
                         else {
-                            console.log("GET RAW")
-                            raw = props?.options?.find(o => (o.value == v1));
+                            raw = options?.find(o => (o.value == v1));
                             if (raw && raw.raw) raw = raw.raw;
                         }
 
@@ -584,7 +624,7 @@ export const SelectField = props => {
                         return v1;
                     },
                     onSelect: (v1, v2) => {
-                        let raw = props?.options?.find(o => (o.value == v1))
+                        let raw = options?.find(o => (o.value == v1))
                         if (props.onSelect) props.onSelect(v1, raw.raw)
                         return raw;
                     },
@@ -604,26 +644,26 @@ export const SelectField = props => {
                     optionFilterProp: props.optionFilterProp,
                 }
 
-                if (props.showLocalSearch) Object.assign(fieldProps, {
+                if (showLocalSearch) Object.assign(fieldProps, {
                     showSearch: true,
                     optionFilterProp: "children",
-                    filterOption: (input, option) => {
+                    filterOption: (input:any, option:any) => {
                         return (option?.children ?? '').toLowerCase().includes(input.toLowerCase());
                     },
                     // onSearch: (val) => console.log('search:', val),
                 })
 
-                return (<div className={`${styles.field} ${styles.select}`} style={props.wrapperStyle}>
-                    <Space orientation={props.direction || 'vertical'} size={props.gutter || 0}>
-                        {props.label && <Label style={{ width: props.label_width || undefined }} isRequired={props.isRequired}>{props.label}</Label>}
+                return (<div className={`${styles.field} ${styles.select}`} style={wrapperStyle}>
+                    <Space orientation={direction || 'vertical'} size={gutter || 0}>
+                        {label && <Label style={{ width: label_width || undefined }} isRequired={isRequired}>{label}</Label>}
                         <div className={`${styles.field_wrapper}`}>
-                            <Row style={{ width: props.width || 'inherit' }}>
+                            <Row style={{ width: width || 'inherit' }}>
                                 <Col flex="auto">
-                                    {props.preview && <Row style={{ border: "1px solid #DDD", borderRadius: "5px" }}>
+                                    {preview && <Row style={{ border: "1px solid #DDD", borderRadius: "5px" }}>
                                         <Col flex="auto" style={{ padding: "5px 10px", color: value ? '#000' : 'white' }}>{value || "."}</Col>
                                         <Col></Col>
                                     </Row>}
-                                    {!props.preview && <AntSelect {...input} {...fieldProps} className={`${props.isRequired && styles.is_required_field}`}
+                                    {!preview && <AntSelect {...input} {...fieldProps} className={`${isRequired && styles.is_required_field}`}
                                         styles={{
                                             root: {
                                                 backgroundColor: FieldStyles.background,
@@ -644,13 +684,13 @@ export const SelectField = props => {
                                         }}
 
                                     >
-                                        {props?.options?.map((item, i) => {
-                                            let node = optionParser(item);
+                                        {options && options?.map((item, i) => {
+                                            let node = _optionParser(item);
                                             return <AntSelect.Option value={node.value} style={node.style} key={i}>{node.children}</AntSelect.Option>;
                                         })}
                                     </AntSelect>}
                                 </Col>
-                                {props.info && <Col><Tooltip title={props.info} color="#1C9DFF"><InfoCircleFilled style={{ color: "#1C9DFF" }} /></Tooltip></Col>}
+                                {info && <Col><Tooltip title={info} color="#1C9DFF"><InfoCircleFilled style={{ color: "#1C9DFF" }} /></Tooltip></Col>}
                             </Row>
                             <RenderError {...meta} />
                         </div>

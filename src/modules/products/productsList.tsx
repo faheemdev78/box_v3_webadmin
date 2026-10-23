@@ -27,9 +27,27 @@ const defaultProps = {
 
 
 export const ProductsList = ({ 
-  pagination, parseEditLink, pageView = defaultProps.pageView, columns = defaultProps.columns, 
+  pagination, 
+  // parseEditLink, 
+  pageView = defaultProps.pageView, columns = defaultProps.columns, 
   loading, filter, dataSource, fetchData, busy, setBusy, searchFilterConfig, 
+  hideListHeader, hideAddProduct,
+  store,
   ...props
+}:{
+  pagination?: any,
+  pageView?: any; 
+  columns?: any[];
+  loading?: boolean;
+  filter?: any;
+  dataSource?: any[] | null;
+  fetchData?:any;
+  busy?: boolean;
+  setBusy?: any;
+  searchFilterConfig?: any;
+  store?: any;
+  hideListHeader?: boolean;
+  hideAddProduct?: boolean;
 }) => {
   const router = useRouter()
   const session = useAppSelector((state) => state.session);
@@ -81,16 +99,18 @@ export const ProductsList = ({
 
   const canDelete = security.verifyRole('104.5', session.user.permissions);
 
+  const pageRoot = store ? `${adminRoot}/branch/${store._id}` : `${adminRoot}`
+
   const _columns = [
     // { title: 'ID', dataIndex: '_id', key:'_id', width: 80, align: 'left' },
     { title: 'Name', dataIndex: 'title', key:'title', 
       render: (text, record) => {
-
         return (<Row gutter={16}>
           <Col><Avatar size={40} shape="square" src={record?.picture?.thumbnails ? cdnImageUrl(record?.picture?.thumbnails[0] || record?.picture?.url) : null} icon={<Icon icon="image" />} /></Col>
           <Col>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <Link href={parseEditLink ? parseEditLink(record) : `${adminRoot}/product/${record._id}/view`}>{record.title}</Link>
+              {/* <Link href={parseEditLink ? parseEditLink(record) : `${adminRoot}/product/${record._id}/view`}>{record.title}</Link> */}
+              <Link href={`${pageRoot}/product/${record._id}/view`}>{record.title}</Link>
               <ProductItemFlags item={record} variant="icons" />
             </div>
             <div style={{ fontSize: "0.9em", color: "#AAA" }}>ID: {record._id}</div>
@@ -109,7 +129,7 @@ export const ProductsList = ({
     },
     { title: 'STORE', dataIndex: 'store', key: 'store', 
       children: [
-        { title: `Price (${settings.currency})`, dataIndex: 'store.price', key: 'store.price', 
+        { title: `Price (${settings.currency})`, dataIndex: 'store.price', key: 'store.price', width: 120,
           render: (___, rec) => {
             if (!rec.store) return null;
 
@@ -120,16 +140,18 @@ export const ProductsList = ({
           }
         },
         {
-          title: 'Status', dataIndex: 'status', key: 'store.status', width: 80, align: "center",
+          title: 'Status', dataIndex: 'status', key: 'store.status', width: 120, align: "center",
           render: (___, rec) => {
             if (!rec.store) return null;
 
             return (<Tag color={rec.status == 'online' ? 'green' : 'red'}>{rec.status}</Tag>)
           }
         },
-        { title: 'Qty', dataIndex: 'store.available_qty', key: 'store.available_qty', width: 80, align: "center", 
+        {
+          title: 'Qty', dataIndex: 'store.available_qty', key: 'store.available_qty', width: 120, align: "center", 
           render:(___, rec) => {
             if (!rec.store) return null;
+            // console.log("rec.store: ", rec.store)
 
             return (<>{rec?.store?.available_qty}</>)
           }
@@ -172,14 +194,14 @@ export const ProductsList = ({
 
 
   return (<>
-    {!props.hideListHeader===true && <>
+    {!hideListHeader===true && <>
       <PageHeader 
         title={<>{props.title || "Product Catalogue"} {props.titlePostfix}</>}
         sub={<div>{pagination ? `Total ${pagination.total || 0} records found` : null}</div>}
         ><>
           <Space separator="|">
             {/* {!props.hideAddProduct && <Button type="link" color="orange"><Link href={`${adminRoot}/product/new`}>Add New Product</Link></Button>} */}
-            {!props.hideAddProduct && <Link href={`${adminRoot}/product/new`}>Add New Product</Link>}
+            {!hideAddProduct && <Link href={`${pageRoot}/product/new`}>Add New Product</Link>}
             <Radio.Group size="small" value={pageView} buttonStyle="solid" onChange={({ target }) => changeView(target.value)}>
               <Radio.Button value="list"><Icon icon='th-list' /></Radio.Button>
               <Radio.Button disabled value="grid"><Icon icon='th-large' /></Radio.Button>
@@ -209,7 +231,7 @@ export const ProductsList = ({
           <ProductFilter exclude={searchFilterConfig?.exclude} onChange={fetchData} defaultValue={filter} />
         </Col>
         <Col flex="350px" style={{ paddingLeft: 20 }}>
-          <ProductBarcodeFilter onEditClick={(record) => router.push(`${adminRoot}/product/${record._id}/view`)} />
+          <ProductBarcodeFilter onEditClick={(record) => router.push(`${pageRoot}/product/${record._id}/view`)} />
         </Col>
       </Row>}
 

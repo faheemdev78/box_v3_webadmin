@@ -49,6 +49,8 @@ const styles = {
 
 export function ProductWrapper({ render, store, hide={}, ...props }: ProductWrapperProps) {
 
+    const pageRoot = store ? `${adminRoot}/branch/${store._id}` : `${adminRoot}`
+
     const session = useAppSelector((state: any) => state.session) as any;
     const { prod_id, branch_id: route_store_id } = useParams<{ prod_id: string, branch_id?: string }>()
     // const { prod_id, branch_id: store_id } = useParams < { prod_id: string, store_id: string } > ()
@@ -120,22 +122,28 @@ export function ProductWrapper({ render, store, hide={}, ...props }: ProductWrap
 
     const canEdit = security.verifyRole('104.4', session?.user?.permissions);
 
+    console.log({ data })
+
     return (<>
         {/* <DevBlock obj={data.parent_product} /> */}
         <Breadcrumb
             styles={styles}
             separator=""
             items={[
-                { title: 'Products Catelogue', href: `${adminRoot}/products/list` },
-                { type: 'separator', separator: ':', },
+                store ? { title: store.title, href: `${pageRoot}` } : {},
+                store ? { type: 'separator', separator: '/', } : {},
+
+                { title: 'Products Catelogue', href: `${pageRoot}/products/list` },
+                { type: 'separator', separator: '/', },
+
                 data.parent_product ? { href: 
-                    `${adminRoot}/${isStoreUser ? `branch/${store_id}/` : ''}product/${data.parent_product._id}/view`, 
+                    `${pageRoot}/product/${data.parent_product._id}/view`, 
                     title: data.parent_product.title, 
                 } : {},
                 { type: 'separator', separator: '/', },
                 {
                     title: data.title,
-                    href: !data.parent_product ? `${adminRoot}/${isStoreUser ? `branch/${store_id}/` : ''}product/${data._id}/view` : undefined, 
+                    href: !data.parent_product ? `${pageRoot}/product/${data._id}/view` : undefined, 
                 },
             ]}
         />

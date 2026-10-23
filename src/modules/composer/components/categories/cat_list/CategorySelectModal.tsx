@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react'
-import { Input, Modal } from 'antd'
+import { ConfigProvider, Input, Modal, Tree } from 'antd'
 import { gql } from '@apollo/client'
 import { useLazyQuery } from '@apollo/client/react'
 import { useForm } from 'react-final-form'
@@ -10,6 +10,8 @@ import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill'
 import LIST_CATS from '@/graphql/product_cat/productCats.graphql'
 import LIST_BRANDS from '@/graphql/brand/brands.graphql'
 import type { CategoryTile } from './types'
+// import cssStyles from '../catModal.module.scss'
+
 
 const LIST_PAGES = gql`query appPages($filter: String, $others: String) {
     appPages(filter: $filter, others: $others) {
@@ -20,7 +22,115 @@ const LIST_PAGES = gql`query appPages($filter: String, $others: String) {
     }
 }`
 
+// const CATEGORY_HOME_CATEGORIES = gql`
+//   query CategoryHomeCategories($filter: String) {
+//     productCats(filter: $filter) {
+//       _id title _id_parent_cat status icon icon_img icon_img_thumb
+//     }
+//   }
+// `;
+
 type CatRow = CategoryTile & { _id: string; parent_cat_title?: string; draft?: boolean }
+
+export type CategoryHomeCategory = {
+    _id: string;
+    title: string;
+    _id_parent_cat?: string | null;
+    status?: string | null;
+    icon?: string | null;
+    icon_img?: string | null;
+    icon_img_thumb?: string | null;
+};
+export type CategoryHomeCategoryNode = CategoryHomeCategory & {
+    sub_cats: CategoryHomeCategoryNode[];
+};
+
+function categoryHomeTree(
+    categories: CategoryHomeCategory[],
+    parentId?: string | null
+): CategoryHomeCategoryNode[] {
+
+    if (!Array.isArray(categories) || !categories.length) {
+        return [];
+    }
+
+    // Create lookup maps
+    const categoryMap = new Map<string, CategoryHomeCategory>();
+    const childrenMap = new Map<string, CategoryHomeCategory[]>();
+
+    // First pass: index all categories
+    for (const category of categories) {
+        if (!category?._id || category.status === 'offline') {
+            continue;
+        }
+
+        categoryMap.set(String(category._id), category);
+    }
+
+    // Second pass: group categories under their parents
+    for (const category of categoryMap.values()) {
+
+        if (!category._id_parent_cat) {
+            continue;
+        }
+
+        const parentKey = String(category._id_parent_cat);
+
+        // Only attach categories whose parent exists and is online
+        if (!categoryMap.has(parentKey)) {
+            continue;
+        }
+
+        const siblings = childrenMap.get(parentKey) || [];
+
+        siblings.push(category);
+
+        childrenMap.set(parentKey, siblings);
+    }
+
+    // Recursively construct the tree
+    const buildChildren = (
+        id: string,
+        visited: Set<string> = new Set()
+    ): CategoryHomeCategoryNode[] => {
+
+        if (visited.has(id)) {
+            return [];
+        }
+
+        const nextVisited = new Set(visited);
+        nextVisited.add(id);
+
+        return (childrenMap.get(id) || [])
+            .filter(category => !nextVisited.has(String(category._id)))
+            .map(category => ({
+                ...category,
+                sub_cats: buildChildren(String(category._id), nextVisited),
+                children: buildChildren(String(category._id), nextVisited),
+            }));
+    };
+
+    // If parentId is provided, return its children
+    if (parentId) {
+
+        const parent = categoryMap.get(String(parentId));
+
+        if (!parent) {
+            return [];
+        }
+
+        return buildChildren(String(parentId));
+    }
+
+    // Otherwise return the complete tree starting from root categories
+    return [...categoryMap.values()]
+        .filter(category => !category._id_parent_cat)
+        .map(category => ({
+            ...category,
+            sub_cats: buildChildren(String(category._id)),
+            children: buildChildren(String(category._id)),
+        }));
+}
 
 export function CategorySelectModal({ open, onClose, fieldName, limit, entity = 'category' }: {
     entity?: 'category' | 'brand' | 'page'
@@ -59,7 +169,11 @@ export function CategorySelectModal({ open, onClose, fieldName, limit, entity = 
                     return
                 }
                 const list = Array.isArray(results) ? results : []
-                setRows(list.filter((item: CatRow & { status?: string }) => item?._id && item?.title && item.status !== 'offline' && (entity !== 'page' || item.draft !== true)))
+                
+                const _list = categoryHomeTree(list.map(item=>({ ...item, key:item._id })));
+                setRows(_list.filter((item: CatRow & { status?: string }) => item?._id && item?.title && item.status !== 'offline' && (entity !== 'page' || item.draft !== true)))
+
+                // setRows(list.filter((item: CatRow & { status?: string }) => item?._id && item?.title && item.status !== 'offline' && (entity !== 'page' || item.draft !== true)))
             })
             .catch((err) => {
                 const parsed = catchApolloError(err)
@@ -72,6 +186,7 @@ export function CategorySelectModal({ open, onClose, fieldName, limit, entity = 
         if (!needle) return rows
         return rows.filter((item) => `${item.title || ''} ${entity === 'page' ? item.slug || '' : item.parent_cat_title || ''}`.toLowerCase().includes(needle))
     }, [query, rows, entity])
+
 
     const toggle = (item: CatRow) => {
         setPicked((current) => {
@@ -100,6 +215,50 @@ export function CategorySelectModal({ open, onClose, fieldName, limit, entity = 
         onClose()
     }
 
+    // function renderList(list:any[]){
+    //     return (<div>
+    //         {list.map((item) => {
+    //             const selected = picked.some((row) => row._id === item._id)
+    //             const blocked = !selected && picked.length >= limit;
+
+    //             // if (item?.sub_cats?.length) {
+    //             //     console.log("has sub cats: ");
+    //             // }
+
+    //             return (<div key={item._id}>
+    //                 <div
+    //                     className={cssStyles.selectable_list_item}
+    //                     // type="button"
+    //                     disabled={blocked}
+    //                     onClick={() => toggle(item)}
+    //                     style={{
+    //                         // border: selected ? '1px solid #1677ff' : '1px solid #e5e7eb',
+    //                         // background: selected ? '#e6f4ff' : '#fff',
+    //                         // cursor: blocked ? 'not-allowed' : 'pointer',
+    //                     }}
+    //                 >
+    //                     <div>{item.title}</div>
+    //                     {entity === 'page'
+    //                         ? item.slug && <div style={{ color: '#888', fontSize: 12 }}>{item.slug}</div>
+    //                         : item.parent_cat_title && <div style={{ color: '#888', fontSize: 12 }}>{item.parent_cat_title}</div>}
+    //                 </div>
+
+    //                 {item?.sub_cats?.length && <div className={cssStyles.selectable_list_item_sub_container}>{renderList(item.sub_cats)}</div>}
+    //             </div>)
+    //         })}
+    //     </div>)
+    // }
+
+    // const onListItemSelect = (selectedKeys, info) => {
+    //     console.log('selected', selectedKeys, info);
+    // };
+    const onListItemCheck = (checkedKeys, info) => {
+        // console.log('onCheck', checkedKeys, info);
+        toggle(info.node)
+    };
+
+    
+
     return (
         <Modal
             title={`Select ${selectionLabel} (${picked.length} / ${limit})`}
@@ -107,46 +266,47 @@ export function CategorySelectModal({ open, onClose, fieldName, limit, entity = 
             onCancel={onClose}
             width={720}
             destroyOnHidden
-            footer={(
-                <>
-                    <Button htmlType="button" onClick={onClose}>Cancel</Button>
-                    <Button htmlType="button" type="primary" onClick={save}>Save</Button>
-                </>
-            )}
+            footer={(<>
+                <Button htmlType="button" onClick={onClose}>Cancel</Button>
+                <Button htmlType="button" type="primary" onClick={save}>Save</Button>
+            </>)}
         >
             <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${selectionLabel}`} style={{ marginBottom: 12 }} />
             {error && <div style={{ color: '#cf1322', marginBottom: 8 }}>{error}</div>}
             {loading && <div style={{ color: '#666' }}>Loading {selectionLabel}…</div>}
-            <div style={{ maxHeight: 420, overflow: 'auto' }}>
-                {visible.map((item) => {
-                    const selected = picked.some((row) => row._id === item._id)
-                    const blocked = !selected && picked.length >= limit
-                    return (
-                        <button
-                            key={item._id}
-                            type="button"
-                            disabled={blocked}
-                            onClick={() => toggle(item)}
-                            style={{
-                                display: 'block',
-                                width: '100%',
-                                textAlign: 'left',
-                                marginBottom: 6,
-                                padding: '8px 10px',
-                                borderRadius: 8,
-                                border: selected ? '1px solid #1677ff' : '1px solid #e5e7eb',
-                                background: selected ? '#e6f4ff' : '#fff',
-                                cursor: blocked ? 'not-allowed' : 'pointer',
-                            }}
-                        >
-                            <div>{item.title}</div>
-                            {entity === 'page'
-                                ? item.slug && <div style={{ color: '#888', fontSize: 12 }}>{item.slug}</div>
-                                : item.parent_cat_title && <div style={{ color: '#888', fontSize: 12 }}>{item.parent_cat_title}</div>}
-                        </button>
-                    )
-                })}
-            </div>
+
+            <ConfigProvider
+                theme={{
+                    components: {
+                        Tree: {
+                            /* here are your component tokens */
+                            nodeSelectedBg: '#00FF00'
+                        },
+                    },
+                }}
+            >
+                <Tree
+                    selectable={false}
+                    autoExpandParent={true}
+                    defaultExpandAll
+                    // defaultExpandParent={true}
+                    checkable
+                    // checkedKeys
+                    checkStrictly
+                    multiple={true}
+                    // defaultExpandedKeys={[]} //{['0-0-0', '0-0-1']}
+                    // defaultSelectedKeys={picked && picked?.map(o=>(o._id))} //{['0-0-1']}
+                    defaultCheckedKeys={picked && picked?.map(o=>(o._id))} //{['0-0-1']}
+                    showLine={true}
+                    showIcon={false}
+                    // onSelect={onListItemSelect}
+                    onCheck={onListItemCheck}
+                    treeData={visible}
+                />
+
+            </ConfigProvider>
+
+            {/* <div style={{ maxHeight: 420, overflow: 'auto' }}>{renderList(visible)}</div> */}
         </Modal>
     )
 }

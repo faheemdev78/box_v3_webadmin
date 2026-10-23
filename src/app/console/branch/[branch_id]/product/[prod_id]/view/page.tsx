@@ -22,7 +22,7 @@ function Wrapper(props: any){
     const pageProps = (usePageProps() as any) || {};
     const store = pageProps?.store || {}
     
-    return <ProductWrapper {...props}
+    return <ProductWrapper {...props} store={store}
         render={({ product, session }: { product: any; session: any; }) => {
             return (<>
                 <h3>{store?.title}</h3>

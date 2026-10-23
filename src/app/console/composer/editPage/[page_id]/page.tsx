@@ -670,6 +670,22 @@ function EditAppPage() {
                         {/* <DevBlock obj={{ ...values }} /> */}
                     </form>
 
+
+                    {/* <Modal
+                        footer={false}
+                        closable={!busy}
+                        cancelButtonProps={{ disabled: busy }}
+                        // confirmLoading={busy}
+                        // onOk={() => savePageSettings(values)}
+                        title="Page Schedule"
+                        width="500px"
+                        open={showScheduleEdit}
+                        onCancel={() => set_showScheduleEdit(false)}
+                    >
+                        {showScheduleEdit && <AppScheduleEditForm initialValues={pageData} onCancel={() => set_showScheduleEdit(false)} onUpdate={onSettingsUpdate} />}
+                    </Modal> */}
+
+
                     <Modal
                         title="These fields need attention"
                         open={saveProblems.length > 0}

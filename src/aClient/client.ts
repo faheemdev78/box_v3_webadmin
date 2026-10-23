@@ -118,7 +118,13 @@ export const createApolloClient = () => {
     return new ApolloClient({
         ssrMode: typeof window === "undefined",
         link: ApolloLink.from([errorLink, authLink, httpLink]),
-        cache: new InMemoryCache(),
+        cache: new InMemoryCache({
+            typePolicies: {
+                StoreProductSchema: {
+                    keyFields: false,
+                },
+            },
+        }),
     });
 };
 

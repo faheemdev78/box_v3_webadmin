@@ -38,7 +38,7 @@ type ReceiptCalculations = {
     bagPrice: number;
     totalBagQuantity: number;
     fbrFee: number;
-    deliveryFee: number;
+    shipping: number;
     customerPayable: number;
 };
 
@@ -67,7 +67,7 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, {
             0
         );
         const fbrFee = asAmount(orderCalculations?.fbrFee ?? currentTotals.fbrFee);
-        const deliveryFee = asAmount(orderCalculations?.deliveryFee ?? currentTotals.deliveryFee);
+        const shipping = asAmount(orderCalculations?.shipping ?? currentTotals.shipping);
         const customerPayable = asAmount(orderCalculations?.customerPayable ?? currentTotals.grandTotal);
         const deliverySlot = `${utcToDate(delivery_slot.start_date).format('hh:mm A')} – ${utcToDate(delivery_slot.end_date).format('hh:mm A')}`;
         const totalBoxes = current_order?.baskets?.length || 0;
@@ -151,7 +151,7 @@ const OrderReceipt = React.forwardRef<HTMLDivElement, {
                                 </div>
                                 <div style={styles.totalLine}>
                                     <span>Delivery Fee</span>
-                                    <span>{currency} {deliveryFee.toFixed(2)}</span>
+                                    <span>{currency} {shipping.toFixed(2)}</span>
                                 </div>
                             </div>
 

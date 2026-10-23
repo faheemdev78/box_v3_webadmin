@@ -64,12 +64,12 @@ export function ProdStorePropsForm({ initialValues, store, onSuccess, onCancel }
                     {error && <Alert title="Error" description={error} showIcon type='error' />}
                     <form id="ProdStorePropsForm" {...submitHandler(formargs)}>
 
-                        <Row gutter={[10, 10]}>
-                            <Col span={12}><FormField label="Price was" type="number" name="store.price_was" validate={rules.required} /></Col>
-                            <Col span={12}><FormField label="Price" type="number" name="store.price" validate={rules.required} /></Col>
-                            <Col span={12}><FormField label="Available Qty" type="number" name="store.available_qty" validate={rules.required} /></Col>
-                            <Col span={12}><FormField label="Status" options={publishStatus} type="select" name="store.status" validate={rules.required} /></Col>
-                        </Row>
+                        <Space>
+                            <FormField label="Price was" type="number" name="store.price_was" validate={rules.required} wrapperStyle={{ width:"100px" }} />
+                            <FormField label="Price" type="number" name="store.price" validate={rules.required} wrapperStyle={{ width: "100px" }} />
+                            <FormField label="Available Qty" type="number" name="store.available_qty" validate={rules.required} wrapperStyle={{ width: "100px" }} />
+                        </Space>
+                        <FormField label="Status" options={publishStatus} type="select" name="store.status" validate={rules.required} />
 
                         <DrawerFooter><Row>
                             <Col flex="auto"><Button onClick={onCancel}>Cancel</Button></Col>

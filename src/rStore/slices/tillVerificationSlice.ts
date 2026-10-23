@@ -60,7 +60,6 @@ export interface OrderTotals {
   shipping?: number;
   taxRate?: number;
   taxAmount: number;
-  deliveryFee?: number;
   fbrFee?: number;
   grandTotal: number;
   // Legacy fields for backward compatibility

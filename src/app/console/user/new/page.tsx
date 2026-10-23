@@ -91,12 +91,13 @@ function UserForm () {
                                             validate={rules.required}
                                         /> */}
                                         <FormField type="select" name="acc_type" label="Account Type" 
+                                            wrapperStyle={{ width:"150px"}}
                                             validate={rules.required}
                                             options={[
                                                 { value: "admin", label:"Admin" }
                                             ]} 
                                         />
-                                        <FormField type="select" name="status" label="Status" className={values.status == 'enabled' ? "active" : "inactive"} options={userStatus} validate={rules.required} />
+                                        <FormField wrapperStyle={{ width:"100px"}} type="select" name="status" label="Status" className={values.status == 'enabled' ? "active" : "inactive"} options={userStatus} validate={rules.required} />
                                         {/* {(values?.acc_type?._id && String(values?.acc_type?.acc_type).indexOf("admin") < 0) && <>
                                             <BranchesDD onChange={(___: any, raw: any) => form.mutators.onStoreChanged(raw)} preload name="store._id" label="Branch" validate={rules.required} />
                                         </>} */}

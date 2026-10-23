@@ -42,7 +42,7 @@ export interface OrdersListProps {
     busy?: boolean;
     columns?: string[] | any[];
     hideListHeader?: boolean;
-    parseEditLink?: (item: any) => string;
+    // parseEditLink?: (item: any) => string;
     searchFilterConfig?: SearchFilterConfig;
     loading?: boolean;
 }

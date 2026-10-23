@@ -20,7 +20,7 @@ import { Page } from '@/template/page';
 import QUERY_DATA from '@/graphql/app_pages/appPagesQuery.graphql'
 import DEL_PAGE from '@/graphql/app_pages/deleteAppPage.graphql'
 
-type ListWindow = 'active' | 'expired';
+type ListWindow = 'all' | 'active' | 'expired';
 
 const PAGE_TYPE_TABS = [
     { key: 'default_page', label: 'Default Page' },
@@ -73,100 +73,100 @@ function buildPagesListFilter(values: any, listWindow: ListWindow, pageType: str
     return filter;
 }
 
-function PagesFilter({ loading, onApply, pageType, initialValues }: { loading: boolean; onApply: (values: any) => void; pageType: string; initialValues: any }) {
-    return (
-        <FinalForm onSubmit={(values) => { onApply(values); }} initialValues={initialValues}
-            render={(formargs) => {
-                const { form } = formargs;
+// function PagesFilter({ loading, onApply, pageType, initialValues }: { loading: boolean; onApply: (values: any) => void; pageType: string; initialValues: any }) {
+//     return (
+//         <FinalForm onSubmit={(values) => { onApply(values); }} initialValues={initialValues}
+//             render={(formargs) => {
+//                 const { form } = formargs;
 
-                const applyExclusive = (field: 'brand' | 'category' | 'manufacturer', val: any) => {
-                    const selected = val || undefined;
-                    const nextValues = { ...form.getState().values, [field]: selected };
-                    if (selected) {
-                        for (const other of ['brand', 'category', 'manufacturer']) {
-                            if (other === field) continue;
-                            form.change(other, undefined);
-                            nextValues[other] = undefined;
-                        }
-                    }
-                    onApply(nextValues);
-                };
+//                 const applyExclusive = (field: 'brand' | 'category' | 'manufacturer', val: any) => {
+//                     const selected = val || undefined;
+//                     const nextValues = { ...form.getState().values, [field]: selected };
+//                     if (selected) {
+//                         for (const other of ['brand', 'category', 'manufacturer']) {
+//                             if (other === field) continue;
+//                             form.change(other, undefined);
+//                             nextValues[other] = undefined;
+//                         }
+//                     }
+//                     onApply(nextValues);
+//                 };
 
-                return (
-                    <form {...submitHandler(formargs)}>
-                        <Space align="end" wrap size={12} style={{ marginBottom: 8 }}>
-                            <div style={{ width: 220 }}>
-                                <FormField
-                                    type="text"
-                                    name="search.keywords"
-                                    label="Page title"
-                                    placeholder="Search title"
-                                    compact
-                                    allowClear
-                                    onChange={(e: any) => {
-                                        const text = e?.target?.value ?? '';
-                                        if (String(text).trim()) return;
-                                        onApply({ ...form.getState().values, search: { keywords: '' } });
-                                    }}
-                                />
-                            </div>
-                            {pageType === 'brand_page' && <div style={{ width: 200 }}><BrandsDD
-                                    name="brand"
-                                    label="Brand"
-                                    placeholder="Brand"
-                                    compact
-                                    allowClear
-                                    preload
-                                    size="small"
-                                    filter={{}}
-                                    onChange={(val: any) => applyExclusive('brand', val)}
-                                />
-                            </div>}
-                            {['category_page', 'store_page', 'category_detail_page'].includes(pageType) && <div style={{ width: 200 }}><ProdCatsDD
-                                    name="category"
-                                    label="Category"
-                                    placeholder="Category"
-                                    compact
-                                    allowClear
-                                    preload
-                                    size="small"
-                                    onChange={(val: any) => applyExclusive('category', val)}
-                                />
-                            </div>}
-                            {pageType === 'manufacturer_page' && <div style={{ width: 200 }}><ManufacturersDD
-                                    name="manufacturer"
-                                    label="Manufacturer"
-                                    placeholder="Manufacturer"
-                                    compact
-                                    allowClear
-                                    preload
-                                    size="small"
-                                    onChange={(val: any) => applyExclusive('manufacturer', val)}
-                                />
-                            </div>}
-                            <div style={{ width: 150 }}>
-                                <FormField
-                                    type="select"
-                                    name="published"
-                                    label="Status"
-                                    placeholder="Status"
-                                    options={PAGE_STATUS_OPTIONS}
-                                    compact
-                                    allowClear
-                                    size="small"
-                                    onChange={(val: any) => onApply({ ...form.getState().values, published: val || undefined })}
-                                />
-                            </div>
-                            <div style={{ paddingLeft: 16, borderLeft: "1px solid #DDD" }}>
-                                <Button className="send_button" loading={loading} htmlType="submit"><Icon icon="search" /></Button>
-                            </div>
-                        </Space>
-                    </form>
-                );
-            }}
-        />
-    );
-}
+//                 return (
+//                     <form {...submitHandler(formargs)}>
+//                         <Space align="end" wrap size={12} style={{ marginBottom: 8 }}>
+//                             <div style={{ width: 220 }}>
+//                                 <FormField
+//                                     type="text"
+//                                     name="search.keywords"
+//                                     label="Page title"
+//                                     placeholder="Search title"
+//                                     compact
+//                                     allowClear
+//                                     onChange={(e: any) => {
+//                                         const text = e?.target?.value ?? '';
+//                                         if (String(text).trim()) return;
+//                                         onApply({ ...form.getState().values, search: { keywords: '' } });
+//                                     }}
+//                                 />
+//                             </div>
+//                             {pageType === 'brand_page' && <div style={{ width: 200 }}><BrandsDD
+//                                     name="brand"
+//                                     label="Brand"
+//                                     placeholder="Brand"
+//                                     compact
+//                                     allowClear
+//                                     preload
+//                                     size="small"
+//                                     filter={{}}
+//                                     onChange={(val: any) => applyExclusive('brand', val)}
+//                                 />
+//                             </div>}
+//                             {['category_page', 'store_page', 'category_detail_page'].includes(pageType) && <div style={{ width: 200 }}><ProdCatsDD
+//                                     name="category"
+//                                     label="Category"
+//                                     placeholder="Category"
+//                                     compact
+//                                     allowClear
+//                                     preload
+//                                     size="small"
+//                                     onChange={(val: any) => applyExclusive('category', val)}
+//                                 />
+//                             </div>}
+//                             {pageType === 'manufacturer_page' && <div style={{ width: 200 }}><ManufacturersDD
+//                                     name="manufacturer"
+//                                     label="Manufacturer"
+//                                     placeholder="Manufacturer"
+//                                     compact
+//                                     allowClear
+//                                     preload
+//                                     size="small"
+//                                     onChange={(val: any) => applyExclusive('manufacturer', val)}
+//                                 />
+//                             </div>}
+//                             <div style={{ width: 150 }}>
+//                                 <FormField
+//                                     type="select"
+//                                     name="published"
+//                                     label="Status"
+//                                     placeholder="Status"
+//                                     options={PAGE_STATUS_OPTIONS}
+//                                     compact
+//                                     allowClear
+//                                     size="small"
+//                                     onChange={(val: any) => onApply({ ...form.getState().values, published: val || undefined })}
+//                                 />
+//                             </div>
+//                             <div style={{ paddingLeft: 16, borderLeft: "1px solid #DDD" }}>
+//                                 <Button className="send_button" loading={loading} htmlType="submit"><Icon icon="search" /></Button>
+//                             </div>
+//                         </Space>
+//                     </form>
+//                 );
+//             }}
+//         />
+//     );
+// }
 
 function PagesHome() {
     const latestRequest = useRef(0);
@@ -175,7 +175,7 @@ function PagesHome() {
     const [filter, setFilter] = useState<Record<string, any>>(buildPagesListFilter({}, 'active', 'default_page'));
     const [pageType, setPageType] = useState('default_page');
     const [filterValues, setFilterValues] = useState<Record<string, any>>({});
-    const [listWindow, setListWindow] = useState<ListWindow>('active');
+    const [listWindow, setListWindow] = useState<ListWindow>('all');
     const [dataArray, set_dataArray] = useState<any>(null)
     const [error, setError] = useState<string | null>(null)
     const [showCreateForm, set_showCreateForm] = useState(false)
@@ -223,10 +223,10 @@ function PagesHome() {
         setBusy(false);
     }
 
-    const onApplyFilter = (values: any) => {
-        setFilterValues(values);
-        fetchData(buildPagesListFilter(values, listWindow, pageType), { page: 1, pageSize: pagination.pageSize });
-    }
+    // const onApplyFilter = (values: any) => {
+    //     setFilterValues(values);
+    //     fetchData(buildPagesListFilter(values, listWindow, pageType), { page: 1, pageSize: pagination.pageSize });
+    // }
 
     const onTabChange = (nextType: string) => {
         setPageType(nextType);
@@ -293,9 +293,12 @@ function PagesHome() {
                 : null;
             if (!shown && !from && !to) return null;
             return (<>
-                {shown ? <div style={{ marginBottom: 4 }}><Tag color={shown.color}>{shown.label}</Tag></div> : null}
+                <Tag variant="solid" color={shown.color}>
+                {/* {shown ? <div style={{ marginBottom: 4 }}><Tag variant="solid" color={shown.color}>{shown.label}</Tag></div> : null} */}
+                {shown ? <div style={{ marginBottom: 4 }}>{shown.label}</div> : null}
                 {from ? <div><b>From:</b> {from.format(defaultDateTimeFormat)}</div> : null}
                 {to ? <div><b>To:</b> {to.format(defaultDateTimeFormat)}</div> : null}
+                </Tag>
             </>)
         } },
         { title: 'Type', dataIndex: ['page_type', 'title'], align: "left" as const, width: 150 },
@@ -334,6 +337,7 @@ function PagesHome() {
                         optionType="button"
                         buttonStyle="solid"
                         options={[
+                            { label: 'All', value: 'all' },
                             { label: 'Active', value: 'active' },
                             { label: 'Expired', value: 'expired' },
                         ]}

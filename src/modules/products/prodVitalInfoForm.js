@@ -120,7 +120,17 @@ export function ProdVitalInfoForm({ initialValues, onSuccess, onCancel }) {
                             <Col><SubmitButton loading={submitting} disabled={invalid}>Save</SubmitButton></Col>
                         </Row></DrawerFooter>
 
-                        {/* <DevBlock obj={values} /> */}
+                        <DevBlock obj={{
+                            ...values,
+                            extra_fields: undefined,
+                            meta: undefined,
+                            picture: undefined,
+                            tax: undefined,
+                            stock_level: undefined,
+                            type: undefined,
+                            brand: undefined,
+                            categories: undefined,
+                        }} />
 
                     </form>
                 </>)

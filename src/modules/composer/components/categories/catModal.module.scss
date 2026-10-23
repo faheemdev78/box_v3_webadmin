@@ -1,0 +1,24 @@
+@use "@/styles/vars" as *;
+
+.selectable_list_item{
+    border: 1px solid #DDD;
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 6;
+    padding: 8px 10px;
+    border-radius: 8;
+
+    background: #fff;
+    cursor: pointer;
+
+    &:hover{
+        background-color: #EEE;
+    }
+}
+
+.selectable_list_item_sub_container{
+    border-left: 5px solid #DDD;
+    padding-left: 50px;
+}
+

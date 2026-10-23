@@ -100,13 +100,14 @@ function StoreProductsHome(props:any) {
     return (<>
         {error && <Alert title="Error" description={error} type="error" showIcon />}
         <ProductsList
+            store={store}
             hideAddProduct={true}
             {...state}
             busy={busy} setBusy={setBusy}
             fetchData={fetchData}
             loading={loading}
             searchFilterConfig={props.searchFilterConfig}
-            parseEditLink={(record: any) => (`${adminRoot}/branch/${store._id}/product/${record._id}/view`)}
+            // parseEditLink={(record: any) => (`${adminRoot}/branch/${store._id}/product/${record._id}/view`)}
             columns={columns}
         />
     </>)

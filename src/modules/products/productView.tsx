@@ -12,15 +12,22 @@ import { ProductWrapper, ProdItendityForm, ProdVitalInfoForm, ProdLimitsForm, Pr
 import { useRouter } from 'next/navigation';
 import security from '@/lib/security';
 // import Image from 'next/image';
-
-import GET_VARIENTS from '@/graphql/product/products.graphql';
-import UPDATE_PROD_STATUS from '@/graphql/product/editStoreProductStatus.graphql';
 import { catchApolloError, checkApolloRequestErrors } from '@/lib/utill_apollo';
 import Link from 'next/link';
 
-const Label = ({ children, style }) => (<FormLabel style={{ margin: 0, ...style }}>{children}</FormLabel>)
+import GET_VARIENTS from '@/graphql/product/products.graphql';
+import UPDATE_PROD_STATUS from '@/graphql/product/editStoreProductStatus.graphql';
 
-export function ProductView({ session, store, refresh, ...props }) {
+const Label = ({ children, style }: { children?:any, style?:any }) => (<FormLabel style={{ margin: 0, ...style }}>{children}</FormLabel>)
+
+type Props = {
+    session: any;
+    store: any;
+    refresh: any;
+    initialValues: any;
+}
+
+export function ProductView({ session, store, refresh, ...props }: Props) {
     const [initialValues, set_initialValues] = useState(props.initialValues)
     const [variations, set_variations] = useState([])
     const [editMode, set_editMode] = useState(false)
@@ -36,7 +43,9 @@ export function ProductView({ session, store, refresh, ...props }) {
     const [editStoreProductStatus, edit_status_details] = useMutation(UPDATE_PROD_STATUS); // { data, loading, error }
 
     async function fetchVarients() {
-        let resutls = await get_varients({ variables: { filter: JSON.stringify({ _id_parent: initialValues._id }) } })
+        let resutls = await get_varients({ 
+            variables: { filter: JSON.stringify({ _id_parent: initialValues._id }) }
+        })
             .then(r => (r?.data?.products))
             .catch(err => {
                 console.log(__error("Error: "), err)
@@ -105,7 +114,7 @@ export function ProductView({ session, store, refresh, ...props }) {
 
                 <Divider>Categories {security.verifyModule('104.6', session.user.permissions) && <IconButton onClick={() => set_editMode('editCategories')} icon="pen" size="small" />} </Divider>
                 <div style={{ marginLeft: "10px" }}>
-                    {initialValues?.categories?.map((item, i) => (<div key={i}>- {item.title}</div>))}
+                    {initialValues?.categories?.map((item:any, i:number) => (<div key={i}>- {item.title}</div>))}
                 </div>
 
                 {/* {!initialValues?.store?._id ? <Alert title="Error" description="No Store Found" showIcon type='warning' /> : <>
@@ -183,7 +192,7 @@ export function ProductView({ session, store, refresh, ...props }) {
                             <Col span={16}>{initialValues.origon}</Col>
 
                             <Col span={8} align="right"><Label style={{ margin: 0 }}>Attribute</Label></Col>
-                            <Col span={16}>{initialValues?.attribute?.map((item, i) => {
+                            <Col span={16}>{initialValues?.attributes?.map((item, i) => {
                                 return <Tag key={i}>{`${item.title}: ${item.val}`}</Tag>
                             })}</Col>
                             {/* <Col span={8} align="right"><Label style={{ margin: 0 }}>Is this item temperature sensitive?</Label></Col>
@@ -303,18 +312,22 @@ export function ProductView({ session, store, refresh, ...props }) {
 
                         {(initialValues.have_variations === true) && <div style={{ border: "1px solid #EEE", marginTop: "10px" }}>
                             <ProductsList
+                                store={session?.user?.store}
                                 loading={loading}
                                 // parseEditLink={(item) => (`${adminRoot}/branch/${session?.user?.store?._id}/product/${item._id}/view`)}
-                                parseEditLink={(item) => session?.user?.store?._id ? `${adminRoot}/branch/${session?.user?.store?._id ? session?.user?.store?._id + "/" : ""}product/${item._id}/view` : 
-                                                                                    `${adminRoot}/product/${item._id}/view`
-                                     }
+                                // parseEditLink={(item:any) => {
+                                //     if (session?.user?.store?._id) return `${adminRoot}/branch/${session?.user?.store?._id ? session?.user?.store?._id + "/" : ""}product/${item._id}/view`;
+                                //     else `${adminRoot}/product/${item._id}/view`;
+                                //     // session?.user?.store?._id ? `${adminRoot}/branch/${session?.user?.store?._id ? session?.user?.store?._id + "/" : ""}product/${item._id}/view` :
+                                //     //     `${adminRoot}/product/${item._id}/view`
+                                // }}
                                 dataSource={variations}
                                 searchFilterConfig={{ hide: true }}
                                 hideListHeader={true}
-                                columns={['title', 'barcode', 'price', 'available_qty', 'reserved_for_order', 'status', 'actions']}
+                                columns={['title', 'barcode', 'price', 'available_qty', 'reserved_for_order', 'status', 'actions', 'store']}
                             />
                             {/* <Link href={`${adminRoot}/product/${initialValues._id}/variation/new`}>Add Variation</Link> */}
-                            {canEdit && <div align="center" style={{ padding: "10px" }}>
+                            {(canEdit && !session?.user?.store?._id) && <div style={{ padding: "10px", textAlign:"center" }}>
                                 <Link href={`${adminRoot}/product/${initialValues._id}/variation/new`}><Icon icon="plus" /> Add Variation</Link>
                                 {/* <Button type="dashed" onClick={() => reouter.push(`${adminRoot}/product/${initialValues._id}/variation/new`)} icon={<Icon icon="plus" />}>Add Variation</Button> */}
                             </div>}
@@ -455,9 +468,3 @@ export function ProductView({ session, store, refresh, ...props }) {
     </>)
 
 }
-// ProductView.propTypes = {
-//     session: PropTypes.object.isRequired,
-//     initialValues: PropTypes.object.isRequired,
-//     refresh: PropTypes.func,
-// }
-
